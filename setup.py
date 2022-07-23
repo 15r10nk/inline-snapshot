@@ -21,7 +21,7 @@ setup(
     url="https://github.com/15r10nk/pytest-inline-snapshot",
     description="create and update inline snapshots in your code to simplify testcase creation",
     long_description=read("README.rst"),
-    py_modules=["pytest_inline_snapshot"],
+    packages=["inline_snapshot"],
     python_requires=">=3.5",
     install_requires=["pytest>=3.5.0"],
     classifiers=[
@@ -43,7 +43,7 @@ setup(
     ],
     entry_points={
         "pytest11": [
-            "inline-snapshot = pytest_inline_snapshot",
+            "inline-snapshot = inline_snapshot.pytest_plugin",
         ],
     },
 )
