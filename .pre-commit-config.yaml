@@ -1,0 +1,68 @@
+repos:
+- hooks:
+  - id: check-yaml
+  - id: check-ast
+  - id: check-docstring-first
+  - id: check-merge-conflict
+  - id: trailing-whitespace
+  - id: mixed-line-ending
+  - id: fix-byte-order-marker
+  - id: check-case-conflict
+  - id: check-json
+  - id: end-of-file-fixer
+  repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.3.0
+- hooks:
+  - args:
+    - --in-place
+    - --expand-star-imports
+    - --remove-all-unused-imports
+    - --ignore-init-module-imports
+    id: autoflake
+  repo: https://github.com/myint/autoflake
+  rev: v1.4
+
+- repo: https://github.com/asottile/setup-cfg-fmt
+  rev: v1.20.1
+  hooks:
+  - id: setup-cfg-fmt
+
+- repo: https://github.com/asottile/reorder_python_imports
+  rev: v3.1.0
+  hooks:
+  - args:
+    - --py38-plus
+    id: reorder-python-imports
+- hooks:
+  - args:
+    - --py38-plus
+    id: pyupgrade
+  repo: https://github.com/asottile/pyupgrade
+  rev: v2.34.0
+- hooks:
+  - id: black
+  repo: https://github.com/psf/black
+  rev: 22.3.0
+- hooks:
+  - additional_dependencies:
+    - black==20.8b1
+    id: blacken-docs
+  repo: https://github.com/asottile/blacken-docs
+  rev: v1.12.1
+
+- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+  rev: v2.3.0
+  hooks:
+  - id: pretty-format-yaml
+    args: [--autofix, --indent, '2']
+
+- hooks:
+  - id: blackdoc
+  repo: https://github.com/keewis/blackdoc
+  rev: v0.3.4
+- hooks:
+  - id: commitizen
+    stages:
+    - commit-msg
+  repo: https://github.com/commitizen-tools/commitizen
+  rev: v2.27.1
