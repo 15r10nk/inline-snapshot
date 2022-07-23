@@ -1,4 +1,4 @@
-def test_bar_fixture(testdir):
+def skip_test_bar_fixture(testdir):
     """Make sure that pytest accepts our fixture."""
 
     # create a temporary pytest test module
@@ -31,12 +31,12 @@ def test_help_message(testdir):
     result.stdout.fnmatch_lines(
         [
             "inline-snapshot:",
-            '*--foo=DEST_FOO*Set the value for the fixture "bar".',
+            "*--update-snapshot=*",
         ]
     )
 
 
-def test_hello_ini_setting(testdir):
+def skip_test_hello_ini_setting(testdir):
     testdir.makeini(
         """
         [pytest]

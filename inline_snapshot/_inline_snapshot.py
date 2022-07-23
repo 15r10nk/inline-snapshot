@@ -48,6 +48,9 @@ class Snapshot:
 
         self.current_argument = value
 
+    def __repr__(self):
+        return repr(self.current_argument)
+
     def _set_argument(self, o, reason):
         if o == self.new_argument:
             return

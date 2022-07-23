@@ -249,6 +249,12 @@ def insert_before(node, new_contend):
     )
 
 
+@contextlib.contextmanager
+def code_change_disabled():
+    with ChangeRecorder().activate():
+        yield
+
+
 class ChangeRecorder:
     current: ChangeRecorder | None = None
 
