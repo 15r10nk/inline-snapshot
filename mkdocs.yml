@@ -1,0 +1,10 @@
+site_name: pytest-inline-snapshot
+site_description: create and update inline snapshots in your code to simplify testcase creation
+site_author: Frank Hoffmann
+
+theme: readthedocs
+
+repo_url: https://github.com/15r10nk/pytest-inline-snapshot
+
+pages:
+- Home: index.md
