@@ -1,5 +1,7 @@
 import ast
+import contextlib
 import inspect
+from collections import defaultdict
 
 from executing import Source
 
@@ -15,6 +17,29 @@ snapshots = {}
 
 # TODO: optimize later
 _force_replace = True
+
+
+@contextlib.contextmanager
+def snapshots_disabled():
+    global snapshots
+    current = snapshots
+    snapshots = {}
+    yield
+    snapshots = current
+
+
+def fix_snapshots(reasons):
+    for snapshot in snapshots.values():
+        if snapshot._reason in reasons or "all" in reasons:
+            snapshot._change()
+
+
+def snapshot_stat():
+    stat = defaultdict(int)
+    for snapshot in snapshots.values():
+        stat[snapshot._reason] += 1
+
+    return stat
 
 
 class UsageError(Exception):
@@ -41,59 +66,61 @@ def snapshot(obj=missing_argument):
 class Snapshot:
     def __init__(self, value, expr):
 
-        self.expr = expr
-        self.new_argument = undefined
+        self._expr = expr
+        self._new_argument = undefined
 
-        self.change = ChangeRecorder.current.new_change()
-
-        self.current_argument = value
+        self._current_value = value
+        self._reason = None
 
     def __repr__(self):
-        return repr(self.current_argument)
+        return repr(self._current_value)
 
     def _set_argument(self, o, reason):
-        if o == self.new_argument:
+        if o == self._new_argument:
             return
+        self._reason = reason
+        self._new_argument = o
 
-        if self.expr is None:
+        self._change()
+
+    def _change(self):
+        if self._expr is None:
             return
+        change = ChangeRecorder.current.new_change()
 
-        tokens = list(self.expr.source.asttokens().get_tokens(self.expr.node))
-        print(tokens)
+        tokens = list(self._expr.source.asttokens().get_tokens(self._expr.node))
         assert tokens[0].string == "snapshot"
         assert tokens[1].string == "("
         assert tokens[-1].string == ")"
 
-        self.change.set_tags("inline_snapshot", reason)
+        change.set_tags("inline_snapshot", self._reason)
 
-        self.change.replace(
+        change.replace(
             (end_of(tokens[1]), start_of(tokens[-1])),
-            repr(o),
-            filename=self.expr.source.filename,
+            repr(self._new_argument),
+            filename=self._expr.source.filename,
         )
-
-        self.new_argument = o
 
     def __eq__(self, o):
 
-        if self.current_argument == missing_argument:
+        if self._current_value == missing_argument:
             # x==snapshot()
             # assert "foo" == snapshot()
             # always true because we want to execute the rest of the code
-            if self.new_argument is undefined:
+            if self._new_argument is undefined:
                 # first call
                 self._set_argument(o, "new")
                 return True
             else:
                 # second call
-                result = o == self.new_argument
+                result = o == self._new_argument
                 if not result:
                     raise UsageError(
-                        "got different values first: {self.new_argument} second: {o}"
+                        "got different values first: {self._new_argument} second: {o}"
                     )
                 return result
 
-        correct = self.current_argument == o
+        correct = self._current_value == o
 
         if not correct:
             self._set_argument(o, "failing")
@@ -101,4 +128,4 @@ class Snapshot:
             if _force_replace:
                 self._set_argument(o, "force")
 
-        return self.current_argument == o
+        return self._current_value == o
