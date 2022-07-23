@@ -6,6 +6,8 @@ import pathlib
 from collections import defaultdict
 from dataclasses import dataclass
 
+import asttokens.util
+
 try:
     from itertools import pairwise
 except ImportError:
@@ -58,6 +60,10 @@ def filename_of(obj):
 
 
 def start_of(obj) -> SourcePosition:
+
+    if isinstance(obj, asttokens.util.Token):
+        return SourcePosition(lineno=obj.start[0], col_offset=obj.start[1])
+
     if isinstance(obj, SourcePosition):
         return obj
 
@@ -74,6 +80,9 @@ def start_of(obj) -> SourcePosition:
 
 
 def end_of(obj) -> SourcePosition:
+    if isinstance(obj, asttokens.util.Token):
+        return SourcePosition(lineno=obj.end[0], col_offset=obj.end[1])
+
     if isinstance(obj, ast.AST):
         return SourcePosition(lineno=obj.lineno, end_col_offset=obj.end_col_offset)
 
@@ -102,8 +111,14 @@ class Change:  # ChangeSet
                 "A change set needs a change recorder. Pass one as argument or use ChangeRecorder.activate"
             )
 
+        self.change_recorder._changes.append(self)
+
         self.change_id = self._next_change_id
+        self._tags = []
         type(self)._next_change_id += 1
+
+    def set_tags(self, *tags):
+        self._tags = tags
 
     def replace(self, node, new_contend, *, filename=None):
         if filename is None:
@@ -240,6 +255,7 @@ class ChangeRecorder:
     def __init__(self):
 
         self._source_files = defaultdict(SourceFile)
+        self._changes = []
 
     @contextlib.contextmanager
     def activate(self):
@@ -259,13 +275,19 @@ class ChangeRecorder:
     def change_set(self):
         return Change(self)
 
+    def new_change(self):
+        return Change(self)
+
+    def changes(self):
+        return list(self._changes)
+
     def num_fixes(self):
         changes = set()
         for file in self._source_files.values():
             changes.update(change.change_id for change in file.replacements)
         return len(changes)
 
-    def fix_all(self):
+    def fix_all(self, tags=()):
         for file in self._source_files.values():
             file.rewrite()
 
