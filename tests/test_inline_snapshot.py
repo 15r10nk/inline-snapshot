@@ -1,3 +1,11 @@
+from inline_snapshot import snapshot
+
+
+def test_snapshot_eq():
+    assert 1 == snapshot(1)
+    assert snapshot(1) == 1
+
+
 def test_bar_fixture(testdir):
     """Make sure that pytest accepts our fixture."""
 
