@@ -17,32 +17,18 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
+
     if config.option.inline_snapshot_kind == "failing":
         _inline_snapshot._ignore_value = True
 
+    if config.option.inline_snapshot_kind != "none":
+        import sys
 
-def pytest_load_initial_conftests(args):
-    if any(arg.startswith("--update-snapshots=") for arg in args):
-        # executing has problems with assert rewriting
-        args.append("--assert=plain")
-
-    print("args:", args)
-
-
-def pytest_cmdline_parse(pluginmanager, args):
-    if any(arg.startswith("--update-snapshots=") for arg in args):
-        # executing has problems with assert rewriting
-        args.append("--assert=plain")
-
-    print("args2:", args)
-
-
-def pytest_cmdline_preparse(config, args):
-    if any(arg.startswith("--update-snapshots=") for arg in args):
-        # executing has problems with assert rewriting
-        args.append("--assert=plain")
-
-    print("args3:", args)
+        # hack to disable the assertion rewriting
+        # I found no other way because the hook gets installed early
+        sys.meta_path = [
+            e for e in sys.meta_path if type(e).__name__ != "AssertionRewritingHook"
+        ]
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
@@ -70,9 +56,10 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         if snapshot._reason == "new"
     )
 
-    terminalreporter.write(
-        f"{new} snapshots are missing values (--update-snapshots=new)\n"
-    )
+    if new:
+        terminalreporter.write(
+            f"{new} snapshots are missing values (--update-snapshots=new)\n"
+        )
 
     fix_reason = config.option.inline_snapshot_kind
 
@@ -83,13 +70,20 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         failing = 0
 
         for snapshot in _inline_snapshot.snapshots.values():
-            print(snapshot._current_value, snapshot._new_value)
+            print(
+                snapshot._current_value,
+                snapshot._new_value,
+                snapshot._reason,
+                fix_reason,
+            )
             if snapshot._reason == "new" == fix_reason:
                 new += 1
                 snapshot._change()
             elif snapshot._reason == "failing" == fix_reason:
                 failing += 1
                 snapshot._change()
+
+        print(failing, new)
 
         recorder.fix_all()
         if new:

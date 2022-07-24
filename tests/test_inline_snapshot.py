@@ -44,7 +44,12 @@ def check_update(tmp_path):
         filename = tmp_path / f"test_{filecount}.py"
         filecount += 1
 
-        prefix = "from inline_snapshot import snapshot\n"
+        prefix = """
+'''
+PYTEST_DONT_REWRITE
+'''
+from inline_snapshot import snapshot
+"""
 
         filename.write_text(prefix + textwrap.dedent(source))
 

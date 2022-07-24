@@ -2,13 +2,8 @@ from inline_snapshot._inline_snapshot import snapshots_disabled
 
 
 def new_test(source, failing=0, new=0, usage_error=0):
-    def w(testdir):
-
-        testdir.makeini(
-            """
-            [pytest]
-        """
-        )
+    def w(pytester):
+        testdir = pytester
 
         code = f"""
             from inline_snapshot import snapshot
@@ -25,7 +20,7 @@ def new_test(source, failing=0, new=0, usage_error=0):
         # test errors
         print("pytest output:")
         with snapshots_disabled():
-            result = testdir.runpytest("-v")
+            result = testdir.runpytest_subprocess("-v")
 
         print("pytest result:", result.ret)
 
@@ -48,9 +43,7 @@ def new_test(source, failing=0, new=0, usage_error=0):
         # test code fixes
         if new:
             with snapshots_disabled():
-                result = testdir.runpytest(
-                    "--update-snapshots=new", "-v", "--assert=plain"
-                )
+                result = testdir.runpytest_subprocess("--update-snapshots=new", "-v")
 
             result.stdout.fnmatch_lines(
                 [
@@ -60,9 +53,8 @@ def new_test(source, failing=0, new=0, usage_error=0):
             assert (result.ret == 0) == ((not failing) and (not usage_error))
 
         if failing:
-            result = testdir.runpytest(
-                "--update-snapshots=failing", "-v", "--assert=plain"
-            )
+            testdir.plugins = ["inline_snapshot"]
+            result = testdir.runpytest_subprocess("--update-snapshots=failing", "-v")
 
             result.stdout.fnmatch_lines(
                 [
@@ -74,11 +66,9 @@ def new_test(source, failing=0, new=0, usage_error=0):
         if usage_error:
             # nothing helps when you did something wrong
             with snapshots_disabled():
-                result = testdir.runpytest(
-                    "--update-snapshots=all", "-v", "--assert=plain"
-                )
+                result = testdir.runpytest_subprocess("--update-snapshots=all", "-v")
             with snapshots_disabled():
-                result = testdir.runpytest("-v")
+                result = testdir.runpytest_subprocess("-v")
             assert result.ret != 0
 
     return w

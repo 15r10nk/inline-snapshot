@@ -88,9 +88,8 @@ class Snapshot:
         self._new_value = o
 
     def _change(self):
-        if self._expr is None:
-            print("no expr")
-            return
+        assert self._expr is not None
+
         change = ChangeRecorder.current.new_change()
 
         tokens = list(self._expr.source.asttokens().get_tokens(self._expr.node))
