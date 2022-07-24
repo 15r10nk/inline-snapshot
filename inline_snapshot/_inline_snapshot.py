@@ -44,10 +44,6 @@ def snapshot_stat():
     return stat
 
 
-class UsageError(Exception):
-    pass
-
-
 def snapshot(obj=missing_value):
     global _snapshot_id
 

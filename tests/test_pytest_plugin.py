@@ -17,7 +17,7 @@ def new_test(source, failing=0, new=0, usage_error=0):
         """
         print("code:")
         print(code)
-        print(f"reason: {failing=} {new=} {usage_error=}")
+        print(f"reason: failing={failing} new={new} usage_error={usage_error}")
 
         # create a temporary pytest test module
         testdir.makepyfile(test_file=code)
