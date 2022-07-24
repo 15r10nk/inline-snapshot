@@ -3,34 +3,34 @@ import traceback
 
 import pytest
 
+from inline_snapshot import _inline_snapshot
 from inline_snapshot import snapshot
-from inline_snapshot import UsageError
+from inline_snapshot._inline_snapshot import snapshots_disabled
 from inline_snapshot._rewrite_code import ChangeRecorder
-from inline_snapshot._rewrite_code import code_change_disabled
 
 
 def test_snapshot_eq():
-    with code_change_disabled():
+    with snapshots_disabled():
         assert 1 == snapshot(1)
         assert snapshot(1) == 1
 
 
 def test_usage_error():
-    with code_change_disabled():
-        with pytest.raises(UsageError):
+    with snapshots_disabled():
+        with pytest.raises(AssertionError):
             for e in (1, 2):
-                print(e == snapshot())
+                assert e == snapshot()
 
 
 def test_assertion_error():
-    with code_change_disabled():
+    with snapshots_disabled():
         with pytest.raises(AssertionError):
             for e in (1, 2):
                 assert e == snapshot(1)
 
 
 def test_assertion_error():
-    with code_change_disabled():
+    with snapshots_disabled():
         with pytest.raises(AssertionError):
             assert 2 == snapshot(1)
 
@@ -48,21 +48,25 @@ def check_update(tmp_path):
 
         filename.write_text(prefix + textwrap.dedent(source))
 
-        with ChangeRecorder().activate() as recorder:
-            try:
-                exec(compile(filename.read_text(), filename, "exec"))
-            except:
-                traceback.print_exc()
-                assert reason == "failing"
-            else:
-                assert reason != "failing"
+        with snapshots_disabled():
+            with ChangeRecorder().activate() as recorder:
+                try:
+                    exec(compile(filename.read_text(), filename, "exec"))
+                except:
+                    traceback.print_exc()
+                    assert reason == "failing"
+                else:
+                    assert reason != "failing"
 
-            changes = recorder.changes()
+                for snapshot in _inline_snapshot.snapshots.values():
+                    snapshot._change()
 
-            assert len(changes) == 1
-            assert changes[0]._tags == ("inline_snapshot", reason)
+                changes = recorder.changes()
 
-            recorder.fix_all(tags=["inline_snapshot", reason])
+                assert len(changes) == 1
+                assert changes[0]._tags == ("inline_snapshot", reason)
+
+                recorder.fix_all(tags=["inline_snapshot", reason])
 
         return filename.read_text()[len(prefix) :]
 
