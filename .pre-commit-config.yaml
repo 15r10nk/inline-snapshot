@@ -23,12 +23,12 @@ repos:
   rev: v1.4
 
 - repo: https://github.com/asottile/setup-cfg-fmt
-  rev: v1.20.1
+  rev: v1.20.2
   hooks:
   - id: setup-cfg-fmt
 
 - repo: https://github.com/asottile/reorder_python_imports
-  rev: v3.1.0
+  rev: v3.8.2
   hooks:
   - args:
     - --py38-plus
@@ -38,11 +38,11 @@ repos:
     - --py38-plus
     id: pyupgrade
   repo: https://github.com/asottile/pyupgrade
-  rev: v2.34.0
+  rev: v2.37.2
 - hooks:
   - id: black
   repo: https://github.com/psf/black
-  rev: 22.3.0
+  rev: 22.6.0
 - hooks:
   - additional_dependencies:
     - black==20.8b1
@@ -51,7 +51,7 @@ repos:
   rev: v1.12.1
 
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.3.0
+  rev: v2.4.0
   hooks:
   - id: pretty-format-yaml
     args: [--autofix, --indent, '2']
@@ -67,4 +67,10 @@ repos:
     stages:
     - commit-msg
   repo: https://github.com/commitizen-tools/commitizen
-  rev: v2.27.1
+  rev: v2.29.0
+
+
+- repo: https://github.com/myint/docformatter
+  rev: v1.4
+  hooks:
+  - id: docformatter
