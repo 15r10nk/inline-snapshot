@@ -14,7 +14,7 @@ Features
 Installation
 ------------
 
-You can install "inline-snapshot" via `pip`_ from `PyPI`_::
+You can install "inline-snapshot" via [pip](https://pypi.org/project/pip/) from [PyPI](https://pypi.org/project)::
 
     $ pip install inline-snapshot
 
@@ -34,9 +34,7 @@ def test_something():
 The tests will pass because there is no value to compare with.
 You can now run the tests and record the correct values.
 
-``` bash
-pytest --update-snapshots=new
-```
+    $ pytest --update-snapshots=new
 
 ``` python
 def something():
@@ -62,9 +60,7 @@ def test_something():
 Maybe that is correct and you should fix your code, or
 your code is correct and you want to update your test results.
 
-``` shell
-pytest --update-snapshots=failing
-```
+    $ pytest --update-snapshots=failing
 
 Please verify the new results. `git diff` will give you a good overview over all changed results.
 
@@ -78,7 +74,8 @@ def test_something():
 ```
 
 The code is generated without any formatting.
-Use the formatter of your choice to make it look nice, or maybe use [darker](https://pypi.org/project/darker/) if you only want to format your changes.
+Use the formatter of your choice to make it look nice,
+or maybe use [darker](https://pypi.org/project/darker/) if you only want to format your changes.
 
 
 More than just numbers
@@ -89,7 +86,7 @@ Value requirements:
 * `repr(value)` should return valid python code
 
 
-You can use almost any python datatype and also complex values like `datatime.date`
+You can use almost any python datatype and also complex values like `datatime.date`.
 
 ``` python
 from inline_snapshot import snapshot
@@ -123,7 +120,7 @@ def test_something():
 ```
 
 
-`snapshot()` can also be used in loops
+`snapshot()` can also be used in loops.
 
 ``` python
 from inline_snapshot import snapshot
@@ -138,8 +135,9 @@ def test_loop():
 
 Contributing
 ------------
-Contributions are very welcome. Tests can be run with `tox`_.
-Please use pre-commit for your commits
+Contributions are very welcome.
+Tests can be run with [tox](https://tox.readthedocs.io/en/latest/).
+Please use [pre-commit](https://pre-commit.com/) for your commits.
 
 License
 -------
@@ -150,12 +148,4 @@ Distributed under the terms of the [MIT](http://opensource.org/licenses/MIT) lic
 Issues
 ------
 
-If you encounter any problems, please `file an issue`_ along with a detailed description.
-
-.. _`Cookiecutter`: https://github.com/audreyr/cookiecutter
-.. _`MIT`: http://opensource.org/licenses/MIT
-.. _`file an issue`: https://github.com/15r10nk/pytest-inline-snapshot/issues
-.. _`pytest`: https://github.com/pytest-dev/pytest
-.. _`tox`: https://tox.readthedocs.io/en/latest/
-.. _`pip`: https://pypi.org/project/pip/
-.. _`PyPI`: https://pypi.org/project
+If you encounter any problems, please [file an issue](https://github.com/15r10nk/pytest-inline-snapshot/issues) along with a detailed description.
