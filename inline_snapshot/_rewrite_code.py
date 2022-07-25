@@ -165,9 +165,8 @@ class SourceFile:
                 code.write(new_code.encode())
 
     def new_code(self):
-        """
-        returns the new file contend or None if there are no replacepents to apply
-        """
+        """returns the new file contend or None if there are no replacepents to
+        apply."""
         replacements = list(self.replacements)
         replacements.sort()
 
@@ -207,9 +206,7 @@ class SourceFile:
         return new_code
 
     def generate_patch(self, basedir):
-        """
-        yields lines of a pathfile
-        """
+        """yields lines of a pathfile."""
 
         filename = self.filename
         if is_relative_to(filename, basedir):

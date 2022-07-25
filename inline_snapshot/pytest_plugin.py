@@ -22,6 +22,8 @@ def pytest_configure(config):
         _inline_snapshot._ignore_value = True
 
     if config.option.inline_snapshot_kind != "none":
+        _inline_snapshot._active = True
+
         import sys
 
         # hack to disable the assertion rewriting
@@ -33,9 +35,6 @@ def pytest_configure(config):
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
     recorder = ChangeRecorder.current
-
-    # plugin = config.pluginmanager.getplugin("_codecrumbs")
-    # print(config.option.inline_snapshot_kind)
 
     terminalreporter.section("inline snapshot")
     if exitstatus != 0:
@@ -64,26 +63,17 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     fix_reason = config.option.inline_snapshot_kind
 
     if fix_reason != "none":
-        print("fix stuff")
 
         new = 0
         failing = 0
 
         for snapshot in _inline_snapshot.snapshots.values():
-            print(
-                snapshot._current_value,
-                snapshot._new_value,
-                snapshot._reason,
-                fix_reason,
-            )
             if snapshot._reason == "new" == fix_reason:
                 new += 1
                 snapshot._change()
             elif snapshot._reason == "failing" == fix_reason:
                 failing += 1
                 snapshot._change()
-
-        print(failing, new)
 
         recorder.fix_all()
         if new:

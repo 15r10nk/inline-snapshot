@@ -24,19 +24,12 @@ def new_test(source, failing=0, new=0, usage_error=0):
 
         print("pytest result:", result.ret)
 
-        assert (result.ret != 0) == (failing or usage_error)
+        assert (result.ret != 0) == (failing or usage_error or new)
 
         if new:
             result.stdout.fnmatch_lines(
                 [
-                    f"{new} snapshots are missing values (--update-snapshots=new)",
-                ]
-            )
-
-        if failing:
-            result.stdout.fnmatch_lines(
-                [
-                    f"{failing} snapshots are causing problems (--update-snapshots=failing)",
+                    "*AssertionError: your snapshot is missing a value run pytest with --update-snapshots=new"
                 ]
             )
 

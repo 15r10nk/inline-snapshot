@@ -22,6 +22,8 @@ You can install "inline-snapshot" via [pip](https://pypi.org/project/pip/) from 
 Usage
 -----
 
+You can use `snapshot()` instead of the value which you want to compare with.
+
 ``` python
 def something():
     return 1548 * 18489
@@ -31,7 +33,6 @@ def test_something():
     assert something() == snapshot()
 ```
 
-The tests will pass because there is no value to compare with.
 You can now run the tests and record the correct values.
 
     $ pytest --update-snapshots=new
@@ -46,15 +47,15 @@ def test_something():
 ```
 
 Your tests will break if you change your code later.
-You get normal pytest failure messages, because `snapshot(x)` just returns `x`.
+You get normal pytest failure messages, because `snapshot(value)` just returns `value` during normal test runs.
 
 ``` python
 def something():
-    return (1548 * 18489) // 18
+    return (1548 * 18489) // 18  # changed implementation
 
 
 def test_something():
-    assert something() == snapshot(28620972)  # this will fail because code changed
+    assert something() == snapshot(28620972)  # this will fail now
 ```
 
 Maybe that is correct and you should fix your code, or
@@ -63,6 +64,7 @@ your code is correct and you want to update your test results.
     $ pytest --update-snapshots=failing
 
 Please verify the new results. `git diff` will give you a good overview over all changed results.
+Use `pytest -k test_something --update-snapshots=failing` if you only want to change one test.
 
 ``` python
 def something():
@@ -81,12 +83,13 @@ or maybe use [darker](https://pypi.org/project/darker/) if you only want to form
 More than just numbers
 ----------------------
 
-Value requirements:
+Requirements:
+* `snapshot(value)` can only be used for `==` comparison
 * the values should be comparable with `==`
 * `repr(value)` should return valid python code
 
 
-You can use almost any python datatype and also complex values like `datatime.date`.
+You can use almost any python datatype and also complex values like `datatime.date` (you have to import the right modules to match the `repr()` output).
 
 ``` python
 from inline_snapshot import snapshot
@@ -131,7 +134,7 @@ def test_loop():
         assert len(name) == snapshot(3)
 ```
 
-
+… and more to come :grin:.
 
 Contributing
 ------------

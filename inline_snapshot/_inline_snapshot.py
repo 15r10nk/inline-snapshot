@@ -19,6 +19,7 @@ snapshots = {}
 _force_replace = True
 
 _ignore_value = False
+_active = False
 
 
 @contextlib.contextmanager
@@ -45,6 +46,15 @@ def snapshot_stat():
 
 
 def snapshot(obj=missing_value):
+
+    if not _active:
+        if obj is missing_value:
+            raise AssertionError(
+                "your snapshot is missing a value run pytest with --update-snapshots=new"
+            )
+        else:
+            return obj
+
     global _snapshot_id
 
     frame = inspect.currentframe().f_back

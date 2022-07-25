@@ -55,11 +55,19 @@ from inline_snapshot import snapshot
 
         with snapshots_disabled():
             with ChangeRecorder().activate() as recorder:
+                _inline_snapshot._active = True
+
                 try:
                     exec(compile(filename.read_text(), filename, "exec"))
-                except:
+                except AssertionError as error:
                     traceback.print_exc()
-                    assert reason == "failing"
+                    if reason == "failing":
+                        assert str(error) == ""
+                    if reason == "new":
+                        assert (
+                            str(error)
+                            == "your snapshot is missing a value run pytest with --update-snapshots=new"
+                        )
                 else:
                     assert reason != "failing"
 
