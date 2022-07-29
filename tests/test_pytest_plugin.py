@@ -1,7 +1,7 @@
 from inline_snapshot._inline_snapshot import snapshots_disabled
 
 
-def new_test(source, failing=0, new=0, usage_error=0):
+def new_test(source, failing=0, new=0, usage_error=0, shrink=0):
     def w(pytester):
         testdir = pytester
 
@@ -12,7 +12,7 @@ def new_test(source, failing=0, new=0, usage_error=0):
         """
         print("code:")
         print(code)
-        print(f"reason: failing={failing} new={new} usage_error={usage_error}")
+        print(f"reason: failing={failing} new={new} shrink={shrink}")
 
         # create a temporary pytest test module
         testdir.makepyfile(test_file=code)
@@ -24,30 +24,30 @@ def new_test(source, failing=0, new=0, usage_error=0):
 
         print("pytest result:", result.ret)
 
-        assert (result.ret != 0) == (failing or usage_error or new)
+        assert (result.ret != 0) == (failing or new or usage_error)
 
         if new:
             result.stdout.fnmatch_lines(
                 [
-                    "*AssertionError: your snapshot is missing a value run pytest with --update-snapshots=new"
+                    "*AssertionError: your snapshot is missing a value run pytest with --inline-snapshot-create"
                 ]
             )
 
         # test code fixes
         if new:
             with snapshots_disabled():
-                result = testdir.runpytest_subprocess("--update-snapshots=new", "-v")
+                result = testdir.runpytest_subprocess("--inline-snapshot-create", "-v")
 
             result.stdout.fnmatch_lines(
                 [
                     f"defined values for {new} snapshots",
                 ]
             )
-            assert (result.ret == 0) == ((not failing) and (not usage_error))
+            assert (result.ret == 0) == (not (failing or usage_error))
 
         if failing:
             testdir.plugins = ["inline_snapshot"]
-            result = testdir.runpytest_subprocess("--update-snapshots=failing", "-v")
+            result = testdir.runpytest_subprocess("--inline-snapshot-fix", "-v")
 
             result.stdout.fnmatch_lines(
                 [
@@ -81,40 +81,6 @@ def test_help_message(testdir):
     result.stdout.fnmatch_lines(
         [
             "inline-snapshot:",
-            "*--update-snapshots=*",
+            "*--inline-snapshot-report*",
         ]
     )
-
-
-def skip_test_hello_ini_setting(testdir):
-    testdir.makeini(
-        """
-        [pytest]
-        HELLO = world
-    """
-    )
-
-    testdir.makepyfile(
-        """
-        import pytest
-
-        @pytest.fixture
-        def hello(request):
-            return request.config.getini('HELLO')
-
-        def test_hello_world(hello):
-            assert hello == 'world'
-    """
-    )
-
-    result = testdir.runpytest("-v")
-
-    # fnmatch_lines does an assertion internally
-    result.stdout.fnmatch_lines(
-        [
-            "*::test_hello_world PASSED*",
-        ]
-    )
-
-    # make sure that that we get a '0' exit code for the testsuite
-    assert result.ret == 0

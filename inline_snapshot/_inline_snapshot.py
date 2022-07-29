@@ -221,7 +221,7 @@ def snapshot(obj=missing_value):
     if not _active:
         if obj is missing_value:
             raise AssertionError(
-                "your snapshot is missing a value run pytest with --update-snapshots=new"
+                "your snapshot is missing a value run pytest with --inline-snapshot-create"
             )
         else:
             return obj
@@ -279,12 +279,7 @@ class Snapshot:
         if self._current_value == missing_value:
             return "new"
 
-        reason = self._new_value.check_result(self._current_value)
-
-        if reason == "equal":
-            reason = "force"
-
-        return reason
+        return self._new_value.check_result(self._current_value)
 
     def __eq__(self, other):
         return other == self._new_value

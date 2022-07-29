@@ -4,24 +4,46 @@ from ._rewrite_code import ChangeRecorder
 
 def pytest_addoption(parser):
     group = parser.getgroup("inline-snapshot")
+
     group.addoption(
-        "--update-snapshots",
-        action="store",
-        dest="inline_snapshot_kind",
-        default="none",
-        choices=("all", "failing", "new", "none"),
-        help="update snapshot arguments in source code:\n [force] incorrect and correct snapshots\n [failing] incorrect snapshots\n [new] snapshots without a value",
+        "--inline-snapshot-create",
+        action="store_true",
+        dest="inline_snapshot_create",
+        help="record the snapshots where they are missing",
     )
 
-    # TODO --snapshots-value-required ... fail if there are pending updates
+    group.addoption(
+        "--inline-snapshot-fix",
+        action="store_true",
+        dest="inline_snapshot_fix",
+        help="fix snapshots which have incorrect values",
+    )
+
+    group.addoption(
+        "--inline-snapshot-shrink",
+        action="store_true",
+        dest="inline_snapshot_shrink",
+        help="shrink snapshots if possible",
+    )
+
+    group.addoption(
+        "--inline-snapshot-report",
+        action="store_true",
+        dest="inline_snapshot_report",
+        help="creates a report for all snapshots",
+    )
 
 
 def pytest_configure(config):
 
-    if config.option.inline_snapshot_kind == "failing":
-        _inline_snapshot._ignore_value = True
+    if (
+        config.option.inline_snapshot_fix
+        or config.option.inline_snapshot_create
+        or config.option.inline_snapshot_shrink
+    ):
+        config.option.inline_snapshot_report = True
 
-    if config.option.inline_snapshot_kind != "none":
+    if config.option.inline_snapshot_report:
         _inline_snapshot._active = True
 
         import sys
@@ -34,49 +56,58 @@ def pytest_configure(config):
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
+    if not config.option.inline_snapshot_report:
+        return
+
     recorder = ChangeRecorder.current
 
     terminalreporter.section("inline snapshot")
-    if exitstatus != 0:
-        failing = sum(
+
+    def report(reason, message):
+        num = sum(
             1
             for snapshot in _inline_snapshot.snapshots.values()
-            if snapshot._reason == "failing"
+            if snapshot._reason == reason
         )
 
-        if failing:
-            terminalreporter.write(
-                f"{failing} snapshots are causing problems (--update-snapshots=failing)\n"
-            )
+        if num:
+            terminalreporter.write(message.format(num=num))
 
-    new = sum(
-        1
-        for snapshot in _inline_snapshot.snapshots.values()
-        if snapshot._reason == "new"
-    )
-
-    if new:
-        terminalreporter.write(
-            f"{new} snapshots are missing values (--update-snapshots=new)\n"
+    if exitstatus != 0:
+        report(
+            "failing", "{num} snapshots are causing problems (--inline-snapshot-fix)\n"
         )
 
-    fix_reason = config.option.inline_snapshot_kind
+    report("new", "{num} snapshots are missing values (--inline-snapshot-create)\n")
 
-    if fix_reason != "none":
+    report("shrink", "{num} snapshots can be reduced (--inline-snapshot-shrink)\n")
 
-        new = 0
-        failing = 0
+    fix_reasons = []
+    if config.option.inline_snapshot_create:
+        fix_reasons.append("new")
+
+    if config.option.inline_snapshot_fix:
+        fix_reasons.append("failing")
+
+    if config.option.inline_snapshot_shrink:
+        fix_reasons.append("shrink")
+
+    if fix_reasons:
+
+        count = {"new": 0, "failing": 0, "shrink": 0}
 
         for snapshot in _inline_snapshot.snapshots.values():
-            if snapshot._reason == "new" == fix_reason:
-                new += 1
-                snapshot._change()
-            elif snapshot._reason == "failing" == fix_reason:
-                failing += 1
-                snapshot._change()
+            for r in ("new", "failing", "shrink"):
+                if snapshot._reason == r in fix_reasons:
+                    count[r] += 1
+                    snapshot._change()
 
         recorder.fix_all()
-        if new:
-            terminalreporter.write(f"defined values for {new} snapshots\n")
-        if failing:
-            terminalreporter.write(f"fixed {failing} snapshots\n")
+
+        def report(reason, msg):
+            if count[reason]:
+                terminalreporter.write(msg.format(num=count[reason]))
+
+        report("new", "defined values for {num} snapshots\n")
+        report("failing", "fixed {num} snapshots\n")
+        report("shrink", "shrinked {num} snapshots\n")

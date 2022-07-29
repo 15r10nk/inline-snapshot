@@ -105,7 +105,7 @@ def test_comparison(check_update):
 
     assert check_update(
         "assert 'a'==snapshot('''a''')",
-        reason="force",
+        reason="equal",
     ) == snapshot("assert 'a'==snapshot('a')")
 
     assert (
@@ -155,7 +155,7 @@ def test_le(check_update):
 
     assert check_update(
         "assert 5<=snapshot(5)",
-        reason="force",
+        reason="equal",
     ) == snapshot("assert 5<=snapshot(5)")
 
     assert check_update(
@@ -193,7 +193,7 @@ def test_le(check_update):
 
     assert check_update(
         "assert 5>=snapshot(5)",
-        reason="force",
+        reason="equal",
     ) == snapshot("assert 5>=snapshot(5)")
 
     assert check_update(
@@ -251,7 +251,7 @@ def test_getitem(check_update):
 
     assert check_update(
         "for i in range(3): assert i in snapshot({'0': [0], '1': [1], '2': [2]})[str(i)]",
-        reason="force",
+        reason="equal",
     ) == snapshot(
         "for i in range(3): assert i in snapshot({'0': [0], '1': [1], '2': [2]})[str(i)]"
     )
