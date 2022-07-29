@@ -53,6 +53,11 @@ from inline_snapshot import snapshot
 
         filename.write_text(prefix + textwrap.dedent(source))
 
+        if reason == "failing":
+            with snapshots_disabled():
+                with pytest.raises(AssertionError):
+                    exec(compile(filename.read_text(), filename, "exec"))
+
         with snapshots_disabled():
             with ChangeRecorder().activate() as recorder:
                 _inline_snapshot._active = True
@@ -68,8 +73,8 @@ from inline_snapshot import snapshot
                             str(error)
                             == "your snapshot is missing a value run pytest with --update-snapshots=new"
                         )
-                else:
-                    assert reason != "failing"
+                finally:
+                    _inline_snapshot._active = False
 
                 for snapshot in _inline_snapshot.snapshots.values():
                     snapshot._change()
@@ -86,7 +91,7 @@ from inline_snapshot import snapshot
     return w
 
 
-def test_update(check_update):
+def test_comparison(check_update):
 
     assert check_update(
         "assert 5==snapshot()",
@@ -123,4 +128,151 @@ def test_update(check_update):
             reason="failing",
         )
         == snapshot("\nfor a in [1,1,1]:\n    assert a==snapshot(1)\n")
+    )
+
+
+def test_le(check_update):
+
+    assert check_update(
+        "assert 5<=snapshot()",
+        reason="new",
+    ) == snapshot("assert 5<=snapshot(5)")
+
+    assert check_update(
+        "assert 5<=snapshot(9)",
+        reason="shrink",
+    ) == snapshot("assert 5<=snapshot(5)")
+
+    assert check_update(
+        "assert 5<=snapshot(3)",
+        reason="failing",
+    ) == snapshot("assert 5<=snapshot(5)")
+
+    assert check_update(
+        "assert snapshot(3) >= 5",
+        reason="failing",
+    ) == snapshot("assert snapshot(5) >= 5")
+
+    assert check_update(
+        "assert 5<=snapshot(5)",
+        reason="force",
+    ) == snapshot("assert 5<=snapshot(5)")
+
+    assert check_update(
+        "for i in range(5): assert i <=snapshot(2)",
+        reason="failing",
+    ) == snapshot("for i in range(5): assert i <=snapshot(4)")
+
+    assert check_update(
+        "for i in range(5): assert i <=snapshot(10)",
+        reason="shrink",
+    ) == snapshot("for i in range(5): assert i <=snapshot(4)")
+
+
+def test_le(check_update):
+
+    assert check_update(
+        "assert 5>=snapshot()",
+        reason="new",
+    ) == snapshot("assert 5>=snapshot(5)")
+
+    assert check_update(
+        "assert 5>=snapshot(2)",
+        reason="shrink",
+    ) == snapshot("assert 5>=snapshot(5)")
+
+    assert check_update(
+        "assert 5>=snapshot(8)",
+        reason="failing",
+    ) == snapshot("assert 5>=snapshot(5)")
+
+    assert check_update(
+        "assert snapshot(8) <= 5",
+        reason="failing",
+    ) == snapshot("assert snapshot(5) <= 5")
+
+    assert check_update(
+        "assert 5>=snapshot(5)",
+        reason="force",
+    ) == snapshot("assert 5>=snapshot(5)")
+
+    assert check_update(
+        "for i in range(5): assert i >=snapshot(2)",
+        reason="failing",
+    ) == snapshot("for i in range(5): assert i >=snapshot(0)")
+
+    assert check_update(
+        "for i in range(5): assert i >=snapshot(-10)",
+        reason="shrink",
+    ) == snapshot("for i in range(5): assert i >=snapshot(0)")
+
+
+def test_contains(check_update):
+
+    assert check_update(
+        "assert 5 in snapshot()",
+        reason="new",
+    ) == snapshot("assert 5 in snapshot([5])")
+
+    assert check_update(
+        "assert 5 in snapshot([])",
+        reason="failing",
+    ) == snapshot("assert 5 in snapshot([5])")
+
+    assert check_update(
+        "assert 5 in snapshot([2])",
+        reason="failing",
+    ) == snapshot("assert 5 in snapshot([5])")
+
+    assert check_update(
+        "assert 5 in snapshot([2,5])",
+        reason="shrink",
+    ) == snapshot("assert 5 in snapshot([5])")
+
+    assert check_update(
+        "for i in range(5): assert i in snapshot([0,1,2,3,4,5,6])",
+        reason="shrink",
+    ) == snapshot("for i in range(5): assert i in snapshot([0, 1, 2, 3, 4])")
+
+
+def test_getitem(check_update):
+
+    assert check_update(
+        "assert 5 == snapshot()['test']",
+        reason="new",
+    ) == snapshot("assert 5 == snapshot({'test': 5})['test']")
+
+    assert check_update(
+        "for i in range(3): assert i in snapshot()[str(i)]",
+        reason="new",
+    ) == snapshot(
+        "for i in range(3): assert i in snapshot({'0': [0], '1': [1], '2': [2]})[str(i)]"
+    )
+
+    assert check_update(
+        "for i in range(3): assert i in snapshot({'0': [0], '1': [1], '2': [2]})[str(i)]",
+        reason="force",
+    ) == snapshot(
+        "for i in range(3): assert i in snapshot({'0': [0], '1': [1], '2': [2]})[str(i)]"
+    )
+
+    assert check_update(
+        "for i in range(2): assert i in snapshot({'0': [0], '1': [1], '2': [2]})[str(i)]",
+        reason="shrink",
+    ) == snapshot(
+        "for i in range(2): assert i in snapshot({'0': [0], '1': [1]})[str(i)]"
+    )
+
+    assert check_update(
+        "for i in range(3): assert i in snapshot({'0': [0], '1': [1,2], '2': [4]})[str(i)]",
+        reason="failing",
+    ) == snapshot(
+        "for i in range(3): assert i in snapshot({'0': [0], '1': [1], '2': [2]})[str(i)]"
+    )
+
+    assert check_update(
+        "for i in range(3): assert i in snapshot({'0': [0], '1': [1,2], '2': [2]})[str(i)]",
+        reason="shrink",
+    ) == snapshot(
+        "for i in range(3): assert i in snapshot({'0': [0], '1': [1], '2': [2]})[str(i)]"
     )

@@ -45,6 +45,177 @@ def snapshot_stat():
     return stat
 
 
+class Value:
+    def __init__(self):
+        self._value = undefined
+
+    def _process(self, cls, value):
+
+        if self._value is undefined:
+            self._value, result = cls.new_value(value)
+            return result
+        else:
+            assert isinstance(self._value, cls), (self._value, cls)
+            return self._value.next_value(value)
+
+    def get_result(self):
+        return self._value.get_result()
+
+    def check_result(self, old_value):
+        return self._value.check_result(old_value)
+
+    def __eq__(self, other):
+        return self._process(FixValue, other)
+
+    def __le__(self, other):
+        return self._process(MaxValue, other)
+
+    def __ge__(self, other):
+        return self._process(MinValue, other)
+
+    def __contains__(self, other):
+        return self._process(CollectionValue, other)
+
+    def __getitem__(self, other):
+        return self._process(DictValue, other)
+
+
+class GenericValue:
+    """generic basic implementation for <= >= =="""
+
+    @classmethod
+    def new_value(cls, value):
+        o = cls()
+        o.value = value
+        return o, True
+
+    def get_result(self):
+        return self.value
+
+
+class FixValue(GenericValue):
+    def next_value(self, value):
+        return self.value == value
+
+    def check_result(self, old_value):
+        print(self.value, old_value)
+        if type(self.value) is not type(old_value):
+            return "failing"
+
+        if self.value == old_value:
+            return "equal"
+        else:
+            return "failing"
+
+
+class MinValue(GenericValue):
+    def next_value(self, value):
+        self.value = min(value, self.value)
+        return True
+
+    def check_result(self, old_value):
+        if type(self.value) is not type(old_value):
+            return "failing"
+
+        if not self.value <= old_value:
+            return "shrink"
+
+        if not old_value <= self.value:
+            return "failing"
+
+        return "equal"
+
+
+class MaxValue(GenericValue):
+    def next_value(self, value):
+        self.value = max(value, self.value)
+        return True
+
+    def check_result(self, old_value):
+        if type(self.value) is not type(old_value):
+            return "failing"
+
+        if not self.value <= old_value:
+            return "failing"
+
+        if not old_value <= self.value:
+            return "shrink"
+
+        return "equal"
+
+
+class CollectionValue:
+    @classmethod
+    def new_value(cls, value):
+        o = cls()
+        o.value = [value]
+        return o, True
+
+    def next_value(self, value):
+        if value not in self.value:
+            self.value.append(value)
+        return True
+
+    def get_result(self):
+        return self.value
+
+    def check_result(self, old_value):
+        if type(old_value) is not list:
+            return "failing"
+        if any(e not in old_value for e in self.value):
+            return "failing"
+        if any(e not in self.value for e in old_value):
+            return "shrink"
+        return "equal"
+
+
+def reduce_result(results):
+    results = list(results)
+    for result in ("failing", "shrink", "equal"):
+        if result in results:
+            return result
+    assert False, results
+
+
+class DictValue:
+    def __init__(self):
+        self.value = {}
+
+    @classmethod
+    def new_value(cls, key):
+        o = cls()
+        v = Value()
+        o.value[key] = v
+        return o, v
+
+    def next_value(self, key):
+        if key in self.value:
+            return self.value[key]
+        else:
+            v = Value()
+            self.value[key] = v
+            return v
+
+    def get_result(self):
+        return {k: v.get_result() for k, v in self.value.items()}
+
+    def check_result(self, old_value):
+        if type(old_value) is not dict:
+            return "failing"
+
+        for key in self.value:
+            if key not in old_value:
+                return "failing"
+
+        for key in old_value:
+            if key not in self.value:
+                return "shrink"
+
+        return reduce_result(
+            self.value[k].check_result(old_value[k]) for k in self.value
+        )
+
+
 def snapshot(obj=missing_value):
 
     if not _active:
@@ -54,8 +225,6 @@ def snapshot(obj=missing_value):
             )
         else:
             return obj
-
-    global _snapshot_id
 
     frame = inspect.currentframe().f_back
     expr = Source.executing(frame)
@@ -80,22 +249,12 @@ class Snapshot:
     def __init__(self, value, expr):
 
         self._expr = expr
-        self._new_value = undefined
+        self._new_value = Value()
 
         self._current_value = value
-        self._reason = None
 
     def __repr__(self):
-        if self._current_value is not missing_value:
-            return repr(self._current_value)
-        else:
-            return repr(self._new_value)
-
-    def _set_argument(self, o, reason):
-        if o == self._new_value:
-            return
-        self._reason = reason
-        self._new_value = o
+        return repr(self._new_value.get_result())
 
     def _change(self):
         assert self._expr is not None
@@ -111,33 +270,33 @@ class Snapshot:
 
         change.replace(
             (end_of(tokens[1]), start_of(tokens[-1])),
-            repr(self._new_value),
+            repr(self._new_value.get_result()),
             filename=self._expr.source.filename,
         )
 
-    def __eq__(self, o):
-
+    @property
+    def _reason(self):
         if self._current_value == missing_value:
-            # x==snapshot()
-            # assert "foo" == snapshot()
-            # always true because we want to execute the rest of the code
-            if self._new_value is undefined:
-                # first call
-                self._set_argument(o, "new")
-                return True
-            else:
-                # second call
-                return o == self._new_value
+            return "new"
 
-        correct = self._current_value == o
+        reason = self._new_value.check_result(self._current_value)
 
-        if not correct:
-            self._set_argument(o, "failing")
-        else:
-            if _force_replace:
-                self._set_argument(o, "force")
+        if reason == "equal":
+            reason = "force"
 
-        if _ignore_value:
-            return True
+        return reason
 
-        return self._current_value == o
+    def __eq__(self, other):
+        return other == self._new_value
+
+    def __le__(self, other):
+        return other <= self._new_value
+
+    def __ge__(self, other):
+        return other >= self._new_value
+
+    def __contains__(self, other):
+        return other in self._new_value
+
+    def __getitem__(self, other):
+        return self._new_value[other]
