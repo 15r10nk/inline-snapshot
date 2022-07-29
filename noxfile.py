@@ -2,19 +2,12 @@ from pathlib import Path
 
 import nox
 
-nox.options.sessions = ["clean", "test", "report", "mypy"]  # "docs"]
+nox.options.sessions = ["test", "coverage", "mypy"]  # "docs"]
 nox.options.reuse_existing_virtualenvs = True
 
 
 @nox.session(python="python3.10")
-def clean(session):
-    session.run_always("poetry", "install", "--with=dev", external=True)
-    session.env["TOP"] = str(Path(__file__).parent)
-    session.run("coverage", "erase")
-
-
-@nox.session(python="python3.10")
-def report(session):
+def coverage(session):
     session.run_always("poetry", "install", "--with=dev", external=True)
     session.env["TOP"] = str(Path(__file__).parent)
     try:
@@ -22,7 +15,8 @@ def report(session):
     except:
         pass
     session.run("coverage", "html")
-    session.run("coverage", "report", "--fail-under", "79")
+    session.run("coverage", "report", "--fail-under", "100")
+    session.run("coverage", "erase")
 
 
 @nox.session(python="python3.10")
@@ -44,10 +38,8 @@ def test(session):
     )
 
 
-if 0:
-
-    @nox.session(python="python3.10")
-    def docs(session):
-        session.install("poetry")
-        session.run("poetry", "install", "--with=doc")
-        session.run("mkdocs", "build")
+@nox.session(python="python3.10")
+def docs(session):
+    session.install("poetry")
+    session.run("poetry", "install", "--with=doc")
+    session.run("mkdocs", "build", *session.posargs)

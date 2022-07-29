@@ -1,120 +1,484 @@
-from inline_snapshot._inline_snapshot import snapshots_disabled
+import re
+import shutil
+from pathlib import Path
 
+import pytest
 
-def new_test(source, failing=0, new=0, usage_error=0):
-    def w(pytester):
-        testdir = pytester
-
-        code = f"""
-            from inline_snapshot import snapshot
-            def test_something():
-                {source}
-        """
-        print("code:")
-        print(code)
-        print(f"reason: failing={failing} new={new} usage_error={usage_error}")
-
-        # create a temporary pytest test module
-        testdir.makepyfile(test_file=code)
-
-        # test errors
-        print("pytest output:")
-        with snapshots_disabled():
-            result = testdir.runpytest_subprocess("-v")
-
-        print("pytest result:", result.ret)
-
-        assert (result.ret != 0) == (failing or usage_error or new)
-
-        if new:
-            result.stdout.fnmatch_lines(
-                [
-                    "*AssertionError: your snapshot is missing a value run pytest with --update-snapshots=new"
-                ]
-            )
-
-        # test code fixes
-        if new:
-            with snapshots_disabled():
-                result = testdir.runpytest_subprocess("--update-snapshots=new", "-v")
-
-            result.stdout.fnmatch_lines(
-                [
-                    f"defined values for {new} snapshots",
-                ]
-            )
-            assert (result.ret == 0) == ((not failing) and (not usage_error))
-
-        if failing:
-            testdir.plugins = ["inline_snapshot"]
-            result = testdir.runpytest_subprocess("--update-snapshots=failing", "-v")
-
-            result.stdout.fnmatch_lines(
-                [
-                    f"fixed {failing} snapshots",
-                ]
-            )
-            assert (result.ret == 0) == (not usage_error)
-
-        if usage_error:
-            # nothing helps when you did something wrong
-            with snapshots_disabled():
-                result = testdir.runpytest_subprocess("--update-snapshots=all", "-v")
-            with snapshots_disabled():
-                result = testdir.runpytest_subprocess("-v")
-            assert result.ret != 0
-
-    return w
-
-
-test_1 = new_test("assert 5 == snapshot(5)")
-test_2 = new_test("assert 3 == snapshot(5)", failing=1)
-test_3 = new_test("assert 3 == snapshot()", new=1)
-test_4 = new_test("for e in (1,2,3): assert e == snapshot()", usage_error=1)
+import inline_snapshot._inline_snapshot
+from inline_snapshot import snapshot
 
 
 def test_help_message(testdir):
-    result = testdir.runpytest(
-        "--help",
-    )
+    result = testdir.runpytest_subprocess("--help")
     # fnmatch_lines does an assertion internally
-    result.stdout.fnmatch_lines(
-        [
-            "inline-snapshot:",
-            "*--update-snapshots=*",
-        ]
-    )
+    result.stdout.fnmatch_lines(["inline-snapshot:", "*--inline-snapshot*"])
 
 
-def skip_test_hello_ini_setting(testdir):
-    testdir.makeini(
+class RunResult:
+    def __init__(self, result):
+        self._result = result
+
+    def __getattr__(self, name):
+        return getattr(self._result, name)
+
+    @staticmethod
+    def _join_lines(lines):
+        text = "\n".join(lines).rstrip()
+
+        if "\n" in text:
+            return "\n" + text + "\n"
+        else:
+            return text
+
+    @property
+    def report(self):
+        result = []
+        record = False
+        for line in self._result.stdout.lines:
+            line = line.strip()
+            if line.startswith("===="):
+                record = False
+
+            if record and line:
+                result.append(line)
+
+            if line.startswith("====") and "inline snapshot" in line:
+                record = True
+        return self._join_lines(result)
+
+    def errorLines(self):
+        return self._join_lines(
+            [line for line in self.stdout.lines if line and line[:2] in ("> ", "E ")]
+        )
+
+
+@pytest.fixture
+def project(pytester):
+    class Project:
+        def setup(self, source: str):
+            self.header = "from inline_snapshot import snapshot\n"
+            if not source.startswith(("import ", "from ")):
+                self.header += "\n\n"
+
+            source = self.header + source
+            print("write code:")
+            print(source)
+            (pytester.path / "test_file.py").write_text(source)
+
+        @property
+        def source(self):
+            return (pytester.path / "test_file.py").read_text()[len(self.header) :]
+
+        def run(self, *args):
+            cache = pytester.path / "__pycache__"
+            if cache.exists():
+                shutil.rmtree(cache)
+
+            result = pytester.runpytest_subprocess(*args)
+            # print(help(pytester))
+
+            return RunResult(result)
+
+    return Project()
+
+
+def test_create(project):
+    project.setup(
         """
-        [pytest]
-        HELLO = world
+def test_a():
+    assert 5==snapshot()
     """
     )
 
-    testdir.makepyfile(
+    result = project.run()
+
+    result.assert_outcomes(errors=1, passed=1)
+
+    assert result.report == snapshot(
+        "Error: 1 snapshots are missing values (--inline-snapshot=create)"
+    )
+
+    result = project.run("--inline-snapshot=create")
+
+    result.assert_outcomes(passed=1)
+
+    assert result.report == snapshot("defined values for 1 snapshots")
+
+    assert project.source == snapshot(
         """
-        import pytest
-
-        @pytest.fixture
-        def hello(request):
-            return request.config.getini('HELLO')
-
-        def test_hello_world(hello):
-            assert hello == 'world'
+def test_a():
+    assert 5==snapshot(5)
     """
     )
 
-    result = testdir.runpytest("-v")
 
-    # fnmatch_lines does an assertion internally
-    result.stdout.fnmatch_lines(
-        [
-            "*::test_hello_world PASSED*",
-        ]
+def test_fix(project):
+    project.setup(
+        """
+def test_a():
+    assert 5==snapshot(4)
+    """
     )
 
-    # make sure that that we get a '0' exit code for the testsuite
+    result = project.run()
+
+    result.assert_outcomes(failed=1)
+
+    assert result.report == snapshot(
+        "Error: 1 snapshots have incorrect values (--inline-snapshot=fix)"
+    )
+
+    result = project.run("--inline-snapshot=fix")
+
+    result.assert_outcomes(passed=1)
+
+    assert result.report == snapshot("fixed 1 snapshots")
+
+    assert project.source == snapshot(
+        """
+def test_a():
+    assert 5==snapshot(5)
+    """
+    )
+
+
+def test_update(project):
+    project.setup(
+        """
+def test_a():
+    assert "5" == snapshot('''5''')
+    """
+    )
+
+    result = project.run()
+
+    result.assert_outcomes(passed=1)
+
+    assert result.report == snapshot("")
+
+    result = project.run("--inline-snapshot=update")
+
+    assert result.report == snapshot("updated 1 snapshots")
+
+    assert project.source == snapshot(
+        """
+def test_a():
+    assert "5" == snapshot("5")
+    """
+    )
+
+
+def test_trim(project):
+    project.setup(
+        """
+def test_a():
+    assert 5 in snapshot([4,5])
+    """
+    )
+
+    result = project.run()
+
+    result.assert_outcomes(passed=1)
+
+    assert result.report == snapshot(
+        "Info: 1 snapshots can be trimmed (--inline-snapshot=trim)"
+    )
+
+    result = project.run("--inline-snapshot=trim")
+
+    assert result.report == snapshot("trimmed 1 snapshots")
+
+    assert project.source == snapshot(
+        """
+def test_a():
+    assert 5 in snapshot([5])
+    """
+    )
+
+
+def test_multiple(project):
+    project.setup(
+        """
+def test_a():
+    assert "5" == snapshot('''5''')
+    assert 5 <= snapshot(8)
+    assert 5 == snapshot(4)
+    """
+    )
+
+    result = project.run()
+
+    result.assert_outcomes(failed=1)
+
+    assert result.report == snapshot(
+        """
+Error: 1 snapshots have incorrect values (--inline-snapshot=fix)
+Info: 1 snapshots can be trimmed (--inline-snapshot=trim)
+"""
+    )
+
+    result = project.run("--inline-snapshot=trim,fix")
+
+    assert result.report == snapshot(
+        """
+Info: 1 snapshots changed their representation (--inline-snapshot=update)
+fixed 1 snapshots
+trimmed 1 snapshots
+updated 1 snapshots
+"""
+    )
+
+    assert project.source == snapshot(
+        """
+def test_a():
+    assert "5" == snapshot("5")
+    assert 5 <= snapshot(5)
+    assert 5 == snapshot(5)
+    """
+    )
+
+
+def test_deprecated_option(project):
+    project.setup(
+        """
+def test_a():
+    pass
+    """
+    )
+
+    result = project.run("--update-snapshots=failing")
+    assert result.stderr.str().strip() == snapshot(
+        "ERROR: --update-snapshots=failing is deprecated, please use --inline-snapshot=fix"
+    )
+
+    result = project.run("--update-snapshots=new")
+    assert result.stderr.str().strip() == snapshot(
+        "ERROR: --update-snapshots=new is deprecated, please use --inline-snapshot=create"
+    )
+
+    result = project.run("--update-snapshots=all")
+    assert result.stderr.str().strip() == snapshot(
+        "ERROR: --update-snapshots=all is deprecated, please use --inline-snapshot=create,fix"
+    )
+
+    result = project.run("--inline-snapshot-disable", "--inline-snapshot=fix")
+    assert result.stderr.str().strip() == snapshot(
+        "ERROR: --inline-snapshot-disable can not be combined with other flags (fix)"
+    )
+
+    result = project.run("--update-snapshots=failing", "--inline-snapshot=fix")
+    assert result.stderr.str().strip() == snapshot(
+        "ERROR: --update-snapshots=failing is deprecated, please use only --inline-snapshot"
+    )
+
+
+def test_disabled(project):
+    project.setup(
+        """
+def test_a():
+    assert 4==snapshot(5)
+    """
+    )
+
+    result = project.run("--inline-snapshot-disable")
+    result.assert_outcomes(failed=1)
+
+    result = project.run("--inline-snapshot=fix")
+    assert project.source == snapshot(
+        """
+def test_a():
+    assert 4==snapshot(4)
+    """
+    )
+
+    result = project.run("--inline-snapshot-disable")
+    result.assert_outcomes(passed=1)
+
+
+def test_compare(project):
+    project.setup(
+        """
+def test_a():
+    assert "a"==snapshot("b")
+    """
+    )
+
+    result = project.run()
+    assert result.errorLines() == snapshot(
+        """
+>       assert "a"==snapshot("b")
+E       AssertionError: assert 'a' == 'b'
+E         - b
+E         + a
+"""
+    )
+
+    project.setup(
+        """
+def test_a():
+    assert snapshot("b")=="a"
+    """
+    )
+
+    result = project.run()
+    assert result.errorLines() == snapshot(
+        """
+>       assert snapshot("b")=="a"
+E       AssertionError: assert 'b' == 'a'
+E         - a
+E         + b
+"""
+    )
+
+
+def test_assertion_error_loop(project):
+    project.setup(
+        """
+for e in (1, 2):
+    assert e == snapshot()
+    """
+    )
+    result = project.run()
+    assert result.errorLines() == snapshot(
+        """
+E   assert 2 == 1
+E    +  where 1 = snapshot()
+"""
+    )
+
+
+def test_assertion_error_multiple(project):
+    project.setup(
+        """
+for e in (1, 2):
+    assert e == snapshot(1)
+    """
+    )
+    result = project.run()
+    assert result.errorLines() == snapshot(
+        """
+E   assert 2 == 1
+E    +  where 1 = snapshot(1)
+"""
+    )
+
+
+def test_assertion_error(project):
+    project.setup(
+        """
+assert 2 == snapshot(1)
+    """
+    )
+    assert repr(snapshot) == "snapshot"
+    result = project.run()
+    assert result.errorLines() == snapshot(
+        """
+E   assert 2 == 1
+E    +  where 1 = snapshot(1)
+"""
+    )
+
+
+def test_run_without_pytest(pytester):
+    # snapshots are deactivated by default
+    pytester.makepyfile(
+        test_file="""
+from inline_snapshot import snapshot
+s=snapshot([1,2])
+assert isinstance(s,list)
+assert s==[1,2]
+    """
+    )
+
+    result = pytester.runpython("test_file.py")
+
     assert result.ret == 0
+
+
+@pytest.mark.parametrize(
+    "file",
+    [
+        pytest.param(file, id=file.stem)
+        for file in (Path(__file__).parent.parent / "docs").rglob("*.md")
+    ],
+)
+def test_docs(project, file, subtests):
+    block_start = re.compile("``` *python")
+    block_end = re.compile("```.*")
+
+    header = re.compile("<!-- inline-snapshot:(.*)-->")
+
+    text = file.read_text()
+    new_lines = []
+    block_lines = []
+    block_header = set()
+    is_block = False
+    code = None
+    for linenumber, line in enumerate(text.splitlines(), start=1):
+        if block_start.fullmatch(line.strip()) and is_block == True:
+            block_lines = []
+            new_lines.append(line)
+            continue
+
+        if block_end.fullmatch(line.strip()) and is_block:
+            with subtests.test(line=linenumber):
+                is_block = False
+
+                last_code = code
+                code = "\n".join(block_lines) + "\n"
+
+                flags = block_header & {"fix", "update", "create", "trim"}
+
+                args = ["--inline-snapshot", ",".join(flags)] if flags else []
+
+                if flags and "this" not in block_header:
+                    project.setup(last_code)
+                else:
+                    project.setup(code)
+
+                result = project.run(*args)
+
+                print("flags:", flags)
+
+                new_code = code
+                if flags:
+                    new_code = project.source
+
+                if (
+                    inline_snapshot._inline_snapshot._update_flags.fix
+                ):  # pragma: no cover
+                    new_lines.append(new_code.rstrip("\n"))
+                else:
+                    new_lines += block_lines
+
+                new_lines.append(line)
+
+                if not inline_snapshot._inline_snapshot._update_flags.fix:
+                    if flags:
+                        assert result.ret == 0
+                    else:
+                        assert {
+                            f"outcome-{k}={v}"
+                            for k, v in result.parseoutcomes().items()
+                        } == {
+                            flag for flag in block_header if flag.startswith("outcome-")
+                        }
+                    assert code == new_code
+                else:  # pragma: no cover
+                    pass
+
+            continue
+
+        m = header.fullmatch(line.strip())
+        if m:
+            block_header = set(m.group(1).split())
+            is_block = True
+            new_lines.append(line)
+
+        if is_block:
+            block_lines.append(line)
+        else:
+            new_lines.append(line)
+
+    if inline_snapshot._inline_snapshot._update_flags.fix:  # pragma: no cover
+        file.write_text("\n".join(new_lines) + "\n")

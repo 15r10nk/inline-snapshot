@@ -1,3 +1,216 @@
-# Welcome to pytest-inline-snapshot
+# Welcome to inline-snapshot
 
-create and update inline snapshots in your code to simplify testcase creation
+inline-snapshot can be used for different things:
+
+* golden master/approval/snapshot testing.
+  The idea is that you have a function with a currently unknown result and you want to write a tests, which ensures that the result does not change during refactoring.
+* Compare things which are complex like lists with lot of numbers or complex data structures.
+* Things which might change during the development like error messages.
+
+
+`inline-snapshot` automates the process of recording, storing and updating the value you want to compare with.
+The value is converted with `repr()` and stored in the source file as argument of the `snapshot()` function.
+
+## Usage
+
+You can use `snapshot()` instead of the value which you want to compare with.
+
+<!-- inline-snapshot: outcome-errors=1 outcome-passed=1 -->
+```python
+from inline_snapshot import snapshot
+
+
+def something():
+    return 1548 * 18489
+
+
+def test_something():
+    assert something() == snapshot()
+```
+
+You can now run the tests and record the correct values.
+
+```bash
+pytest --inline-snapshot=create
+```
+
+<!-- inline-snapshot: create -->
+```python
+from inline_snapshot import snapshot
+
+
+def something():
+    return 1548 * 18489
+
+
+def test_something():
+    assert something() == snapshot(28620972)
+```
+
+Your tests will break, if you change your code by adding `// 18`.
+
+<!-- inline-snapshot: outcome-failed=1 -->
+```python
+def something():
+    return (1548 * 18489) // 18
+
+
+def test_something():
+    assert something() == snapshot(28620972)
+```
+
+Maybe that is correct and you should fix your code, or
+your code is correct and you want to update your test results.
+
+``` bash
+pytest --inline-snapshot=fix
+```
+
+<!-- inline-snapshot: fix -->
+```python
+def something():
+    return (1548 * 18489) // 18
+
+
+def test_something():
+    assert something() == snapshot(1590054)
+```
+
+Please verify the new results. `git diff` will give you a good overview over all changed results.
+Use `pytest -k test_something --inline-snapshot=fix` if you only want to change one test.
+
+
+## Supported operations
+
+You can use `snapshot(x)` like you can use `x` in your assertion with a limited set of operations:
+
+- [`value == snapshot()`](eq_snapshot.md) to compare with something,
+- [`value <= snapshot()`](cmp_snapshot.md) to ensure that something gets smaller/larger over time (number of iterations of an algorithm you want to optimize for example),
+- [`value in snapshot()`](in_snapshot.md) to check if your value is in a known set of values,
+- [`snapshot()[key]`](getitem_snapshot.md) to generate new sub-snapshots on demand.
+
+!!! warning
+    One snapshot can only be used with one operation.
+    The following code will not work:
+    ``` python
+    s = snapshot(5)
+    assert 5 <= s
+    assert 5 == s  # Error: s is already used with <=
+    ```
+
+## Supported usage
+
+It is possible to place `snapshot()` anywhere in the tests and reuse it multiple times.
+
+<!-- inline-snapshot: outcome-passed=2 -->
+```python
+def something():
+    ...
+
+
+result = snapshot()
+
+
+def test_something():
+    ...
+    assert something() == result
+
+
+def test_something_again():
+    ...
+    assert something() == result
+```
+
+`snapshot()` can also be used in loops:
+
+<!-- inline-snapshot: outcome-passed=1 -->
+```python
+def test_loop():
+    for name in ["Mia", "Eva", "Leo"]:
+        assert len(name) == snapshot(3)
+```
+
+or passed as an argument to a function:
+
+<!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
+```python
+def check_string_functions(string, snapshot_value):
+    assert len(string) == snapshot_value["length"]
+    assert string.upper() == snapshot_value["upper_result"]
+    assert string.lower() == snapshot_value["lower_result"]
+
+
+def test_string_functions():
+    check_string_functions("abc", snapshot())
+    check_string_functions("User", snapshot())
+    check_string_functions("UPPER", snapshot())
+```
+
+Which will create the following values:
+
+<!-- inline-snapshot: create -->
+``` python
+def check_string_functions(string, snapshot_value):
+    assert len(string) == snapshot_value["length"]
+    assert string.upper() == snapshot_value["upper_result"]
+    assert string.lower() == snapshot_value["lower_result"]
+
+
+def test_string_functions():
+    check_string_functions(
+        "abc", snapshot({"length": 3, "upper_result": "ABC", "lower_result": "abc"})
+    )
+    check_string_functions(
+        "User", snapshot({"length": 4, "upper_result": "USER", "lower_result": "user"})
+    )
+    check_string_functions(
+        "UPPER",
+        snapshot({"length": 5, "upper_result": "UPPER", "lower_result": "upper"}),
+    )
+```
+
+
+
+## Code generation
+
+You can use almost any python datatype and also complex values like `datatime.date`, because `repr()` is used to convert the values to a source code.
+It might be necessary to import the right modules to match the `repr()` output.
+
+<!-- inline-snapshot: update this -->
+```python
+from inline_snapshot import snapshot
+import datetime
+
+
+def something():
+    return {
+        "name": "hello",
+        "one number": 5,
+        "numbers": list(range(10)),
+        "sets": {1, 2, 15},
+        "datetime": datetime.date(1, 2, 22),
+        "complex stuff": 5j + 3,
+        "bytes": b"fglecg\n\x16",
+    }
+
+
+def test_something():
+    assert something() == snapshot(
+        {
+            "name": "hello",
+            "one number": 5,
+            "numbers": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            "sets": {1, 2, 15},
+            "datetime": datetime.date(1, 2, 22),
+            "complex stuff": (3 + 5j),
+            "bytes": b"fglecg\n\x16",
+        }
+    )
+```
+
+The code is generated in the following way:
+
+1. The code is generated with `repr(value)`
+2. Strings which contain newlines are converted to triple quoted strings.
+3. The code is formatted with black.
+4. The whole file is formatted with black if it was formatted before.
