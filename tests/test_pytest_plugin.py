@@ -46,7 +46,6 @@ def new_test(source, failing=0, new=0, usage_error=0, shrink=0):
             assert (result.ret == 0) == (not (failing or usage_error))
 
         if failing:
-            testdir.plugins = ["inline_snapshot"]
             result = testdir.runpytest_subprocess("--inline-snapshot-fix", "-v")
 
             result.stdout.fnmatch_lines(

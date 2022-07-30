@@ -15,10 +15,6 @@ undefined = object()
 
 snapshots = {}
 
-# TODO: optimize later
-_force_replace = True
-
-_ignore_value = False
 _active = False
 
 
