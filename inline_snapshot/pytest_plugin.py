@@ -9,7 +9,14 @@ def pytest_addoption(parser):
         "--inline-snapshot-create",
         action="store_true",
         dest="inline_snapshot_create",
-        help="record the snapshots where they are missing",
+        help="record missing snapshot values",
+    )
+
+    group.addoption(
+        "--inline-snapshot-recreate",
+        action="store_true",
+        dest="inline_snapshot_recreate",
+        help="recreate all snapshot values",
     )
 
     group.addoption(
@@ -20,32 +27,45 @@ def pytest_addoption(parser):
     )
 
     group.addoption(
-        "--inline-snapshot-shrink",
+        "--inline-snapshot-fit",
         action="store_true",
-        dest="inline_snapshot_shrink",
-        help="shrink snapshots if possible",
+        dest="inline_snapshot_fit",
+        help="reduce snapshots to the minimal required value (affects '<=', '>=' and 'in')",
     )
 
     group.addoption(
-        "--inline-snapshot-report",
+        "--inline-snapshot-disable",
         action="store_true",
-        dest="inline_snapshot_report",
-        help="creates a report for all snapshots",
+        dest="inline_snapshot_disable",
+        help="snapshot(x) will just return x",
     )
 
 
 def pytest_configure(config):
 
-    if (
+    _inline_snapshot._active = not config.option.inline_snapshot_disable
+    _inline_snapshot._update_reasons = set()
+
+    if config.option.inline_snapshot_create:
+        _inline_snapshot._update_reasons.add("new")
+
+    if config.option.inline_snapshot_fix:
+        _inline_snapshot._update_reasons.add("failing")
+
+    if config.option.inline_snapshot_fit:
+        _inline_snapshot._update_reasons.add("fit")
+
+    if config.option.inline_snapshot_recreate:
+        _inline_snapshot._update_reasons.add("recreate")
+
+    fix_something = (
         config.option.inline_snapshot_fix
         or config.option.inline_snapshot_create
-        or config.option.inline_snapshot_shrink
-    ):
-        config.option.inline_snapshot_report = True
+        or config.option.inline_snapshot_recreate
+        or config.option.inline_snapshot_fit
+    )
 
-    if config.option.inline_snapshot_report:
-        _inline_snapshot._active = True
-
+    if fix_something:
         import sys
 
         # hack to disable the assertion rewriting
@@ -56,7 +76,7 @@ def pytest_configure(config):
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
-    if not config.option.inline_snapshot_report:
+    if config.option.inline_snapshot_disable:
         return
 
     recorder = ChangeRecorder.current
@@ -67,7 +87,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         num = sum(
             1
             for snapshot in _inline_snapshot.snapshots.values()
-            if snapshot._reason == reason
+            if reason in snapshot._reason
         )
 
         if num:
@@ -80,27 +100,27 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
     report("new", "{num} snapshots are missing values (--inline-snapshot-create)\n")
 
-    report("shrink", "{num} snapshots can be reduced (--inline-snapshot-shrink)\n")
+    report("fit", "{num} snapshots can be reduced (--inline-snapshot-fit)\n")
 
     fix_reasons = []
     if config.option.inline_snapshot_create:
         fix_reasons.append("new")
 
     if config.option.inline_snapshot_fix:
-        fix_reasons.append("failing")
+        fix_reasons.append("fix")
 
-    if config.option.inline_snapshot_shrink:
-        fix_reasons.append("shrink")
+    if config.option.inline_snapshot_fit:
+        fix_reasons.append("fit")
 
     if fix_reasons:
 
-        count = {"new": 0, "failing": 0, "shrink": 0}
+        count = {"new": 0, "failing": 0, "fit": 0}
 
         for snapshot in _inline_snapshot.snapshots.values():
-            for r in ("new", "failing", "shrink"):
-                if snapshot._reason == r in fix_reasons:
-                    count[r] += 1
-                    snapshot._change()
+            for r in snapshot._reason:
+                assert r in ("new", "fix", "fit")
+                count[r] += 1
+                snapshot._change()
 
         recorder.fix_all()
 
@@ -110,4 +130,4 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
         report("new", "defined values for {num} snapshots\n")
         report("failing", "fixed {num} snapshots\n")
-        report("shrink", "shrinked {num} snapshots\n")
+        report("fit", "fitted {num} snapshots\n")

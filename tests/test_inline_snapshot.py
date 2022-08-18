@@ -40,6 +40,16 @@ def check_update(tmp_path):
     filecount = 1
 
     def w(source, *, reason):
+
+        if reason == "failing":
+            reason = {"fix"}
+
+        elif reason == "equal":
+            reason = {}
+
+        else:
+            reason = {reason}
+
         nonlocal filecount
         filename = tmp_path / f"test_{filecount}.py"
         filecount += 1
@@ -53,7 +63,7 @@ from inline_snapshot import snapshot
 
         filename.write_text(prefix + textwrap.dedent(source))
 
-        if reason == "failing":
+        if "fix" in reason:
             with snapshots_disabled():
                 with pytest.raises(AssertionError):
                     exec(compile(filename.read_text(), filename, "exec"))
@@ -61,20 +71,23 @@ from inline_snapshot import snapshot
         with snapshots_disabled():
             with ChangeRecorder().activate() as recorder:
                 _inline_snapshot._active = True
+                _inline_snapshot._update_reasons = reason
 
                 try:
                     exec(compile(filename.read_text(), filename, "exec"))
                 except AssertionError as error:
                     traceback.print_exc()
-                    if reason == "failing":
+                    if "fix" in reason:
                         assert str(error) == ""
-                    if reason == "new":
+                    if "new" in reason:
                         assert (
                             str(error)
-                            == "your snapshot is missing a value run pytest with --update-snapshots=new"
+                            == "your snapshot is missing a value run pytest with --inline-snapshot-create"
                         )
                 finally:
                     _inline_snapshot._active = False
+
+                assert len(_inline_snapshot.snapshots) == 1
 
                 for snapshot in _inline_snapshot.snapshots.values():
                     snapshot._change()
@@ -82,9 +95,9 @@ from inline_snapshot import snapshot
                 changes = recorder.changes()
 
                 assert len(changes) == 1
-                assert changes[0]._tags == ("inline_snapshot", reason)
+                assert changes[0]._tags == ("inline_snapshot", *sorted(reason))
 
-                recorder.fix_all(tags=["inline_snapshot", reason])
+                recorder.fix_all(tags=["inline_snapshot", *reason])
 
         return filename.read_text()[len(prefix) :]
 
@@ -140,7 +153,7 @@ def test_le(check_update):
 
     assert check_update(
         "assert 5<=snapshot(9)",
-        reason="shrink",
+        reason="fit",
     ) == snapshot("assert 5<=snapshot(5)")
 
     assert check_update(
@@ -165,7 +178,7 @@ def test_le(check_update):
 
     assert check_update(
         "for i in range(5): assert i <=snapshot(10)",
-        reason="shrink",
+        reason="fit",
     ) == snapshot("for i in range(5): assert i <=snapshot(4)")
 
 
@@ -178,7 +191,7 @@ def test_le(check_update):
 
     assert check_update(
         "assert 5>=snapshot(2)",
-        reason="shrink",
+        reason="fit",
     ) == snapshot("assert 5>=snapshot(5)")
 
     assert check_update(
@@ -203,7 +216,7 @@ def test_le(check_update):
 
     assert check_update(
         "for i in range(5): assert i >=snapshot(-10)",
-        reason="shrink",
+        reason="fit",
     ) == snapshot("for i in range(5): assert i >=snapshot(0)")
 
 
@@ -226,12 +239,12 @@ def test_contains(check_update):
 
     assert check_update(
         "assert 5 in snapshot([2,5])",
-        reason="shrink",
+        reason="fit",
     ) == snapshot("assert 5 in snapshot([5])")
 
     assert check_update(
         "for i in range(5): assert i in snapshot([0,1,2,3,4,5,6])",
-        reason="shrink",
+        reason="fit",
     ) == snapshot("for i in range(5): assert i in snapshot([0, 1, 2, 3, 4])")
 
 
@@ -258,7 +271,7 @@ def test_getitem(check_update):
 
     assert check_update(
         "for i in range(2): assert i in snapshot({'0': [0], '1': [1], '2': [2]})[str(i)]",
-        reason="shrink",
+        reason="fit",
     ) == snapshot(
         "for i in range(2): assert i in snapshot({'0': [0], '1': [1]})[str(i)]"
     )
@@ -272,7 +285,7 @@ def test_getitem(check_update):
 
     assert check_update(
         "for i in range(3): assert i in snapshot({'0': [0], '1': [1,2], '2': [2]})[str(i)]",
-        reason="shrink",
+        reason="fit",
     ) == snapshot(
         "for i in range(3): assert i in snapshot({'0': [0], '1': [1], '2': [2]})[str(i)]"
     )

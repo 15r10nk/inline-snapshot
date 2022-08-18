@@ -1,7 +1,9 @@
+import pytest
+
 from inline_snapshot._inline_snapshot import snapshots_disabled
 
 
-def new_test(source, failing=0, new=0, usage_error=0, shrink=0):
+def new_test(source, failing=0, new=0, usage_error=0, fit=0):
     def w(pytester):
         testdir = pytester
 
@@ -12,7 +14,7 @@ def new_test(source, failing=0, new=0, usage_error=0, shrink=0):
         """
         print("code:")
         print(code)
-        print(f"reason: failing={failing} new={new} shrink={shrink}")
+        print(f"reason: failing={failing} new={new} fit={fit}")
 
         # create a temporary pytest test module
         testdir.makepyfile(test_file=code)
@@ -23,6 +25,9 @@ def new_test(source, failing=0, new=0, usage_error=0, shrink=0):
             result = testdir.runpytest_subprocess("-v")
 
         print("pytest result:", result.ret)
+
+        if "SKIPPED" in str(result.stdout):
+            pytest.skip("todo")
 
         assert (result.ret != 0) == (failing or new or usage_error)
 
@@ -58,7 +63,9 @@ def new_test(source, failing=0, new=0, usage_error=0, shrink=0):
         if usage_error:
             # nothing helps when you did something wrong
             with snapshots_disabled():
-                result = testdir.runpytest_subprocess("--update-snapshots=all", "-v")
+                result = testdir.runpytest_subprocess(
+                    "--inline-snapshot-recreate", "-v"
+                )
             with snapshots_disabled():
                 result = testdir.runpytest_subprocess("-v")
             assert result.ret != 0
@@ -71,6 +78,9 @@ test_2 = new_test("assert 3 == snapshot(5)", failing=1)
 test_3 = new_test("assert 3 == snapshot()", new=1)
 test_4 = new_test("for e in (1,2,3): assert e == snapshot()", usage_error=1)
 
+test_2 = new_test("assert 3 <= snapshot(5)", fit=1)
+test_2 = new_test("assert 8 <= snapshot(5)", failing=1)
+
 
 def test_help_message(testdir):
     result = testdir.runpytest(
@@ -80,6 +90,10 @@ def test_help_message(testdir):
     result.stdout.fnmatch_lines(
         [
             "inline-snapshot:",
-            "*--inline-snapshot-report*",
+            "*--inline-snapshot-create*",
+            "*--inline-snapshot-recreate*",
+            "*--inline-snapshot-fix*",
+            "*--inline-snapshot-fit*",
+            "*--inline-snapshot-disable*",
         ]
     )

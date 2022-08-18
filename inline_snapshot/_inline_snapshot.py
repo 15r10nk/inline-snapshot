@@ -2,7 +2,9 @@ import ast
 import contextlib
 import inspect
 from collections import defaultdict
+from typing import Literal
 
+import pytest
 from executing import Source
 
 from ._rewrite_code import ChangeRecorder
@@ -11,20 +13,40 @@ from ._rewrite_code import start_of
 
 # sentinels
 missing_value = object()
-undefined = object()
+undefined = missing_value
 
 snapshots = {}
 
 _active = False
 
+_update_reasons: set[Literal["fix", "recreate", "new", "fit"]] = set()
+
+
+def ignore_current_value():
+    return "fix" in _update_reasons or "recreate" in _update_reasons
+
 
 @contextlib.contextmanager
 def snapshots_disabled():
+    with snapshots_env():
+        yield
+
+
+@contextlib.contextmanager
+def snapshots_env(*, update_reasons=set(), active=True):
     global snapshots
-    current = snapshots
+    global _update_reasons
+    global _active
+
+    current = snapshots, _update_reasons, _active
+
     snapshots = {}
+    _update_reasons = update_reasons
+    _active = active
+
     yield
-    snapshots = current
+
+    snapshots, _update_reasons, _active = current
 
 
 def fix_snapshots(reasons):
@@ -41,67 +63,69 @@ def snapshot_stat():
     return stat
 
 
-class Value:
-    def __init__(self):
-        self._value = undefined
-
-    def _process(self, cls, value):
-
-        if self._value is undefined:
-            self._value, result = cls.new_value(value)
-            return result
-        else:
-            assert isinstance(self._value, cls), (self._value, cls)
-            return self._value.next_value(value)
-
-    def get_result(self):
-        return self._value.get_result()
-
-    def check_result(self, old_value):
-        return self._value.check_result(old_value)
-
-    def __eq__(self, other):
-        return self._process(FixValue, other)
-
-    def __le__(self, other):
-        return self._process(MaxValue, other)
-
-    def __ge__(self, other):
-        return self._process(MinValue, other)
-
-    def __contains__(self, other):
-        return self._process(CollectionValue, other)
-
-    def __getitem__(self, other):
-        return self._process(DictValue, other)
-
-
 class GenericValue:
     """generic basic implementation for <= >= =="""
 
-    @classmethod
-    def new_value(cls, value):
-        o = cls()
-        o.value = value
-        return o, True
+    def __init__(self, _old_value):
+        self._old_value = _old_value
+
+        if ignore_current_value():
+            self._value = undefined
+        else:
+            self._value = _old_value
 
     def get_result(self):
-        return self.value
+        return self._value
+
+
+class Value(GenericValue):
+    def _requires(self):
+        return {}
+
+    def _change(self, cls):
+        self.__class__ = cls
+
+    def __eq__(self, other):
+        self._change(FixValue)
+        return self == other
+
+    def __le__(self, other):
+        pytest.skip("todo")
+        self._change(MinValue)
+        return self <= other
+
+    def __ge__(self, other):
+        pytest.skip("todo")
+        self._change(MaxValue)
+        return self >= other
+
+    def __contains__(self, other):
+        pytest.skip("todo")
+        self._change(CollectionValue)
+        return self in other
+
+    def __getitem__(self, item):
+        pytest.skip("todo")
+        self._change(DictValue)
+        return self[item]
 
 
 class FixValue(GenericValue):
-    def next_value(self, value):
-        return self.value == value
-
-    def check_result(self, old_value):
-        print(self.value, old_value)
-        if type(self.value) is not type(old_value):
-            return "failing"
-
-        if self.value == old_value:
-            return "equal"
+    def __eq__(self, o):
+        if self._value is undefined:
+            self._value = o
+            return True
         else:
-            return "failing"
+            return self._value == o
+
+    def _requires(self):
+        if self._old_value is undefined:
+            return {"new"}
+
+        if self._old_value != self._value:
+            return {"fix"}
+
+        return {}
 
 
 class MinValue(GenericValue):
@@ -114,7 +138,7 @@ class MinValue(GenericValue):
             return "failing"
 
         if not self.value <= old_value:
-            return "shrink"
+            return "fit"
 
         if not old_value <= self.value:
             return "failing"
@@ -135,7 +159,7 @@ class MaxValue(GenericValue):
             return "failing"
 
         if not old_value <= self.value:
-            return "shrink"
+            return "fit"
 
         return "equal"
 
@@ -161,13 +185,13 @@ class CollectionValue:
         if any(e not in old_value for e in self.value):
             return "failing"
         if any(e not in self.value for e in old_value):
-            return "shrink"
+            return "fit"
         return "equal"
 
 
 def reduce_result(results):
     results = list(results)
-    for result in ("failing", "shrink", "equal"):
+    for result in ("failing", "fit", "equal"):
         if result in results:
             return result
     assert False, results
@@ -205,7 +229,7 @@ class DictValue:
 
         for key in old_value:
             if key not in self.value:
-                return "shrink"
+                return "fit"
 
         return reduce_result(
             self.value[k].check_result(old_value[k]) for k in self.value
@@ -221,6 +245,11 @@ def snapshot(obj=missing_value):
             )
         else:
             return obj
+
+    if "new" not in _update_reasons and obj is missing_value:
+        raise AssertionError(
+            "your snapshot is missing a value run pytest with --inline-snapshot-create"
+        )
 
     frame = inspect.currentframe().f_back
     expr = Source.executing(frame)
@@ -238,19 +267,17 @@ def snapshot(obj=missing_value):
             assert node.func.id == "snapshot"
             snapshots[key] = Snapshot(obj, expr)
 
-    return snapshots[key]
+    return snapshots[key]._value
 
 
 class Snapshot:
     def __init__(self, value, expr):
 
         self._expr = expr
-        self._new_value = Value()
-
-        self._current_value = value
+        self._value = Value(value)
 
     def __repr__(self):
-        return repr(self._new_value.get_result())
+        return repr(self._value.get_result())
 
     def _change(self):
         assert self._expr is not None
@@ -262,32 +289,15 @@ class Snapshot:
         assert tokens[1].string == "("
         assert tokens[-1].string == ")"
 
-        change.set_tags("inline_snapshot", self._reason)
+        change.set_tags("inline_snapshot", *sorted(self._reason))
 
         change.replace(
             (end_of(tokens[1]), start_of(tokens[-1])),
-            repr(self._new_value.get_result()),
+            repr(self._value.get_result()),
             filename=self._expr.source.filename,
         )
 
     @property
     def _reason(self):
-        if self._current_value == missing_value:
-            return "new"
 
-        return self._new_value.check_result(self._current_value)
-
-    def __eq__(self, other):
-        return other == self._new_value
-
-    def __le__(self, other):
-        return other <= self._new_value
-
-    def __ge__(self, other):
-        return other >= self._new_value
-
-    def __contains__(self, other):
-        return other in self._new_value
-
-    def __getitem__(self, other):
-        return self._new_value[other]
+        return self._value._requires()
