@@ -22,7 +22,7 @@ _active = False
 _update_reasons: set[Literal["fix", "recreate", "new", "fit"]] = set()
 
 
-def ignore_current_value():
+def ignore_old_value():
     return "fix" in _update_reasons or "recreate" in _update_reasons
 
 
@@ -69,10 +69,12 @@ class GenericValue:
     def __init__(self, _old_value):
         self._old_value = _old_value
 
-        if ignore_current_value():
+        if ignore_old_value():
             self._value = undefined
         else:
             self._value = _old_value
+
+        self._fix_needed = False
 
     def get_result(self):
         return self._value
@@ -100,9 +102,8 @@ class Value(GenericValue):
         return self >= other
 
     def __contains__(self, other):
-        pytest.skip("todo")
         self._change(CollectionValue)
-        return self in other
+        return other in self
 
     def __getitem__(self, item):
         pytest.skip("todo")
@@ -112,6 +113,9 @@ class Value(GenericValue):
 
 class FixValue(GenericValue):
     def __eq__(self, o):
+        if self._old_value is not undefined and not self._old_value == o:
+            self._fix_needed = True
+
         if self._value is undefined:
             self._value = o
             return True
@@ -122,7 +126,7 @@ class FixValue(GenericValue):
         if self._old_value is undefined:
             return {"new"}
 
-        if self._old_value != self._value:
+        if self._fix_needed:
             return {"fix"}
 
         return {}
@@ -165,28 +169,32 @@ class MaxValue(GenericValue):
 
 
 class CollectionValue:
-    @classmethod
-    def new_value(cls, value):
-        o = cls()
-        o.value = [value]
-        return o, True
+    def __contains__(self, item):
+        if self._value == undefined:
+            self._value = [item]
+        else:
+            if item not in self._value:
+                self._value.append(item)
 
-    def next_value(self, value):
-        if value not in self.value:
-            self.value.append(value)
-        return True
+        if ignore_old_value() or "new" in _update_reasons:
+            return True
+        else:
+            return item in self._old_value
+
+    def _requires(self):
+        if self._old_value is undefined:
+            return {"new"}
+
+        if any(i not in self._old_value for i in self._value):
+            return {"fix"}
+
+        if any(i not in self._value for i in self._old_value):
+            return {"fit"}
+
+        return {}
 
     def get_result(self):
-        return self.value
-
-    def check_result(self, old_value):
-        if type(old_value) is not list:
-            return "failing"
-        if any(e not in old_value for e in self.value):
-            return "failing"
-        if any(e not in self.value for e in old_value):
-            return "fit"
-        return "equal"
+        return self._value
 
 
 def reduce_result(results):

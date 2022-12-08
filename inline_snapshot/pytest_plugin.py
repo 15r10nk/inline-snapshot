@@ -112,6 +112,9 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     if config.option.inline_snapshot_fit:
         fix_reasons.append("fit")
 
+    if config.option.inline_snapshot_recreate:
+        fix_reasons.append("recreate")
+
     if fix_reasons:
 
         count = {"new": 0, "failing": 0, "fit": 0}
