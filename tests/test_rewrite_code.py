@@ -23,7 +23,6 @@ def test_range():
 
 
 def test_rewrite(tmp_path):
-
     file = tmp_path / "file.txt"
     file.write_text(
         """

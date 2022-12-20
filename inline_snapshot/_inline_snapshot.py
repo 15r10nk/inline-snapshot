@@ -46,7 +46,6 @@ def snapshot_stat():
 
 
 def snapshot(obj=missing_value):
-
     if not _active:
         if obj is missing_value:
             raise AssertionError(
@@ -78,7 +77,6 @@ def snapshot(obj=missing_value):
 
 class Snapshot:
     def __init__(self, value, expr):
-
         self._expr = expr
         self._new_value = undefined
 
@@ -116,7 +114,6 @@ class Snapshot:
         )
 
     def __eq__(self, o):
-
         if self._current_value == missing_value:
             # x==snapshot()
             # assert "foo" == snapshot()
