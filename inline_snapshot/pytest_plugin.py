@@ -17,7 +17,6 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
-
     if config.option.inline_snapshot_kind == "failing":
         _inline_snapshot._ignore_value = True
 
@@ -63,7 +62,6 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     fix_reason = config.option.inline_snapshot_kind
 
     if fix_reason != "none":
-
         new = 0
         failing = 0
 

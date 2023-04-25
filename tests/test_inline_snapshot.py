@@ -87,7 +87,6 @@ from inline_snapshot import snapshot
 
 
 def test_update(check_update):
-
     assert check_update(
         "assert 5==snapshot()",
         reason="new",

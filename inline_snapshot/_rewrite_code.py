@@ -60,7 +60,6 @@ def filename_of(obj):
 
 
 def start_of(obj) -> SourcePosition:
-
     if isinstance(obj, asttokens.util.Token):
         return SourcePosition(lineno=obj.start[0], col_offset=obj.start[1])
 
@@ -143,7 +142,6 @@ class Change:  # ChangeSet
         self.replace(start_of(node), new_content, filename=filename)
 
     def _replace(self, filename, range, new_contend):
-
         if isinstance(new_contend, ast.AST):
             new_contend = ast.unparse(new_contend)
 
@@ -256,7 +254,6 @@ class ChangeRecorder:
     current: ChangeRecorder | None = None
 
     def __init__(self):
-
         self._source_files = defaultdict(SourceFile)
         self._changes = []
 
@@ -268,7 +265,6 @@ class ChangeRecorder:
         ChangeRecorder.current = old_recorder
 
     def get_source(self, filename):
-
         filename = pathlib.Path(filename)
         if filename not in self._source_files:
             self._source_files[filename] = SourceFile(filename)
@@ -339,7 +335,6 @@ def code_stream(source):
 
 
 def rewrite(filename=None):
-
     if filename is None:
         for file in ChangeRecorder.current._source_files.values:
             file.rewrite()

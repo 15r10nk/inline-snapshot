@@ -1,3 +1,8 @@
+ci:
+  autofix_pr: false
+  autoupdate_commit_msg: 'style: pre-commit autoupdate'
+  autoupdate_schedule: monthly
+
 repos:
 - hooks:
   - id: check-yaml
@@ -11,7 +16,7 @@ repos:
   - id: check-json
   - id: end-of-file-fixer
   repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.3.0
+  rev: v4.4.0
 - hooks:
   - args:
     - --in-place
@@ -20,15 +25,15 @@ repos:
     - --ignore-init-module-imports
     id: autoflake
   repo: https://github.com/myint/autoflake
-  rev: v1.4
+  rev: v2.1.1
 
 - repo: https://github.com/asottile/setup-cfg-fmt
-  rev: v1.20.2
+  rev: v2.2.0
   hooks:
   - id: setup-cfg-fmt
 
 - repo: https://github.com/asottile/reorder_python_imports
-  rev: v3.8.2
+  rev: v3.9.0
   hooks:
   - args:
     - --py38-plus
@@ -38,39 +43,40 @@ repos:
     - --py38-plus
     id: pyupgrade
   repo: https://github.com/asottile/pyupgrade
-  rev: v2.37.2
+  rev: v3.3.2
 - hooks:
   - id: black
   repo: https://github.com/psf/black
-  rev: 22.6.0
+  rev: 23.3.0
 - hooks:
   - additional_dependencies:
-    - black==20.8b1
+    - black==23.3.0
     id: blacken-docs
   repo: https://github.com/asottile/blacken-docs
-  rev: v1.12.1
+  rev: 1.13.0
 
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.4.0
+  rev: v2.8.0
   hooks:
   - id: pretty-format-yaml
     args: [--autofix, --indent, '2']
   - id: pretty-format-toml
+    exclude: ^poetry.lock$
     args: [--autofix]
 
 - hooks:
   - id: blackdoc
   repo: https://github.com/keewis/blackdoc
-  rev: v0.3.4
+  rev: v0.3.8
 - hooks:
   - id: commitizen
     stages:
     - commit-msg
   repo: https://github.com/commitizen-tools/commitizen
-  rev: v2.29.0
+  rev: 3.0.1
 
 
-- repo: https://github.com/myint/docformatter
-  rev: v1.4
+- repo: https://github.com/PyCQA/docformatter
+  rev: v1.6.3
   hooks:
   - id: docformatter
