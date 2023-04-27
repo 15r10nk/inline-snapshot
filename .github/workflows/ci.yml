@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        architecture: x64
+    - run: pip install nox==2019.11.9
+    - run: pip install poetry==1.2.2
+    - run: nox --session mypy
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{matrix.python-version}}
+        architecture: x64
+    - run: pip install nox==2022.11.21
+    - run: pip install poetry==1.2.2
+    - run: nox --sessions test-${{matrix.python-version}}
