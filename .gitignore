@@ -71,3 +71,5 @@ target/
 
 # pyenv
 .python-version
+.mutmut-cache
+html

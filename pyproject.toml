@@ -2,6 +2,15 @@
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=1.0.0"]
 
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "assert False", "raise NotImplemented", "\\.\\.\\."]
+
+[tool.coverage.run]
+branch = true
+data_file = "$TOP/.coverage"
+parallel = true
+source = ["src", "tests", "inline_snapshot"]
+
 [tool.poetry]
 authors = ["Frank Hoffmann <15r10nk@polarbit.de>"]
 classifiers = [
@@ -11,9 +20,10 @@ classifiers = [
   "Operating System :: OS Independent",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
-  "Topic :: Software Development :: Testing"
+  "Topic :: Software Development :: Testing",
+  "Framework :: Pytest"
 ]
-description = "compare test results with snapshots from previous test runs"
+description = "golden master/snapshot/approval testing library which puts the values right into your source code"
 license = "MIT"
 name = "inline-snapshot"
 readme = "README.md"
@@ -22,11 +32,22 @@ version = "0.1.2"
 
 [tool.poetry.dependencies]
 asttokens = "^2.0.5"
+black = "^23.3.0"
 executing = "^1.2.0"
 python = "^3.7"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+coverage = "^7.2.3"
+coverage-enable-subprocess = "^1.0"
+hypothesis = "^6.75.5"
+mypy = "^1.2.0"
 pytest = "^7.1"
+pytest-subtests = "^0.11.0"
+
+[tool.poetry.group.doc.dependencies]
+mkdocs = "^1.4.2"
+mkdocs-material = "^8.5.10"
+mkdocstrings = {extras = ["python-legacy"], version = "^0.19.0"}
 
 [tool.poetry.plugins.pytest11]
 inline_snapshot = "inline_snapshot.pytest_plugin"

@@ -1,10 +1,36 @@
-site_name: pytest-inline-snapshot
-site_description: create and update inline snapshots in your code to simplify testcase creation
-site_author: Frank Hoffmann
+site_name: inline-snapshot
+site_url: https://15r10nk.github.io/inline-snapshot/
+repo_url: https://github.com/15r10nk/inline-snapshot/
+edit_uri: edit/main/docs
 
-theme: readthedocs
+theme:
+  name: material
 
-repo_url: https://github.com/15r10nk/pytest-inline-snapshot
+nav:
+- Introduction: index.md
+- Reference:
+  - x == snapshot(): eq_snapshot.md
+  - x <= snapshot(): cmp_snapshot.md
+  - x in snapshot(): in_snapshot.md
+  - snapshot()[key]: getitem_snapshot.md
+- pytest integration: pytest.md
 
-pages:
-- Home: index.md
+
+markdown_extensions:
+- admonition
+- pymdownx.highlight:
+    anchor_linenums: true
+- pymdownx.inlinehilite
+- pymdownx.snippets
+- pymdownx.superfences
+- admonition
+- pymdownx.details
+- pymdownx.superfences
+
+plugins:
+- mkdocstrings:
+    handlers:
+      python:
+        options:
+          show_root_heading: true
+          show_source: false
