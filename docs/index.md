@@ -222,3 +222,6 @@ The code is generated in the following way:
        **Solution:** configure black in a [configuration file](https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file)
     2. inline-snapshot uses a different black version.<br>
        **Solution:** specify which black version inline-snapshot should use by adding black with a specific version to your dependencies.
+
+
+--8<-- "README.md:Feedback"
