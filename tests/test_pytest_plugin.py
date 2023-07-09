@@ -452,10 +452,23 @@ assert s==[1,2]
     "file",
     [
         pytest.param(file, id=file.stem)
-        for file in (Path(__file__).parent.parent / "docs").rglob("*.md")
+        for file in [
+            *(Path(__file__).parent.parent / "docs").rglob("*.md"),
+            *(Path(__file__).parent.parent).glob("*.md"),
+        ]
     ],
 )
 def test_docs(project, file, subtests):
+    """
+    test code blocks with the header
+    <!-- inline-snapshot: options ... -->
+
+    where options can be:
+        * flags passed to --inline-snapshot=...
+        * `this` to specify that the input source code should be the current block and not the last
+        * `outcome-passed=2` to check for the pytest test outcome
+
+    """
     block_start = re.compile("``` *python")
     block_end = re.compile("```.*")
 
@@ -464,7 +477,7 @@ def test_docs(project, file, subtests):
     text = file.read_text()
     new_lines = []
     block_lines = []
-    block_header = set()
+    options = set()
     is_block = False
     code = None
     for linenumber, line in enumerate(text.splitlines(), start=1):
@@ -480,11 +493,11 @@ def test_docs(project, file, subtests):
                 last_code = code
                 code = "\n".join(block_lines) + "\n"
 
-                flags = block_header & {"fix", "update", "create", "trim"}
+                flags = options & {"fix", "update", "create", "trim"}
 
                 args = ["--inline-snapshot", ",".join(flags)] if flags else []
 
-                if flags and "this" not in block_header:
+                if flags and "this" not in options:
                     project.setup(last_code)
                 else:
                     project.setup(code)
@@ -513,9 +526,7 @@ def test_docs(project, file, subtests):
                         assert {
                             f"outcome-{k}={v}"
                             for k, v in result.parseoutcomes().items()
-                        } == {
-                            flag for flag in block_header if flag.startswith("outcome-")
-                        }
+                        } == {flag for flag in options if flag.startswith("outcome-")}
                     assert code == new_code
                 else:  # pragma: no cover
                     pass
@@ -524,7 +535,7 @@ def test_docs(project, file, subtests):
 
         m = header.fullmatch(line.strip())
         if m:
-            block_header = set(m.group(1).split())
+            options = set(m.group(1).split())
             is_block = True
             new_lines.append(line)
 

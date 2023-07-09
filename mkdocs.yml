@@ -5,6 +5,13 @@ edit_uri: edit/main/docs
 
 theme:
   name: material
+  features:
+  - toc.integrate
+  - toc.follow
+
+watch:
+- CONTRIBUTING.md
+- README.md
 
 nav:
 - Introduction: index.md
@@ -14,14 +21,18 @@ nav:
   - x in snapshot(): in_snapshot.md
   - snapshot()[key]: getitem_snapshot.md
 - pytest integration: pytest.md
+- Contributing: contributing.md
 
 
 markdown_extensions:
+- toc:
+    permalink: true
 - admonition
 - pymdownx.highlight:
     anchor_linenums: true
 - pymdownx.inlinehilite
-- pymdownx.snippets
+- pymdownx.snippets:
+    check_paths: true
 - pymdownx.superfences
 - admonition
 - pymdownx.details
