@@ -4,6 +4,7 @@ import inspect
 import io
 import token
 import tokenize
+from pathlib import Path
 from typing import Any
 from typing import Dict  # noqa
 from typing import overload
@@ -12,7 +13,7 @@ from typing import TypeVar
 
 from executing import Source
 
-from ._format import format
+from ._format import format_code
 from ._rewrite_code import ChangeRecorder
 from ._rewrite_code import end_of
 from ._rewrite_code import start_of
@@ -476,35 +477,41 @@ def triple_quote(string):
     return f"{quote_type}{string}{quote_type}"
 
 
-def value_to_token(value):
-    input = io.StringIO(format(repr(value)))
-
-    def map_string(tok):
-        """Convert strings with newlines in triple quoted strings."""
-        if tok.type == token.STRING:
-            s = ast.literal_eval(tok.string)
-            if isinstance(s, str) and "\n" in s:
-                # unparse creates a triple quoted string here,
-                # because it thinks that the string should be a docstring
-                tripple_quoted_string = triple_quote(s)
-
-                assert ast.literal_eval(tripple_quoted_string) == s
-
-                return tok.type, tripple_quoted_string
-
-        return (tok.type, tok.string)
-
-    return [
-        map_string(t)
-        for t in tokenize.generate_tokens(input.readline)
-        if t.type not in ignore_tokens
-    ]
-
-
 class Snapshot:
     def __init__(self, value, expr):
         self._expr = expr
         self._value = Value(value)
+
+    @property
+    def _filename(self):
+        return self._expr.source.filename
+
+    def _format(self, text):
+        return format_code(text, Path(self._filename))
+
+    def _value_to_token(self, value):
+        input = io.StringIO(self._format(repr(value)))
+
+        def map_string(tok):
+            """Convert strings with newlines in triple quoted strings."""
+            if tok.type == token.STRING:
+                s = ast.literal_eval(tok.string)
+                if isinstance(s, str) and "\n" in s:
+                    # unparse creates a triple quoted string here,
+                    # because it thinks that the string should be a docstring
+                    tripple_quoted_string = triple_quote(s)
+
+                    assert ast.literal_eval(tripple_quoted_string) == s
+
+                    return tok.type, tripple_quoted_string
+
+            return (tok.type, tok.string)
+
+        return [
+            map_string(t)
+            for t in tokenize.generate_tokens(input.readline)
+            if t.type not in ignore_tokens
+        ]
 
     def _change(self):
         assert self._expr is not None
@@ -529,12 +536,14 @@ class Snapshot:
         ):
             new_value = self._value.get_result(_update_flags)
 
-            text = format(tokenize.untokenize(value_to_token(new_value))).strip()
+            text = self._format(
+                tokenize.untokenize(self._value_to_token(new_value))
+            ).strip()
 
             change.replace(
                 (end_of(tokens[1]), start_of(tokens[-1])),
                 text,
-                filename=self._expr.source.filename,
+                filename=self._filename,
             )
 
     def _current_tokens(self):
@@ -557,7 +566,7 @@ class Snapshot:
         if (
             "create" not in s
             and self._expr is not None
-            and self._current_tokens() != value_to_token(self._value._old_value)
+            and self._current_tokens() != self._value_to_token(self._value._old_value)
         ):
             s.add("update")
 

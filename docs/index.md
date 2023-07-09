@@ -214,3 +214,11 @@ The code is generated in the following way:
 2. Strings which contain newlines are converted to triple quoted strings.
 3. The code is formatted with black.
 4. The whole file is formatted with black if it was formatted before.
+
+!!! note
+    The black formatting of the whole file could not work for the following reasons:
+
+    1. black is configured with cli arguments and not in a configuration file.<br>
+       **Solution:** configure black in a [configuration file](https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file)
+    2. inline-snapshot uses a different black version.<br>
+       **Solution:** specify which black version inline-snapshot should use by adding black with a specific version to your dependencies.

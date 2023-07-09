@@ -2,10 +2,12 @@ import re
 import shutil
 from pathlib import Path
 
+import black.files
 import pytest
 
 import inline_snapshot._inline_snapshot
 from inline_snapshot import snapshot
+from inline_snapshot._format import format_code
 
 
 def test_help_message(testdir):
@@ -63,11 +65,28 @@ def project(pytester):
             source = self.header + source
             print("write code:")
             print(source)
-            (pytester.path / "test_file.py").write_text(source)
+            self._filename.write_text(source)
+
+        @property
+        def _filename(self):
+            return pytester.path / "test_file.py"
+
+        def is_formatted(self):
+            code = self._filename.read_text()
+            return code == format_code(code, self._filename)
+
+        def format(self):
+            self._filename.write_text(
+                format_code(self._filename.read_text(), self._filename)
+            )
+
+        def pyproject(self, source):
+            black.files.find_project_root.cache_clear()
+            (pytester.path / "pyproject.toml").write_text(source)
 
         @property
         def source(self):
-            return (pytester.path / "test_file.py").read_text()[len(self.header) :]
+            return self._filename.read_text()[len(self.header) :]
 
         def run(self, *args):
             cache = pytester.path / "__pycache__"
@@ -270,6 +289,40 @@ def test_a():
     assert result.stderr.str().strip() == snapshot(
         "ERROR: --update-snapshots=failing is deprecated, please use only --inline-snapshot"
     )
+
+
+def test_black_config(project):
+    project.setup(
+        """
+def test_a():
+    assert list(range(10)) == snapshot([])
+"""
+    )
+
+    project.format()
+
+    assert project.is_formatted()
+
+    project.pyproject(
+        """
+[tool.black]
+line-length=50
+    """
+    )
+
+    assert project.is_formatted()
+
+    project.run("--inline-snapshot=fix")
+
+    assert project.source == snapshot(
+        """def test_a():
+    assert list(range(10)) == snapshot(
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    )
+"""
+    )
+
+    assert project.is_formatted()
 
 
 def test_disabled(project):

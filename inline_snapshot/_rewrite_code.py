@@ -8,7 +8,7 @@ from dataclasses import dataclass
 import asttokens.util
 from asttokens import LineNumbers
 
-from ._format import format
+from ._format import format_code
 
 try:
     from itertools import pairwise
@@ -140,14 +140,12 @@ class SourceFile:
         for r in replacements:
             assert r.range.start <= r.range.end
 
-        # TODO check for overlapping replacements
         for lhs, rhs in pairwise(replacements):
             assert lhs.range.end <= rhs.range.start
 
-        with open(self.filename, newline="") as code:
-            code = code.read()
+        code = self.filename.read_text()
 
-        is_formatted = code == format(code)
+        is_formatted = code == format_code(code, self.filename)
 
         line_numbers = LineNumbers(code)
 
@@ -164,7 +162,7 @@ class SourceFile:
         )
 
         if is_formatted:
-            new_code = format(new_code)
+            new_code = format_code(new_code, self.filename)
 
         return new_code
 

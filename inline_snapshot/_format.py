@@ -1,6 +1,9 @@
-from black import FileMode
-from black import format_str
+from black import main
+from click.testing import CliRunner
 
 
-def format(text):
-    return format_str(text, mode=FileMode())
+def format_code(text, filename):
+    runner = CliRunner(mix_stderr=False)
+    result = runner.invoke(main, ["--stdin-filename", str(filename), "-"], input=text)
+
+    return result.stdout
