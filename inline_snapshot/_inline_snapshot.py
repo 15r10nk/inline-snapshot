@@ -1,5 +1,6 @@
 import ast
 import contextlib
+import copy
 import inspect
 import io
 import token
@@ -151,6 +152,8 @@ class Value(GenericValue):
 
 class FixValue(GenericValue):
     def __eq__(self, other):
+        other = copy.deepcopy(other)
+
         if self._new_value is undefined:
             self._new_value = other
 
@@ -171,6 +174,8 @@ class MinMaxValue(GenericValue):
         raise NotImplemented
 
     def _generic_cmp(self, other):
+        other = copy.deepcopy(other)
+
         if self._new_value is undefined:
             self._new_value = other
         else:
@@ -258,6 +263,8 @@ class MaxValue(MinMaxValue):
 
 class CollectionValue(GenericValue):
     def __contains__(self, item):
+        item = copy.deepcopy(item)
+
         if self._new_value is undefined:
             self._new_value = [item]
         else:

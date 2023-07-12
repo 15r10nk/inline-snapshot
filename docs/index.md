@@ -210,10 +210,11 @@ def test_something():
 
 The code is generated in the following way:
 
-1. The code is generated with `repr(value)`
-2. Strings which contain newlines are converted to triple quoted strings.
-3. The code is formatted with black.
-4. The whole file is formatted with black if it was formatted before.
+1. The value is copied with `value = copy.deepcopy(value)`
+2. The code is generated with `repr(value)`
+3. Strings which contain newlines are converted to triple quoted strings.
+4. The code is formatted with black.
+5. The whole file is formatted with black if it was formatted before.
 
 !!! note
     The black formatting of the whole file could not work for the following reasons:
