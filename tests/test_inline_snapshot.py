@@ -34,7 +34,7 @@ def test_disabled():
 def check_update(tmp_path):
     filecount = 1
 
-    def w(source, *, flags="", reported_flags=None):
+    def w(source, *, flags="", reported_flags=None, number=1):
         flags = Flags({*flags.split(",")})
         if reported_flags is None:
             reported_flags = flags
@@ -65,7 +65,7 @@ from inline_snapshot import snapshot
                 finally:
                     _inline_snapshot._active = False
 
-                assert len(_inline_snapshot.snapshots) == 1
+                assert len(_inline_snapshot.snapshots) == number
 
                 snapshot_flags = set()
 
@@ -77,7 +77,7 @@ from inline_snapshot import snapshot
 
                 changes = recorder.changes()
 
-                assert len(changes) == 1
+                assert len(changes) == number
 
                 print("changes:")
                 recorder.dump()
@@ -86,6 +86,92 @@ from inline_snapshot import snapshot
         return filename.read_text()[len(prefix) :]
 
     return w
+
+
+def test_mutable_values(check_update):
+    assert (
+        check_update(
+            """
+l=[1,2]
+assert l==snapshot()
+l.append(3)
+assert l==snapshot()
+    """,
+            flags="create",
+            number=2,
+        )
+        == snapshot(
+            """
+l=[1,2]
+assert l==snapshot([1, 2])
+l.append(3)
+assert l==snapshot([1, 2, 3])
+"""
+        )
+    )
+
+    assert (
+        check_update(
+            """
+l=[1,2]
+assert l<=snapshot()
+l.append(3)
+assert l<=snapshot()
+    """,
+            flags="create",
+            number=2,
+        )
+        == snapshot(
+            """
+l=[1,2]
+assert l<=snapshot([1, 2])
+l.append(3)
+assert l<=snapshot([1, 2, 3])
+"""
+        )
+    )
+
+    assert (
+        check_update(
+            """
+l=[1,2]
+assert l>=snapshot()
+l.append(3)
+assert l>=snapshot()
+    """,
+            flags="create",
+            number=2,
+        )
+        == snapshot(
+            """
+l=[1,2]
+assert l>=snapshot([1, 2])
+l.append(3)
+assert l>=snapshot([1, 2, 3])
+"""
+        )
+    )
+
+    assert (
+        check_update(
+            """
+l=[1,2]
+assert l in snapshot()
+l.append(3)
+assert l in snapshot()
+    """,
+            flags="create",
+            number=2,
+        )
+        == snapshot(
+            """
+l=[1,2]
+assert l in snapshot([[1, 2]])
+l.append(3)
+assert l in snapshot([[1, 2, 3]])
+"""
+        )
+    )
 
 
 def test_comparison(check_update):
