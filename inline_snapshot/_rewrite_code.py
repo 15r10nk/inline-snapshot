@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import logging
 import pathlib
 from collections import defaultdict
 from dataclasses import dataclass
@@ -146,6 +147,12 @@ class SourceFile:
         code = self.filename.read_text()
 
         is_formatted = code == format_code(code, self.filename)
+
+        if not is_formatted:
+            logging.info(f"file is not formatted with black: {self.filename}")
+            import black
+
+            logging.info(f"black version: {black.__version__}")
 
         line_numbers = LineNumbers(code)
 

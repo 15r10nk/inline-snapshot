@@ -472,6 +472,12 @@ def triple_quote(string):
     backslashes."""
     string, quote_types = _str_literal_helper(string, quote_types=['"""', "'''"])
     quote_type = quote_types[0]
+
+    string = "\\\n" + string
+
+    if not string.endswith("\n"):
+        string = string + "\\\n"
+
     return f"{quote_type}{string}{quote_type}"
 
 

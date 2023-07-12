@@ -1,8 +1,8 @@
 import re
 import shutil
+import textwrap
 from pathlib import Path
 
-import black.files
 import pytest
 
 import inline_snapshot._inline_snapshot
@@ -81,7 +81,6 @@ def project(pytester):
             )
 
         def pyproject(self, source):
-            black.files.find_project_root.cache_clear()
             (pytester.path / "pyproject.toml").write_text(source)
 
         @property
@@ -103,10 +102,10 @@ def project(pytester):
 
 def test_create(project):
     project.setup(
-        """
+        """\
 def test_a():
     assert 5==snapshot()
-    """
+"""
     )
 
     result = project.run()
@@ -124,19 +123,19 @@ def test_a():
     assert result.report == snapshot("defined values for 1 snapshots")
 
     assert project.source == snapshot(
-        """
+        """\
 def test_a():
     assert 5==snapshot(5)
-    """
+"""
     )
 
 
 def test_fix(project):
     project.setup(
-        """
+        """\
 def test_a():
     assert 5==snapshot(4)
-    """
+"""
     )
 
     result = project.run()
@@ -154,19 +153,19 @@ def test_a():
     assert result.report == snapshot("fixed 1 snapshots")
 
     assert project.source == snapshot(
-        """
+        """\
 def test_a():
     assert 5==snapshot(5)
-    """
+"""
     )
 
 
 def test_update(project):
     project.setup(
-        """
+        """\
 def test_a():
     assert "5" == snapshot('''5''')
-    """
+"""
     )
 
     result = project.run()
@@ -180,19 +179,19 @@ def test_a():
     assert result.report == snapshot("updated 1 snapshots")
 
     assert project.source == snapshot(
-        """
+        """\
 def test_a():
     assert "5" == snapshot("5")
-    """
+"""
     )
 
 
 def test_trim(project):
     project.setup(
-        """
+        """\
 def test_a():
     assert 5 in snapshot([4,5])
-    """
+"""
     )
 
     result = project.run()
@@ -208,21 +207,21 @@ def test_a():
     assert result.report == snapshot("trimmed 1 snapshots")
 
     assert project.source == snapshot(
-        """
+        """\
 def test_a():
     assert 5 in snapshot([5])
-    """
+"""
     )
 
 
 def test_multiple(project):
     project.setup(
-        """
+        """\
 def test_a():
     assert "5" == snapshot('''5''')
     assert 5 <= snapshot(8)
     assert 5 == snapshot(4)
-    """
+"""
     )
 
     result = project.run()
@@ -248,21 +247,21 @@ updated 1 snapshots
     )
 
     assert project.source == snapshot(
-        """
+        """\
 def test_a():
     assert "5" == snapshot('''5''')
     assert 5 <= snapshot(5)
     assert 5 == snapshot(5)
-    """
+"""
     )
 
 
 def test_deprecated_option(project):
     project.setup(
-        """
+        """\
 def test_a():
     pass
-    """
+"""
     )
 
     result = project.run("--update-snapshots=failing")
@@ -293,7 +292,7 @@ def test_a():
 
 def test_black_config(project):
     project.setup(
-        """
+        """\
 def test_a():
     assert list(range(10)) == snapshot([])
 """
@@ -307,7 +306,7 @@ def test_a():
         """
 [tool.black]
 line-length=50
-    """
+"""
     )
 
     assert project.is_formatted()
@@ -315,7 +314,8 @@ line-length=50
     project.run("--inline-snapshot=fix")
 
     assert project.source == snapshot(
-        """def test_a():
+        """\
+def test_a():
     assert list(range(10)) == snapshot(
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     )
@@ -327,10 +327,10 @@ line-length=50
 
 def test_disabled(project):
     project.setup(
-        """
+        """\
 def test_a():
     assert 4==snapshot(5)
-    """
+"""
     )
 
     result = project.run("--inline-snapshot-disable")
@@ -338,10 +338,10 @@ def test_a():
 
     result = project.run("--inline-snapshot=fix")
     assert project.source == snapshot(
-        """
+        """\
 def test_a():
     assert 4==snapshot(4)
-    """
+"""
     )
 
     result = project.run("--inline-snapshot-disable")
@@ -350,10 +350,10 @@ def test_a():
 
 def test_compare(project):
     project.setup(
-        """
+        """\
 def test_a():
     assert "a"==snapshot("b")
-    """
+"""
     )
 
     result = project.run()
@@ -367,10 +367,10 @@ E         + a
     )
 
     project.setup(
-        """
+        """\
 def test_a():
     assert snapshot("b")=="a"
-    """
+"""
     )
 
     result = project.run()
@@ -386,10 +386,10 @@ E         + b
 
 def test_assertion_error_loop(project):
     project.setup(
-        """
+        """\
 for e in (1, 2):
     assert e == snapshot()
-    """
+"""
     )
     result = project.run()
     assert result.errorLines() == snapshot(
@@ -402,10 +402,10 @@ E    +  where 1 = snapshot()
 
 def test_assertion_error_multiple(project):
     project.setup(
-        """
+        """\
 for e in (1, 2):
     assert e == snapshot(1)
-    """
+"""
     )
     result = project.run()
     assert result.errorLines() == snapshot(
@@ -417,11 +417,7 @@ E    +  where 1 = snapshot(1)
 
 
 def test_assertion_error(project):
-    project.setup(
-        """
-assert 2 == snapshot(1)
-    """
-    )
+    project.setup("assert 2 == snapshot(1)")
     assert repr(snapshot) == "snapshot"
     result = project.run()
     assert result.errorLines() == snapshot(
@@ -440,7 +436,7 @@ from inline_snapshot import snapshot
 s=snapshot([1,2])
 assert isinstance(s,list)
 assert s==[1,2]
-    """
+"""
     )
 
     result = pytester.runpython("test_file.py")
@@ -466,7 +462,7 @@ def test_docs(project, file, subtests):
         * `this` to specify that the input source code should be the current block and not the last
         * `outcome-passed=2` to check for the pytest test outcome
     """
-    block_start = re.compile("``` *python")
+    block_start = re.compile("( *)``` *python")
     block_end = re.compile("```.*")
 
     header = re.compile("<!-- inline-snapshot:(.*)-->")
@@ -477,8 +473,11 @@ def test_docs(project, file, subtests):
     options = set()
     is_block = False
     code = None
+    indent = ""
     for linenumber, line in enumerate(text.splitlines(), start=1):
-        if block_start.fullmatch(line.strip()) and is_block == True:
+        m = block_start.fullmatch(line)
+        if m and is_block == True:
+            indent = m[1]
             block_lines = []
             new_lines.append(line)
             continue
@@ -489,6 +488,7 @@ def test_docs(project, file, subtests):
 
                 last_code = code
                 code = "\n".join(block_lines) + "\n"
+                code = textwrap.dedent(code)
 
                 flags = options & {"fix", "update", "create", "trim"}
 
@@ -510,7 +510,7 @@ def test_docs(project, file, subtests):
                 if (
                     inline_snapshot._inline_snapshot._update_flags.fix
                 ):  # pragma: no cover
-                    new_lines.append(new_code.rstrip("\n"))
+                    new_lines.append(textwrap.indent(new_code.rstrip("\n"), indent))
                 else:
                     new_lines += block_lines
 
