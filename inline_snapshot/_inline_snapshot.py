@@ -532,14 +532,19 @@ class Snapshot:
 
         change.set_tags("inline_snapshot")
 
+        needs_fix = self._value._needs_fix()
+        needs_create = self._value._needs_create()
+        needs_trim = self._value._needs_trim()
+
         if (
             _update_flags.update
+            and not (needs_fix or needs_create or needs_trim)
             or _update_flags.fix
-            and self._value._needs_fix
+            and needs_fix
             or _update_flags.create
-            and self._value._needs_create
+            and needs_create
             or _update_flags.trim
-            and self._value._needs_trim
+            and needs_trim
         ):
             new_value = self._value.get_result(_update_flags)
 
