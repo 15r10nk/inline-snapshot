@@ -250,7 +250,7 @@ updated 1 snapshots
     assert project.source == snapshot(
         """
 def test_a():
-    assert "5" == snapshot("5")
+    assert "5" == snapshot('''5''')
     assert 5 <= snapshot(5)
     assert 5 == snapshot(5)
     """

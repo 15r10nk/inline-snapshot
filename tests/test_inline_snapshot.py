@@ -1,5 +1,8 @@
 import ast
 import textwrap
+from dataclasses import dataclass
+from dataclasses import field
+from typing import Set
 
 import pytest
 from hypothesis import given
@@ -31,61 +34,159 @@ def test_disabled():
 
 
 @pytest.fixture()
-def check_update(tmp_path):
-    filecount = 1
+def check_update(source):
+    def w(source_code, *, flags="", reported_flags=None, number=1):
+        s = source(source_code)
+        flags = {*flags.split(",")} - {""}
 
-    def w(source, *, flags="", reported_flags=None, number=1):
-        flags = Flags({*flags.split(",")})
         if reported_flags is None:
             reported_flags = flags
         else:
-            reported_flags = Flags({*reported_flags.split(",")})
+            reported_flags = {*reported_flags.split(",")}
 
-        nonlocal filecount
-        filename = tmp_path / f"test_{filecount}.py"
-        filecount += 1
+        assert s.flags == reported_flags
+        assert s.number_snapshots == number
+        assert s.number_changes == number
+        assert s.error == ("fix" in s.flags)
 
-        prefix = """\"\"\"
+        s2 = s.run(*flags)
+
+        return s2.source
+
+    return w
+
+
+@pytest.fixture()
+def source(tmp_path):
+    filecount = 1
+
+    @dataclass
+    class Source:
+        source: str
+        flags: Set[str] = field(default_factory=set)
+        error: bool = False
+        number_snapshots: int = 0
+        number_changes: int = 0
+
+        def run(self, *flags):
+            flags = Flags({*flags})
+
+            nonlocal filecount
+            filename = tmp_path / f"test_{filecount}.py"
+            filecount += 1
+
+            prefix = """\"\"\"
 PYTEST_DONT_REWRITE
 \"\"\"
 from inline_snapshot import snapshot
 
 """
 
-        filename.write_text(prefix + textwrap.dedent(source))
+            filename.write_text(prefix + textwrap.dedent(self.source))
 
-        with snapshot_env():
-            with ChangeRecorder().activate() as recorder:
-                _inline_snapshot._update_flags = flags
+            with snapshot_env():
+                with ChangeRecorder().activate() as recorder:
+                    _inline_snapshot._update_flags = flags
 
-                try:
-                    exec(compile(filename.read_text(), filename, "exec"))
-                except AssertionError:
-                    assert reported_flags.fix
-                finally:
-                    _inline_snapshot._active = False
+                    error = False
 
-                assert len(_inline_snapshot.snapshots) == number
+                    try:
+                        exec(compile(filename.read_text(), filename, "exec"))
+                    except AssertionError:
+                        error = True
+                    finally:
+                        _inline_snapshot._active = False
 
-                snapshot_flags = set()
+                    number_snapshots = len(_inline_snapshot.snapshots)
 
-                for snapshot in _inline_snapshot.snapshots.values():
-                    snapshot_flags |= snapshot._flags
-                    snapshot._change()
+                    snapshot_flags = set()
 
-                assert reported_flags.to_set() == snapshot_flags, snapshot_flags
+                    for snapshot in _inline_snapshot.snapshots.values():
+                        snapshot_flags |= snapshot._flags
+                        snapshot._change()
 
-                changes = recorder.changes()
+                    changes = recorder.changes()
 
-                assert len(changes) == number
+                    print("changes:")
+                    recorder.dump()
+                    recorder.fix_all(tags=["inline_snapshot"])
 
-                print("changes:")
-                recorder.dump()
-                recorder.fix_all(tags=["inline_snapshot"])
+            s = filename.read_text()[len(prefix) :]
+            return Source(
+                source=s,
+                flags=snapshot_flags,
+                error=error,
+                number_snapshots=number_snapshots,
+                number_changes=len(changes),
+            )
 
-        return filename.read_text()[len(prefix) :]
+    def w(source):
+        return Source(source=source).run()
 
     return w
+
+
+def test_generic(source, subtests):
+    operations = [
+        # compare
+        ("4", "==", "", "create"),
+        ("4", "==", "5", "fix"),
+        ("4", "==", "2+2", "update"),
+        # leq
+        ("4", "<=", "", "create"),
+        ("4", "<=", "5", "trim"),
+        ("5", "<=", "4", "fix"),
+        ("5", "<=", "3+2", "update"),
+        # geq
+        ("5", ">=", "", "create"),
+        ("5", ">=", "4", "trim"),
+        ("4", ">=", "5", "fix"),
+        ("5", ">=", "3+2", "update"),
+        # contains
+        ("5", "in", "", "create"),
+        ("5", "in", "[4,5]", "trim"),
+        ("5", "in", "[]", "fix"),
+        ("5", "in", "[3+2]", "update"),
+    ]
+
+    codes = []
+
+    for value, op, snapshot_value, reported_flag in operations:
+        codes.append((f"assert {value} {op} snapshot({snapshot_value})", reported_flag))
+        if snapshot_value:
+            codes.append(
+                (
+                    f"assert {value} {op} snapshot({{0: {snapshot_value}}})[0]",
+                    reported_flag,
+                )
+            )
+        else:
+            codes.append((f"assert {value} {op} snapshot({{}})[0]", reported_flag))
+
+    all_flags = ["trim", "fix", "create", "update"]
+
+    for code, reported_flag in codes:
+        with subtests.test(code):
+            s = source(code)
+            print("source:", code)
+
+            assert list(s.flags) == [reported_flag]
+
+            assert (reported_flag == "fix") == s.error
+
+            for flag in all_flags:
+                if flag == reported_flag:
+                    continue
+                print("use flag:", flag)
+                s2 = s.run(flag)
+                assert s2.source == s.source
+
+            s2 = s.run(reported_flag)
+            assert s2.flags == {reported_flag}
+
+            s3 = s2.run(*all_flags)
+            assert s3.flags == set()
+            assert s3.source == s2.source
 
 
 def test_mutable_values(check_update):
@@ -186,6 +287,10 @@ def test_comparison(check_update):
     assert check_update('assert "a"==snapshot("""a""")', flags="update") == snapshot(
         'assert "a"==snapshot("a")'
     )
+
+    assert check_update(
+        'assert "a"==snapshot("""a""")', reported_flags="update", flags="fix"
+    ) == snapshot('assert "a"==snapshot("""a""")')
 
     assert (
         check_update(
