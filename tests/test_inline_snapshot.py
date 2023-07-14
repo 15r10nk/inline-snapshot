@@ -1,5 +1,8 @@
 import ast
 import textwrap
+from dataclasses import dataclass
+from dataclasses import field
+from typing import Set
 
 import pytest
 from hypothesis import given
@@ -31,59 +34,24 @@ def test_disabled():
 
 
 @pytest.fixture()
-def check_update(tmp_path):
-    filecount = 1
+def check_update(source):
+    def w(source_code, *, flags="", reported_flags=None, number=1):
+        s = source(source_code)
+        flags = {*flags.split(",")} - {""}
 
-    def w(source, *, flags="", reported_flags=None, number=1):
-        flags = Flags({*flags.split(",")})
         if reported_flags is None:
             reported_flags = flags
         else:
-            reported_flags = Flags({*reported_flags.split(",")})
+            reported_flags = {*reported_flags.split(",")}
 
-        nonlocal filecount
-        filename = tmp_path / f"test_{filecount}.py"
-        filecount += 1
+        assert s.flags == reported_flags
+        assert s.number_snapshots == number
+        assert s.number_changes == number
+        assert s.error == ("fix" in s.flags)
 
-        prefix = """\"\"\"
-PYTEST_DONT_REWRITE
-\"\"\"
-from inline_snapshot import snapshot
+        s2 = s.run(*flags)
 
-"""
-
-        filename.write_text(prefix + textwrap.dedent(source))
-
-        with snapshot_env():
-            with ChangeRecorder().activate() as recorder:
-                _inline_snapshot._update_flags = flags
-
-                try:
-                    exec(compile(filename.read_text(), filename, "exec"))
-                except AssertionError:
-                    assert reported_flags.fix
-                finally:
-                    _inline_snapshot._active = False
-
-                assert len(_inline_snapshot.snapshots) == number
-
-                snapshot_flags = set()
-
-                for snapshot in _inline_snapshot.snapshots.values():
-                    snapshot_flags |= snapshot._flags
-                    snapshot._change()
-
-                assert reported_flags.to_set() == snapshot_flags, snapshot_flags
-
-                changes = recorder.changes()
-
-                assert len(changes) == number
-
-                print("changes:")
-                recorder.dump()
-                recorder.fix_all(tags=["inline_snapshot"])
-
-        return filename.read_text()[len(prefix) :]
+        return s2.source
 
     return w
 
@@ -92,11 +60,13 @@ from inline_snapshot import snapshot
 def source(tmp_path):
     filecount = 1
 
+    @dataclass
     class Source:
-        def __init__(self, source, flags, error):
-            self.source = source
-            self.flags = flags
-            self.error = error
+        source: str
+        flags: Set[str] = field(default_factory=set)
+        error: bool = False
+        number_snapshots: int = 0
+        number_changes: int = 0
 
         def run(self, *flags):
             flags = Flags({*flags})
@@ -137,17 +107,21 @@ from inline_snapshot import snapshot
 
                     changes = recorder.changes()
 
-                    # assert len(changes) == number
-
                     print("changes:")
                     recorder.dump()
                     recorder.fix_all(tags=["inline_snapshot"])
 
             s = filename.read_text()[len(prefix) :]
-            return Source(s, snapshot_flags, error)
+            return Source(
+                source=s,
+                flags=snapshot_flags,
+                error=error,
+                number_snapshots=number_snapshots,
+                number_changes=len(changes),
+            )
 
     def w(source):
-        return Source(source, set(), False).run()
+        return Source(source=source).run()
 
     return w
 
