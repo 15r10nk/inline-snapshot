@@ -5,6 +5,7 @@ import inspect
 import io
 import token
 import tokenize
+from collections import namedtuple
 from pathlib import Path
 from typing import Any
 from typing import Dict  # noqa
@@ -435,7 +436,7 @@ def snapshot(obj=undefined):
     return snapshots[key]._value
 
 
-ignore_tokens = (token.NEWLINE, token.ENDMARKER)
+ignore_tokens = (token.NEWLINE, token.ENDMARKER, token.NL)
 
 
 # based on ast.unparse
@@ -484,6 +485,9 @@ def triple_quote(string):
     return f"{quote_type}{string}{quote_type}"
 
 
+simple_token = namedtuple("simple_token", "type,string")
+
+
 class Snapshot:
     def __init__(self, value, expr):
         self._expr = expr
@@ -510,9 +514,9 @@ class Snapshot:
 
                     assert ast.literal_eval(tripple_quoted_string) == s
 
-                    return tok.type, tripple_quoted_string
+                    return simple_token(tok.type, tripple_quoted_string)
 
-            return (tok.type, tok.string)
+            return simple_token(tok.type, tok.string)
 
         return [
             map_string(t)
@@ -535,9 +539,11 @@ class Snapshot:
         needs_fix = self._value._needs_fix()
         needs_create = self._value._needs_create()
         needs_trim = self._value._needs_trim()
+        needs_update = self._needs_update()
 
         if (
             _update_flags.update
+            and needs_update
             and not (needs_fix or needs_create or needs_trim)
             or _update_flags.fix
             and needs_fix
@@ -560,10 +566,49 @@ class Snapshot:
 
     def _current_tokens(self):
         return [
-            (t.type, t.string)
+            simple_token(t.type, t.string)
             for t in self._expr.source.asttokens().get_tokens(self._expr.node.args[0])
             if t.type not in ignore_tokens
         ]
+
+    def _normalize_strings(self, token_sequence):
+        """Normalize string concattenanion.
+
+        "a" "b" -> "ab"
+        """
+
+        current_string = None
+        for t in token_sequence:
+            if (
+                t.type == token.STRING
+                and not t.string.startswith(("'''", '"""', "b'''", 'b"""'))
+                and t.string.startswith(("'", '"', "b'", 'b"'))
+            ):
+                if current_string is None:
+                    current_string = ast.literal_eval(t.string)
+                else:
+                    current_string += ast.literal_eval(t.string)
+
+                continue
+
+            if current_string is not None:
+                yield (token.STRING, repr(current_string))
+                current_string = None
+
+            yield t
+
+        if current_string is not None:
+            yield (token.STRING, repr(current_string))
+
+    def _needs_update(self):
+        return (
+            not self._value._needs_create()
+            and self._expr is not None
+            and list(self._normalize_strings(self._current_tokens()))
+            != list(
+                self._normalize_strings(self._value_to_token(self._value._old_value))
+            )
+        )
 
     @property
     def _flags(self):
@@ -575,11 +620,7 @@ class Snapshot:
         if self._value._needs_create():
             s.add("create")
 
-        if (
-            "create" not in s
-            and self._expr is not None
-            and self._current_tokens() != self._value_to_token(self._value._old_value)
-        ):
+        if self._needs_update():
             s.add("update")
 
         return s
