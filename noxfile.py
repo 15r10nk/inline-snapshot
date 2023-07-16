@@ -43,3 +43,10 @@ def docs(session):
     session.install("poetry")
     session.run("poetry", "install", "--with=doc")
     session.run("mkdocs", "build", *session.posargs)
+
+
+@nox.session(python="python3.10")
+def mutmut(session):
+    session.install("poetry")
+    session.run("poetry", "install", "--with=dev")
+    session.run("mutmut", "run", *session.posargs)
