@@ -42,7 +42,7 @@ def check_update(source):
         if reported_flags is None:
             reported_flags = flags
         else:
-            reported_flags = {*reported_flags.split(",")}
+            reported_flags = {*reported_flags.split(",")} - {""}
 
         assert s.flags == reported_flags
         assert s.number_snapshots == number
@@ -594,6 +594,38 @@ def test_plain(check_update):
     assert check_update(
         "s = snapshot()", flags="", reported_flags="create"
     ) == snapshot("s = snapshot()")
+
+
+def test_string_update(check_update):
+    # black --preview wraps strings to keep the line length.
+    # string concatenation should produce updates.
+    assert (
+        check_update(
+            'assert "ab" == snapshot("a" "b")', reported_flags="", flags="update"
+        )
+        == 'assert "ab" == snapshot("a" "b")'
+    )
+
+    assert (
+        check_update(
+            'assert "ab" == snapshot("a"\n "b")', reported_flags="", flags="update"
+        )
+        == 'assert "ab" == snapshot("a"\n "b")'
+    )
+
+    assert check_update(
+        'assert "ab\\nc" == snapshot("a"\n "b\\nc")', flags="update"
+    ) == snapshot(
+        '''assert "ab\\nc" == snapshot("""ab
+c""")'''
+    )
+
+    assert (
+        check_update(
+            'assert b"ab" == snapshot(b"a"\n b"b")', reported_flags="", flags="update"
+        )
+        == 'assert b"ab" == snapshot(b"a"\n b"b")'
+    )
 
 
 def test_string_newline(check_update):
