@@ -207,7 +207,7 @@ class ChangeRecorder:
         for file in self._source_files.values():
             file.rewrite()
 
-    def dump(self):
+    def dump(self):  # pragma: no cover
         for file in self._source_files.values():
             print("file:", file.filename)
             for change in file.replacements:
