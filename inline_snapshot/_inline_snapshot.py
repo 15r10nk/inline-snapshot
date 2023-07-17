@@ -164,7 +164,9 @@ class FixValue(GenericValue):
         return self._old_value is not undefined and self._old_value != self._new_value
 
     def get_result(self, flags):
-        return self._new_value
+        if flags.fix and self._needs_fix() or flags.create and self._needs_create():
+            return self._new_value
+        return self._old_value
 
 
 class MinMaxValue(GenericValue):
@@ -289,10 +291,8 @@ class CollectionValue(GenericValue):
 
     def get_result(self, flags):
         if (
-            flags.fix
-            and flags.trim
-            or flags.create
-            and self._old_value == undefined
+            (flags.fix and flags.trim)
+            or (flags.create and self._needs_create())
             or flags.update
         ):
             return self._new_value
@@ -306,7 +306,7 @@ class CollectionValue(GenericValue):
             if flags.trim:
                 return [v for v in self._old_value if v in self._new_value]
 
-        assert False, "unreachable"
+        return self._old_value
 
 
 class DictValue(GenericValue):
@@ -565,6 +565,9 @@ class Snapshot:
             )
 
     def _current_tokens(self):
+        if not self._expr.node.args:
+            return []
+
         return [
             simple_token(t.type, t.string)
             for t in self._expr.source.asttokens().get_tokens(self._expr.node.args[0])
@@ -601,14 +604,9 @@ class Snapshot:
             yield (token.STRING, repr(current_string))
 
     def _needs_update(self):
-        return (
-            not self._value._needs_create()
-            and self._expr is not None
-            and list(self._normalize_strings(self._current_tokens()))
-            != list(
-                self._normalize_strings(self._value_to_token(self._value._old_value))
-            )
-        )
+        return self._expr is not None and list(
+            self._normalize_strings(self._current_tokens())
+        ) != list(self._normalize_strings(self._value_to_token(self._value._old_value)))
 
     @property
     def _flags(self):
@@ -619,8 +617,7 @@ class Snapshot:
             s.add("trim")
         if self._value._needs_create():
             s.add("create")
-
-        if self._needs_update():
+        if not s and self._needs_update():
             s.add("update")
 
         return s

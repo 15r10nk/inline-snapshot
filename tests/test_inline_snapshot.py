@@ -1,5 +1,7 @@
 import ast
+import itertools
 import textwrap
+from collections import namedtuple
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Set
@@ -84,6 +86,11 @@ from inline_snapshot import snapshot
 
             filename.write_text(prefix + textwrap.dedent(self.source))
 
+            print()
+            print(f'run: inline-snapshot={",".join(flags.to_set())}')
+            print("input:")
+            print(textwrap.indent(self.source.rstrip(), " |"))
+
             with snapshot_env():
                 with ChangeRecorder().activate() as recorder:
                     _inline_snapshot._update_flags = flags
@@ -107,11 +114,13 @@ from inline_snapshot import snapshot
 
                     changes = recorder.changes()
 
-                    print("changes:")
-                    recorder.dump()
                     recorder.fix_all(tags=["inline_snapshot"])
 
             s = filename.read_text()[len(prefix) :]
+            print("output:")
+            print(textwrap.indent(s, " |").rstrip())
+            print("reported_flags:", snapshot_flags)
+
             return Source(
                 source=s,
                 flags=snapshot_flags,
@@ -126,42 +135,44 @@ from inline_snapshot import snapshot
     return w
 
 
-def test_generic(source, subtests):
-    operations = [
-        # compare
-        ("4", "==", "", "create"),
-        ("4", "==", "5", "fix"),
-        ("4", "==", "2+2", "update"),
-        # leq
-        ("4", "<=", "", "create"),
-        ("4", "<=", "5", "trim"),
-        ("5", "<=", "4", "fix"),
-        ("5", "<=", "3+2", "update"),
-        # geq
-        ("5", ">=", "", "create"),
-        ("5", ">=", "4", "trim"),
-        ("4", ">=", "5", "fix"),
-        ("5", ">=", "3+2", "update"),
-        # contains
-        ("5", "in", "", "create"),
-        ("5", "in", "[4,5]", "trim"),
-        ("5", "in", "[]", "fix"),
-        ("5", "in", "[3+2]", "update"),
-    ]
+operation = namedtuple("operation", "value,op,svalue,fvalue,flag")
+operations = [
+    # compare
+    operation("4", "==", "", "4", "create"),
+    operation("4", "==", "5", "4", "fix"),
+    operation("4", "==", "2+2", "4", "update"),
+    # leq
+    operation("4", "<=", "", "4", "create"),
+    operation("4", "<=", "5", "4", "trim"),
+    operation("5", "<=", "4", "5", "fix"),
+    operation("5", "<=", "3+2", "5", "update"),
+    # geq
+    operation("5", ">=", "", "5", "create"),
+    operation("5", ">=", "4", "5", "trim"),
+    operation("4", ">=", "5", "4", "fix"),
+    operation("5", ">=", "3+2", "5", "update"),
+    # contains
+    operation("5", "in", "", "[5]", "create"),
+    operation("5", "in", "[4, 5]", "[5]", "trim"),
+    operation("5", "in", "[]", "[5]", "fix"),
+    operation("5", "in", "[3+2]", "[5]", "update"),
+]
 
+
+def test_generic(source, subtests):
     codes = []
 
-    for value, op, snapshot_value, reported_flag in operations:
-        codes.append((f"assert {value} {op} snapshot({snapshot_value})", reported_flag))
-        if snapshot_value:
+    for op in operations:
+        codes.append((f"assert {op.value} {op.op} snapshot({op.svalue})", op.flag))
+        if op.svalue:
             codes.append(
                 (
-                    f"assert {value} {op} snapshot({{0: {snapshot_value}}})[0]",
-                    reported_flag,
+                    f"assert {op.value} {op.op} snapshot({{0: {op.svalue}}})[0]",
+                    op.flag,
                 )
             )
         else:
-            codes.append((f"assert {value} {op} snapshot({{}})[0]", reported_flag))
+            codes.append((f"assert {op.value} {op.op} snapshot({{}})[0]", op.flag))
 
     all_flags = ["trim", "fix", "create", "update"]
 
@@ -187,6 +198,56 @@ def test_generic(source, subtests):
             s3 = s2.run(*all_flags)
             assert s3.flags == set()
             assert s3.source == s2.source
+
+
+@pytest.mark.parametrize(
+    "ops",
+    [
+        pytest.param(ops, id=" ".join(f"{op.flag}({op.op})" for op in ops))
+        for ops in itertools.combinations(operations, 2)
+    ],
+)
+def test_generic_multi(source, subtests, ops):
+    def gen_code(ops, fixed):
+        args = ", ".join(
+            f'"k_{k}": {value}'
+            for k, value in [
+                (k, (op.fvalue if op.flag in fixed else op.svalue))
+                for k, op in enumerate(ops)
+            ]
+            if value
+        )
+        code = "s = snapshot({" + args + "})\n"
+
+        for k, op in enumerate(ops):
+            code += f'print({op.value} {op.op} s["k_{k}"]) # {op.flag} {op.svalue or "<undef>"} -> {op.fvalue}\n'
+
+        return code
+
+    all_flags = {op.flag for op in ops}
+
+    s = source(gen_code(ops, {}))
+
+    reported_flags = all_flags
+    if "update" in reported_flags and len(reported_flags) > 1:
+        reported_flags -= {"update"}
+
+    assert s.flags == reported_flags
+
+    for flags in itertools.permutations(reported_flags):
+        with subtests.test(" ".join(flags)):
+            s2 = s
+            fixed_flags = set()
+            for flag in flags:
+                if flag in {"create", "fix", "trim"}:
+                    fixed_flags.add("update")
+
+                s2 = s2.run(flag)
+                fixed_flags.add(flag)
+                assert s2.source == gen_code(ops, fixed_flags)
+
+                s2 = s2.run()
+                assert s2.flags == reported_flags - fixed_flags
 
 
 def test_mutable_values(check_update):
