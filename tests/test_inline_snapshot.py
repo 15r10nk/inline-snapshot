@@ -255,9 +255,9 @@ def test_mutable_values(check_update):
     assert (
         check_update(
             """
-l=[1,2]
+l=[1,[2]]
 assert l==snapshot()
-l.append(3)
+l[1].append(4)
 assert l==snapshot()
     """,
             flags="create",
@@ -265,10 +265,10 @@ assert l==snapshot()
         )
         == snapshot(
             """
-l=[1,2]
-assert l==snapshot([1, 2])
-l.append(3)
-assert l==snapshot([1, 2, 3])
+l=[1,[2]]
+assert l==snapshot([1, [2]])
+l[1].append(4)
+assert l==snapshot([1, [2, 4]])
 """
         )
     )
@@ -276,9 +276,9 @@ assert l==snapshot([1, 2, 3])
     assert (
         check_update(
             """
-l=[1,2]
+l=[1,[2]]
 assert l<=snapshot()
-l.append(3)
+l[1].append(4)
 assert l<=snapshot()
     """,
             flags="create",
@@ -286,10 +286,10 @@ assert l<=snapshot()
         )
         == snapshot(
             """
-l=[1,2]
-assert l<=snapshot([1, 2])
-l.append(3)
-assert l<=snapshot([1, 2, 3])
+l=[1,[2]]
+assert l<=snapshot([1, [2]])
+l[1].append(4)
+assert l<=snapshot([1, [2, 4]])
 """
         )
     )
@@ -297,9 +297,9 @@ assert l<=snapshot([1, 2, 3])
     assert (
         check_update(
             """
-l=[1,2]
+l=[1,[2]]
 assert l>=snapshot()
-l.append(3)
+l[1].append(4)
 assert l>=snapshot()
     """,
             flags="create",
@@ -307,10 +307,10 @@ assert l>=snapshot()
         )
         == snapshot(
             """
-l=[1,2]
-assert l>=snapshot([1, 2])
-l.append(3)
-assert l>=snapshot([1, 2, 3])
+l=[1,[2]]
+assert l>=snapshot([1, [2]])
+l[1].append(4)
+assert l>=snapshot([1, [2, 4]])
 """
         )
     )
@@ -318,9 +318,9 @@ assert l>=snapshot([1, 2, 3])
     assert (
         check_update(
             """
-l=[1,2]
+l=[1,[2]]
 assert l in snapshot()
-l.append(3)
+l[1].append(4)
 assert l in snapshot()
     """,
             flags="create",
@@ -328,10 +328,10 @@ assert l in snapshot()
         )
         == snapshot(
             """
-l=[1,2]
-assert l in snapshot([[1, 2]])
-l.append(3)
-assert l in snapshot([[1, 2, 3]])
+l=[1,[2]]
+assert l in snapshot([[1, [2]]])
+l[1].append(4)
+assert l in snapshot([[1, [2, 4]]])
 """
         )
     )
