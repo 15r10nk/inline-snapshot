@@ -6,11 +6,11 @@ edit_uri: edit/main/docs
 theme:
   name: material
   features:
-  - toc.integrate
   - toc.follow
 
 watch:
 - CONTRIBUTING.md
+- CHANGELOG.md
 - README.md
 
 nav:
@@ -22,6 +22,8 @@ nav:
   - snapshot()[key]: getitem_snapshot.md
 - pytest integration: pytest.md
 - Contributing: contributing.md
+- Changelog: changelog.md
+
 
 
 markdown_extensions:
