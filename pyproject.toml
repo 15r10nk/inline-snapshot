@@ -12,6 +12,9 @@ version_files = [
 ]
 version_provider = "poetry"
 
+[tool.coverage.html]
+show_contexts = true
+
 [tool.coverage.report]
 exclude_lines = ["pragma: no cover", "assert False", "raise NotImplemented", "\\.\\.\\."]
 
