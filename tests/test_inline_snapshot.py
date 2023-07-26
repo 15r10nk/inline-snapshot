@@ -1,22 +1,17 @@
 import ast
 import itertools
-import textwrap
 from collections import namedtuple
 from contextlib import nullcontext
-from dataclasses import dataclass
-from dataclasses import field
-from typing import Set
 
 import pytest
 from hypothesis import given
 from hypothesis.strategies import text
 
+from .utils import snapshot_env
 from inline_snapshot import _inline_snapshot
 from inline_snapshot import snapshot
 from inline_snapshot._inline_snapshot import Flags
-from inline_snapshot._inline_snapshot import snapshot_env
 from inline_snapshot._inline_snapshot import triple_quote
-from inline_snapshot._rewrite_code import ChangeRecorder
 
 
 def test_snapshot_eq():
@@ -34,106 +29,6 @@ def test_disabled():
     assert str(excinfo.value) == snapshot(
         "your snapshot is missing a value run pytest with --inline-snapshot=create"
     )
-
-
-@pytest.fixture()
-def check_update(source):
-    def w(source_code, *, flags="", reported_flags=None, number=1):
-        s = source(source_code)
-        flags = {*flags.split(",")} - {""}
-
-        if reported_flags is None:
-            reported_flags = flags
-        else:
-            reported_flags = {*reported_flags.split(",")} - {""}
-
-        assert s.flags == reported_flags
-        assert s.number_snapshots == number
-        assert s.number_changes == number
-        assert s.error == ("fix" in s.flags)
-
-        s2 = s.run(*flags)
-
-        return s2.source
-
-    return w
-
-
-@pytest.fixture()
-def source(tmp_path):
-    filecount = 1
-
-    @dataclass
-    class Source:
-        source: str
-        flags: Set[str] = field(default_factory=set)
-        error: bool = False
-        number_snapshots: int = 0
-        number_changes: int = 0
-
-        def run(self, *flags):
-            flags = Flags({*flags})
-
-            nonlocal filecount
-            filename = tmp_path / f"test_{filecount}.py"
-            filecount += 1
-
-            prefix = """\"\"\"
-PYTEST_DONT_REWRITE
-\"\"\"
-from inline_snapshot import snapshot
-
-"""
-
-            filename.write_text(prefix + textwrap.dedent(self.source))
-
-            print()
-            print(f'run: inline-snapshot={",".join(flags.to_set())}')
-            print("input:")
-            print(textwrap.indent(self.source.rstrip(), " |"))
-
-            with snapshot_env():
-                with ChangeRecorder().activate() as recorder:
-                    _inline_snapshot._update_flags = flags
-
-                    error = False
-
-                    try:
-                        exec(compile(filename.read_text(), filename, "exec"))
-                    except AssertionError:
-                        error = True
-                    finally:
-                        _inline_snapshot._active = False
-
-                    number_snapshots = len(_inline_snapshot.snapshots)
-
-                    snapshot_flags = set()
-
-                    for snapshot in _inline_snapshot.snapshots.values():
-                        snapshot_flags |= snapshot._flags
-                        snapshot._change()
-
-                    changes = recorder.changes()
-
-                    recorder.fix_all(tags=["inline_snapshot"])
-
-            s = filename.read_text()[len(prefix) :]
-            print("output:")
-            print(textwrap.indent(s, " |").rstrip())
-            print("reported_flags:", snapshot_flags)
-
-            return Source(
-                source=s,
-                flags=snapshot_flags,
-                error=error,
-                number_snapshots=number_snapshots,
-                number_changes=len(changes),
-            )
-
-    def w(source):
-        return Source(source=source).run()
-
-    return w
 
 
 operation = namedtuple("operation", "value,op,svalue,fvalue,flag")
@@ -860,3 +755,27 @@ assert {test2}
             assert "This snapshot cannot be use with" in str(error.value)
         else:
             assert test1 == test2
+
+
+def test_invalid_repr(check_update):
+    assert (
+        check_update(
+            """\
+class Thing:
+    def __repr__(self):
+        return "+++"
+
+assert Thing() == snapshot()
+""",
+            flags="create",
+        )
+        == snapshot(
+            """\
+class Thing:
+    def __repr__(self):
+        return "+++"
+
+assert Thing() == snapshot()
+"""
+        )
+    )

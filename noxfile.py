@@ -50,6 +50,7 @@ def test(session):
         "run",
         "-m",
         "pytest",
+        "--doctest-modules",
         *args,
         "tests",
         "inline_snapshot",
@@ -59,11 +60,11 @@ def test(session):
 
 @session(python="python3.10")
 def docs(session):
-    session.install("mkdocs", "mkdocs-material[imaging]", "mkdocstrings")
+    session.install("mkdocs", "mkdocs-material[imaging]", "mkdocstrings[python]")
     session.run("mkdocs", "build", *session.posargs)
 
 
 @session(python="python3.10")
 def docs_serve(session):
-    session.install("mkdocs", "mkdocs-material[imaging]", "mkdocstrings")
+    session.install("mkdocs", "mkdocs-material[imaging]", "mkdocstrings[python]")
     session.run("mkdocs", "serve", *session.posargs)

@@ -1,8 +1,13 @@
 import argparse
+from pathlib import Path
 
 import pytest
 
+from . import _config
+from . import _external
+from . import _find_external
 from . import _inline_snapshot
+from ._find_external import ensure_import
 from ._inline_snapshot import undefined
 from ._rewrite_code import ChangeRecorder
 
@@ -55,6 +60,11 @@ def pytest_configure(config):
 
     old_flag = config.option.inline_snapshot_deprecated
 
+    snapshot_path = Path(config.rootpath) / ".inline-snapshot/external"
+    _external.storage = _external.DiscStorage(snapshot_path)
+
+    _config.config = _config.read_config(config.rootpath / "pyproject.toml")
+
     if old_flag != "none":
         msg_prefix = f"--update-snapshots={old_flag} is deprecated, please use "
 
@@ -81,6 +91,8 @@ def pytest_configure(config):
             e for e in sys.meta_path if type(e).__name__ != "AssertionRewritingHook"
         ]
 
+    _external.storage.prune_new_files()
+
 
 @pytest.fixture(autouse=True)
 def snapshot_check():
@@ -106,6 +118,26 @@ def pytest_assertrepr_compare(config, op, left, right):
             config=config, op=op, left=left, right=right._visible_value()
         )
 
+    external_used = False
+    if isinstance(right, _external.external):
+        external_used = True
+        if right._suffix == ".txt":
+            right = right._load_value().decode()
+        else:
+            right = right._load_value()
+
+    if isinstance(left, _external.external):
+        external_used = True
+        if left._suffix == ".txt":
+            left = left._load_value().decode()
+        else:
+            left = left._load_value()
+
+    if external_used:
+        results = config.hook.pytest_assertrepr_compare(
+            config=config, op=op, left=left, right=right
+        )
+
     if results:
         return results[0]
 
@@ -118,12 +150,17 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
     terminalreporter.section("inline snapshot")
 
+    unused_externals = _find_external.unused_externals()
+
     def report(flag, message):
         num = sum(
             1
             for snapshot in _inline_snapshot.snapshots.values()
             if flag in snapshot._flags
         )
+
+        if flag == "trim":
+            num += len(unused_externals)
 
         if num and not getattr(_inline_snapshot._update_flags, flag):
             terminalreporter.write(message.format(num=num) + "\n")
@@ -155,6 +192,17 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                 count[flag] += 1
             snapshot._change()
 
+        ensure_external = set()
+        for snapshot in _inline_snapshot.snapshots.values():
+            if snapshot._uses_externals:
+                ensure_external.add(snapshot._filename)
+
+            for external_name in snapshot._uses_externals:
+                _external.storage.persist(external_name)
+
+        for filename in ensure_external:
+            ensure_import(filename, {"inline_snapshot": ["external"]})
+
         recorder.fix_all()
 
         def report_change(flags, msg):
@@ -167,3 +215,11 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
         # update does not work currently, because executing has limitations with pytest
         report_change("update", "updated {num} snapshots")
+
+        if unused_externals and _inline_snapshot._update_flags.trim:
+            for name in unused_externals:
+                assert _external.storage
+                _external.storage.remove(name)
+            terminalreporter.write(
+                f"removed {len(unused_externals)} unused externals\n"
+            )

@@ -1,8 +1,8 @@
 import ast
-import contextlib
 import copy
 import inspect
 import io
+import sys
 import token
 import tokenize
 from collections import namedtuple
@@ -31,6 +31,8 @@ undefined = Undefined()
 snapshots = {}  # type: Dict[Tuple[int, int], Snapshot]
 
 _active = False
+
+_files_with_snapshots = set()
 
 
 class Flags:
@@ -62,25 +64,6 @@ _update_flags = Flags()
 
 def ignore_old_value():
     return _update_flags.fix or _update_flags.update
-
-
-@contextlib.contextmanager
-def snapshot_env():
-    global snapshots
-    global _update_flags
-    global _active
-    global found_snapshots
-
-    current = snapshots, _update_flags, _active, found_snapshots
-
-    snapshots = {}
-    _update_flags = Flags()
-    _active = True
-    found_snapshots = []
-
-    yield
-
-    snapshots, _update_flags, _active, found_snapshots = current
 
 
 class GenericValue:
@@ -245,14 +228,10 @@ class MinValue(MinMaxValue):
     """
     handles:
 
-    >>> with snapshot_env():
-    ...     snapshot(5) <= 6
-    ...
+    >>> snapshot(5) <= 6
     True
 
-    >>> with snapshot_env():
-    ...     6 >= snapshot(5)
-    ...
+    >>> 6 >= snapshot(5)
     True
 
     """
@@ -270,14 +249,10 @@ class MaxValue(MinMaxValue):
     """
     handles:
 
-    >>> with snapshot_env():
-    ...     snapshot(5) >= 4
-    ...
+    >>> snapshot(5) >= 4
     True
 
-    >>> with snapshot_env():
-    ...     4 <= snapshot(5)
-    ...
+    >>> 4 <= snapshot(5)
     True
 
     """
@@ -447,6 +422,10 @@ def snapshot(obj=undefined):
     frame = inspect.currentframe().f_back.f_back
     expr = Source.executing(frame)
 
+    module = inspect.getmodule(frame)
+    if module is not None:
+        _files_with_snapshots.add(module.__file__)
+
     key = id(frame.f_code), frame.f_lasti
 
     if key not in snapshots:
@@ -521,10 +500,34 @@ def triple_quote(string):
 simple_token = namedtuple("simple_token", "type,string")
 
 
+def used_externals(tree):
+    if sys.version_info < (3, 8):
+        return [
+            n.args[0].s
+            for n in ast.walk(tree)
+            if isinstance(n, ast.Call)
+            and isinstance(n.func, ast.Name)
+            and n.func.id == "external"
+            and n.args
+            and isinstance(n.args[0], ast.Str)
+        ]
+    else:
+        return [
+            n.args[0].value
+            for n in ast.walk(tree)
+            if isinstance(n, ast.Call)
+            and isinstance(n.func, ast.Name)
+            and n.func.id == "external"
+            and n.args
+            and isinstance(n.args[0], ast.Constant)
+        ]
+
+
 class Snapshot:
     def __init__(self, value, expr):
         self._expr = expr
         self._value = UndecidedValue(value)
+        self._uses_externals = []
 
     @property
     def _filename(self):
@@ -591,6 +594,13 @@ class Snapshot:
             text = self._format(
                 tokenize.untokenize(self._value_to_token(new_value))
             ).strip()
+
+            try:
+                tree = ast.parse(text)
+            except:
+                return
+
+            self._uses_externals = used_externals(tree)
 
             change.replace(
                 (end_of(tokens[1]), start_of(tokens[-1])),
