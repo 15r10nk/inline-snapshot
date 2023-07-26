@@ -15,6 +15,7 @@ watch:
 - CONTRIBUTING.md
 - CHANGELOG.md
 - README.md
+- inline_snapshot
 
 nav:
 - Introduction: index.md
@@ -23,7 +24,9 @@ nav:
   - x <= snapshot(): cmp_snapshot.md
   - x in snapshot(): in_snapshot.md
   - snapshot()[key]: getitem_snapshot.md
+  - outsource(data): outsource.md
 - pytest integration: pytest.md
+- Configuration: configuration.md
 - Contributing: contributing.md
 - Changelog: changelog.md
 
@@ -52,6 +55,9 @@ plugins:
         options:
           show_root_heading: true
           show_source: false
+          show_root_full_path: false
+          merge_init_into_class: true
+          heading_level: 3
 - social
 - search
 
