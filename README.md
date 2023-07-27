@@ -2,6 +2,7 @@
 
 [![Docs](https://img.shields.io/badge/docs-mkdocs-green)](https://15r10nk.github.io/inline-snapshot/)
 [![pypi version](https://img.shields.io/pypi/v/inline-snapshot.svg)](https://pypi.org/project/inline-snapshot/)
+![Python Versions](https://img.shields.io/pypi/pyversions/inline-snapshot)
 ![PyPI - Downloads](https://img.shields.io/pypi/dw/inline-snapshot)
 [![coverage](https://img.shields.io/badge/coverage-100%25-blue)](https://15r10nk.github.io/inline-snapshot/contributing/#coverage)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/15r10nk)](https://github.com/sponsors/15r10nk)
