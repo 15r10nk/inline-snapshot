@@ -32,3 +32,43 @@ jobs:
     - run: pip install nox==2022.11.21
     - run: pip install poetry==1.2.2
     - run: nox --sessions test-${{matrix.python-version}}
+
+    - name: Combine data
+      env:
+        TOP: ${{github.workspace}}
+      run: |
+        poetry install
+        poetry run coverage combine
+        mv .coverage .coverage.${{ matrix.python-version }}
+
+    - name: Upload coverage data
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage
+        path: .coverage.*
+
+  combine_coverage:
+    name: combine coverage and check for 100%
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        architecture: x64
+
+    - name: Download coverage data
+      uses: actions/download-artifact@v3
+      with:
+        name: coverage
+
+    - name: Combine data
+      env:
+        TOP: ${{github.workspace}}
+      run: |
+        pip install coverage
+        coverage combine
+        coverage
+        coverage report --fail-under 100
