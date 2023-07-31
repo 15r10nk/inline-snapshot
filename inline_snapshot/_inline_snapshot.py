@@ -200,13 +200,7 @@ class MinMaxValue(GenericValue):
         return not self.cmp(self._old_value, self._new_value)
 
     def get_result(self, flags):
-        if (
-            flags.fix
-            and flags.trim
-            or flags.create
-            and self._old_value == undefined
-            or flags.update
-        ):
+        if flags.create and self._needs_create():
             return self._new_value
 
         if flags.fix and self._needs_fix():
@@ -290,11 +284,7 @@ class CollectionValue(GenericValue):
         return any(item not in self._old_value for item in self._new_value)
 
     def get_result(self, flags):
-        if (
-            (flags.fix and flags.trim)
-            or (flags.create and self._needs_create())
-            or flags.update
-        ):
+        if (flags.fix and flags.trim) or (flags.create and self._needs_create()):
             return self._new_value
 
         if self._old_value is not undefined:
@@ -353,6 +343,11 @@ class DictValue(GenericValue):
             for k, v in self._old_value.items():
                 if k not in result:
                     result[k] = v
+
+        if not flags.create:
+            for k in list(result.keys()):
+                if k not in self._old_value:
+                    del result[k]
 
         return result
 
@@ -544,7 +539,6 @@ class Snapshot:
         if (
             _update_flags.update
             and needs_update
-            and not (needs_fix or needs_create or needs_trim)
             or _update_flags.fix
             and needs_fix
             or _update_flags.create
@@ -604,7 +598,7 @@ class Snapshot:
             yield (token.STRING, repr(current_string))
 
     def _needs_update(self):
-        return self._expr is not None and list(
+        return self._expr is not None and [] != list(
             self._normalize_strings(self._current_tokens())
         ) != list(self._normalize_strings(self._value_to_token(self._value._old_value)))
 
@@ -617,7 +611,7 @@ class Snapshot:
             s.add("trim")
         if self._value._needs_create():
             s.add("create")
-        if not s and self._needs_update():
+        if self._value._old_value is not undefined and self._needs_update():
             s.add("update")
 
         return s
