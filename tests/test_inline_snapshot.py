@@ -228,13 +228,9 @@ def test_generic_multi(source, subtests, ops):
 
     s = source(gen_code(ops, {}))
 
-    reported_flags = all_flags
-    if "update" in reported_flags and len(reported_flags) > 1:
-        reported_flags -= {"update"}
+    assert s.flags == all_flags
 
-    assert s.flags == reported_flags
-
-    for flags in itertools.permutations(reported_flags):
+    for flags in itertools.permutations(all_flags):
         with subtests.test(" ".join(flags)):
             s2 = s
             fixed_flags = set()
@@ -247,7 +243,12 @@ def test_generic_multi(source, subtests, ops):
                 assert s2.source == gen_code(ops, fixed_flags)
 
                 s2 = s2.run()
-                assert s2.flags == reported_flags - fixed_flags
+                assert s2.flags == all_flags - fixed_flags
+
+    for flag in {"update", "fix", "trim", "create"} - all_flags:
+        with subtests.test(f"ignore {flag}"):
+            s2 = s.run(flag)
+            assert s2.source == s.source
 
 
 def test_mutable_values(check_update):
