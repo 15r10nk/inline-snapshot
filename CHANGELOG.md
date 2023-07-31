@@ -1,4 +1,10 @@
-## Unreleased
+## v0.3.2 (2023-07-31)
+
+### Fix
+
+- handle update flag in sub-snapshots correctly
+- fixed some edge cases where sub-snapshots had problems with some flags
+- string literal concatenation should trigger no update
 
 ## v0.3.1 (2023-07-14)
 
