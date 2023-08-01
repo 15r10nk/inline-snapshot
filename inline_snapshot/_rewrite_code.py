@@ -132,7 +132,7 @@ class SourceFile:
             code.write(new_code.encode())
 
     def new_code(self):
-        """returns the new file contend or None if there are no replacepents to
+        """Returns the new file contend or None if there are no replacepents to
         apply."""
         replacements = list(self.replacements)
         replacements.sort()
