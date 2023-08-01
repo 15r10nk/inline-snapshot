@@ -170,7 +170,7 @@ class FixValue(GenericValue):
 
 
 class MinMaxValue(GenericValue):
-    """generic implementation for <=, >="""
+    """Generic implementation for <=, >="""
 
     @staticmethod
     def cmp(a, b):

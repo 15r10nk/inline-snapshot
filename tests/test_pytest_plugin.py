@@ -459,15 +459,12 @@ assert s==[1,2]
     ],
 )
 def test_docs(project, file, subtests):
-    """
-    test code blocks with the header
-    <!-- inline-snapshot: options ... -->
+    """Test code blocks with the header <!-- inline-snapshot: options ... -->
 
     where options can be:
         * flags passed to --inline-snapshot=...
         * `this` to specify that the input source code should be the current block and not the last
         * `outcome-passed=2` to check for the pytest test outcome
-
     """
     block_start = re.compile("``` *python")
     block_end = re.compile("```.*")
