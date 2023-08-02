@@ -661,12 +661,17 @@ def test_plain(check_update):
 def test_string_update(check_update):
     # black --preview wraps strings to keep the line length.
     # string concatenation should produce updates.
-    assert (
-        check_update(
-            'assert "ab" == snapshot("a" "b")', reported_flags="", flags="update"
-        )
-        == 'assert "ab" == snapshot("a" "b")'
-    )
+
+    for prefix in ("", "b"):
+        for quote in "'\"":
+            stmt = f'assert {prefix}"ab" == snapshot({prefix}{quote}a{quote} {prefix}{quote}b{quote})'
+
+            assert check_update(stmt, reported_flags="", flags="update") == stmt
+
+            stmt = f'assert {prefix}"ab" == snapshot({prefix}{quote*3}a{quote*3} {prefix}{quote*3}b{quote*3})'
+            result_stmt = f'assert {prefix}"ab" == snapshot({prefix}"ab")'
+
+            assert check_update(stmt, flags="update") == result_stmt
 
     assert (
         check_update(
