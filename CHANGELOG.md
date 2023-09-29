@@ -1,3 +1,13 @@
+## v0.4.0 (2023-09-29)
+
+### Feat
+
+- escaped linebreak at the start/end of multiline strings
+
+### Fix
+
+- added py.typed
+
 ## v0.3.2 (2023-07-31)
 
 ### Fix
