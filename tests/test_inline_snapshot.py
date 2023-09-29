@@ -678,8 +678,12 @@ def test_string_update(check_update):
     assert check_update(
         'assert "ab\\nc" == snapshot("a"\n "b\\nc")', flags="update"
     ) == snapshot(
-        '''assert "ab\\nc" == snapshot("""ab
-c""")'''
+        '''\
+assert "ab\\nc" == snapshot("""\\
+ab
+c\\
+""")\
+'''
     )
 
     assert (
@@ -692,42 +696,70 @@ c""")'''
 
 def test_string_newline(check_update):
     assert check_update('s = snapshot("a\\nb")', flags="update") == snapshot(
-        '''s = snapshot("""a
-b""")'''
+        '''\
+s = snapshot("""\\
+a
+b\\
+""")\
+'''
     )
 
     assert check_update('s = snapshot("a\\"\\"\\"\\nb")', flags="update") == snapshot(
-        """s = snapshot('''a\"\"\"
-b''')"""
+        """\
+s = snapshot('''\\
+a\"\"\"
+b\\
+''')\
+"""
     )
 
     assert check_update(
         's = snapshot("a\\"\\"\\"\\n\\\'\\\'\\\'b")', flags="update"
     ) == snapshot(
-        '''s = snapshot("""a\\"\\"\\"
-\'\'\'b""")'''
+        '''\
+s = snapshot("""\\
+a\\"\\"\\"
+\'\'\'b\\
+""")\
+'''
     )
 
     assert check_update('s = snapshot(b"a\\nb")') == snapshot('s = snapshot(b"a\\nb")')
 
     assert check_update('s = snapshot("\\n\\\'")', flags="update") == snapshot(
-        '''s = snapshot("""
-'""")'''
+        '''\
+s = snapshot("""\\
+
+'\\
+""")\
+'''
     )
 
     assert check_update('s = snapshot("\\n\\"")', flags="update") == snapshot(
-        """s = snapshot('''
-"''')"""
+        '''\
+s = snapshot("""\\
+
+"\\
+""")\
+'''
     )
 
     assert check_update("s = snapshot(\"'''\\n\\\"\")", flags="update") == snapshot(
-        '''s = snapshot("""\'\'\'
-\\"""")'''
+        '''\
+s = snapshot("""\\
+\'\'\'
+\\"\\
+""")\
+'''
     )
 
     assert check_update('s = snapshot("\\n\b")', flags="update") == snapshot(
-        '''s = snapshot("""
-\\x08""")'''
+        '''\
+s = snapshot("""\\
+
+\\x08\\
+""")\
+'''
     )
 
 
@@ -735,20 +767,30 @@ def test_string_quote_choice(check_update):
     assert check_update(
         "s = snapshot(\" \\'\\'\\' \\'\\'\\' \\\"\\\"\\\"\\n\")", flags="update"
     ) == snapshot(
-        '''s = snapshot(""" \'\'\' \'\'\' \\"\\"\\"
-""")'''
+        '''\
+s = snapshot("""\\
+ \'\'\' \'\'\' \\"\\"\\"
+""")\
+'''
     )
 
     assert check_update(
         's = snapshot(" \\\'\\\'\\\' \\"\\"\\" \\"\\"\\"\\n")', flags="update"
     ) == snapshot(
-        """s = snapshot(''' \\'\\'\\' \"\"\" \"\"\"
-''')"""
+        """\
+s = snapshot('''\\
+ \\'\\'\\' \"\"\" \"\"\"
+''')\
+"""
     )
 
     assert check_update('s = snapshot("\\n\\"")', flags="update") == snapshot(
-        """s = snapshot('''
-"''')"""
+        '''\
+s = snapshot("""\\
+
+"\\
+""")\
+'''
     )
 
 
@@ -766,7 +808,8 @@ def test_format_file(check_update):
     assert check_update(
         'assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot()\n', flags="create"
     ) == snapshot(
-        """assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot(
+        """\
+assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot(
     [
         "aaaaaaaaaaaaaaaaa",
         "aaaaaaaaaaaaaaaaa",
@@ -783,7 +826,8 @@ def test_format_value(check_update):
     assert check_update(
         'assert ["aaaaaaaaaaaaaaaaa"] * 5==  snapshot()\n', flags="create"
     ) == snapshot(
-        """assert ["aaaaaaaaaaaaaaaaa"] * 5==  snapshot([
+        """\
+assert ["aaaaaaaaaaaaaaaaa"] * 5==  snapshot([
     "aaaaaaaaaaaaaaaaa",
     "aaaaaaaaaaaaaaaaa",
     "aaaaaaaaaaaaaaaaa",
