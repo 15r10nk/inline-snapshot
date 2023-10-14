@@ -836,3 +836,7 @@ assert ["aaaaaaaaaaaaaaaaa"] * 5==  snapshot([
 ])
 """
     )
+
+
+def test_unused_snapshot(check_update):
+    assert check_update("snapshot()\n", flags="create") == "snapshot()\n"
