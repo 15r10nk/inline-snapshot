@@ -497,6 +497,8 @@ class Snapshot:
         return format_code(text, Path(self._filename))
 
     def _value_to_token(self, value):
+        if value is undefined:
+            return []
         input = io.StringIO(self._format(repr(value)))
 
         def map_string(tok):
