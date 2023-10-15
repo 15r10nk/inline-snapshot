@@ -7,6 +7,8 @@ theme:
   name: material
   features:
   - toc.follow
+  palette:
+    primary: teal
 
 watch:
 - CONTRIBUTING.md
@@ -39,6 +41,8 @@ markdown_extensions:
 - admonition
 - pymdownx.details
 - pymdownx.superfences
+- pymdownx.tabbed:
+    alternate_style: true
 
 plugins:
 - mkdocstrings:
@@ -47,6 +51,8 @@ plugins:
         options:
           show_root_heading: true
           show_source: false
+- social
+- search
 
 extra:
   social:

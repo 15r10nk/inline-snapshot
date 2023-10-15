@@ -5,11 +5,19 @@ The value gets recorded if the snapshot is undefined (`snapshot()`)
 
 Example:
 
-<!-- inline-snapshot: update this -->
-```python
-def test_something():
-    assert 2 + 2 == snapshot(4)
-```
+=== "original code"
+    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
+    ```python
+    def test_something():
+        assert 2 + 2 == snapshot()
+    ```
+
+=== "--inline-snapshot=create"
+    <!-- inline-snapshot: create -->
+    ```python
+    def test_something():
+        assert 2 + 2 == snapshot(4)
+    ```
 
 ## pytest options
 

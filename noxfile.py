@@ -51,5 +51,11 @@ def test(session):
 
 @session(python="python3.10")
 def docs(session):
-    session.install("mkdocs", "mkdocs-material", "mkdocstrings")
+    session.install("mkdocs", "mkdocs-material[imaging]", "mkdocstrings")
     session.run("mkdocs", "build", *session.posargs)
+
+
+@session(python="python3.10")
+def docs_serve(session):
+    session.install("mkdocs", "mkdocs-material[imaging]", "mkdocstrings")
+    session.run("mkdocs", "serve", *session.posargs)

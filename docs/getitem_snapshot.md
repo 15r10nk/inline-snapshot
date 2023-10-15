@@ -5,23 +5,25 @@ This sub-snapshots can be used like a normal snapshot.
 
 Example:
 
-```python
-def test_something():
-    s = snapshot()
+=== "original code"
+    <!-- inline-snapshot: outcome-errors=1 outcome-passed=1 -->
+    ```python
+    def test_something():
+        s = snapshot()
 
-    assert s["a"] == 4
-    assert s["b"] == 5
-```
+        assert s["a"] == 4
+        assert s["b"] == 5
+    ```
 
-generates:
+=== "--inline-snapshot=create"
+    <!-- inline-snapshot: create -->
+    ```python
+    def test_something():
+        s = snapshot({"a": 4, "b": 5})
 
-```python
-def test_something():
-    s = snapshot({"a": 4, "b": 5})
-
-    assert s["a"] == 4
-    assert s["b"] == 5
-```
+        assert s["a"] == 4
+        assert s["b"] == 5
+    ```
 
 `s[key]` can be used with every normal snapshot operation including `s[key1][key2]`.
 
