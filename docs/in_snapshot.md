@@ -4,31 +4,33 @@ It is possible to check if an value is in a snapshot. The value of the generated
 
 Example:
 
-<!-- inline-snapshot: outcome-errors=1 outcome-passed=1 -->
-```python
-def test_something():
-    s = snapshot()
+=== "original code"
+    <!-- inline-snapshot: outcome-errors=1 outcome-passed=1 -->
+    ```python
+    def test_something():
+        s = snapshot()
 
-    assert 5 in s
-    assert 5 in s
-    assert 8 in s
+        assert 5 in s
+        assert 5 in s
+        assert 8 in s
 
-    for v in ["a", "b"]:
-        assert v in s
-```
+        for v in ["a", "b"]:
+            assert v in s
+    ```
 
-<!-- inline-snapshot: create -->
-```python
-def test_something():
-    s = snapshot([5, 8, "a", "b"])
+=== "--inline-snapshot=create"
+    <!-- inline-snapshot: create -->
+    ```python
+    def test_something():
+        s = snapshot([5, 8, "a", "b"])
 
-    assert 5 in s
-    assert 5 in s
-    assert 8 in s
+        assert 5 in s
+        assert 5 in s
+        assert 8 in s
 
-    for v in ["a", "b"]:
-        assert v in s
-```
+        for v in ["a", "b"]:
+            assert v in s
+    ```
 
 ## pytest options
 

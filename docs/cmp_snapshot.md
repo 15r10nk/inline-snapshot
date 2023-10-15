@@ -2,40 +2,119 @@
 
 A snapshot can be compared against any value with `<=` or `>=`.
 This can be used to create a upper/lower bound for some result.
+The snapshot value can be trimmed to the lowest/largest valid value.
 
 Example:
 
-<!-- inline-snapshot: update this -->
-```python
-def some_algo():
-    ...
-    result = 42
-    iterations = 2
-    ...
-    return result, iterations
+=== "original code"
+    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
+    ```python
+    def gcd(x, y):
+        iterations = 0
+        if x > y:
+            small = y
+        else:
+            small = x
+        for i in range(1, small + 1):
+            iterations += 1
+            if (x % i == 0) and (y % i == 0):
+                gcd = i
+
+        return gcd, iterations
 
 
-def test_something():
-    result, iterations = some_algo()
+    def test_gcd():
+        result, iterations = gcd(12, 18)
 
-    assert result == snapshot(42)
-    assert iterations <= snapshot(2)
-```
+        assert result == snapshot()
+        assert iterations <= snapshot()
+    ```
+
+=== "--inline-snapshot=create"
+    <!-- inline-snapshot: create -->
+    ```python
+    def gcd(x, y):
+        iterations = 0
+        if x > y:
+            small = y
+        else:
+            small = x
+        for i in range(1, small + 1):
+            iterations += 1
+            if (x % i == 0) and (y % i == 0):
+                gcd = i
+
+        return gcd, iterations
+
+
+    def test_gcd():
+        result, iterations = gcd(12, 18)
+
+        assert result == snapshot(6)
+        assert iterations <= snapshot(12)
+    ```
+
+=== "optimized code "
+    <!-- inline-snapshot: outcome-passed=1 -->
+    ```python
+    def gcd(x, y):
+        # use Euclidean Algorithm
+        iterations = 0
+        while y:
+            iterations += 1
+            x, y = y, x % y
+        return abs(x), iterations
+
+
+    def test_gcd():
+        result, iterations = gcd(12, 18)
+
+        assert result == snapshot(6)
+        assert iterations <= snapshot(12)
+    ```
+
+=== "--inline-snapshot=trim"
+    <!-- inline-snapshot: trim -->
+    ```python
+    def gcd(x, y):
+        # use Euclidean Algorithm
+        iterations = 0
+        while y:
+            iterations += 1
+            x, y = y, x % y
+        return abs(x), iterations
+
+
+    def test_gcd():
+        result, iterations = gcd(12, 18)
+
+        assert result == snapshot(6)
+        assert iterations <= snapshot(3)
+    ```
 
 !!! warning
     This should not be used to check for any flaky values like the runtime of some code, because it will randomly break your tests.
 
 The same snapshot value can also be used in multiple assertions.
-The snapshot value in the following case would be `6`.
 
-<!-- inline-snapshot: outcome-errors=1 outcome-passed=1 -->
-```python
-def test_something():
-    value = snapshot()
+=== "original code"
+    <!-- inline-snapshot: outcome-errors=1 outcome-passed=1 -->
+    ```python
+    def test_something():
+        value = snapshot()
 
-    assert 5 <= value
-    assert 6 <= value
-```
+        assert 5 <= value
+        assert 6 <= value
+    ```
+=== "--inline-snapshot=create"
+    <!-- inline-snapshot: create -->
+    ```python
+    def test_something():
+        value = snapshot(6)
+
+        assert 5 <= value
+        assert 6 <= value
+    ```
 
 ## pytest options
 

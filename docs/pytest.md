@@ -8,7 +8,9 @@ inline-snapshot comes with a pytest plugin which offers the following options.
 - **--inline-snapshot=update**:
     update snapshots if they changed their representation (result of `repr()`)
 - **--inline-snapshot=trim**:
-    changes the snapshot in a way which will make the snapshot more precise.
+    changes the snapshot in a way which will make the snapshot more precise (see [`value in snapshot()`](in_snapshot.md) and [`snapshot()[key]`](getitem_snapshot.md) ).
+
+
 - **--inline-snapshot=fix**:
     change snapshots which are currently breaking your tests (where the result of the snapshot operation is `False`).
 
@@ -19,4 +21,5 @@ pytest --inline-snapshot=trim,fix
 ```
 
 ### --inline-snapshot-disable
-    disable all the snapshot logic. `snapshot(x)` will just return `x`.
+
+disables all the snapshot logic. `snapshot(x)` will just return `x`.
