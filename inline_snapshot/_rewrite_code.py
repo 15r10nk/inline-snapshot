@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import logging
 import pathlib
+import sys
 from collections import defaultdict
 from dataclasses import dataclass
 
@@ -11,9 +12,9 @@ from asttokens import LineNumbers
 
 from ._format import format_code
 
-try:
+if sys.version_info >= (3, 10):
     from itertools import pairwise
-except ImportError:
+else:
     from itertools import tee
 
     def pairwise(iterable):  # type: ignore
