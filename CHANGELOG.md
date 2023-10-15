@@ -1,3 +1,13 @@
+## v0.5.0 (2023-10-15)
+
+### Feat
+
+- support 3.12
+
+### Fix
+
+- do not change empty snapshot if it is not used
+
 ## v0.4.0 (2023-09-29)
 
 ### Feat
