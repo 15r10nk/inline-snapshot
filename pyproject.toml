@@ -44,6 +44,7 @@ classifiers = [
   "Framework :: Pytest"
 ]
 description = "golden master/snapshot/approval testing library which puts the values right into your source code"
+keywords = ["pytest", "testing", "snapshot", "approval", "golden-master"]
 license = "MIT"
 name = "inline-snapshot"
 readme = "README.md"
@@ -74,4 +75,10 @@ mkdocstrings = {extras = ["python-legacy"], version = "^0.19.0"}
 inline_snapshot = "inline_snapshot.pytest_plugin"
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/15r10nk/inline-snapshots/issues"
+Changelog = "https://15r10nk.github.io/inline-snapshot/changelog/"
+Discussions = "https://15r10nk.github.io/inline-snapshot/discussions"
+Documentation = "https://15r10nk.github.io/inline-snapshot"
+Funding = "https://github.com/sponsors/15r10nk"
+Homepage = "https://15r10nk.github.io/inline-snapshot"
+Issues = "https://github.com/15r10nk/inline-snapshots/issues"
+Repository = "https://github.com/15r10nk/inline-snapshot/"
