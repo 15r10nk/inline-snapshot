@@ -12,6 +12,12 @@ version_files = [
 ]
 version_provider = "poetry"
 
+[tool.coverage.paths]
+source = [
+  "./",
+  ".nox/test-*/lib/python*/site-packages/"
+]
+
 [tool.coverage.report]
 exclude_lines = ["pragma: no cover", "assert False", "raise NotImplemented", "\\.\\.\\."]
 
@@ -19,7 +25,11 @@ exclude_lines = ["pragma: no cover", "assert False", "raise NotImplemented", "\\
 branch = true
 data_file = "$TOP/.coverage"
 parallel = true
-source = ["src", "tests", "inline_snapshot"]
+source = [
+  "tests",
+  "inline_snapshot",
+  ".nox/test-*/lib/python*/site-packages"
+]
 
 [tool.poetry]
 authors = ["Frank Hoffmann <15r10nk@polarbit.de>"]
@@ -44,7 +54,7 @@ version = "0.4.0"
 asttokens = "^2.0.5"
 black = "^23.3.0"
 click = "^8.1.4"
-executing = "^1.2.0"
+executing = "^2.0.0"
 python = "^3.7"
 
 [tool.poetry.group.dev.dependencies]

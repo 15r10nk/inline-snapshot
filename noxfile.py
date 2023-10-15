@@ -1,14 +1,16 @@
 from pathlib import Path
 
 import nox
+from nox_poetry import session
 
 nox.options.sessions = ["test", "coverage", "mypy"]  # "docs"]
-nox.options.reuse_existing_virtualenvs = True
+
+python_versions = ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
 
 
-@nox.session(python="python3.10")
+@session(python="python3.10")
 def coverage(session):
-    session.run_always("poetry", "install", "--with=dev", external=True)
+    session.install("coverage[toml]")
     session.env["TOP"] = str(Path(__file__).parent)
     try:
         session.run("coverage", "combine")
@@ -19,27 +21,35 @@ def coverage(session):
     session.run("coverage", "erase")
 
 
-@nox.session(python="python3.10")
+@session(python=python_versions)
 def mypy(session):
-    session.install("poetry")
-    session.run("poetry", "install", "--with=dev")
+    session.install("mypy", "pytest", "hypothesis", ".")
     session.run("mypy", "inline_snapshot", "tests")
 
 
-@nox.session(python=["3.7", "3.8", "3.9", "3.10", "3.11"])
+@session(python=python_versions)
 def test(session):
-    session.run_always("poetry", "install", "--with=dev", external=True)
+    session.install(
+        ".",
+        "pytest",
+        "hypothesis",
+        "pytest-subtests",
+        "pytest",
+        "coverage",
+        "pytest-xdist",
+        "coverage-enable-subprocess",
+    )
     session.env["COVERAGE_PROCESS_START"] = str(
         Path(__file__).parent / "pyproject.toml"
     )
+
     session.env["TOP"] = str(Path(__file__).parent)
     session.run(
-        "pytest", "--doctest-modules", "inline_snapshot", "tests", *session.posargs
+        "coverage", "run", "-m", "pytest", "tests", "inline_snapshot", *session.posargs
     )
 
 
-@nox.session(python="python3.10")
+@session(python="python3.10")
 def docs(session):
-    session.install("poetry")
-    session.run("poetry", "install", "--with=doc")
+    session.install("mkdocs", "mkdocs-material", "mkdocstrings")
     session.run("mkdocs", "build", *session.posargs)
