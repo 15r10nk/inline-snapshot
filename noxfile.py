@@ -42,10 +42,18 @@ def test(session):
     session.env["COVERAGE_PROCESS_START"] = str(
         Path(__file__).parent / "pyproject.toml"
     )
+    args = [] if session.posargs else ["-n", "auto", "-v"]
 
     session.env["TOP"] = str(Path(__file__).parent)
     session.run(
-        "coverage", "run", "-m", "pytest", "tests", "inline_snapshot", *session.posargs
+        "coverage",
+        "run",
+        "-m",
+        "pytest",
+        *args,
+        "tests",
+        "inline_snapshot",
+        *session.posargs
     )
 
 
