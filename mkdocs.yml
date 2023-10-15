@@ -47,3 +47,8 @@ plugins:
         options:
           show_root_heading: true
           show_source: false
+
+extra:
+  social:
+  - icon: fontawesome/brands/twitter
+    link: https://x.com/15r10nk
