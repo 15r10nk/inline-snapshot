@@ -68,7 +68,7 @@ pytest-subtests = "^0.11.0"
 
 [tool.poetry.group.doc.dependencies]
 mkdocs = "^1.4.2"
-mkdocs-material = "^8.5.10"
+mkdocs-material = {extras = ["imaging"], version = "^8.5.10"}
 mkdocstrings = {extras = ["python-legacy"], version = "^0.19.0"}
 
 [tool.poetry.plugins.pytest11]

@@ -1,3 +1,7 @@
+
+--8<-- "README.md:Header"
+
+
 # Welcome to inline-snapshot
 
 inline-snapshot can be used for different things:

@@ -1,10 +1,9 @@
-# inline-snapshot
-
+<!-- -8<- [start:Header] -->
 
 <p align="center">
-  <strong>
-create and update inline snapshots in your code.
-  </strong>
+  <a href="https://15r10nk.github.io/inline-snapshot/">
+    <img src="https://raw.githubusercontent.com/15r10nk/inline-snapshot/design/docs/assets/logo.svg" width="500" alt="inline-snapshot">
+  </a>
 </p>
 
 ![ci](https://github.com/15r10nk/inline-snapshot/actions/workflows/ci.yml/badge.svg?branch=main)
@@ -14,6 +13,8 @@ create and update inline snapshots in your code.
 ![PyPI - Downloads](https://img.shields.io/pypi/dw/inline-snapshot)
 [![coverage](https://img.shields.io/badge/coverage-100%25-blue)](https://15r10nk.github.io/inline-snapshot/contributing/#coverage)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/15r10nk)](https://github.com/sponsors/15r10nk)
+
+<!-- -8<- [end:Header] -->
 
 ## Installation
 
