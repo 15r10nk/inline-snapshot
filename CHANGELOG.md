@@ -1,3 +1,9 @@
+## v0.5.1 (2023-10-20)
+
+### Fix
+
+- show better error messages
+
 ## v0.5.0 (2023-10-15)
 
 ### Feat
