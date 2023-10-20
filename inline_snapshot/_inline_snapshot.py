@@ -86,6 +86,7 @@ def snapshot_env():
 class GenericValue:
     _new_value: Any
     _old_value: Any
+    _current_op = "undefined"
 
     def _needs_trim(self):
         return False
@@ -116,8 +117,34 @@ class GenericValue:
     def __repr__(self):
         return repr(self._visible_value())
 
+    def _type_error(self, op):
+        __tracebackhide__ = True
+        raise TypeError(
+            f"This snapshot cannot be use with `{op}`, because it was previously used with `{self._current_op}`"
+        )
 
-class Value(GenericValue):
+    def __eq__(self, _other):
+        __tracebackhide__ = True
+        self._type_error("==")
+
+    def __le__(self, _other):
+        __tracebackhide__ = True
+        self._type_error("<=")
+
+    def __ge__(self, _other):
+        __tracebackhide__ = True
+        self._type_error(">=")
+
+    def __contains__(self, _other):
+        __tracebackhide__ = True
+        self._type_error("in")
+
+    def __getitem__(self, _item):
+        __tracebackhide__ = True
+        self._type_error("snapshot[key]")
+
+
+class UndecidedValue(GenericValue):
     def __init__(self, _old_value):
         self._old_value = _old_value
         self._new_value = undefined
@@ -131,7 +158,7 @@ class Value(GenericValue):
     # functions which determine the type
 
     def __eq__(self, other):
-        self._change(FixValue)
+        self._change(EqValue)
         return self == other
 
     def __le__(self, other):
@@ -151,7 +178,9 @@ class Value(GenericValue):
         return self[item]
 
 
-class FixValue(GenericValue):
+class EqValue(GenericValue):
+    _current_op = "x == snapshot"
+
     def __eq__(self, other):
         other = copy.deepcopy(other)
 
@@ -228,6 +257,8 @@ class MinValue(MinMaxValue):
 
     """
 
+    _current_op = "x >= snapshot"
+
     @staticmethod
     def cmp(a, b):
         return a <= b
@@ -251,6 +282,8 @@ class MaxValue(MinMaxValue):
 
     """
 
+    _current_op = "x <= snapshot"
+
     @staticmethod
     def cmp(a, b):
         return a >= b
@@ -259,6 +292,8 @@ class MaxValue(MinMaxValue):
 
 
 class CollectionValue(GenericValue):
+    _current_op = "x in snapshot"
+
     def __contains__(self, item):
         item = copy.deepcopy(item)
 
@@ -300,6 +335,8 @@ class CollectionValue(GenericValue):
 
 
 class DictValue(GenericValue):
+    _current_op = "snapshot[key]"
+
     def __getitem__(self, index):
         if self._new_value is undefined:
             self._new_value = {}
@@ -309,7 +346,7 @@ class DictValue(GenericValue):
             old_value = {}
 
         if index not in self._new_value:
-            self._new_value[index] = Value(old_value.get(index, undefined))
+            self._new_value[index] = UndecidedValue(old_value.get(index, undefined))
 
         return self._new_value[index]
 
@@ -487,7 +524,7 @@ simple_token = namedtuple("simple_token", "type,string")
 class Snapshot:
     def __init__(self, value, expr):
         self._expr = expr
-        self._value = Value(value)
+        self._value = UndecidedValue(value)
 
     @property
     def _filename(self):

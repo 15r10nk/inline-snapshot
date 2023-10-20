@@ -93,10 +93,17 @@ You can use `snapshot(x)` like you can use `x` in your assertion with a limited 
 !!! warning
     One snapshot can only be used with one operation.
     The following code will not work:
+    <!-- inline-snapshot: show_error outcome-failed=1 -->
     ``` python
-    s = snapshot(5)
-    assert 5 <= s
-    assert 5 == s  # Error: s is already used with <=
+    def test_something():
+        s = snapshot(5)
+        assert 5 <= s
+        assert 5 == s
+
+
+    # Error:
+    # >       assert 5 == s
+    # E       TypeError: This snapshot cannot be use with `==`, because it was previously used with `x <= snapshot`
     ```
 
 ## Supported usage

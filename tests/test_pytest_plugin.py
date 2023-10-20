@@ -507,6 +507,10 @@ def test_docs(project, file, subtests):
                 if flags:
                     new_code = project.source
 
+                if "show_error" in options:
+                    new_code = new_code.split("# Error:")[0]
+                    new_code += "# Error:" + textwrap.indent(result.errorLines(), "# ")
+
                 if (
                     inline_snapshot._inline_snapshot._update_flags.fix
                 ):  # pragma: no cover
@@ -523,6 +527,7 @@ def test_docs(project, file, subtests):
                         assert {
                             f"outcome-{k}={v}"
                             for k, v in result.parseoutcomes().items()
+                            if k in ("failed", "errors", "passed")
                         } == {flag for flag in options if flag.startswith("outcome-")}
                     assert code == new_code
                 else:  # pragma: no cover

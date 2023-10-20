@@ -2,6 +2,7 @@ import ast
 import itertools
 import textwrap
 from collections import namedtuple
+from contextlib import nullcontext
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Set
@@ -840,3 +841,22 @@ assert ["aaaaaaaaaaaaaaaaa"] * 5==  snapshot([
 
 def test_unused_snapshot(check_update):
     assert check_update("snapshot()\n", flags="create") == "snapshot()\n"
+
+
+def test_type_error(check_update):
+    tests = ["5 == s", "5 <= s", "5 >= s", "5 in s", "5 == s[0]"]
+
+    for test1, test2 in itertools.product(tests, tests):
+        with pytest.raises(TypeError) if test1 != test2 else nullcontext() as error:
+            check_update(
+                f"""
+s = snapshot()
+assert {test1}
+assert {test2}
+        """,
+                reported_flags="create",
+            )
+        if error is not None:
+            assert "This snapshot cannot be use with" in str(error.value)
+        else:
+            assert test1 == test2
