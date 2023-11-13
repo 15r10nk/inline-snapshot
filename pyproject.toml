@@ -52,24 +52,24 @@ repository = "https://github.com/15r10nk/inline-snapshots"
 version = "0.5.1"
 
 [tool.poetry.dependencies]
-asttokens = "^2.0.5"
-black = "^23.3.0"
-click = "^8.1.4"
-executing = "^2.0.0"
-python = "^3.7"
+asttokens = ">=2.0.5"
+black = ">=23.3.0"
+click = ">=8.1.4"
+executing = ">=2.0.0"
+python = ">=3.7"
 
 [tool.poetry.group.dev.dependencies]
-coverage = "^7.2.3"
-coverage-enable-subprocess = "^1.0"
-hypothesis = "^6.75.5"
-mypy = "^1.2.0"
-pytest = "^7.1"
-pytest-subtests = "^0.11.0"
+coverage = ">=7.2.3"
+coverage-enable-subprocess = ">=1.0"
+hypothesis = ">=6.75.5"
+mypy = ">=1.2.0"
+pytest = ">=7.1"
+pytest-subtests = ">=0.11.0"
 
 [tool.poetry.group.doc.dependencies]
-mkdocs = "^1.4.2"
-mkdocs-material = {extras = ["imaging"], version = "^8.5.10"}
-mkdocstrings = {extras = ["python-legacy"], version = "^0.19.0"}
+mkdocs = ">=1.4.2"
+mkdocs-material = {extras = ["imaging"], version = ">=8.5.10"}
+mkdocstrings = {extras = ["python-legacy"], version = ">=0.19.0"}
 
 [tool.poetry.plugins.pytest11]
 inline_snapshot = "inline_snapshot.pytest_plugin"
