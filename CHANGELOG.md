@@ -1,3 +1,9 @@
+## v0.5.2 (2023-11-13)
+
+### Fix
+
+- remove upper bound from dependencies in pyproject.toml
+
 ## v0.5.1 (2023-10-20)
 
 ### Fix
