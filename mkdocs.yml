@@ -5,6 +5,7 @@ edit_uri: edit/main/docs
 
 theme:
   name: material
+  custom_dir: docs/theme
   features:
   - toc.follow
   palette:

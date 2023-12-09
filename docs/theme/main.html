@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block announce %}
+
+  {{ super() }}
+  Become a
+  <a href="https://github.com/sponsors/15r10nk" title="Become a sponsor">
+    <span class="twemoji heart-throb-hover" style="color:red">
+      {% set icon = "octicons/heart-fill-16" %}
+      {% include ".icons/" ~ icon ~ ".svg" %}
+    </span>
+   Sponsor
+  </a>
+  or follow <a href="https://x.com/15r10nk" title="follow on X">@15r10nk</a> on <span style="font-size:1.1em"> &#120143; </span> for updates
+{% endblock %}
