@@ -82,7 +82,9 @@ def test_something():
     for number in range(5):
         # create sub-snapshots at runtime
         assert s[number]["square"] == number**2
-        assert s[number]["pow_of_two"] == ((number & (number - 1) == 0) and number != 0)
+        assert s[number]["pow_of_two"] == (
+            (number & (number - 1) == 0) and number != 0
+        )
 ```
 
 More information can be found in the [documentation](https://15r10nk.github.io/inline-snapshot/).

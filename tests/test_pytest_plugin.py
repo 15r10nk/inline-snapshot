@@ -474,6 +474,14 @@ def test_docs(project, file, subtests):
     is_block = False
     code = None
     indent = ""
+
+    project.pyproject(
+        """
+[tool.black]
+line-length=80
+"""
+    )
+
     for linenumber, line in enumerate(text.splitlines(), start=1):
         m = block_start.fullmatch(line)
         if m and is_block == True:
