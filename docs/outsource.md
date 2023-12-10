@@ -6,7 +6,7 @@ This has the advantage that you can easily see changes in code reviews. But it a
 * It is problematic to snapshot a lot of data, because it takes up a lot of space in your tests.
 * Binary data or images are not readable in your tests.
 
-The `outsource(...)` function solves this problem and integrates itself nicely with the inline snapshot.
+The `outsource()` function solves this problem and integrates itself nicely with the inline snapshot.
 It stores the data in a special `external()` object that can be compared in snapshots.
 The object is represented by the hash of the data.
 The actual data is stored in a separate file in your project.

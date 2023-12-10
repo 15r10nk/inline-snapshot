@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://15r10nk.github.io/inline-snapshot/">
-    <img src="https://raw.githubusercontent.com/15r10nk/inline-snapshot/design/docs/assets/logo.svg" width="500" alt="inline-snapshot">
+    <img src="https://raw.githubusercontent.com/15r10nk/inline-snapshot/main/docs/assets/logo.svg" width="500" alt="inline-snapshot">
   </a>
 </p>
 
@@ -23,6 +23,17 @@ You can install "inline-snapshot" via [pip](https://pypi.org/project/pip/):
 ``` bash
 pip install inline-snapshot
 ```
+
+## Key Features
+
+- **Intuitive Semantics:** `snapshot(x)` mirrors `x` for easy understanding.
+- **Versatile Comparison Support:** Equipped with `x == snapshot(...)`, `x <= snapshot(...)`, `x in snapshot(...)`, and `snapshot(...)[key]`.
+- **Enhanced Control Flags:** Utilize various [flags](https://15r10nk.github.io/inline-snapshot/pytest/) for precise control of which snapshots you want to change.
+- **Preserved Black Formatting:** Retains formatting consistency with Black formatting.
+- **External File Storage:** Store snapshots externally using `outsource(data)`.
+- **Seamless Pytest Integration:** Integrated seamlessly with pytest for effortless testing.
+- **Comprehensive Documentation:** Access detailed [documentation](https://15r10nk.github.io/inline-snapshot/) for complete guidance.
+
 
 ## Usage
 
@@ -56,7 +67,7 @@ inline-snapshot provides more advanced features like:
 
 <!-- inline-snapshot: fix create trim this -->
 ```python
-from inline_snapshot import snapshot
+from inline_snapshot import snapshot, outsource, external
 
 
 def test_something():
@@ -85,9 +96,11 @@ def test_something():
         assert s[number]["pow_of_two"] == (
             (number & (number - 1) == 0) and number != 0
         )
-```
 
-More information can be found in the [documentation](https://15r10nk.github.io/inline-snapshot/).
+    assert outsource("large string\n" * 1000) == snapshot(
+        external("8bf10bdf2c30*.txt")
+    )
+```
 
 <!-- -8<- [start:Feedback] -->
 ## Feedback
