@@ -51,8 +51,10 @@ repos:
   rev: 23.10.1
 - hooks:
   - id: blacken-docs
-  repo: https://github.com/asottile/blacken-docs
+    args: [-l80]
+  repo: https://github.com/adamchainz/blacken-docs
   rev: 1.16.0
+
 
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
   rev: v2.11.0
@@ -63,10 +65,6 @@ repos:
     exclude: ^poetry.lock$
     args: [--autofix]
 
-- hooks:
-  - id: blackdoc
-  repo: https://github.com/keewis/blackdoc
-  rev: v0.3.9
 - hooks:
   - id: commitizen
     stages:
