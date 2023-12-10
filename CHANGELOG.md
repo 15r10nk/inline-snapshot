@@ -1,3 +1,9 @@
+## v0.6.0 (2023-12-10)
+
+### Feat
+
+- store snapshot values in external files
+
 ## v0.5.2 (2023-11-13)
 
 ### Fix
