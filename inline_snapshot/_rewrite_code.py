@@ -145,7 +145,7 @@ class SourceFile:
         for lhs, rhs in pairwise(replacements):
             assert lhs.range.end <= rhs.range.start
 
-        code = self.filename.read_text()
+        code = self.filename.read_text("utf-8")
 
         is_formatted = code == format_code(code, self.filename)
 

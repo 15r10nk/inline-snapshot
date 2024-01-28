@@ -49,7 +49,7 @@ license = "MIT"
 name = "inline-snapshot"
 readme = "README.md"
 repository = "https://github.com/15r10nk/inline-snapshots"
-version = "0.6.0"
+version = "0.6.1"
 
 [tool.poetry.dependencies]
 asttokens = ">=2.0.5"

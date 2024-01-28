@@ -16,7 +16,7 @@ def read_config(path: Path) -> Config:
     if not path.exists():
         return Config()
 
-    data = toml.loads(path.read_text())
+    data = toml.loads(path.read_text("utf-8"))
 
     result = Config()
 

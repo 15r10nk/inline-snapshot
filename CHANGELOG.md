@@ -1,3 +1,9 @@
+## v0.6.1 (2024-01-28)
+
+### Fix
+
+- use utf-8 encoding to read and write source files
+
 ## v0.6.0 (2023-12-10)
 
 ### Feat

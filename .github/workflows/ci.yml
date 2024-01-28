@@ -22,10 +22,11 @@ jobs:
     - run: nox --session mypy-${{matrix.python-version}}
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{matrix.os}}
     strategy:
       matrix:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
+        os: [ubuntu-latest, windows-latest]
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
@@ -42,7 +43,7 @@ jobs:
       run: |
         poetry install
         poetry run coverage combine
-        mv .coverage .coverage.${{ matrix.python-version }}
+        mv .coverage .coverage.${{ matrix.python-version }}.${{matrix.os}}
 
     - name: Upload coverage data
       uses: actions/upload-artifact@v3
@@ -71,6 +72,7 @@ jobs:
       env:
         TOP: ${{github.workspace}}
       run: |
+        rm .coverage.*.windows-latest
         pip install coverage
         coverage combine
         coverage
