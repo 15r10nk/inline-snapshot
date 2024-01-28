@@ -4,6 +4,7 @@ import textwrap
 import traceback
 from dataclasses import dataclass
 from dataclasses import field
+from pathlib import Path
 from typing import Set
 
 import black
@@ -61,7 +62,7 @@ def source(tmp_path):
             flags = Flags({*flags})
 
             nonlocal filecount
-            filename = tmp_path / f"test_{filecount}.py"
+            filename: Path = tmp_path / f"test_{filecount}.py"
             filecount += 1
 
             prefix = """\"\"\"
@@ -75,7 +76,7 @@ from inline_snapshot import outsource
 """
             source = prefix + textwrap.dedent(self.source)
 
-            filename.write_text(source)
+            filename.write_text(source, "utf-8")
 
             print()
             print(f'run: inline-snapshot={",".join(flags.to_set())}')
@@ -92,7 +93,7 @@ from inline_snapshot import outsource
                     error = False
 
                     try:
-                        exec(compile(filename.read_text(), filename, "exec"))
+                        exec(compile(filename.read_text("utf-8"), filename, "exec"))
                     except AssertionError:
                         traceback.print_exc()
                         error = True
@@ -111,7 +112,7 @@ from inline_snapshot import outsource
 
                     recorder.fix_all(tags=["inline_snapshot"])
 
-            source = filename.read_text()[len(prefix) :]
+            source = filename.read_text("utf-8")[len(prefix) :]
             print("output:")
             print(textwrap.indent(source, " |", lambda line: True).rstrip())
             print("reported_flags:", snapshot_flags)
@@ -194,23 +195,23 @@ from inline_snapshot import outsource
             source = header + source
             print("write code:")
             print(source)
-            self._filename.write_text(source)
+            self._filename.write_text(source, "utf-8")
 
         @property
         def _filename(self):
             return pytester.path / "test_file.py"
 
         def is_formatted(self):
-            code = self._filename.read_text()
+            code = self._filename.read_text("utf-8")
             return code == format_code(code, self._filename)
 
         def format(self):
             self._filename.write_text(
-                format_code(self._filename.read_text(), self._filename)
+                format_code(self._filename.read_text("utf-8"), self._filename), "utf-8"
             )
 
         def pyproject(self, source):
-            (pytester.path / "pyproject.toml").write_text(source)
+            (pytester.path / "pyproject.toml").write_text(source, "utf-8")
 
         def storage(self):
             return sorted(
@@ -221,8 +222,8 @@ from inline_snapshot import outsource
 
         @property
         def source(self):
-            assert self._filename.read_text()[: len(self.header)] == self.header
-            return self._filename.read_text()[len(self.header) :].lstrip()
+            assert self._filename.read_text("utf-8")[: len(self.header)] == self.header
+            return self._filename.read_text("utf-8")[len(self.header) :].lstrip()
 
         def run(self, *args):
             cache = pytester.path / "__pycache__"

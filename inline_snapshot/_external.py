@@ -21,7 +21,8 @@ class DiscStorage:
         gitignore = self.directory / ".gitignore"
         if not gitignore.exists():
             gitignore.write_text(
-                "# ignore all snapshots which are not refered in the source\n*-new.*\n"
+                "# ignore all snapshots which are not refered in the source\n*-new.*\n",
+                "utf-8",
             )
 
     def save(self, name, data):

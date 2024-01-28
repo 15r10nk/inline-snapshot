@@ -323,13 +323,14 @@ def test_ensure_imports(tmp_path):
         """\
 from os import environ
 from os import getcwd
-"""
+""",
+        "utf-8",
     )
 
     with apply_changes():
         ensure_import(file, {"os": ["chdir", "environ"]})
 
-    assert file.read_text() == snapshot(
+    assert file.read_text("utf-8") == snapshot(
         """\
 from os import environ
 from os import getcwd
@@ -344,13 +345,14 @@ def test_ensure_imports_with_comment(tmp_path):
     file.write_text(
         """\
 from os import environ # comment
-"""
+""",
+        "utf-8",
     )
 
     with apply_changes():
         ensure_import(file, {"os": ["chdir"]})
 
-    assert file.read_text() == snapshot(
+    assert file.read_text("utf-8") == snapshot(
         """\
 from os import environ # comment
 

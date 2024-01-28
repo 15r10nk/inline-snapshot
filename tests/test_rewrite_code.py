@@ -29,7 +29,8 @@ def test_rewrite(tmp_path):
 12345
 12345
 12345
-"""
+""",
+        "utf-8",
     )
 
     with ChangeRecorder().activate() as recorder:
@@ -43,7 +44,7 @@ def test_rewrite(tmp_path):
         recorder.fix_all()
 
     assert (
-        file.read_text()
+        file.read_text("utf-8")
         == """
 12a45
 1245

@@ -30,7 +30,7 @@ def test_docs(project, file, subtests):
 
     header = re.compile("<!-- inline-snapshot:(.*)-->")
 
-    text = file.read_text()
+    text = file.read_text("utf-8")
     new_lines = []
     block_lines = []
     options = set()
@@ -118,4 +118,4 @@ line-length=80
             new_lines.append(line)
 
     if inline_snapshot._inline_snapshot._update_flags.fix:  # pragma: no cover
-        file.write_text("\n".join(new_lines) + "\n")
+        file.write_text("\n".join(new_lines) + "\n", "utf-8")

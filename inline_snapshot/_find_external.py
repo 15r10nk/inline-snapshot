@@ -54,7 +54,7 @@ def used_externals_in(source) -> Set[str]:
 def used_externals() -> Set[str]:
     result = set()
     for filename in _inline_snapshot._files_with_snapshots:
-        result |= used_externals_in(pathlib.Path(filename).read_text())
+        result |= used_externals_in(pathlib.Path(filename).read_text("utf-8"))
 
     return result
 
