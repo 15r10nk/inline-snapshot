@@ -43,7 +43,7 @@ jobs:
       run: |
         poetry install
         poetry run coverage combine
-        mv .coverage .coverage.${{ matrix.python-version }}
+        mv .coverage .coverage.${{ matrix.python-version }}.${{matrix.os}}
 
     - name: Upload coverage data
       uses: actions/upload-artifact@v3
@@ -72,6 +72,7 @@ jobs:
       env:
         TOP: ${{github.workspace}}
       run: |
+        rm .coverage.*.windows-latest
         pip install coverage
         coverage combine
         coverage
