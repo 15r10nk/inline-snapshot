@@ -67,6 +67,7 @@ def source(tmp_path):
             prefix = """\"\"\"
 PYTEST_DONT_REWRITE
 \"\"\"
+# äöß 🐍
 from inline_snapshot import snapshot
 from inline_snapshot import external
 from inline_snapshot import outsource
@@ -172,13 +173,17 @@ def project(pytester):
     class Project:
         def setup(self, source: str):
             self.header = """\
+# äöß 🐍
 from inline_snapshot import snapshot
 from inline_snapshot import outsource
 """
             if "# no imports" in source:
-                self.header = ""
+                self.header = """\
+# äöß 🐍
+"""
             else:
                 self.header = """\
+# äöß 🐍
 from inline_snapshot import snapshot
 from inline_snapshot import outsource
 """
