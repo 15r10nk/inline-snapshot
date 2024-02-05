@@ -383,13 +383,11 @@ def repr_wrapper(func: _T) -> _T:
 
 
 @overload
-def snapshot() -> Any:
-    ...
+def snapshot() -> Any: ...
 
 
 @overload
-def snapshot(obj: T) -> T:
-    ...
+def snapshot(obj: T) -> T: ...
 
 
 @repr_wrapper
