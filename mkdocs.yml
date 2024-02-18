@@ -73,5 +73,7 @@ plugins:
 
 extra:
   social:
-  - icon: fontawesome/brands/twitter
+  - icon: fontawesome/brands/x-twitter
     link: https://x.com/15r10nk
+  - icon: fontawesome/brands/mastodon
+    link: https://fosstodon.org/@15r10nk
