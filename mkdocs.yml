@@ -9,6 +9,16 @@ theme:
   features:
   - toc.follow
   palette:
+  - media: (prefers-color-scheme)
+
+    # Palette toggle for light mode
+  - scheme: default
+    media: '(prefers-color-scheme: light)'
+    primary: teal
+
+    # Palette toggle for dark mode
+  - scheme: slate
+    media: '(prefers-color-scheme: dark)'
     primary: teal
 
 watch:
