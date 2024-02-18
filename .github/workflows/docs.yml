@@ -3,7 +3,7 @@ on:
   push:
     tags:
     - v[0-9]+.[0-9]+.[0-9]+
-    - deployed_docs
+  workflow_dispatch:
 
 jobs:
   build:
@@ -27,8 +27,3 @@ jobs:
           #EXTRA_PACKAGES: build-base
           # GITHUB_DOMAIN: github.myenterprise.com
         REQUIREMENTS: doc_requirements.txt
-    - name: tag docs
-      uses: tvdias/github-tagger@v0.0.1
-      with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        tag: deployed_docs
