@@ -1,6 +1,56 @@
 [build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core>=1.0.0"]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[project]
+authors = [
+  {name = "Frank Hoffmann", email = "15r10nk@polarbit.de"}
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy"
+]
+
+dependencies = [
+    "asttokens >=2.0.5",
+    "black >=23.3.0",
+    "click >=8.1.4",
+    "executing >=2.0.0",
+    "toml >=0.10.2",
+    "types-toml >=0.10.8.7"
+]
+description = "golden master/snapshot/approval testing library which puts the values right into your source code"
+keywords = []
+license = "MIT"
+name = "inline-snapshot"
+readme = "README.md"
+requires-python = ">=3.7"
+version="0.6.1"
+
+[project.entry-points.pytest11]
+inline_snapshot = "inline_snapshot.pytest_plugin"
+
+
+[project.urls]
+Documentation = "https://github.com/15r10nk/inline-snapshot#readme"
+Source = "https://github.com/15r10nk/inline-snapshot"
+Changelog = "https://15r10nk.github.io/inline-snapshot/changelog/"
+Discussions = "https://15r10nk.github.io/inline-snapshot/discussions"
+Funding = "https://github.com/sponsors/15r10nk"
+Homepage = "https://15r10nk.github.io/inline-snapshot"
+Issues = "https://github.com/15r10nk/inline-snapshots/issues"
+Repository = "https://github.com/15r10nk/inline-snapshot/"
+
+[tool.black]
+target-version = ["py38"]
 
 [tool.commitizen]
 changelog_incremental = true
@@ -8,15 +58,9 @@ major_version_zero = true
 tag_format = "v$major.$minor.$patch$prerelease"
 update_changelog_on_bump = true
 version_files = [
-  "inline_snapshot/__init__.py:version"
+  "src/inline_snapshot/__init__.py:version"
 ]
-version_provider = "poetry"
-
-[tool.coverage.paths]
-source = [
-  "./",
-  ".nox/test-*/lib/python*/site-packages/"
-]
+version_provider = "pep621"
 
 [tool.coverage.report]
 exclude_lines = ["pragma: no cover", "assert False", "raise NotImplemented", "\\.\\.\\."]
@@ -25,63 +69,64 @@ exclude_lines = ["pragma: no cover", "assert False", "raise NotImplemented", "\\
 branch = true
 data_file = "$TOP/.coverage"
 parallel = true
-source = [
-  "tests",
-  "inline_snapshot",
-  ".nox/test-*/lib/python*/site-packages"
+source_pkgs=[
+    "inline_snapshot",
+    "tests"
 ]
 
-[tool.poetry]
-authors = ["Frank Hoffmann <15r10nk@polarbit.de>"]
-classifiers = [
-  "Development Status :: 4 - Beta",
-  "Framework :: Pytest",
-  "Intended Audience :: Developers",
-  "Operating System :: OS Independent",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
-  "Topic :: Software Development :: Testing",
-  "Framework :: Pytest"
+[tool.hatch.envs.default]
+scripts.test = "pytest {args:tests}"
+dependencies = [
+  "black ==23.3.0",
+  "pytest == 7.4.3",
+  "pytest-subtests",
+  "hypothesis"
 ]
-description = "golden master/snapshot/approval testing library which puts the values right into your source code"
-keywords = ["pytest", "testing", "snapshot", "approval", "golden-master"]
-license = "MIT"
-name = "inline-snapshot"
-readme = "README.md"
-repository = "https://github.com/15r10nk/inline-snapshots"
-version = "0.6.1"
 
-[tool.poetry.dependencies]
-asttokens = ">=2.0.5"
-black = ">=23.3.0"
-click = ">=8.1.4"
-executing = ">=2.0.0"
-python = ">=3.7"
-toml = ">=0.10.2"
-types-toml = ">=0.10.8.7"
+[tool.hatch.envs.all]
+dependencies = [
+  "coverage[toml]>=6.5",
+  "coverage-enable-subprocess",
+  "black ==23.3.0",
+  "pytest == 7.4.3",
+  "pytest-subtests",
+  "hypothesis",
+  "mypy"
+]
+env-vars.TOP = "{root}"
+env-vars.COVERAGE_PROCESS_START = "{root}/pyproject.toml"
+scripts.test-cov = "coverage run -m pytest --doctest-modules src/inline_snapshot {args:tests}"
+scripts.test-mypy = "mypy src tests"
 
-[tool.poetry.group.dev.dependencies]
-coverage = ">=7.2.3"
-coverage-enable-subprocess = ">=1.0"
-hypothesis = ">=6.75.5"
-mypy = ">=1.2.0"
-pytest = ">=7.1"
-pytest-subtests = ">=0.11.0"
-pytest-xdist = {extras = ["psutil"], version = ">=3.2.1"}
 
-[tool.poetry.group.doc.dependencies]
-mkdocs = ">=1.4.2"
-mkdocs-material = {extras = ["imaging"], version = ">=8.5.10"}
-mkdocstrings = {extras = ["python-legacy"], version = ">=0.19.0"}
+[[tool.hatch.envs.all.matrix]]
+python = ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
 
-[tool.poetry.plugins.pytest11]
-inline_snapshot = "inline_snapshot.pytest_plugin"
+[tool.hatch.envs.cov]
+dependencies = ["coverage[toml]>=6.5"]
+detached = true
+env-vars.TOP = "{root}"
+scripts.test = [
+  "- coverage erase",
+  "hatch run all:test-cov -- {args}",
+  "coverage combine",
+  "coverage html",
+  "coverage report  --fail-under 100 "
+]
 
-[tool.poetry.urls]
-Changelog = "https://15r10nk.github.io/inline-snapshot/changelog/"
-Discussions = "https://15r10nk.github.io/inline-snapshot/discussions"
-Documentation = "https://15r10nk.github.io/inline-snapshot"
-Funding = "https://github.com/sponsors/15r10nk"
-Homepage = "https://15r10nk.github.io/inline-snapshot"
-Issues = "https://github.com/15r10nk/inline-snapshots/issues"
-Repository = "https://github.com/15r10nk/inline-snapshot/"
+scripts.one = [
+  "- coverage erase",
+  "hatch run +py=3.12 all:test-cov -- {args}",
+  "coverage combine",
+  "coverage html",
+  "coverage report  --fail-under 100 "
+]
+
+
+[tool.hatch.envs.docs]
+dependencies = [
+  "mkdocs>=1.4.2",
+  "mkdocs-material[imaging]>=8.5.10",
+  "mkdocstrings[python-legacy]>=0.19.0"
+]
+scripts.serve = ["mkdocs serve {args}"]

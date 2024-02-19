@@ -1,0 +1,19 @@
+# Changes here will be overwritten by Copier
+_commit: v0.0.5
+_src_path: https://github.com/15r10nk/project-template
+full_coverage: true
+github_user: 15r10nk
+insider_only: false
+module_name: inline_snapshot
+project_description: golden master/snapshot/approval testing library which puts the values right into your source code
+project_main: false
+project_name: inline-snapshot
+python_versions:
+- '3.7'
+- '3.8'
+- '3.9'
+- '3.10'
+- '3.11'
+- '3.12'
+show_project_logo: true
+use_mkdocs: true

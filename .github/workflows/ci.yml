@@ -17,9 +17,9 @@ jobs:
       with:
         python-version: ${{matrix.python-version}}
         architecture: x64
-    - run: pip install nox==2023.4.22
-    - run: pip install poetry nox-poetry
-    - run: nox --session mypy-${{matrix.python-version}}
+    - run: |
+        pip install hatch
+        hatch run +python=${{matrix.python-version}} all:test-mypy
 
   test:
     runs-on: ${{matrix.os}}
@@ -33,16 +33,22 @@ jobs:
       with:
         python-version: ${{matrix.python-version}}
         architecture: x64
-    - run: pip install nox==2023.4.22
-    - run: pip install poetry nox-poetry
-    - run: nox --sessions test-${{matrix.python-version}}
+
+    - name: run tests for ${{matrix.python-version}}
+      env:
+        TOP: ${{github.workspace}}
+        COVERAGE_PROCESS_START: ${{github.workspace}}/pyproject.toml
+      run: |
+        pip install hatch
+        hatch run +python=${{matrix.python-version}} all:test-cov
 
     - name: Combine data
       env:
         TOP: ${{github.workspace}}
+        COVERAGE_PROCESS_START: ${{github.workspace}}/pyproject.toml
       run: |
-        poetry install
-        poetry run coverage combine
+        pip install coverage
+        coverage combine
         mv .coverage .coverage.${{ matrix.python-version }}.${{matrix.os}}
 
     - name: Upload coverage data
@@ -71,7 +77,9 @@ jobs:
     - name: Combine data
       env:
         TOP: ${{github.workspace}}
+        COVERAGE_PROCESS_START: ${{github.workspace}}/pyproject.toml
       run: |
+        # i have problems to combine windows coverage files with linux coverage files
         rm .coverage.*.windows-latest
         rm .coverage.*.macos-latest
         pip install coverage
