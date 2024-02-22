@@ -1,5 +1,4 @@
 import pytest
-
 from inline_snapshot._rewrite_code import ChangeRecorder
 from inline_snapshot._rewrite_code import end_of
 from inline_snapshot._rewrite_code import range_of

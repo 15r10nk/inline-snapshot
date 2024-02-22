@@ -61,9 +61,6 @@ repos:
   hooks:
   - id: pretty-format-yaml
     args: [--autofix, --indent, '2']
-  - id: pretty-format-toml
-    exclude: ^poetry.lock$
-    args: [--autofix]
 
 - hooks:
   - id: commitizen

@@ -1,9 +1,10 @@
 import ast
 
-from .utils import raises
 from inline_snapshot import external
 from inline_snapshot import outsource
 from inline_snapshot import snapshot
+
+from .utils import raises
 from tests.utils import config
 
 

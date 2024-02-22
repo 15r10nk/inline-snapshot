@@ -25,7 +25,7 @@ watch:
 - CONTRIBUTING.md
 - CHANGELOG.md
 - README.md
-- inline_snapshot
+- src
 
 nav:
 - Introduction: index.md

@@ -3,10 +3,11 @@ Contributions are welcome.
 Please create an issue before writing a pull request so we can discuss what needs to be changed.
 
 # Testing
-The code can be tested with [nox](https://nox.thea.codes/en/stable/)
+The code can be tested with [hatch](https://hatch.pypa.io/latest/)
 
-* `nox` can be used to test all supported python versions and to check for coverage.
-* `nox -e test-3.10 -- --sw` runs pytest for python 3.10 with the `--sw` argument.
+* `hatch run cov:test` can be used to test all supported python versions and to check for coverage.
+* `hatch run +py=3.10 all:test -- --sw` runs pytest for python 3.10 with the `--sw` argument.
+
 
 # Coverage
 This project has a hard coverage requirement of 100%.
@@ -27,6 +28,7 @@ else:
     assert False, "unreachable because ..."
 ```
 This serves also as an additional check during runtime.
+
 
 # Commits
 Please use [pre-commit](https://pre-commit.com/) for your commits.
