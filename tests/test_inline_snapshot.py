@@ -6,12 +6,12 @@ from contextlib import nullcontext
 import pytest
 from hypothesis import given
 from hypothesis.strategies import text
-
-from .utils import snapshot_env
 from inline_snapshot import _inline_snapshot
 from inline_snapshot import snapshot
 from inline_snapshot._inline_snapshot import Flags
 from inline_snapshot._inline_snapshot import triple_quote
+
+from .utils import snapshot_env
 
 
 def test_snapshot_eq():
