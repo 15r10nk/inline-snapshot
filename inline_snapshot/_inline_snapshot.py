@@ -430,11 +430,11 @@ def snapshot(obj=undefined):
         node = expr.node
         if node is None:
             # we can run without knowing of the calling expression but we will not be able to fix code
-            snapshots[key] = Snapshot(obj, None)
+            snapshots[key] = Snapshot(obj, None, None)
         else:
             assert isinstance(node.func, ast.Name)
             assert node.func.id == "snapshot"
-            snapshots[key] = Snapshot(obj, expr)
+            snapshots[key] = Snapshot(obj, expr.source, expr.node)
         found_snapshots.append(snapshots[key])
 
     return snapshots[key]._value
@@ -522,14 +522,15 @@ def used_externals(tree):
 
 
 class Snapshot:
-    def __init__(self, value, expr):
-        self._expr = expr
+    def __init__(self, value, source: Source, node: ast.Call):
         self._value = UndecidedValue(value)
         self._uses_externals = []
+        self._source = source
+        self._node = node
 
     @property
     def _filename(self):
-        return self._expr.source.filename
+        return self._source.filename
 
     def _format(self, text):
         return format_code(text, Path(self._filename))
@@ -561,11 +562,11 @@ class Snapshot:
         ]
 
     def _change(self):
-        assert self._expr is not None
+        assert self._node is not None
 
         change = ChangeRecorder.current.new_change()
 
-        tokens = list(self._expr.source.asttokens().get_tokens(self._expr.node))
+        tokens = list(self._source.asttokens().get_tokens(self._node))
         assert tokens[0].string == "snapshot"
         assert tokens[1].string == "("
         assert tokens[-1].string == ")"
@@ -607,12 +608,12 @@ class Snapshot:
             )
 
     def _current_tokens(self):
-        if not self._expr.node.args:
+        if not self._node.args:
             return []
 
         return [
             simple_token(t.type, t.string)
-            for t in self._expr.source.asttokens().get_tokens(self._expr.node.args[0])
+            for t in self._source.asttokens().get_tokens(self._node.args[0])
             if t.type not in ignore_tokens
         ]
 
@@ -646,7 +647,7 @@ class Snapshot:
             yield (token.STRING, repr(current_string))
 
     def _needs_update(self):
-        return self._expr is not None and [] != list(
+        return self._node is not None and [] != list(
             self._normalize_strings(self._current_tokens())
         ) != list(self._normalize_strings(self._value_to_token(self._value._old_value)))
 
