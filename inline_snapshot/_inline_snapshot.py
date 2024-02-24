@@ -522,7 +522,7 @@ def used_externals(tree):
 
 
 class Snapshot:
-    def __init__(self, value, source: Source, node: ast.Call):
+    def __init__(self, value, source, node):
         self._value = UndecidedValue(value)
         self._uses_externals = []
         self._source = source
