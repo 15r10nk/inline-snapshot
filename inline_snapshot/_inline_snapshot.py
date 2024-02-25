@@ -70,7 +70,7 @@ class GenericValue:
     _new_value: Any
     _old_value: Any
     _current_op = "undefined"
-    _snapshot: "Snapshot"
+    _old_node: ast.expr
 
     def _needs_trim(self):
         return False
@@ -129,10 +129,10 @@ class GenericValue:
 
 
 class UndecidedValue(GenericValue):
-    def __init__(self, _old_value, _snapshot):
+    def __init__(self, _old_value, _old_node=None):
         self._old_value = _old_value
         self._new_value = undefined
-        self._snapshot = _snapshot
+        self._old_node = _old_node
 
     def _change(self, cls):
         self.__class__ = cls
@@ -172,7 +172,7 @@ class EqValue(GenericValue):
         if self._new_value is undefined:
             self._new_value = other
 
-        if self._needs_fix() and self._snapshot._expr.node is not None:
+        if self._needs_fix() and self._old_node is not None:
             frame = inspect.currentframe().f_back.f_back
 
             def value_to_node(value):
@@ -226,7 +226,7 @@ class EqValue(GenericValue):
                 return value_to_node(left)
 
             self._new_node = match(
-                self._new_value, self._old_value, self._snapshot._expr.node.args[0]
+                self._new_value, self._old_value, self._old_node.args[0]
             )
 
         return self._visible_value() == other
@@ -380,9 +380,7 @@ class DictValue(GenericValue):
             old_value = {}
 
         if index not in self._new_value:
-            self._new_value[index] = UndecidedValue(
-                old_value.get(index, undefined), self._snapshot
-            )
+            self._new_value[index] = UndecidedValue(old_value.get(index, undefined))
 
         return self._new_value[index]
 
@@ -585,7 +583,7 @@ def used_externals(tree):
 class Snapshot:
     def __init__(self, value, expr):
         self._expr = expr
-        self._value = UndecidedValue(value, self)
+        self._value = UndecidedValue(value, expr.node if expr else None)
         self._uses_externals = []
 
     @property
