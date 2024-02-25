@@ -70,6 +70,7 @@ class GenericValue:
     _new_value: Any
     _old_value: Any
     _current_op = "undefined"
+    _snapshot: "Snapshot"
 
     def _needs_trim(self):
         return False
@@ -128,9 +129,10 @@ class GenericValue:
 
 
 class UndecidedValue(GenericValue):
-    def __init__(self, _old_value):
+    def __init__(self, _old_value, _snapshot):
         self._old_value = _old_value
         self._new_value = undefined
+        self._snapshot = _snapshot
 
     def _change(self, cls):
         self.__class__ = cls
@@ -169,6 +171,63 @@ class EqValue(GenericValue):
 
         if self._new_value is undefined:
             self._new_value = other
+
+        if self._needs_fix() and self._snapshot._node is not None:
+            frame = inspect.currentframe().f_back.f_back
+
+            def value_to_node(value):
+                return ast.parse(repr(value)).body[0].value
+
+            def node_to_value(node):
+                return eval(
+                    compile(ast.Expression(node), "<string>", "eval"),
+                    frame.f_globals,
+                    frame.f_locals,
+                )
+
+            def match(left, right, node):
+                if left == right:
+                    return node
+
+                if type(left) != type(right):
+                    return value_to_node(left)
+
+                if isinstance(left, dict):
+                    if not isinstance(node, ast.Dict):
+                        return value_to_node(left)
+
+                    new_keys = []
+                    new_vals = []
+
+                    for k_node, v_node in zip(node.keys, node.values):
+                        k_val = node_to_value(k_node)
+                        assert k_val in right
+                        if k_val in left:
+                            new_keys.append(k_node)
+                            new_vals.append(match(left[k_val], right[k_val], v_node))
+
+                    for k_val in left.keys() - right.keys():
+                        new_keys.append(value_to_node(k_val))
+                        new_vals.append(value_to_node(left[k_val]))
+
+                    return ast.Dict(keys=new_keys, values=new_vals)
+
+                if isinstance(left, (list, tuple)):
+                    if not isinstance(node, (ast.List, ast.Tuple)):
+                        return value_to_node(left)
+
+                    new_elts = []
+                    for left_val, right_val, right_node in zip(left, right, node.elts):
+                        new_elts.append(match(left_val, right_val, right_node))
+                    for left_val in left[len(right) :]:
+                        new_elts.append(value_to_node(left_val))
+                    return type(node)(elts=new_elts)
+
+                return value_to_node(left)
+
+            self._new_node = match(
+                self._new_value, self._old_value, self._snapshot._node.args[0]
+            )
 
         return self._visible_value() == other
 
@@ -321,7 +380,9 @@ class DictValue(GenericValue):
             old_value = {}
 
         if index not in self._new_value:
-            self._new_value[index] = UndecidedValue(old_value.get(index, undefined))
+            self._new_value[index] = UndecidedValue(
+                old_value.get(index, undefined), self._snapshot
+            )
 
         return self._new_value[index]
 
@@ -523,7 +584,7 @@ def used_externals(tree):
 
 class Snapshot:
     def __init__(self, value, source, node):
-        self._value = UndecidedValue(value)
+        self._value = UndecidedValue(value, self)
         self._uses_externals = []
         self._source = source
         self._node = node
@@ -588,11 +649,14 @@ class Snapshot:
             or _update_flags.trim
             and needs_trim
         ):
-            new_value = self._value.get_result(_update_flags)
+            if new_node := getattr(self._value, "_new_node", None):
+                text = self._format(ast.unparse(new_node)).strip()
+            else:
+                new_value = self._value.get_result(_update_flags)
 
-            text = self._format(
-                tokenize.untokenize(self._value_to_token(new_value))
-            ).strip()
+                text = self._format(
+                    tokenize.untokenize(self._value_to_token(new_value))
+                ).strip()
 
             try:
                 tree = ast.parse(text)
