@@ -781,6 +781,7 @@ assert Thing() == snapshot()
     )
 
 
+@pytest.mark.skipif(not hasattr(ast, "unparse"), reason="ast.unparse not available")
 def test_preserve(check_update):
     assert (
         check_update(

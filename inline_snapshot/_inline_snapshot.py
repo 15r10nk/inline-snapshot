@@ -174,7 +174,7 @@ class EqValue(GenericValue):
         if self._new_value is undefined:
             self._new_value = other
 
-        if self._needs_fix() and self._old_node is not None:
+        if self._needs_fix() and self._old_node is not None and hasattr(ast, "unparse"):
             frame = inspect.currentframe().f_back.f_back
 
             def value_to_node(value):
