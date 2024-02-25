@@ -133,6 +133,8 @@ class UndecidedValue(GenericValue):
         self._old_value = _old_value
         self._new_value = undefined
         self._old_node = _old_node
+        # Only EqValue sets this
+        self._new_node = None
 
     def _change(self, cls):
         self.__class__ = cls
@@ -646,7 +648,7 @@ class Snapshot:
             or _update_flags.trim
             and needs_trim
         ):
-            if new_node := getattr(self._value, "_new_node", None):
+            if new_node := self._value._new_node:
                 text = self._format(ast.unparse(new_node)).strip()
             else:
                 new_value = self._value.get_result(_update_flags)
