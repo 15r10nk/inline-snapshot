@@ -779,3 +779,71 @@ assert Thing() == snapshot()
 """
         )
     )
+
+
+def test_preserve(check_update):
+    assert (
+        check_update(
+            """\
+left = {
+    "a": 1,
+    "b": {
+        "c": 2,
+        "d": [
+            3,
+            4,
+            5,
+        ]
+    },
+    "e": (
+        {
+            "f": 6,
+            "g": 7,
+        },
+    )
+}
+assert left == snapshot({
+    "a": 10,
+    "b": {
+        "c": 2 * 1 + 0,
+        "d": [
+            int(3),
+            40,
+            5,
+        ],
+        "h": 8,
+    },
+    "e": (
+        {
+            "f": 3 + 3,
+        },
+        9,
+    )
+})
+""",
+            reported_flags="update,fix",
+            flags="fix",
+        )
+        == snapshot(
+            """\
+left = {
+    "a": 1,
+    "b": {
+        "c": 2,
+        "d": [
+            3,
+            4,
+            5,
+        ]
+    },
+    "e": (
+        {
+            "f": 6,
+            "g": 7,
+        },
+    )
+}
+assert left == snapshot({"a": 1, "b": {"c": 2 * 1 + 0, "d": [int(3), 4, 5]}, "e": ({"f": 3 + 3, "g": 7},)})
+"""
+        )
+    )
