@@ -163,7 +163,7 @@ def test_a():
     )
 
 
-def test_deprecated_option(project):
+def test_disable_option(project):
     project.setup(
         """\
 def test_a():
@@ -171,29 +171,9 @@ def test_a():
 """
     )
 
-    result = project.run("--update-snapshots=failing")
-    assert result.stderr.str().strip() == snapshot(
-        "ERROR: --update-snapshots=failing is deprecated, please use --inline-snapshot=fix"
-    )
-
-    result = project.run("--update-snapshots=new")
-    assert result.stderr.str().strip() == snapshot(
-        "ERROR: --update-snapshots=new is deprecated, please use --inline-snapshot=create"
-    )
-
-    result = project.run("--update-snapshots=all")
-    assert result.stderr.str().strip() == snapshot(
-        "ERROR: --update-snapshots=all is deprecated, please use --inline-snapshot=create,fix"
-    )
-
     result = project.run("--inline-snapshot-disable", "--inline-snapshot=fix")
     assert result.stderr.str().strip() == snapshot(
         "ERROR: --inline-snapshot-disable can not be combined with other flags (fix)"
-    )
-
-    result = project.run("--update-snapshots=failing", "--inline-snapshot=fix")
-    assert result.stderr.str().strip() == snapshot(
-        "ERROR: --update-snapshots=failing is deprecated, please use only --inline-snapshot"
     )
 
 

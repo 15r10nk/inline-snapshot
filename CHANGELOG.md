@@ -1,3 +1,9 @@
+## v0.7.0 (2024-02-27)
+
+### Feat
+
+- removed old --update-snapshots option
+
 ## v0.6.1 (2024-01-28)
 
 ### Fix
