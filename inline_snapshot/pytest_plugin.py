@@ -1,4 +1,3 @@
-import argparse
 from pathlib import Path
 
 import pytest
@@ -34,16 +33,6 @@ def pytest_addoption(parser):
         help="disable snapshot logic",
     )
 
-    # deprecated option
-    group.addoption(
-        "--update-snapshots",
-        action="store",
-        dest="inline_snapshot_deprecated",
-        default="none",
-        choices=("all", "failing", "new", "none"),
-        help=argparse.SUPPRESS,
-    )
-
 
 def pytest_configure(config):
     flags = config.option.inline_snapshot.split(",")
@@ -58,29 +47,10 @@ def pytest_configure(config):
 
     _inline_snapshot._update_flags = _inline_snapshot.Flags(set(flags))
 
-    old_flag = config.option.inline_snapshot_deprecated
-
     snapshot_path = Path(config.rootpath) / ".inline-snapshot/external"
     _external.storage = _external.DiscStorage(snapshot_path)
 
     _config.config = _config.read_config(config.rootpath / "pyproject.toml")
-
-    if old_flag != "none":
-        msg_prefix = f"--update-snapshots={old_flag} is deprecated, please use "
-
-        if _inline_snapshot._update_flags.change_something():
-            raise pytest.UsageError(msg_prefix + "only --inline-snapshot")
-
-        elif old_flag == "failing":
-            raise pytest.UsageError(msg_prefix + "--inline-snapshot=fix")
-
-        elif old_flag == "new":
-            raise pytest.UsageError(msg_prefix + "--inline-snapshot=create")
-
-        elif old_flag == "all":
-            raise pytest.UsageError(msg_prefix + "--inline-snapshot=create,fix")
-        else:
-            assert False
 
     if _inline_snapshot._update_flags.change_something():
         import sys
