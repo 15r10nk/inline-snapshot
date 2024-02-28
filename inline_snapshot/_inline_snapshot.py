@@ -1,11 +1,8 @@
 import ast
 import copy
 import inspect
-import io
 import sys
-import token
 import tokenize
-from collections import namedtuple
 from pathlib import Path
 from typing import Any
 from typing import Dict  # noqa
@@ -19,14 +16,12 @@ from ._format import format_code
 from ._rewrite_code import ChangeRecorder
 from ._rewrite_code import end_of
 from ._rewrite_code import start_of
+from ._sentinels import undefined
+from ._utils import ignore_tokens
+from ._utils import normalize_strings
+from ._utils import simple_token
+from ._utils import value_to_token
 
-
-# sentinels
-class Undefined:
-    pass
-
-
-undefined = Undefined()
 
 snapshots = {}  # type: Dict[Tuple[int, int], Snapshot]
 
@@ -70,6 +65,7 @@ class GenericValue:
     _new_value: Any
     _old_value: Any
     _current_op = "undefined"
+    _ast_node: ast.Expr
 
     def _needs_trim(self):
         return False
@@ -96,6 +92,9 @@ class GenericValue:
 
     def get_result(self, flags):
         return self._old_value
+
+    def _get_changes(self):
+        raise NotImplementedError
 
     def __repr__(self):
         return repr(self._visible_value())
@@ -128,9 +127,10 @@ class GenericValue:
 
 
 class UndecidedValue(GenericValue):
-    def __init__(self, _old_value):
+    def __init__(self, _old_value, _ast_node):
         self._old_value = _old_value
         self._new_value = undefined
+        self._ast_node = _ast_node
 
     def _change(self, cls):
         self.__class__ = cls
@@ -171,6 +171,23 @@ class EqValue(GenericValue):
             self._new_value = other
 
         return self._visible_value() == other
+
+    def _get_changes(self):
+        if isinstance(self._new_value, (list, dict)):
+            raise NotImplementedError
+
+        new_code = new_repr(self._new_value)
+
+        if self._old_value is undefined:
+            flag = "create"
+        elif not self._old_value == self._new_value:
+            flag = "fix"
+        elif old_repr(self._ast_node) != new_code:
+            flag = "update"
+        else:
+            return
+
+        yield Change(self._ast_node, new_code, flag)
 
     def _needs_fix(self):
         return self._old_value is not undefined and self._old_value != self._new_value
@@ -321,7 +338,9 @@ class DictValue(GenericValue):
             old_value = {}
 
         if index not in self._new_value:
-            self._new_value[index] = UndecidedValue(old_value.get(index, undefined))
+            self._new_value[index] = UndecidedValue(
+                old_value.get(index, undefined), None
+            )
 
         return self._new_value[index]
 
@@ -410,7 +429,7 @@ def snapshot(obj=undefined):
     `snapshot(value)` has the semantic of an noop which returns `value`.
     """
     if not _active:
-        if isinstance(obj, Undefined):
+        if obj is undefined:
             raise AssertionError(
                 "your snapshot is missing a value run pytest with --inline-snapshot=create"
             )
@@ -440,64 +459,6 @@ def snapshot(obj=undefined):
     return snapshots[key]._value
 
 
-ignore_tokens = (token.NEWLINE, token.ENDMARKER, token.NL)
-
-
-# based on ast.unparse
-def _str_literal_helper(string, *, quote_types):
-    """Helper for writing string literals, minimizing escapes.
-
-    Returns the tuple (string literal to write, possible quote types).
-    """
-
-    def escape_char(c):
-        # \n and \t are non-printable, but we only escape them if
-        # escape_special_whitespace is True
-        if c in "\n\t":
-            return c
-        # Always escape backslashes and other non-printable characters
-        if c == "\\" or not c.isprintable():
-            return c.encode("unicode_escape").decode("ascii")
-        if c == extra:
-            return "\\" + c
-        return c
-
-    extra = ""
-    if "'''" in string and '"""' in string:
-        extra = '"' if string.count("'") >= string.count('"') else "'"
-
-    escaped_string = "".join(map(escape_char, string))
-
-    possible_quotes = [q for q in quote_types if q not in escaped_string]
-
-    if escaped_string:
-        # Sort so that we prefer '''"''' over """\""""
-        possible_quotes.sort(key=lambda q: q[0] == escaped_string[-1])
-        # If we're using triple quotes and we'd need to escape a final
-        # quote, escape it
-        if possible_quotes[0][0] == escaped_string[-1]:
-            assert len(possible_quotes[0]) == 3
-            escaped_string = escaped_string[:-1] + "\\" + escaped_string[-1]
-    return escaped_string, possible_quotes
-
-
-def triple_quote(string):
-    """Write string literal value with a best effort attempt to avoid
-    backslashes."""
-    string, quote_types = _str_literal_helper(string, quote_types=['"""', "'''"])
-    quote_type = quote_types[0]
-
-    string = "\\\n" + string
-
-    if not string.endswith("\n"):
-        string = string + "\\\n"
-
-    return f"{quote_type}{string}{quote_type}"
-
-
-simple_token = namedtuple("simple_token", "type,string")
-
-
 def used_externals(tree):
     if sys.version_info < (3, 8):
         return [
@@ -524,7 +485,7 @@ def used_externals(tree):
 class Snapshot:
     def __init__(self, value, expr):
         self._expr = expr
-        self._value = UndecidedValue(value)
+        self._value = UndecidedValue(value, expr)
         self._uses_externals = []
 
     @property
@@ -533,32 +494,6 @@ class Snapshot:
 
     def _format(self, text):
         return format_code(text, Path(self._filename))
-
-    def _value_to_token(self, value):
-        if value is undefined:
-            return []
-        input = io.StringIO(self._format(repr(value)))
-
-        def map_string(tok):
-            """Convert strings with newlines in triple quoted strings."""
-            if tok.type == token.STRING:
-                s = ast.literal_eval(tok.string)
-                if isinstance(s, str) and "\n" in s:
-                    # unparse creates a triple quoted string here,
-                    # because it thinks that the string should be a docstring
-                    tripple_quoted_string = triple_quote(s)
-
-                    assert ast.literal_eval(tripple_quoted_string) == s
-
-                    return simple_token(tok.type, tripple_quoted_string)
-
-            return simple_token(tok.type, tok.string)
-
-        return [
-            map_string(t)
-            for t in tokenize.generate_tokens(input.readline)
-            if t.type not in ignore_tokens
-        ]
 
     def _change(self):
         assert self._expr is not None
@@ -589,9 +524,7 @@ class Snapshot:
         ):
             new_value = self._value.get_result(_update_flags)
 
-            text = self._format(
-                tokenize.untokenize(self._value_to_token(new_value))
-            ).strip()
+            text = self._format(tokenize.untokenize(value_to_token(new_value))).strip()
 
             try:
                 tree = ast.parse(text)
@@ -616,39 +549,10 @@ class Snapshot:
             if t.type not in ignore_tokens
         ]
 
-    def _normalize_strings(self, token_sequence):
-        """Normalize string concattenanion.
-
-        "a" "b" -> "ab"
-        """
-
-        current_string = None
-        for t in token_sequence:
-            if (
-                t.type == token.STRING
-                and not t.string.startswith(("'''", '"""', "b'''", 'b"""'))
-                and t.string.startswith(("'", '"', "b'", 'b"'))
-            ):
-                if current_string is None:
-                    current_string = ast.literal_eval(t.string)
-                else:
-                    current_string += ast.literal_eval(t.string)
-
-                continue
-
-            if current_string is not None:
-                yield (token.STRING, repr(current_string))
-                current_string = None
-
-            yield t
-
-        if current_string is not None:
-            yield (token.STRING, repr(current_string))
-
     def _needs_update(self):
         return self._expr is not None and [] != list(
-            self._normalize_strings(self._current_tokens())
-        ) != list(self._normalize_strings(self._value_to_token(self._value._old_value)))
+            normalize_strings(self._current_tokens())
+        ) != list(normalize_strings(value_to_token(self._value._old_value)))
 
     @property
     def _flags(self):
