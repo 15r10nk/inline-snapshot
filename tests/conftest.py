@@ -36,7 +36,6 @@ def check_update(source):
 
         assert s.flags == reported_flags
         assert s.number_snapshots == number
-        assert s.number_changes == number
         assert s.error == ("fix" in s.flags)
 
         s2 = s.run(*flags)

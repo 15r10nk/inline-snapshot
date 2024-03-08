@@ -6,12 +6,16 @@ import tokenize
 from pathlib import Path
 from typing import Any
 from typing import Dict  # noqa
+from typing import Iterator
+from typing import List
 from typing import overload
 from typing import Tuple  # noqa
 from typing import TypeVar
 
 from executing import Source
 
+from ._change import Change
+from ._change import Replace
 from ._format import format_code
 from ._rewrite_code import ChangeRecorder
 from ._rewrite_code import end_of
@@ -21,6 +25,10 @@ from ._utils import ignore_tokens
 from ._utils import normalize_strings
 from ._utils import simple_token
 from ._utils import value_to_token
+
+
+class NotImplementedYet(Exception):
+    pass
 
 
 snapshots = {}  # type: Dict[Tuple[int, int], Snapshot]
@@ -66,6 +74,7 @@ class GenericValue:
     _old_value: Any
     _current_op = "undefined"
     _ast_node: ast.Expr
+    _source: Source
 
     def _needs_trim(self):
         return False
@@ -93,8 +102,11 @@ class GenericValue:
     def get_result(self, flags):
         return self._old_value
 
-    def _get_changes(self):
-        raise NotImplementedError
+    def _get_changes(self) -> List[Change]:
+        raise NotImplementedYet()
+
+    def _new_code(self):
+        raise NotImplementedYet()
 
     def __repr__(self):
         return repr(self._visible_value())
@@ -127,10 +139,11 @@ class GenericValue:
 
 
 class UndecidedValue(GenericValue):
-    def __init__(self, _old_value, _ast_node):
-        self._old_value = _old_value
+    def __init__(self, old_value, ast_node, source):
+        self._old_value = old_value
         self._new_value = undefined
-        self._ast_node = _ast_node
+        self._ast_node = ast_node
+        self._source = source
 
     def _change(self, cls):
         self.__class__ = cls
@@ -172,22 +185,52 @@ class EqValue(GenericValue):
 
         return self._visible_value() == other
 
-    def _get_changes(self):
+    def _current_tokens(self):
+
+        return list(
+            normalize_strings(
+                [
+                    simple_token(t.type, t.string)
+                    for t in self._source.asttokens().get_tokens(self._ast_node)
+                    if t.type not in ignore_tokens
+                ]
+            )
+        )
+
+    def _format(self, text):
+        return format_code(text, Path(self._source.filename))
+
+    def _token_to_code(self, tokens):
+        return self._format(tokenize.untokenize(tokens)).strip()
+
+    def _new_code(self):
+        return self._token_to_code(value_to_token(self._new_value))
+
+    def _get_changes(self) -> Iterator[Change]:
         if isinstance(self._new_value, (list, dict)):
-            raise NotImplementedError
+            raise NotImplementedYet()
 
-        new_code = new_repr(self._new_value)
+        assert self._old_value is not undefined
 
-        if self._old_value is undefined:
-            flag = "create"
-        elif not self._old_value == self._new_value:
+        new_token = value_to_token(self._new_value)
+
+        if not self._old_value == self._new_value:
             flag = "fix"
-        elif old_repr(self._ast_node) != new_code:
+        elif self._current_tokens() != new_token:
             flag = "update"
         else:
             return
 
-        yield Change(self._ast_node, new_code, flag)
+        new_code = self._token_to_code(new_token)
+
+        yield Replace(
+            node=self._ast_node,
+            source=self._source,
+            new_code=new_code,
+            flag=flag,
+            old_value=self._old_value,
+            new_value=self._new_value,
+        )
 
     def _needs_fix(self):
         return self._old_value is not undefined and self._old_value != self._new_value
@@ -339,7 +382,7 @@ class DictValue(GenericValue):
 
         if index not in self._new_value:
             self._new_value[index] = UndecidedValue(
-                old_value.get(index, undefined), None
+                old_value.get(index, undefined), None, self._source
             )
 
         return self._new_value[index]
@@ -485,7 +528,9 @@ def used_externals(tree):
 class Snapshot:
     def __init__(self, value, expr):
         self._expr = expr
-        self._value = UndecidedValue(value, expr)
+        node = expr.node.args[0] if expr is not None and expr.node.args else None
+        source = expr.source if expr is not None else None
+        self._value = UndecidedValue(value, node, source)
         self._uses_externals = []
 
     @property
@@ -498,13 +543,40 @@ class Snapshot:
     def _change(self):
         assert self._expr is not None
 
-        change = ChangeRecorder.current.new_change()
-
         tokens = list(self._expr.source.asttokens().get_tokens(self._expr.node))
         assert tokens[0].string == "snapshot"
         assert tokens[1].string == "("
         assert tokens[-1].string == ")"
 
+        try:
+            if self._value._old_value is undefined:
+                if _update_flags.create:
+                    new_code = self._value._new_code()
+                    try:
+                        ast.parse(new_code)
+                    except:
+                        new_code = ""
+                else:
+                    new_code = ""
+
+                change = ChangeRecorder.current.new_change()
+                change.set_tags("inline_snapshot")
+                change.replace(
+                    (end_of(tokens[1]), start_of(tokens[-1])),
+                    new_code,
+                    filename=self._filename,
+                )
+                return
+
+            changes = self._value._get_changes()
+            for change in changes:
+                if change.flag in _update_flags.to_set():
+                    change.apply()
+            return
+        except NotImplementedYet:
+            pass
+
+        change = ChangeRecorder.current.new_change()
         change.set_tags("inline_snapshot")
 
         needs_fix = self._value._needs_fix()

@@ -82,6 +82,11 @@ line-length=80
                     new_code = new_code.split("# Error:")[0]
                     new_code += "# Error:" + textwrap.indent(result.errorLines(), "# ")
 
+                print("new code:")
+                print(new_code)
+                print("expected code:")
+                print(code)
+
                 if (
                     inline_snapshot._inline_snapshot._update_flags.fix
                 ):  # pragma: no cover

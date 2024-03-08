@@ -11,7 +11,7 @@ from .utils import snapshot_env
 from inline_snapshot import _inline_snapshot
 from inline_snapshot import snapshot
 from inline_snapshot._inline_snapshot import Flags
-from inline_snapshot._inline_snapshot import triple_quote
+from inline_snapshot._utils import triple_quote
 
 
 def test_snapshot_eq():
