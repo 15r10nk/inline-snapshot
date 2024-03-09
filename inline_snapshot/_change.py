@@ -88,6 +88,21 @@ class DictInsert(Change):
     new_code: List[Tuple[str, str]]
     new_values: List[Tuple[Any, Any]]
 
+    def apply(self):
+        change = ChangeRecorder.current.new_change()
+        atok = self.source.asttokens()
+        code = ",".join(f"{k}:{v}" for k, v in self.new_code)
+
+        if self.position == len(self.node.keys):
+            *_, token = atok.get_tokens(self.node.values[-1])
+            token = atok.next_token(token)
+            code = ", " + code
+        else:
+            token, *_ = atok.get_tokens(self.node.keys[self.position])
+            code = code + ", "
+
+        change.insert(token, code, filename=self.filename)
+
 
 @dataclass()
 class Replace(Change):

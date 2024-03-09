@@ -27,3 +27,13 @@ def test_fix_dict_remove(check_update):
         reported_flags="fix",
         flags="fix",
     ) == snapshot("assert {}==snapshot({})")
+
+
+def test_fix_dict_insert(check_update):
+    assert check_update(
+        """assert {0:"before",1:1,2:"after"}==snapshot({1:0+1})""",
+        reported_flags="update,fix",
+        flags="fix",
+    ) == snapshot(
+        """assert {0:"before",1:1,2:"after"}==snapshot({0:"before", 1:0+1, 2:"after"})"""
+    )

@@ -16,6 +16,7 @@ from executing import Source
 
 from ._change import Change
 from ._change import Delete
+from ._change import DictInsert
 from ._change import Replace
 from ._format import format_code
 from ._rewrite_code import ChangeRecorder
@@ -204,8 +205,11 @@ class EqValue(GenericValue):
     def _token_to_code(self, tokens):
         return self._format(tokenize.untokenize(tokens)).strip()
 
+    def _value_to_code(self, value):
+        return self._token_to_code(value_to_token(value))
+
     def _new_code(self):
-        return self._token_to_code(value_to_token(self._new_value))
+        return self._value_to_code(self._new_value)
 
     def _get_changes(self) -> Iterator[Change]:
 
@@ -252,6 +256,42 @@ class EqValue(GenericValue):
                         yield from check(old_value[key], node, new_value[key])
                     else:
                         yield Delete("fix", self._source, node, old_value[key])
+
+                to_insert = []
+                insert_pos = 0
+                for key, new_value_element in new_value.items():
+                    if key not in old_value:
+                        to_insert.append((key, new_value_element))
+                    else:
+                        if to_insert:
+                            new_code = [
+                                (self._value_to_code(k), self._value_to_code(v))
+                                for k, v in to_insert
+                            ]
+                            yield DictInsert(
+                                "fix",
+                                self._source,
+                                node.parent,
+                                insert_pos,
+                                new_code,
+                                to_insert,
+                            )
+                            to_insert = []
+                        insert_pos += 1
+
+                if to_insert:
+                    new_code = [
+                        (self._value_to_code(k), self._value_to_code(v))
+                        for k, v in to_insert
+                    ]
+                    yield DictInsert(
+                        "fix",
+                        self._source,
+                        node.parent,
+                        insert_pos,
+                        new_code,
+                        to_insert,
+                    )
 
                 return
 
