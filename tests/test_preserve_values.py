@@ -37,3 +37,11 @@ def test_fix_dict_insert(check_update):
     ) == snapshot(
         """assert {0:"before",1:1,2:"after"}==snapshot({0:"before", 1:0+1, 2:"after"})"""
     )
+
+
+def test_fix_dict_with_non_literal_keys(check_update):
+    assert check_update(
+        """assert {1+2:"3"}==snapshot({1+2:"5"})""",
+        reported_flags="update,fix",
+        flags="fix",
+    ) == snapshot('assert {1+2:"3"}==snapshot({1+2:"3"})')

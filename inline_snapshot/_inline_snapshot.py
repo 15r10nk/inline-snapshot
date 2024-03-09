@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Any
 from typing import Dict  # noqa
 from typing import Iterator
-from typing import List
 from typing import overload
 from typing import Tuple  # noqa
 from typing import TypeVar
@@ -104,7 +103,7 @@ class GenericValue:
     def get_result(self, flags):
         return self._old_value
 
-    def _get_changes(self) -> List[Change]:
+    def _get_changes(self) -> Iterator[Change]:
         raise NotImplementedYet()
 
     def _new_code(self):
@@ -686,7 +685,7 @@ class Snapshot:
 
             try:
                 tree = ast.parse(text)
-            except:
+            except:  # pragma: no cover
                 return
 
             self._uses_externals = used_externals(tree)

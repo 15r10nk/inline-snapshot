@@ -22,7 +22,7 @@ class Change:
         return self.source.filename
 
     def apply(self):
-        pass
+        raise NotImplementedError()
 
 
 def extend_comma(atok: ASTTokens, start: Token, end: Token) -> Tuple[Token, Token]:

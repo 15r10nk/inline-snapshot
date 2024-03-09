@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import ast
 import contextlib
 import logging
 import pathlib
@@ -63,9 +62,6 @@ def start_of(obj) -> SourcePosition:
     if isinstance(obj, tuple) and len(obj) == 2:
         return SourcePosition(lineno=obj[0], col_offset=obj[1])
 
-    if isinstance(obj, ast.AST):
-        return SourcePosition(lineno=obj.lineno, col_offset=obj.col_offset)
-
     assert False
 
 
@@ -75,9 +71,6 @@ def end_of(obj) -> SourcePosition:
 
     if isinstance(obj, SourceRange):
         return obj.end
-
-    if isinstance(obj, ast.AST):
-        return SourcePosition(lineno=obj.end_lineno, col_offset=obj.end_col_offset)
 
     return start_of(obj)
 
