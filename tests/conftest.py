@@ -78,7 +78,6 @@ from inline_snapshot import outsource
             filename.write_text(source, "utf-8")
 
             print()
-            print(f'run: inline-snapshot={",".join(flags.to_set())}')
             print("input:")
             print(textwrap.indent(source, " |", lambda line: True).rstrip())
 
@@ -112,9 +111,14 @@ from inline_snapshot import outsource
                     recorder.fix_all(tags=["inline_snapshot"])
 
             source = filename.read_text("utf-8")[len(prefix) :]
+            print("reported_flags:", snapshot_flags)
+            print(
+                f"run: pytest" + f' --inline-snapshot={",".join(flags.to_set())}'
+                if flags
+                else ""
+            )
             print("output:")
             print(textwrap.indent(source, " |", lambda line: True).rstrip())
-            print("reported_flags:", snapshot_flags)
 
             return Source(
                 source=source,

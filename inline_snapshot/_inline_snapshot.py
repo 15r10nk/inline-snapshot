@@ -185,13 +185,13 @@ class EqValue(GenericValue):
 
         return self._visible_value() == other
 
-    def _current_tokens(self):
+    def token_of_node(self, node):
 
         return list(
             normalize_strings(
                 [
                     simple_token(t.type, t.string)
-                    for t in self._source.asttokens().get_tokens(self._ast_node)
+                    for t in self._source.asttokens().get_tokens(node)
                     if t.type not in ignore_tokens
                 ]
             )
@@ -207,30 +207,73 @@ class EqValue(GenericValue):
         return self._token_to_code(value_to_token(self._new_value))
 
     def _get_changes(self) -> Iterator[Change]:
-        if isinstance(self._new_value, (list, dict)):
-            raise NotImplementedYet()
 
         assert self._old_value is not undefined
 
-        new_token = value_to_token(self._new_value)
+        def check(old_value, old_node, new_value):
 
-        if not self._old_value == self._new_value:
-            flag = "fix"
-        elif self._current_tokens() != new_token:
-            flag = "update"
-        else:
-            return
+            if (
+                isinstance(old_node, ast.List)
+                and isinstance(new_value, list)
+                and isinstance(old_value, list)
+            ):
+                if len(old_value) == len(new_value) == len(old_node.elts):
+                    for old_value_element, old_node_element, new_value_element in zip(
+                        old_value, old_node.elts, new_value
+                    ):
+                        yield from check(
+                            old_value_element, old_node_element, new_value_element
+                        )
+                    return
 
-        new_code = self._token_to_code(new_token)
+            elif (
+                isinstance(old_node, ast.Dict)
+                and isinstance(new_value, dict)
+                and isinstance(old_value, dict)
+            ):
+                if len(old_value) == len(old_node.keys):
+                    for value, node in zip(old_value.keys(), old_node.keys):
+                        assert node is not None
 
-        yield Replace(
-            node=self._ast_node,
-            source=self._source,
-            new_code=new_code,
-            flag=flag,
-            old_value=self._old_value,
-            new_value=self._new_value,
-        )
+                        try:
+                            # this is just a sanity check, dicts should be ordered
+                            node_value = ast.literal_eval(node)
+                        except:
+                            continue
+                        assert node_value == value
+
+                    same_keys = old_value.keys() & new_value.keys()
+                    new_keys = new_value.keys() - old_value.keys()
+                    removed_keys = old_value.keys() - new_value.keys()
+
+                    for key, node in zip(old_value.keys(), old_node.values):
+                        if key in new_value:
+                            yield from check(old_value[key], node, new_value[key])
+
+                    return
+
+            # generic fallback
+            new_token = value_to_token(new_value)
+
+            if not old_value == new_value:
+                flag = "fix"
+            elif self.token_of_node(old_node) != new_token:
+                flag = "update"
+            else:
+                return
+
+            new_code = self._token_to_code(new_token)
+
+            yield Replace(
+                node=old_node,
+                source=self._source,
+                new_code=new_code,
+                flag=flag,
+                old_value=old_value,
+                new_value=new_value,
+            )
+
+        yield from check(self._old_value, self._ast_node, self._new_value)
 
     def _needs_fix(self):
         return self._old_value is not undefined and self._old_value != self._new_value
