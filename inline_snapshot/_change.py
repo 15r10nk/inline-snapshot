@@ -5,6 +5,8 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 
+from asttokens import ASTTokens
+from asttokens.util import Token
 from executing import Source
 
 from ._rewrite_code import ChangeRecorder
@@ -23,10 +25,39 @@ class Change:
         pass
 
 
+def extend_comma(atok: ASTTokens, start: Token, end: Token) -> Tuple[Token, Token]:
+    prev = atok.prev_token(start)
+    if prev.string == ",":
+        return prev, end
+
+    next = atok.next_token(end)
+    if next.string == ",":
+        return start, next
+
+    return start, end
+
+
 @dataclass()
 class Delete(Change):
     node: ast.AST
     old_value: Any
+
+    def apply(self):
+        change = ChangeRecorder.current.new_change()
+        parent = self.node.parent
+        atok = self.source.asttokens()
+        if isinstance(parent, ast.Dict):
+            index = parent.values.index(self.node)
+            key = parent.keys[index]
+
+            start, *_ = atok.get_tokens(key)
+            *_, end = atok.get_tokens(self.node)
+
+            start, end = extend_comma(atok, start, end)
+
+            change.replace((start, end), "", filename=self.filename)
+        else:
+            assert False
 
 
 @dataclass()

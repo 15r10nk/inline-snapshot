@@ -15,6 +15,7 @@ from typing import TypeVar
 from executing import Source
 
 from ._change import Change
+from ._change import Delete
 from ._change import Replace
 from ._format import format_code
 from ._rewrite_code import ChangeRecorder
@@ -230,27 +231,29 @@ class EqValue(GenericValue):
                 isinstance(old_node, ast.Dict)
                 and isinstance(new_value, dict)
                 and isinstance(old_value, dict)
+                and len(old_value) == len(old_node.keys)
             ):
-                if len(old_value) == len(old_node.keys):
-                    for value, node in zip(old_value.keys(), old_node.keys):
-                        assert node is not None
+                for value, node in zip(old_value.keys(), old_node.keys):
+                    assert node is not None
 
-                        try:
-                            # this is just a sanity check, dicts should be ordered
-                            node_value = ast.literal_eval(node)
-                        except:
-                            continue
-                        assert node_value == value
+                    try:
+                        # this is just a sanity check, dicts should be ordered
+                        node_value = ast.literal_eval(node)
+                    except:
+                        continue
+                    assert node_value == value
 
-                    same_keys = old_value.keys() & new_value.keys()
-                    new_keys = new_value.keys() - old_value.keys()
-                    removed_keys = old_value.keys() - new_value.keys()
+                same_keys = old_value.keys() & new_value.keys()
+                new_keys = new_value.keys() - old_value.keys()
+                removed_keys = old_value.keys() - new_value.keys()
 
-                    for key, node in zip(old_value.keys(), old_node.values):
-                        if key in new_value:
-                            yield from check(old_value[key], node, new_value[key])
+                for key, node in zip(old_value.keys(), old_node.values):
+                    if key in new_value:
+                        yield from check(old_value[key], node, new_value[key])
+                    else:
+                        yield Delete("fix", self._source, node, old_value[key])
 
-                    return
+                return
 
             # generic fallback
             new_token = value_to_token(new_value)
