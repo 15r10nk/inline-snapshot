@@ -3,6 +3,7 @@ import copy
 import inspect
 import sys
 import tokenize
+from collections import defaultdict
 from pathlib import Path
 from typing import Any
 from typing import Dict  # noqa
@@ -13,9 +14,12 @@ from typing import TypeVar
 
 from executing import Source
 
+from ._align import add_x
+from ._align import align
 from ._change import Change
 from ._change import Delete
 from ._change import DictInsert
+from ._change import ListInsert
 from ._change import Replace
 from ._format import format_code
 from ._rewrite_code import ChangeRecorder
@@ -220,15 +224,42 @@ class EqValue(GenericValue):
                 isinstance(old_node, ast.List)
                 and isinstance(new_value, list)
                 and isinstance(old_value, list)
+                or isinstance(old_node, ast.Tuple)
+                and isinstance(new_value, tuple)
+                and isinstance(old_value, tuple)
             ):
-                if len(old_value) == len(new_value) == len(old_node.elts):
-                    for old_value_element, old_node_element, new_value_element in zip(
-                        old_value, old_node.elts, new_value
-                    ):
+                diff = add_x(align(old_value, new_value))
+                old = zip(old_value, old_node.elts)
+                new = iter(new_value)
+                old_position = 0
+                to_insert = defaultdict(list)
+                for c in diff:
+                    if c in "mx":
+                        old_value_element, old_node_element = next(old)
+                        new_value_element = next(new)
                         yield from check(
                             old_value_element, old_node_element, new_value_element
                         )
-                    return
+                        old_position += 1
+                    elif c == "i":
+                        new_value_element = next(new)
+                        new_code = self._value_to_code(new_value_element)
+                        to_insert[old_position].append((new_code, new_value_element))
+                    elif c == "d":
+                        old_value_element, old_node_element = next(old)
+                        yield Delete(
+                            "fix", self._source, old_node_element, old_value_element
+                        )
+                        old_position += 1
+                    else:
+                        assert False
+
+                for position, code_values in to_insert.items():
+                    yield ListInsert(
+                        "fix", self._source, old_node, position, *zip(*code_values)
+                    )
+
+                return
 
             elif (
                 isinstance(old_node, ast.Dict)

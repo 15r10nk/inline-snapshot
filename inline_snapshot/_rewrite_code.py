@@ -117,9 +117,11 @@ class Change:  # ChangeSet
         self.replace(start_of(node), new_content, filename=filename)
 
     def _replace(self, filename, range, new_contend):
-        self.change_recorder.get_source(filename).replacements.append(
+        source = self.change_recorder.get_source(filename)
+        source.replacements.append(
             Replacement(range=range, text=new_contend, change_id=self.change_id)
         )
+        source._check()
 
 
 class SourceFile:
@@ -133,17 +135,23 @@ class SourceFile:
         with open(self.filename, "bw") as code:
             code.write(new_code.encode())
 
+    def _check(self):
+        replacements = list(self.replacements)
+        replacements.sort()
+
+        for r in replacements:
+            assert r.range.start <= r.range.end, r
+
+        for lhs, rhs in pairwise(replacements):
+            assert lhs.range.end <= rhs.range.start, (lhs, rhs)
+
     def new_code(self):
         """Returns the new file contend or None if there are no replacepents to
         apply."""
         replacements = list(self.replacements)
         replacements.sort()
 
-        for r in replacements:
-            assert r.range.start <= r.range.end
-
-        for lhs, rhs in pairwise(replacements):
-            assert lhs.range.end <= rhs.range.start
+        self._check()
 
         code = self.filename.read_text("utf-8")
 

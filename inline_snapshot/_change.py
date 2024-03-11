@@ -26,9 +26,9 @@ class Change:
 
 
 def extend_comma(atok: ASTTokens, start: Token, end: Token) -> Tuple[Token, Token]:
-    prev = atok.prev_token(start)
-    if prev.string == ",":
-        return prev, end
+    # prev = atok.prev_token(start)
+    # if prev.string == ",":
+    #    return prev, end
 
     next = atok.next_token(end)
     if next.string == ",":
@@ -56,6 +56,13 @@ class Delete(Change):
             start, end = extend_comma(atok, start, end)
 
             change.replace((start, end), "", filename=self.filename)
+        elif isinstance(parent, ast.List):
+            tokens = list(atok.get_tokens(self.node))
+            start, end = tokens[0], tokens[-1]
+
+            start, end = extend_comma(atok, start, end)
+
+            change.replace((start, end), "", filename=self.filename)
         else:
             assert False
 
@@ -78,6 +85,25 @@ class ListInsert(Change):
 
     new_code: List[str]
     new_values: List[Any]
+
+    def apply(self):
+        change = ChangeRecorder.current.new_change()
+        atok = self.source.asttokens()
+
+        code = ", ".join(self.new_code)
+
+        assert self.position <= len(self.node.elts)
+
+        if self.position == len(self.node.elts):
+            *_, token = atok.get_tokens(self.node)
+            assert token.string == "]"
+            if self.position != 0:
+                code = ", " + code
+        else:
+            token, *_ = atok.get_tokens(self.node.elts[self.position])
+            code = code + ", "
+
+        change.insert(token, code, filename=self.filename)
 
 
 @dataclass()
