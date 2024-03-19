@@ -1,15 +1,22 @@
 import ast
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
+from typing import cast
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Union
 
 from asttokens import ASTTokens
 from asttokens.util import Token
-from executing import Source
+from executing.executing import EnhancedAST
+from executing.executing import Source
 
 from ._rewrite_code import ChangeRecorder
+from ._rewrite_code import end_of
+from ._rewrite_code import start_of
 
 
 @dataclass()
@@ -56,13 +63,6 @@ class Delete(Change):
             start, end = extend_comma(atok, start, end)
 
             change.replace((start, end), "", filename=self.filename)
-        elif isinstance(parent, ast.List):
-            tokens = list(atok.get_tokens(self.node))
-            start, end = tokens[0], tokens[-1]
-
-            start, end = extend_comma(atok, start, end)
-
-            change.replace((start, end), "", filename=self.filename)
         else:
             assert False
 
@@ -85,25 +85,6 @@ class ListInsert(Change):
 
     new_code: List[str]
     new_values: List[Any]
-
-    def apply(self):
-        change = ChangeRecorder.current.new_change()
-        atok = self.source.asttokens()
-
-        code = ", ".join(self.new_code)
-
-        assert self.position <= len(self.node.elts)
-
-        if self.position == len(self.node.elts):
-            *_, token = atok.get_tokens(self.node)
-            assert token.string == "]"
-            if self.position != 0:
-                code = ", " + code
-        else:
-            token, *_ = atok.get_tokens(self.node.elts[self.position])
-            code = code + ", "
-
-        change.insert(token, code, filename=self.filename)
 
 
 @dataclass()
@@ -142,3 +123,101 @@ class Replace(Change):
         change = ChangeRecorder.current.new_change()
         range = self.source.asttokens().get_text_positions(self.node, False)
         change.replace(range, self.new_code, filename=self.filename)
+
+
+def apply_all(all_changes: List[Change]):
+    by_parent: Dict[EnhancedAST, List[Union[Delete, DictInsert, ListInsert]]] = (
+        defaultdict(list)
+    )
+    sources = {}
+
+    for change in all_changes:
+        if isinstance(change, Delete):
+            node = cast(EnhancedAST, change.node).parent
+            by_parent[node].append(change)
+            sources[node] = change.source
+
+        elif isinstance(change, (DictInsert, ListInsert)):
+            node = cast(EnhancedAST, change.node)
+            by_parent[node].append(change)
+            sources[node] = change.source
+        else:
+            change.apply()
+
+    for parent, changes in by_parent.items():
+        source = sources[parent]
+        print(parent, changes)
+
+        rec = ChangeRecorder.current.new_change()
+        if isinstance(parent, (ast.List, ast.Tuple)):
+            to_delete = {
+                change.node for change in changes if isinstance(change, Delete)
+            }
+            to_insert = {
+                change.position: change
+                for change in changes
+                if isinstance(change, ListInsert)
+            }
+
+            new_code = []
+            deleted = False
+            last_token, *_, end_token = source.asttokens().get_tokens(parent)
+            is_start = True
+            elements = 0
+
+            for index, entry in enumerate(parent.elts):
+                if index in to_insert:
+                    new_code += to_insert[index].new_code
+                    print("insert", entry, new_code)
+                if entry in to_delete:
+                    deleted = True
+                    print("delete1", entry)
+                else:
+                    entry_tokens = list(source.asttokens().get_tokens(entry))
+                    first_token = entry_tokens[0]
+                    new_last_token = entry_tokens[-1]
+                    elements += len(new_code) + 1
+
+                    if deleted or new_code:
+                        print("change", deleted, new_code)
+
+                        code = ""
+                        if new_code:
+                            code = ", ".join(new_code) + ", "
+                        if not is_start:
+                            code = ", " + code
+                        print("code", code)
+
+                        rec.replace(
+                            (end_of(last_token), start_of(first_token)),
+                            code,
+                            filename=source.filename,
+                        )
+                    print("keep", entry)
+                    new_code = []
+                    deleted = False
+                    last_token = new_last_token
+                    is_start = False
+
+            if len(parent.elts) in to_insert:
+                new_code += to_insert[len(parent.elts)].new_code
+                elements += len(new_code)
+
+            if new_code or deleted or elements == 1 or len(parent.elts) <= 1:
+                code = ", ".join(new_code)
+                if not is_start and code:
+                    code = ", " + code
+
+                if elements == 1 and isinstance(parent, ast.Tuple):
+                    # trailing comma for tuples (1,)i
+                    code += ","
+
+                rec.replace(
+                    (end_of(last_token), start_of(end_token)),
+                    code,
+                    filename=source.filename,
+                )
+
+        else:
+            for change in changes:
+                change.apply()

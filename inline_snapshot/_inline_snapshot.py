@@ -16,6 +16,7 @@ from executing import Source
 
 from ._align import add_x
 from ._align import align
+from ._change import apply_all
 from ._change import Change
 from ._change import Delete
 from ._change import DictInsert
@@ -685,9 +686,9 @@ class Snapshot:
                 return
 
             changes = self._value._get_changes()
-            for change in changes:
-                if change.flag in _update_flags.to_set():
-                    change.apply()
+            apply_all(
+                [change for change in changes if change.flag in _update_flags.to_set()]
+            )
             return
         except NotImplementedYet:
             pass
