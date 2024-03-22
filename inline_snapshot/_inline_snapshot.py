@@ -284,14 +284,17 @@ class EqValue(GenericValue):
 
                 for key, node in zip(old_value.keys(), old_node.values):
                     if key in new_value:
+                        # check values with same keys
                         yield from check(old_value[key], node, new_value[key])
                     else:
+                        # delete entries
                         yield Delete("fix", self._source, node, old_value[key])
 
                 to_insert = []
                 insert_pos = 0
                 for key, new_value_element in new_value.items():
                     if key not in old_value:
+                        # add new values
                         to_insert.append((key, new_value_element))
                     else:
                         if to_insert:
@@ -302,7 +305,7 @@ class EqValue(GenericValue):
                             yield DictInsert(
                                 "fix",
                                 self._source,
-                                node.parent,
+                                old_node,
                                 insert_pos,
                                 new_code,
                                 to_insert,
@@ -318,8 +321,8 @@ class EqValue(GenericValue):
                     yield DictInsert(
                         "fix",
                         self._source,
-                        node.parent,
-                        insert_pos,
+                        old_node,
+                        len(old_node.values),
                         new_code,
                         to_insert,
                     )

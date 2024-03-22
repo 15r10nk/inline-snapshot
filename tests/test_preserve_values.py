@@ -46,7 +46,7 @@ def test_fix_dict_remove(check_update):
         """assert {1:1}==snapshot({0:0, 1:0+1, 2:2})""",
         reported_flags="update,fix",
         flags="fix",
-    ) == snapshot("assert {1:1}==snapshot({ 1:0+1, })")
+    ) == snapshot("assert {1:1}==snapshot({1:0+1})")
 
     assert check_update(
         """assert {}==snapshot({0:0})""",
@@ -61,7 +61,7 @@ def test_fix_dict_insert(check_update):
         reported_flags="update,fix",
         flags="fix",
     ) == snapshot(
-        """assert {0:"before",1:1,2:"after"}==snapshot({0:"before", 1:0+1, 2:"after"})"""
+        'assert {0:"before",1:1,2:"after"}==snapshot({0: "before", 1:0+1, 2: "after"})'
     )
 
 
@@ -166,23 +166,27 @@ stuff = [
 
 
 def test_generic(source, subtests):
-    codes = []
-
-    for braces in ("[]", "()"):
-        for s in itertools.product(stuff, repeat=3):
-            flags = set().union(*[e[3] for e in s])
-            name = ",".join(e[2] for e in s)
-            print(flags)
+    for braces in ("[]", "()", "{}"):
+        for value_specs in itertools.product(stuff, repeat=3):
+            flags = set().union(*[e[3] for e in value_specs])
             all_flags = {
                 frozenset(x) - {""}
                 for x in itertools.combinations_with_replacement(
                     flags | {""}, len(flags)
                 )
             }
-            print(all_flags)
 
-            def build(l):
-                values = [x for e in l for x in e]
+            def build(value_lists):
+                value_lists = list(value_lists)
+
+                if braces == "{}":
+                    values = [
+                        f"{i}: {value_list[0]}"
+                        for i, value_list in enumerate(value_lists)
+                        if value_list
+                    ]
+                else:
+                    values = [x for value_list in value_lists for x in value_list]
 
                 code = ", ".join(values)
 
@@ -192,13 +196,13 @@ def test_generic(source, subtests):
 
                 return f"{braces[0]}{code}{comma}{braces[1]}"
 
-            c1 = build(e[0] for e in s)
-            c2 = build(e[1] for e in s)
+            c1 = build(spec[0] for spec in value_specs)
+            c2 = build(spec[1] for spec in value_specs)
             code = f"assert {c2}==snapshot({c1})"
 
             named_flags = ", ".join(flags)
-            with subtests.test(f"{c1} -> {c2} <{named_flags}>"):
 
+            with subtests.test(f"{c1} -> {c2} <{named_flags}>"):
                 s1 = source(code)
                 print("source:", code)
 
@@ -207,7 +211,9 @@ def test_generic(source, subtests):
                 assert ("fix" in flags) == s1.error
 
                 for f in all_flags:
-                    c3 = build([(e[1] if e[3] & f else e[0]) for e in s])
+                    c3 = build(
+                        [(spec[1] if spec[3] & f else spec[0]) for spec in value_specs]
+                    )
                     new_code = f"assert {c2}==snapshot({c3})"
 
                     print(f"{set(f)}:")

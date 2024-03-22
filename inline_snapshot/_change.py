@@ -9,7 +9,6 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
-from asttokens import ASTTokens
 from asttokens.util import Token
 from executing.executing import EnhancedAST
 from executing.executing import Source
@@ -32,39 +31,10 @@ class Change:
         raise NotImplementedError()
 
 
-def extend_comma(atok: ASTTokens, start: Token, end: Token) -> Tuple[Token, Token]:
-    # prev = atok.prev_token(start)
-    # if prev.string == ",":
-    #    return prev, end
-
-    next = atok.next_token(end)
-    if next.string == ",":
-        return start, next
-
-    return start, end
-
-
 @dataclass()
 class Delete(Change):
     node: ast.AST
     old_value: Any
-
-    def apply(self):
-        change = ChangeRecorder.current.new_change()
-        parent = self.node.parent
-        atok = self.source.asttokens()
-        if isinstance(parent, ast.Dict):
-            index = parent.values.index(self.node)
-            key = parent.keys[index]
-
-            start, *_ = atok.get_tokens(key)
-            *_, end = atok.get_tokens(self.node)
-
-            start, end = extend_comma(atok, start, end)
-
-            change.replace((start, end), "", filename=self.filename)
-        else:
-            assert False
 
 
 @dataclass()
@@ -95,21 +65,6 @@ class DictInsert(Change):
     new_code: List[Tuple[str, str]]
     new_values: List[Tuple[Any, Any]]
 
-    def apply(self):
-        change = ChangeRecorder.current.new_change()
-        atok = self.source.asttokens()
-        code = ",".join(f"{k}:{v}" for k, v in self.new_code)
-
-        if self.position == len(self.node.keys):
-            *_, token = atok.get_tokens(self.node.values[-1])
-            token = atok.next_token(token)
-            code = ", " + code
-        else:
-            token, *_ = atok.get_tokens(self.node.keys[self.position])
-            code = code + ", "
-
-        change.insert(token, code, filename=self.filename)
-
 
 @dataclass()
 class Replace(Change):
@@ -125,11 +80,75 @@ class Replace(Change):
         change.replace(range, self.new_code, filename=self.filename)
 
 
+TokenRange = Tuple[Token, Token]
+
+
+def generic_sequence_update(
+    source: Source,
+    parent: Union[ast.List, ast.Tuple, ast.Dict],
+    parent_elements: List[Union[TokenRange, None]],
+    to_insert: Dict[int, List[str]],
+):
+    rec = ChangeRecorder.current.new_change()
+
+    new_code = []
+    deleted = False
+    last_token, *_, end_token = source.asttokens().get_tokens(parent)
+    is_start = True
+    elements = 0
+
+    for index, entry in enumerate(parent_elements):
+        if index in to_insert:
+            new_code += to_insert[index]
+        if entry is None:
+            deleted = True
+        else:
+            first_token, new_last_token = entry
+            elements += len(new_code) + 1
+
+            if deleted or new_code:
+
+                code = ""
+                if new_code:
+                    code = ", ".join(new_code) + ", "
+                if not is_start:
+                    code = ", " + code
+
+                rec.replace(
+                    (end_of(last_token), start_of(first_token)),
+                    code,
+                    filename=source.filename,
+                )
+            new_code = []
+            deleted = False
+            last_token = new_last_token
+            is_start = False
+
+    if len(parent_elements) in to_insert:
+        new_code += to_insert[len(parent_elements)]
+        elements += len(new_code)
+
+    if new_code or deleted or elements == 1 or len(parent_elements) <= 1:
+        code = ", ".join(new_code)
+        if not is_start and code:
+            code = ", " + code
+
+        if elements == 1 and isinstance(parent, ast.Tuple):
+            # trailing comma for tuples (1,)i
+            code += ","
+
+        rec.replace(
+            (end_of(last_token), start_of(end_token)),
+            code,
+            filename=source.filename,
+        )
+
+
 def apply_all(all_changes: List[Change]):
     by_parent: Dict[EnhancedAST, List[Union[Delete, DictInsert, ListInsert]]] = (
         defaultdict(list)
     )
-    sources = {}
+    sources: Dict[EnhancedAST, Source] = {}
 
     for change in all_changes:
         if isinstance(change, Delete):
@@ -146,78 +165,53 @@ def apply_all(all_changes: List[Change]):
 
     for parent, changes in by_parent.items():
         source = sources[parent]
-        print(parent, changes)
 
-        rec = ChangeRecorder.current.new_change()
         if isinstance(parent, (ast.List, ast.Tuple)):
             to_delete = {
                 change.node for change in changes if isinstance(change, Delete)
             }
             to_insert = {
-                change.position: change
+                change.position: change.new_code
                 for change in changes
                 if isinstance(change, ListInsert)
             }
 
-            new_code = []
-            deleted = False
-            last_token, *_, end_token = source.asttokens().get_tokens(parent)
-            is_start = True
-            elements = 0
+            def list_token_range(entry):
+                r = list(source.asttokens().get_tokens(entry))
+                return r[0], r[-1]
 
-            for index, entry in enumerate(parent.elts):
-                if index in to_insert:
-                    new_code += to_insert[index].new_code
-                    print("insert", entry, new_code)
-                if entry in to_delete:
-                    deleted = True
-                    print("delete1", entry)
-                else:
-                    entry_tokens = list(source.asttokens().get_tokens(entry))
-                    first_token = entry_tokens[0]
-                    new_last_token = entry_tokens[-1]
-                    elements += len(new_code) + 1
+            generic_sequence_update(
+                source,
+                parent,
+                [None if e in to_delete else list_token_range(e) for e in parent.elts],
+                to_insert,
+            )
 
-                    if deleted or new_code:
-                        print("change", deleted, new_code)
+        elif isinstance(parent, (ast.Dict)):
+            to_delete = {
+                change.node for change in changes if isinstance(change, Delete)
+            }
+            to_insert = {
+                change.position: [f"{key}: {value}" for key, value in change.new_code]
+                for change in changes
+                if isinstance(change, DictInsert)
+            }
 
-                        code = ""
-                        if new_code:
-                            code = ", ".join(new_code) + ", "
-                        if not is_start:
-                            code = ", " + code
-                        print("code", code)
-
-                        rec.replace(
-                            (end_of(last_token), start_of(first_token)),
-                            code,
-                            filename=source.filename,
-                        )
-                    print("keep", entry)
-                    new_code = []
-                    deleted = False
-                    last_token = new_last_token
-                    is_start = False
-
-            if len(parent.elts) in to_insert:
-                new_code += to_insert[len(parent.elts)].new_code
-                elements += len(new_code)
-
-            if new_code or deleted or elements == 1 or len(parent.elts) <= 1:
-                code = ", ".join(new_code)
-                if not is_start and code:
-                    code = ", " + code
-
-                if elements == 1 and isinstance(parent, ast.Tuple):
-                    # trailing comma for tuples (1,)i
-                    code += ","
-
-                rec.replace(
-                    (end_of(last_token), start_of(end_token)),
-                    code,
-                    filename=source.filename,
+            def dict_token_range(key, value):
+                return (
+                    list(source.asttokens().get_tokens(key))[0],
+                    list(source.asttokens().get_tokens(value))[-1],
                 )
 
+            generic_sequence_update(
+                source,
+                parent,
+                [
+                    None if value in to_delete else dict_token_range(key, value)
+                    for key, value in zip(parent.keys, parent.values)
+                ],
+                to_insert,
+            )
+
         else:
-            for change in changes:
-                change.apply()
+            assert False
