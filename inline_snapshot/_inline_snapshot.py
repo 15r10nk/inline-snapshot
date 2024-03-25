@@ -82,6 +82,27 @@ class GenericValue:
     _ast_node: ast.Expr
     _source: Source
 
+    def _token_of_node(self, node):
+
+        return list(
+            normalize_strings(
+                [
+                    simple_token(t.type, t.string)
+                    for t in self._source.asttokens().get_tokens(node)
+                    if t.type not in ignore_tokens
+                ]
+            )
+        )
+
+    def _format(self, text):
+        return format_code(text, Path(self._source.filename))
+
+    def _token_to_code(self, tokens):
+        return self._format(tokenize.untokenize(tokens)).strip()
+
+    def _value_to_code(self, value):
+        return self._token_to_code(value_to_token(value))
+
     def _needs_trim(self):
         return False
 
@@ -190,27 +211,6 @@ class EqValue(GenericValue):
             self._new_value = other
 
         return self._visible_value() == other
-
-    def token_of_node(self, node):
-
-        return list(
-            normalize_strings(
-                [
-                    simple_token(t.type, t.string)
-                    for t in self._source.asttokens().get_tokens(node)
-                    if t.type not in ignore_tokens
-                ]
-            )
-        )
-
-    def _format(self, text):
-        return format_code(text, Path(self._source.filename))
-
-    def _token_to_code(self, tokens):
-        return self._format(tokenize.untokenize(tokens)).strip()
-
-    def _value_to_code(self, value):
-        return self._token_to_code(value_to_token(value))
 
     def _new_code(self):
         return self._value_to_code(self._new_value)
@@ -334,7 +334,7 @@ class EqValue(GenericValue):
 
             if not old_value == new_value:
                 flag = "fix"
-            elif self.token_of_node(old_node) != new_token:
+            elif self._token_of_node(old_node) != new_token:
                 flag = "update"
             else:
                 return
@@ -402,6 +402,28 @@ class MinMaxValue(GenericValue):
             return self._new_value
 
         return self._old_value
+
+    def _get_changes(self) -> Iterator[Change]:
+        new_token = value_to_token(self._new_value)
+        if not self.cmp(self._old_value, self._new_value):
+            flag = "fix"
+        elif not self.cmp(self._new_value, self._old_value):
+            flag = "trim"
+        elif self._token_of_node(self._ast_node) != new_token:
+            flag = "update"
+        else:
+            return
+
+        new_code = self._token_to_code(new_token)
+
+        yield Replace(
+            node=self._ast_node,
+            source=self._source,
+            new_code=new_code,
+            flag=flag,
+            old_value=self._old_value,
+            new_value=self._new_value,
+        )
 
 
 class MinValue(MinMaxValue):
