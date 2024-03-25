@@ -510,6 +510,43 @@ class CollectionValue(GenericValue):
 
         return self._old_value
 
+    def _get_changes(self) -> Iterator[Change]:
+
+        assert isinstance(self._ast_node, ast.List)
+
+        for old_value, old_node in zip(self._old_value, self._ast_node.elts):
+            if old_value not in self._new_value:
+                yield Delete(
+                    flag="trim", source=self._source, node=old_node, old_value=old_value
+                )
+                continue
+
+            # check for update
+            new_token = value_to_token(old_value)
+
+            if self._token_of_node(old_node) != new_token:
+                new_code = self._token_to_code(new_token)
+
+                yield Replace(
+                    node=old_node,
+                    source=self._source,
+                    new_code=new_code,
+                    flag="update",
+                    old_value=old_value,
+                    new_value=old_value,
+                )
+
+        new_values = [v for v in self._new_value if v not in self._old_value]
+        if new_values:
+            yield ListInsert(
+                flag="fix",
+                source=self._source,
+                node=self._ast_node,
+                position=len(self._ast_node.elts),
+                new_code=[self._value_to_code(v) for v in new_values],
+                new_values=new_values,
+            )
+
 
 class DictValue(GenericValue):
     _current_op = "snapshot[key]"

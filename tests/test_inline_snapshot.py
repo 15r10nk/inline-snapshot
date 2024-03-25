@@ -438,7 +438,7 @@ def test_contains(check_update):
 
     assert check_update(
         "for i in range(5): assert i in snapshot([0,1,2,3,4,5,6])", flags="trim"
-    ) == snapshot("for i in range(5): assert i in snapshot([0, 1, 2, 3, 4])")
+    ) == snapshot("for i in range(5): assert i in snapshot([0,1,2,3,4])")
 
     assert (
         check_update(
