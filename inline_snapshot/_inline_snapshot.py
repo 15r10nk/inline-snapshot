@@ -126,9 +126,6 @@ class GenericValue:
         else:
             return self._old_value
 
-    def get_result(self, flags):
-        return self._old_value
-
     def _get_changes(self) -> Iterator[Change]:
         raise NotImplementedYet()
 
@@ -180,6 +177,26 @@ class UndecidedValue(GenericValue):
 
     def _new_code(self):
         return ""
+
+    def _get_changes(self) -> Iterator[Change]:
+        # generic fallback
+        new_token = value_to_token(self._old_value)
+
+        if self._token_of_node(self._ast_node) != new_token:
+            flag = "update"
+        else:
+            return
+
+        new_code = self._token_to_code(new_token)
+
+        yield Replace(
+            node=self._ast_node,
+            source=self._source,
+            new_code=new_code,
+            flag=flag,
+            old_value=self._old_value,
+            new_value=self._old_value,
+        )
 
     # functions which determine the type
 
@@ -354,11 +371,6 @@ class EqValue(GenericValue):
     def _needs_fix(self):
         return self._old_value is not undefined and self._old_value != self._new_value
 
-    def get_result(self, flags):
-        if flags.fix and self._needs_fix() or flags.create and self._needs_create():
-            return self._new_value
-        return self._old_value
-
 
 class MinMaxValue(GenericValue):
     """Generic implementation for <=, >="""
@@ -389,18 +401,6 @@ class MinMaxValue(GenericValue):
         if self._old_value is undefined:
             return False
         return not self.cmp(self._old_value, self._new_value)
-
-    def get_result(self, flags):
-        if flags.create and self._needs_create():
-            return self._new_value
-
-        if flags.fix and self._needs_fix():
-            return self._new_value
-
-        if flags.trim and self._needs_trim():
-            return self._new_value
-
-        return self._old_value
 
     def _new_code(self):
         return self._value_to_code(self._new_value)
@@ -497,21 +497,6 @@ class CollectionValue(GenericValue):
             return False
         return any(item not in self._old_value for item in self._new_value)
 
-    def get_result(self, flags):
-        if (flags.fix and flags.trim) or (flags.create and self._needs_create()):
-            return self._new_value
-
-        if self._old_value is not undefined:
-            if flags.fix:
-                return self._old_value + [
-                    v for v in self._new_value if v not in self._old_value
-                ]
-
-            if flags.trim:
-                return [v for v in self._old_value if v in self._new_value]
-
-        return self._old_value
-
     def _new_code(self):
         return self._value_to_code(self._new_value)
 
@@ -599,20 +584,7 @@ class DictValue(GenericValue):
 
         return any(item not in self._old_value for item in self._new_value)
 
-    def get_result(self, flags):
-        result = {k: v.get_result(flags) for k, v in self._new_value.items()}
-
-        result = {k: v for k, v in result.items() if v is not undefined}
-
-        if not flags.trim and self._old_value is not undefined:
-            for k, v in self._old_value.items():
-                if k not in result:
-                    result[k] = v
-
-        return result
-
     def _new_code(self):
-
         return (
             "{"
             + ", ".join(
@@ -784,68 +756,29 @@ class Snapshot:
         assert tokens[1].string == "("
         assert tokens[-1].string == ")"
 
-        try:
-            if self._value._old_value is undefined:
-                if _update_flags.create:
-                    new_code = self._value._new_code()
-                    try:
-                        ast.parse(new_code)
-                    except:
-                        new_code = ""
-                else:
+        if self._value._old_value is undefined:
+            if _update_flags.create:
+                new_code = self._value._new_code()
+                try:
+                    ast.parse(new_code)
+                except:
                     new_code = ""
+            else:
+                new_code = ""
 
-                change = ChangeRecorder.current.new_change()
-                change.set_tags("inline_snapshot")
-                change.replace(
-                    (end_of(tokens[1]), start_of(tokens[-1])),
-                    new_code,
-                    filename=self._filename,
-                )
-                return
-
-            changes = self._value._get_changes()
-            apply_all(
-                [change for change in changes if change.flag in _update_flags.to_set()]
-            )
-            return
-        except NotImplementedYet:
-            pass
-
-        change = ChangeRecorder.current.new_change()
-        change.set_tags("inline_snapshot")
-
-        needs_fix = self._value._needs_fix()
-        needs_create = self._value._needs_create()
-        needs_trim = self._value._needs_trim()
-        needs_update = self._needs_update()
-
-        if (
-            _update_flags.update
-            and needs_update
-            or _update_flags.fix
-            and needs_fix
-            or _update_flags.create
-            and needs_create
-            or _update_flags.trim
-            and needs_trim
-        ):
-            new_value = self._value.get_result(_update_flags)
-
-            text = self._format(tokenize.untokenize(value_to_token(new_value))).strip()
-
-            try:
-                tree = ast.parse(text)
-            except:  # pragma: no cover
-                return
-
-            self._uses_externals = used_externals(tree)
-
+            change = ChangeRecorder.current.new_change()
+            change.set_tags("inline_snapshot")
             change.replace(
                 (end_of(tokens[1]), start_of(tokens[-1])),
-                text,
+                new_code,
                 filename=self._filename,
             )
+            return
+
+        changes = self._value._get_changes()
+        apply_all(
+            [change for change in changes if change.flag in _update_flags.to_set()]
+        )
 
     def _current_tokens(self):
         if not self._expr.node.args:
