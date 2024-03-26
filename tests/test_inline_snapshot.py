@@ -104,25 +104,32 @@ def test_generic(source, subtests):
     ],
 )
 def test_generic_multi(source, subtests, ops):
-    def gen_code(ops, fixed):
-        args = ", ".join(
-            f'"k_{k}": {value}'
-            for k, value in [
-                (k, (op.fvalue if op.flag in fixed else op.svalue))
-                for k, op in enumerate(ops)
-            ]
-            if value
-        )
+    def gen_code(ops, fixed, old_keys):
+        keys = old_keys + [k for k in range(len(ops)) if k not in old_keys]
+        new_keys = []
+
+        args = []
+        print(keys)
+        for k in keys:
+            op = ops[k]
+            value = op.fvalue if op.flag in fixed else op.svalue
+            if value:
+                args.append(f'"k_{k}": {value}')
+                new_keys.append(k)
+        args = ", ".join(args)
+
         code = "s = snapshot({" + args + "})\n"
 
         for k, op in enumerate(ops):
             code += f'print({op.value} {op.op} s["k_{k}"]) # {op.flag} {op.svalue or "<undef>"} -> {op.fvalue}\n'
 
-        return code
+        return code, new_keys
 
     all_flags = {op.flag for op in ops}
 
-    s = source(gen_code(ops, {}))
+    keys = []
+    code, keys = gen_code(ops, {}, keys)
+    s = source(code)
 
     assert s.flags == all_flags
 
@@ -131,12 +138,11 @@ def test_generic_multi(source, subtests, ops):
             s2 = s
             fixed_flags = set()
             for flag in flags:
-                if flag in {"create", "fix", "trim"}:
-                    fixed_flags.add("update")
 
                 s2 = s2.run(flag)
                 fixed_flags.add(flag)
-                assert s2.source == gen_code(ops, fixed_flags)
+                code, keys = gen_code(ops, fixed_flags, keys)
+                assert s2.source == code
 
                 s2 = s2.run()
                 assert s2.flags == all_flags - fixed_flags
@@ -497,7 +503,7 @@ def test_getitem(check_update):
         flags="fix",
         reported_flags="fix,trim",
     ) == snapshot(
-        'for i in range(3): assert i in snapshot({"0": [0], "1": [1, 2], "2": [4, 2]})[str(i)]'
+        'for i in range(3): assert i in snapshot({"0": [0], "1": [1,2], "2": [4, 2]})[str(i)]'
     )
 
     assert check_update(
@@ -509,19 +515,19 @@ def test_getitem(check_update):
 
     assert check_update(
         "assert 4 in snapshot({2:[4],3:[]})[2]", flags="trim"
-    ) == snapshot("assert 4 in snapshot({2: [4]})[2]")
+    ) == snapshot("assert 4 in snapshot({2:[4]})[2]")
 
     assert check_update(
         "assert 5 in snapshot({2:[4],3:[]})[2]", flags="fix", reported_flags="fix,trim"
-    ) == snapshot("assert 5 in snapshot({2: [4, 5], 3: []})[2]")
+    ) == snapshot("assert 5 in snapshot({2:[4, 5],3:[]})[2]")
 
     assert check_update(
         "assert 5 in snapshot({2:[4],3:[]})[2]", flags="fix,trim"
-    ) == snapshot("assert 5 in snapshot({2: [5]})[2]")
+    ) == snapshot("assert 5 in snapshot({2:[5]})[2]")
 
     assert check_update(
         "assert 5 in snapshot({3:[1]})[2]", flags="create", reported_flags="create,trim"
-    ) == snapshot("assert 5 in snapshot({2: [5], 3: [1]})[2]")
+    ) == snapshot("assert 5 in snapshot({3:[1], 2: [5]})[2]")
 
     assert (
         check_update(

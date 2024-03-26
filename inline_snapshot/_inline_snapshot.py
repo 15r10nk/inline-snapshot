@@ -178,6 +178,9 @@ class UndecidedValue(GenericValue):
     def _needs_fix(self):
         return False
 
+    def _new_code(self):
+        return ""
+
     # functions which determine the type
 
     def __eq__(self, other):
@@ -277,10 +280,6 @@ class EqValue(GenericValue):
                     except:
                         continue
                     assert node_value == value
-
-                same_keys = old_value.keys() & new_value.keys()
-                new_keys = new_value.keys() - old_value.keys()
-                removed_keys = old_value.keys() - new_value.keys()
 
                 for key, node in zip(old_value.keys(), old_node.values):
                     if key in new_value:
@@ -403,6 +402,9 @@ class MinMaxValue(GenericValue):
 
         return self._old_value
 
+    def _new_code(self):
+        return self._value_to_code(self._new_value)
+
     def _get_changes(self) -> Iterator[Change]:
         new_token = value_to_token(self._new_value)
         if not self.cmp(self._old_value, self._new_value):
@@ -510,6 +512,9 @@ class CollectionValue(GenericValue):
 
         return self._old_value
 
+    def _new_code(self):
+        return self._value_to_code(self._new_value)
+
     def _get_changes(self) -> Iterator[Change]:
 
         assert isinstance(self._ast_node, ast.List)
@@ -559,9 +564,16 @@ class DictValue(GenericValue):
         if old_value is undefined:
             old_value = {}
 
+        child_node = None
+        if self._ast_node is not None:
+            assert isinstance(self._ast_node, ast.Dict)
+            if index in old_value:
+                pos = list(old_value.keys()).index(index)
+                child_node = self._ast_node.values[pos]
+
         if index not in self._new_value:
             self._new_value[index] = UndecidedValue(
-                old_value.get(index, undefined), None, self._source
+                old_value.get(index, undefined), child_node, self._source
             )
 
         return self._new_value[index]
@@ -598,6 +610,51 @@ class DictValue(GenericValue):
                     result[k] = v
 
         return result
+
+    def _new_code(self):
+
+        return (
+            "{"
+            + ", ".join(
+                [
+                    f"{self._value_to_code(k)}: {v._new_code()}"
+                    for k, v in self._new_value.items()
+                ]
+            )
+            + "}"
+        )
+
+    def _get_changes(self) -> Iterator[Change]:
+
+        assert self._old_value is not undefined
+
+        assert isinstance(self._ast_node, ast.Dict)
+
+        for key, node in zip(self._old_value.keys(), self._ast_node.values):
+            if key in self._new_value:
+                # check values with same keys
+                yield from self._new_value[key]._get_changes()
+            else:
+                # delete entries
+                yield Delete("trim", self._source, node, self._old_value[key])
+
+        to_insert = []
+        for key, new_value_element in self._new_value.items():
+            print(key, new_value_element)
+            if key not in self._old_value:
+                # add new values
+                to_insert.append((key, new_value_element._new_code()))
+
+        if to_insert:
+            new_code = [(self._value_to_code(k), v) for k, v in to_insert]
+            yield DictInsert(
+                "create",
+                self._source,
+                self._ast_node,
+                len(self._ast_node.values),
+                new_code,
+                to_insert,
+            )
 
 
 T = TypeVar("T")
