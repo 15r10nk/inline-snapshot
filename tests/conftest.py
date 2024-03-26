@@ -5,9 +5,11 @@ import traceback
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Set
 
 import black
+import executing
 import pytest
 
 import inline_snapshot._external
@@ -246,3 +248,17 @@ from inline_snapshot import outsource
             return RunResult(result)
 
     return Project()
+
+
+@pytest.fixture(params=[True, False], ids=["executing", "without-executing"])
+def executing_used(request, monkeypatch):
+    used = request.param
+    if used:
+        yield used
+    else:
+
+        def fake_executing(frame):
+            return SimpleNamespace(node=None)
+
+        monkeypatch.setattr(executing.Source, "executing", fake_executing)
+        yield used

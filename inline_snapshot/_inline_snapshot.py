@@ -95,22 +95,16 @@ class GenericValue:
         )
 
     def _format(self, text):
-        return format_code(text, Path(self._source.filename))
+        if self._source is None:
+            return text
+        else:
+            return format_code(text, Path(self._source.filename))
 
     def _token_to_code(self, tokens):
         return self._format(tokenize.untokenize(tokens)).strip()
 
     def _value_to_code(self, value):
         return self._token_to_code(value_to_token(value))
-
-    def _needs_trim(self):
-        return False
-
-    def _needs_create(self):
-        return self._old_value == undefined
-
-    def _needs_fix(self):
-        raise NotImplemented
 
     def _ignore_old(self):
         return (
@@ -171,9 +165,6 @@ class UndecidedValue(GenericValue):
 
     def _change(self, cls):
         self.__class__ = cls
-
-    def _needs_fix(self):
-        return False
 
     def _new_code(self):
         return ""
@@ -350,7 +341,9 @@ class EqValue(GenericValue):
 
             if not old_value == new_value:
                 flag = "fix"
-            elif self._token_of_node(old_node) != new_token:
+            elif (
+                self._source is not None and self._token_of_node(old_node) != new_token
+            ):
                 flag = "update"
             else:
                 return
@@ -367,9 +360,6 @@ class EqValue(GenericValue):
             )
 
         yield from check(self._old_value, self._ast_node, self._new_value)
-
-    def _needs_fix(self):
-        return self._old_value is not undefined and self._old_value != self._new_value
 
 
 class MinMaxValue(GenericValue):
@@ -391,17 +381,6 @@ class MinMaxValue(GenericValue):
 
         return self.cmp(self._visible_value(), other)
 
-    def _needs_trim(self):
-        if self._old_value is undefined:
-            return False
-
-        return not self.cmp(self._new_value, self._old_value)
-
-    def _needs_fix(self):
-        if self._old_value is undefined:
-            return False
-        return not self.cmp(self._old_value, self._new_value)
-
     def _new_code(self):
         return self._value_to_code(self._new_value)
 
@@ -411,7 +390,10 @@ class MinMaxValue(GenericValue):
             flag = "fix"
         elif not self.cmp(self._new_value, self._old_value):
             flag = "trim"
-        elif self._token_of_node(self._ast_node) != new_token:
+        elif (
+            self._ast_node is not None
+            and self._token_of_node(self._ast_node) != new_token
+        ):
             flag = "update"
         else:
             return
@@ -487,24 +469,18 @@ class CollectionValue(GenericValue):
         else:
             return item in self._old_value
 
-    def _needs_trim(self):
-        if self._old_value is undefined:
-            return False
-        return any(item not in self._new_value for item in self._old_value)
-
-    def _needs_fix(self):
-        if self._old_value is undefined:
-            return False
-        return any(item not in self._old_value for item in self._new_value)
-
     def _new_code(self):
         return self._value_to_code(self._new_value)
 
     def _get_changes(self) -> Iterator[Change]:
 
-        assert isinstance(self._ast_node, ast.List)
+        if self._ast_node is None:
+            elements = [None] * len(self._old_value)
+        else:
+            assert isinstance(self._ast_node, ast.List)
+            elements = self._ast_node.elts
 
-        for old_value, old_node in zip(self._old_value, self._ast_node.elts):
+        for old_value, old_node in zip(self._old_value, elements):
             if old_value not in self._new_value:
                 yield Delete(
                     flag="trim", source=self._source, node=old_node, old_value=old_value
@@ -514,7 +490,7 @@ class CollectionValue(GenericValue):
             # check for update
             new_token = value_to_token(old_value)
 
-            if self._token_of_node(old_node) != new_token:
+            if old_node is not None and self._token_of_node(old_node) != new_token:
                 new_code = self._token_to_code(new_token)
 
                 yield Replace(
@@ -532,7 +508,7 @@ class CollectionValue(GenericValue):
                 flag="fix",
                 source=self._source,
                 node=self._ast_node,
-                position=len(self._ast_node.elts),
+                position=len(self._old_value),
                 new_code=[self._value_to_code(v) for v in new_values],
                 new_values=new_values,
             )
@@ -563,27 +539,6 @@ class DictValue(GenericValue):
 
         return self._new_value[index]
 
-    def _needs_fix(self):
-        if self._old_value is not undefined and self._new_value is not undefined:
-            if any(v._needs_fix() for v in self._new_value.values()):
-                return True
-
-        return False
-
-    def _needs_trim(self):
-        if self._old_value is not undefined and self._new_value is not undefined:
-            if any(v._needs_trim() for v in self._new_value.values()):
-                return True
-
-            return any(item not in self._new_value for item in self._old_value)
-        return False
-
-    def _needs_create(self):
-        if super()._needs_create():
-            return True
-
-        return any(item not in self._old_value for item in self._new_value)
-
     def _new_code(self):
         return (
             "{"
@@ -600,9 +555,13 @@ class DictValue(GenericValue):
 
         assert self._old_value is not undefined
 
-        assert isinstance(self._ast_node, ast.Dict)
+        if self._ast_node is None:
+            values = [None] * len(self._old_value)
+        else:
+            assert isinstance(self._ast_node, ast.Dict)
+            values = self._ast_node.values
 
-        for key, node in zip(self._old_value.keys(), self._ast_node.values):
+        for key, node in zip(self._old_value.keys(), values):
             if key in self._new_value:
                 # check values with same keys
                 yield from self._new_value[key]._get_changes()
@@ -612,7 +571,6 @@ class DictValue(GenericValue):
 
         to_insert = []
         for key, new_value_element in self._new_value.items():
-            print(key, new_value_element)
             if key not in self._old_value:
                 # add new values
                 to_insert.append((key, new_value_element._new_code()))
@@ -623,7 +581,7 @@ class DictValue(GenericValue):
                 "create",
                 self._source,
                 self._ast_node,
-                len(self._ast_node.values),
+                len(self._old_value),
                 new_code,
                 to_insert,
             )
@@ -745,16 +703,7 @@ class Snapshot:
     def _filename(self):
         return self._expr.source.filename
 
-    def _format(self, text):
-        return format_code(text, Path(self._filename))
-
     def _change(self):
-        assert self._expr is not None
-
-        tokens = list(self._expr.source.asttokens().get_tokens(self._expr.node))
-        assert tokens[0].string == "snapshot"
-        assert tokens[1].string == "("
-        assert tokens[-1].string == ")"
 
         if self._value._old_value is undefined:
             if _update_flags.create:
@@ -762,9 +711,16 @@ class Snapshot:
                 try:
                     ast.parse(new_code)
                 except:
-                    new_code = ""
+                    return
             else:
-                new_code = ""
+                return
+
+            assert self._expr is not None
+
+            tokens = list(self._expr.source.asttokens().get_tokens(self._expr.node))
+            assert tokens[0].string == "snapshot"
+            assert tokens[1].string == "("
+            assert tokens[-1].string == ")"
 
             change = ChangeRecorder.current.new_change()
             change.set_tags("inline_snapshot")
@@ -780,31 +736,11 @@ class Snapshot:
             [change for change in changes if change.flag in _update_flags.to_set()]
         )
 
-    def _current_tokens(self):
-        if not self._expr.node.args:
-            return []
-
-        return [
-            simple_token(t.type, t.string)
-            for t in self._expr.source.asttokens().get_tokens(self._expr.node.args[0])
-            if t.type not in ignore_tokens
-        ]
-
-    def _needs_update(self):
-        return self._expr is not None and [] != list(
-            normalize_strings(self._current_tokens())
-        ) != list(normalize_strings(value_to_token(self._value._old_value)))
-
     @property
     def _flags(self):
-        s = set()
-        if self._value._needs_fix():
-            s.add("fix")
-        if self._value._needs_trim():
-            s.add("trim")
-        if self._value._needs_create():
-            s.add("create")
-        if self._value._old_value is not undefined and self._needs_update():
-            s.add("update")
 
-        return s
+        if self._value._old_value is undefined:
+            return {"create"}
+
+        changes = self._value._get_changes()
+        return {change.flag for change in changes}

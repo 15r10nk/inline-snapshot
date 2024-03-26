@@ -55,7 +55,7 @@ operations = [
 ]
 
 
-def test_generic(source, subtests):
+def test_generic(source, subtests, executing_used):
     codes = []
 
     for op in operations:
@@ -77,7 +77,10 @@ def test_generic(source, subtests):
             s = source(code)
             print("source:", code)
 
-            assert list(s.flags) == [reported_flag]
+            if not executing_used and reported_flag == "update":
+                assert not s.flags
+            else:
+                assert list(s.flags) == [reported_flag]
 
             assert (reported_flag == "fix") == s.error
 
@@ -87,6 +90,9 @@ def test_generic(source, subtests):
                 print("use flag:", flag)
                 s2 = s.run(flag)
                 assert s2.source == s.source
+
+            if not executing_used:
+                continue
 
             s2 = s.run(reported_flag)
             assert s2.flags == {reported_flag}
@@ -103,7 +109,8 @@ def test_generic(source, subtests):
         for ops in itertools.combinations(operations, 2)
     ],
 )
-def test_generic_multi(source, subtests, ops):
+def test_generic_multi(source, subtests, ops, executing_used):
+
     def gen_code(ops, fixed, old_keys):
         keys = old_keys + [k for k in range(len(ops)) if k not in old_keys]
         new_keys = []
@@ -131,21 +138,22 @@ def test_generic_multi(source, subtests, ops):
     code, keys = gen_code(ops, {}, keys)
     s = source(code)
 
-    assert s.flags == all_flags
+    assert s.flags == all_flags - ({"update"} if not executing_used else set())
 
-    for flags in itertools.permutations(all_flags):
-        with subtests.test(" ".join(flags)):
-            s2 = s
-            fixed_flags = set()
-            for flag in flags:
+    if executing_used:
+        for flags in itertools.permutations(all_flags):
+            with subtests.test(" ".join(flags)):
+                s2 = s
+                fixed_flags = set()
+                for flag in flags:
 
-                s2 = s2.run(flag)
-                fixed_flags.add(flag)
-                code, keys = gen_code(ops, fixed_flags, keys)
-                assert s2.source == code
+                    s2 = s2.run(flag)
+                    fixed_flags.add(flag)
+                    code, keys = gen_code(ops, fixed_flags, keys)
+                    assert s2.source == code
 
-                s2 = s2.run()
-                assert s2.flags == all_flags - fixed_flags
+                    s2 = s2.run()
+                    assert s2.flags == all_flags - fixed_flags
 
     for flag in {"update", "fix", "trim", "create"} - all_flags:
         with subtests.test(f"ignore {flag}"):

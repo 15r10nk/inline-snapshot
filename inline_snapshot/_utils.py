@@ -4,8 +4,6 @@ import token
 import tokenize
 from collections import namedtuple
 
-from ._sentinels import undefined
-
 
 def normalize_strings(token_sequence):
     """Normalize string concattenanion.
@@ -96,8 +94,6 @@ simple_token = namedtuple("simple_token", "type,string")
 
 
 def value_to_token(value):
-    if value is undefined:
-        return []
     input = io.StringIO(repr(value))
 
     def map_string(tok):

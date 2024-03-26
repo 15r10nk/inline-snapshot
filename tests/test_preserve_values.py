@@ -68,7 +68,7 @@ def test_fix_dict_insert(check_update):
 def test_fix_dict_with_non_literal_keys(check_update):
     assert check_update(
         """assert {1+2:"3"}==snapshot({1+2:"5"})""",
-        reported_flags="update,fix",
+        reported_flags="fix",
         flags="fix",
     ) == snapshot('assert {1+2:"3"}==snapshot({1+2:"3"})')
 
@@ -219,7 +219,6 @@ def test_generic(source, subtests):
                     print(f"{set(f)}:")
                     print("  ", code)
                     print("  ", new_code)
-
                     s2 = s1.run(*f)
                     assert s2.source == new_code
                     # assert s2.flags== flags-f
