@@ -173,7 +173,10 @@ class UndecidedValue(GenericValue):
         # generic fallback
         new_token = value_to_token(self._old_value)
 
-        if self._token_of_node(self._ast_node) != new_token:
+        if (
+            self._ast_node is not None
+            and self._token_of_node(self._ast_node) != new_token
+        ):
             flag = "update"
         else:
             return
@@ -342,7 +345,8 @@ class EqValue(GenericValue):
             if not old_value == new_value:
                 flag = "fix"
             elif (
-                self._source is not None and self._token_of_node(old_node) != new_token
+                self._ast_node is not None
+                and self._token_of_node(old_node) != new_token
             ):
                 flag = "update"
             else:

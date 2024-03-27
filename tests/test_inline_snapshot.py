@@ -560,7 +560,7 @@ def test_assert(check_update):
     assert check_update("assert 2 == snapshot(5)", reported_flags="fix")
 
 
-def test_plain(check_update):
+def test_plain(check_update, executing_used):
     assert check_update("s = snapshot(5)", flags="") == snapshot("s = snapshot(5)")
 
     assert check_update(
