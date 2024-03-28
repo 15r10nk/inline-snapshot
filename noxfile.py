@@ -38,6 +38,8 @@ def test(session):
         "coverage",
         "pytest-xdist",
         "coverage-enable-subprocess",
+        "dirty-equals",
+        "time-machine",
     )
     session.env["COVERAGE_PROCESS_START"] = str(
         Path(__file__).parent / "pyproject.toml"

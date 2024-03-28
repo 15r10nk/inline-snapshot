@@ -1,10 +1,15 @@
+import datetime
 import re
 import textwrap
 from pathlib import Path
 
 import pytest
+import time_machine
 
 import inline_snapshot._inline_snapshot
+
+
+target = datetime.datetime(2024, 3, 14)
 
 
 @pytest.mark.parametrize(
@@ -17,6 +22,7 @@ import inline_snapshot._inline_snapshot
         ]
     ],
 )
+@time_machine.travel(target)
 def test_docs(project, file, subtests):
     """Test code blocks with the header <!-- inline-snapshot: options ... -->
 

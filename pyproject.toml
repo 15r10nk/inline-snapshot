@@ -63,11 +63,13 @@ types-toml = ">=0.10.8.7"
 [tool.poetry.group.dev.dependencies]
 coverage = ">=7.2.3"
 coverage-enable-subprocess = ">=1.0"
+dirty-equals = ">=0.7.0"
 hypothesis = ">=6.75.5"
 mypy = ">=1.2.0"
 pytest = ">=7.1"
 pytest-subtests = ">=0.11.0"
 pytest-xdist = {extras = ["psutil"], version = ">=3.2.1"}
+time-machine = ">=2.10.0"
 
 [tool.poetry.group.doc.dependencies]
 mkdocs = ">=1.4.2"
