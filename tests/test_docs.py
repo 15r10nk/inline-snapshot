@@ -1,10 +1,15 @@
+import datetime
 import re
 import textwrap
 from pathlib import Path
 
 import pytest
+import time_machine
 
 import inline_snapshot._inline_snapshot
+
+
+target = datetime.datetime(2024, 3, 14)
 
 
 @pytest.mark.parametrize(
@@ -17,6 +22,7 @@ import inline_snapshot._inline_snapshot
         ]
     ],
 )
+@time_machine.travel(target)
 def test_docs(project, file, subtests):
     """Test code blocks with the header <!-- inline-snapshot: options ... -->
 
@@ -81,6 +87,11 @@ line-length=80
                 if "show_error" in options:
                     new_code = new_code.split("# Error:")[0]
                     new_code += "# Error:" + textwrap.indent(result.errorLines(), "# ")
+
+                print("new code:")
+                print(new_code)
+                print("expected code:")
+                print(code)
 
                 if (
                     inline_snapshot._inline_snapshot._update_flags.fix
