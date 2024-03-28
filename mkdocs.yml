@@ -8,6 +8,7 @@ theme:
   custom_dir: docs/theme
   features:
   - toc.follow
+  - content.code.annotate
   palette:
   - media: (prefers-color-scheme)
 

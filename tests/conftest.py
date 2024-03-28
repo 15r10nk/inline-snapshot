@@ -202,6 +202,18 @@ from inline_snapshot import outsource
             print(source)
             self._filename.write_text(source, "utf-8")
 
+            (pytester.path / "conftest.py").write_text(
+                """
+import datetime
+import pytest
+
+@pytest.fixture(autouse=True)
+def set_time(time_machine):
+        time_machine.move_to(datetime.datetime(2024, 3, 14, 0, 0, 0, 0),tick=False)
+        yield
+"""
+            )
+
         @property
         def _filename(self):
             return pytester.path / "test_file.py"
