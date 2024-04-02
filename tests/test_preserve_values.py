@@ -1,4 +1,7 @@
 import itertools
+import sys
+
+import pytest
 
 from inline_snapshot import snapshot
 
@@ -71,6 +74,28 @@ def test_fix_dict_with_non_literal_keys(check_update):
         reported_flags="fix",
         flags="fix",
     ) == snapshot('assert {1+2:"3"}==snapshot({1+2:"3"})')
+
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 8), reason="dirty equals has dropped the 3.7 support"
+)
+def test_no_update_for_dirty_equals(check_update):
+    assert (
+        check_update(
+            """\
+from dirty_equals import IsInt
+assert {5:5,2:2}==snapshot({5:IsInt(),2:1+1})
+""",
+            reported_flags="update",
+            flags="update",
+        )
+        == snapshot(
+            """\
+from dirty_equals import IsInt
+assert {5:5,2:2}==snapshot({5:IsInt(),2:2})
+"""
+        )
+    )
 
 
 # @pytest.mark.skipif(not hasattr(ast, "unparse"), reason="ast.unparse not available")

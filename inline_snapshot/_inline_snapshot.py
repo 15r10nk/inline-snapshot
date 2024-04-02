@@ -215,6 +215,19 @@ class UndecidedValue(GenericValue):
         return self[item]
 
 
+try:
+    import dirty_equals  # type: ignore
+except:
+
+    def update_allowed(value):
+        return True
+
+else:
+
+    def update_allowed(value):
+        return not isinstance(value, dirty_equals.DirtyEquals)
+
+
 class EqValue(GenericValue):
     _current_op = "x == snapshot"
 
@@ -347,6 +360,7 @@ class EqValue(GenericValue):
             elif (
                 self._ast_node is not None
                 and self._token_of_node(old_node) != new_token
+                and update_allowed(old_value)
             ):
                 flag = "update"
             else:
