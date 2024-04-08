@@ -80,6 +80,35 @@ class Replace(Change):
         change.replace(range, self.new_code, filename=self.filename)
 
 
+@dataclass()
+class CallArg(Change):
+    node: ast.Call
+    arg_pos: Optional[int]
+    arg_name: Optional[str]
+
+    new_code: str
+    old_value: Any
+    new_value: Any
+
+    def apply(self):
+        change = ChangeRecorder.current.new_change()
+        tokens = list(self.source.asttokens().get_tokens(self.node))
+        assert self.arg_pos == 0
+        assert self.arg_name == None
+
+        assert tokens[0].string == "snapshot"
+        assert tokens[1].string == "("
+        assert tokens[-1].string == ")"
+
+        change = ChangeRecorder.current.new_change()
+        change.set_tags("inline_snapshot")
+        change.replace(
+            (end_of(tokens[1]), start_of(tokens[-1])),
+            self.new_code,
+            filename=self.filename,
+        )
+
+
 TokenRange = Tuple[Token, Token]
 
 

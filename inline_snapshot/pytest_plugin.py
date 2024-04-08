@@ -2,11 +2,15 @@ import ast
 from pathlib import Path
 
 import pytest
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.prompt import Confirm
 
 from . import _config
 from . import _external
 from . import _find_external
 from . import _inline_snapshot
+from ._change import apply_all
 from ._find_external import ensure_import
 from ._inline_snapshot import undefined
 from ._inline_snapshot import used_externals
@@ -20,6 +24,7 @@ def pytest_addoption(parser):
         "--inline-snapshot",
         metavar="(create,update,trim,fix)*",
         default="",
+        nargs="?",
         dest="inline_snapshot",
         help="update specific snapshot values:\n"
         "create: creates snapshots which are currently not defined\n"
@@ -37,19 +42,31 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
-    flags = config.option.inline_snapshot.split(",")
-    flags = [flag for flag in flags if flag]
+    if config.option.inline_snapshot is None:
+        _inline_snapshot._active = True
+        if config.option.inline_snapshot_disable:
+            raise pytest.UsageError(
+                f"--inline-snapshot-disable can not be combined with --inline-snapshot"
+            )
 
-    if config.option.inline_snapshot_disable and flags:
-        raise pytest.UsageError(
-            f"--inline-snapshot-disable can not be combined with other flags ({','.join(flags)})"
+        _inline_snapshot._update_flags = _inline_snapshot.Flags(
+            {"fix", "create", "update", "trim"}
         )
+    else:
+        flags = config.option.inline_snapshot.split(",")
+        flags = [flag for flag in flags if flag]
 
-    _inline_snapshot._active = not config.option.inline_snapshot_disable
+        if config.option.inline_snapshot_disable and flags:
+            raise pytest.UsageError(
+                f"--inline-snapshot-disable can not be combined with other flags ({','.join(flags)})"
+            )
 
-    _inline_snapshot._update_flags = _inline_snapshot.Flags(set(flags))
+        _inline_snapshot._active = not config.option.inline_snapshot_disable
+
+        _inline_snapshot._update_flags = _inline_snapshot.Flags(set(flags))
 
     snapshot_path = Path(config.rootpath) / ".inline-snapshot/external"
+
     _external.storage = _external.DiscStorage(snapshot_path)
 
     _config.config = _config.read_config(config.rootpath / "pyproject.toml")
@@ -118,9 +135,73 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     if not _inline_snapshot._active:
         return
 
-    recorder = ChangeRecorder.current
-
     terminalreporter.section("inline snapshot")
+
+    capture = config.pluginmanager.getplugin("capturemanager")
+
+    if config.option.inline_snapshot is None:
+        # auto mode
+        changes = {
+            "update": [],
+            "fix": [],
+            "trim": [],
+            "create": [],
+        }
+        for snapshot in _inline_snapshot.snapshots.values():
+            for change in snapshot._changes():
+                changes[change.flag].append(change)
+
+        console = Console(color_system="256")
+
+        capture.suspend_global_capture(in_=True)
+        try:
+            used_changes = []
+            for flag in ("create", "fix", "trim", "update"):
+                if not changes[flag]:
+                    continue
+
+                console.rule(f"[yellow bold]{flag.capitalize()} snapshots")
+
+                with ChangeRecorder().activate() as cr:
+                    apply_all(used_changes)
+                    cr.virtual_write()
+                    apply_all(changes[flag])
+
+                    for file in cr.files():
+                        console.print()
+                        console.print(f"[green]{file.filename}")
+                        console.print(Markdown(f"```diff\n{file.diff()}\n```"))
+
+                    apply = Confirm.ask(
+                        f"[bold]do you want to [blue]{flag}[/] these snapshots?[/]",
+                        default=False,
+                    )
+
+                    if apply:
+                        used_changes += changes[flag]
+
+            if used_changes:
+                with ChangeRecorder().activate() as cr:
+                    apply_all(used_changes)
+
+                    for test_file in cr.files():
+                        tree = ast.parse(cr.get_source(test_file).new_code())
+                        used = used_externals(tree)
+
+                        if used:
+                            ensure_import(test_file, {"inline_snapshot": ["external"]})
+
+                        for external_name in used:
+                            _external.storage.persist(external_name)
+
+                    cr.fix_all()
+
+        finally:
+            capture.resume_global_capture()
+
+        return
+
+    recorder = ChangeRecorder.current
 
     unused_externals = _find_external.unused_externals()
 

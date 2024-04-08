@@ -5,7 +5,10 @@ import logging
 import pathlib
 import sys
 from collections import defaultdict
+from collections.abc import Generator
 from dataclasses import dataclass
+from difflib import unified_diff
+from itertools import islice
 
 import asttokens.util
 from asttokens import LineNumbers
@@ -128,12 +131,16 @@ class SourceFile:
     def __init__(self, filename):
         self.replacements: list[Replacement] = []
         self.filename = filename
+        self.source = self.filename.read_text("utf-8")
 
     def rewrite(self):
         new_code = self.new_code()
 
         with open(self.filename, "bw") as code:
             code.write(new_code.encode())
+
+    def virtual_write(self):
+        self.source = self.new_code()
 
     def _check(self):
         replacements = list(self.replacements)
@@ -145,7 +152,7 @@ class SourceFile:
         for lhs, rhs in pairwise(replacements):
             assert lhs.range.end <= rhs.range.start, (lhs, rhs)
 
-    def new_code(self):
+    def new_code(self) -> str:
         """Returns the new file contend or None if there are no replacepents to
         apply."""
         replacements = list(self.replacements)
@@ -182,6 +189,15 @@ class SourceFile:
 
         return new_code
 
+    def diff(self):
+        return "\n".join(
+            islice(
+                unified_diff(self.source.splitlines(), self.new_code().splitlines()),
+                2,
+                None,
+            )
+        ).strip()
+
 
 class ChangeRecorder:
     current: ChangeRecorder
@@ -207,6 +223,9 @@ class ChangeRecorder:
     def change_set(self):
         return Change(self)
 
+    def files(self) -> Generator[SourceFile]:
+        return self._source_files.values()
+
     def new_change(self):
         return Change(self)
 
@@ -219,9 +238,13 @@ class ChangeRecorder:
             changes.update(change.change_id for change in file.replacements)
         return len(changes)
 
-    def fix_all(self, tags=()):
+    def fix_all(self):
         for file in self._source_files.values():
             file.rewrite()
+
+    def virtual_write(self):
+        for file in self._source_files.values():
+            file.virtual_write()
 
     def dump(self):  # pragma: no cover
         for file in self._source_files.values():

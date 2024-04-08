@@ -110,7 +110,7 @@ from inline_snapshot import outsource
 
                     changes = recorder.changes()
 
-                    recorder.fix_all(tags=["inline_snapshot"])
+                    recorder.fix_all()
 
             source = filename.read_text("utf-8")[len(prefix) :]
             print("reported_flags:", snapshot_flags)

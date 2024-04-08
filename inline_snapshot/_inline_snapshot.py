@@ -17,15 +17,13 @@ from executing import Source
 from ._align import add_x
 from ._align import align
 from ._change import apply_all
+from ._change import CallArg
 from ._change import Change
 from ._change import Delete
 from ._change import DictInsert
 from ._change import ListInsert
 from ._change import Replace
 from ._format import format_code
-from ._rewrite_code import ChangeRecorder
-from ._rewrite_code import end_of
-from ._rewrite_code import start_of
 from ._sentinels import undefined
 from ._utils import ignore_tokens
 from ._utils import normalize_strings
@@ -721,8 +719,7 @@ class Snapshot:
     def _filename(self):
         return self._expr.source.filename
 
-    def _change(self):
-
+    def _changes(self):
         if self._value._old_value is undefined:
             if _update_flags.create:
                 new_code = self._value._new_code()
@@ -735,21 +732,23 @@ class Snapshot:
 
             assert self._expr is not None
 
-            tokens = list(self._expr.source.asttokens().get_tokens(self._expr.node))
-            assert tokens[0].string == "snapshot"
-            assert tokens[1].string == "("
-            assert tokens[-1].string == ")"
-
-            change = ChangeRecorder.current.new_change()
-            change.set_tags("inline_snapshot")
-            change.replace(
-                (end_of(tokens[1]), start_of(tokens[-1])),
+            yield CallArg(
+                "create",
+                self._value._source,
+                self._expr.node,
+                0,
+                None,
                 new_code,
-                filename=self._filename,
+                self._value._old_value,
+                self._value._new_value,
             )
-            return
 
-        changes = self._value._get_changes()
+        else:
+
+            yield from self._value._get_changes()
+
+    def _change(self):
+        changes = list(self._changes())
         apply_all(
             [change for change in changes if change.flag in _update_flags.to_set()]
         )
