@@ -1,3 +1,30 @@
+## v0.8.0 (2024-04-09)
+
+### Feat
+
+- prevent dirty-equal values from triggering of updates
+- fix lists by calculating the alignment of the changed values
+- insert dict items
+- delete dict items
+- preserve not changed dict-values and list-elements
+
+### Fix
+
+- update with UndecidedValue
+- handle dicts with mulitple insertions and deletions
+- handle lists with mulitple insertions and deletions
+- fixed typing and coverage
+
+### Refactor
+
+- removed old _needs_* logic
+- removed get_result
+- use _get_changes api for DictValue
+- use _get_changes api for CollectionValue
+- use _get_changes api for MinMaxValue
+- use _get_changes
+- moved some functions
+
 ## v0.7.0 (2024-02-27)
 
 ### Feat
