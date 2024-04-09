@@ -5,9 +5,11 @@ import traceback
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Set
 
 import black
+import executing
 import pytest
 
 import inline_snapshot._external
@@ -36,7 +38,6 @@ def check_update(source):
 
         assert s.flags == reported_flags
         assert s.number_snapshots == number
-        assert s.number_changes == number
         assert s.error == ("fix" in s.flags)
 
         s2 = s.run(*flags)
@@ -79,7 +80,6 @@ from inline_snapshot import outsource
             filename.write_text(source, "utf-8")
 
             print()
-            print(f'run: inline-snapshot={",".join(flags.to_set())}')
             print("input:")
             print(textwrap.indent(source, " |", lambda line: True).rstrip())
 
@@ -113,9 +113,14 @@ from inline_snapshot import outsource
                     recorder.fix_all(tags=["inline_snapshot"])
 
             source = filename.read_text("utf-8")[len(prefix) :]
+            print("reported_flags:", snapshot_flags)
+            print(
+                f"run: pytest" + f' --inline-snapshot={",".join(flags.to_set())}'
+                if flags
+                else ""
+            )
             print("output:")
             print(textwrap.indent(source, " |", lambda line: True).rstrip())
-            print("reported_flags:", snapshot_flags)
 
             return Source(
                 source=source,
@@ -197,6 +202,18 @@ from inline_snapshot import outsource
             print(source)
             self._filename.write_text(source, "utf-8")
 
+            (pytester.path / "conftest.py").write_text(
+                """
+import datetime
+import pytest
+
+@pytest.fixture(autouse=True)
+def set_time(time_machine):
+        time_machine.move_to(datetime.datetime(2024, 3, 14, 0, 0, 0, 0),tick=False)
+        yield
+"""
+            )
+
         @property
         def _filename(self):
             return pytester.path / "test_file.py"
@@ -243,3 +260,17 @@ from inline_snapshot import outsource
             return RunResult(result)
 
     return Project()
+
+
+@pytest.fixture(params=[True, False], ids=["executing", "without-executing"])
+def executing_used(request, monkeypatch):
+    used = request.param
+    if used:
+        yield used
+    else:
+
+        def fake_executing(frame):
+            return SimpleNamespace(node=None)
+
+        monkeypatch.setattr(executing.Source, "executing", fake_executing)
+        yield used

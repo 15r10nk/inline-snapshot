@@ -1,3 +1,4 @@
+import ast
 from pathlib import Path
 
 import pytest
@@ -8,6 +9,7 @@ from . import _find_external
 from . import _inline_snapshot
 from ._find_external import ensure_import
 from ._inline_snapshot import undefined
+from ._inline_snapshot import used_externals
 from ._rewrite_code import ChangeRecorder
 
 
@@ -162,16 +164,19 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                 count[flag] += 1
             snapshot._change()
 
-        ensure_external = set()
+        test_files = set()
         for snapshot in _inline_snapshot.snapshots.values():
-            if snapshot._uses_externals:
-                ensure_external.add(snapshot._filename)
+            test_files.add(Path(snapshot._filename))
 
-            for external_name in snapshot._uses_externals:
+        for test_file in test_files:
+            tree = ast.parse(recorder.get_source(test_file).new_code())
+            used = used_externals(tree)
+
+            if used:
+                ensure_import(test_file, {"inline_snapshot": ["external"]})
+
+            for external_name in used:
                 _external.storage.persist(external_name)
-
-        for filename in ensure_external:
-            ensure_import(filename, {"inline_snapshot": ["external"]})
 
         recorder.fix_all()
 

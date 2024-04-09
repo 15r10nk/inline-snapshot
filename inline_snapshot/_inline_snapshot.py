@@ -1,32 +1,41 @@
 import ast
 import copy
 import inspect
-import io
 import sys
-import token
 import tokenize
-from collections import namedtuple
+from collections import defaultdict
 from pathlib import Path
 from typing import Any
 from typing import Dict  # noqa
+from typing import Iterator
 from typing import overload
 from typing import Tuple  # noqa
 from typing import TypeVar
 
 from executing import Source
 
+from ._align import add_x
+from ._align import align
+from ._change import apply_all
+from ._change import Change
+from ._change import Delete
+from ._change import DictInsert
+from ._change import ListInsert
+from ._change import Replace
 from ._format import format_code
 from ._rewrite_code import ChangeRecorder
 from ._rewrite_code import end_of
 from ._rewrite_code import start_of
+from ._sentinels import undefined
+from ._utils import ignore_tokens
+from ._utils import normalize_strings
+from ._utils import simple_token
+from ._utils import value_to_token
 
 
-# sentinels
-class Undefined:
+class NotImplementedYet(Exception):
     pass
 
-
-undefined = Undefined()
 
 snapshots = {}  # type: Dict[Tuple[int, int], Snapshot]
 
@@ -70,15 +79,32 @@ class GenericValue:
     _new_value: Any
     _old_value: Any
     _current_op = "undefined"
+    _ast_node: ast.Expr
+    _source: Source
 
-    def _needs_trim(self):
-        return False
+    def _token_of_node(self, node):
 
-    def _needs_create(self):
-        return self._old_value == undefined
+        return list(
+            normalize_strings(
+                [
+                    simple_token(t.type, t.string)
+                    for t in self._source.asttokens().get_tokens(node)
+                    if t.type not in ignore_tokens
+                ]
+            )
+        )
 
-    def _needs_fix(self):
-        raise NotImplemented
+    def _format(self, text):
+        if self._source is None:
+            return text
+        else:
+            return format_code(text, Path(self._source.filename))
+
+    def _token_to_code(self, tokens):
+        return self._format(tokenize.untokenize(tokens)).strip()
+
+    def _value_to_code(self, value):
+        return self._token_to_code(value_to_token(value))
 
     def _ignore_old(self):
         return (
@@ -94,8 +120,11 @@ class GenericValue:
         else:
             return self._old_value
 
-    def get_result(self, flags):
-        return self._old_value
+    def _get_changes(self) -> Iterator[Change]:
+        raise NotImplementedYet()
+
+    def _new_code(self):
+        raise NotImplementedYet()
 
     def __repr__(self):
         return repr(self._visible_value())
@@ -128,15 +157,40 @@ class GenericValue:
 
 
 class UndecidedValue(GenericValue):
-    def __init__(self, _old_value):
-        self._old_value = _old_value
+    def __init__(self, old_value, ast_node, source):
+        self._old_value = old_value
         self._new_value = undefined
+        self._ast_node = ast_node
+        self._source = source
 
     def _change(self, cls):
         self.__class__ = cls
 
-    def _needs_fix(self):
-        return False
+    def _new_code(self):
+        return ""
+
+    def _get_changes(self) -> Iterator[Change]:
+        # generic fallback
+        new_token = value_to_token(self._old_value)
+
+        if (
+            self._ast_node is not None
+            and self._token_of_node(self._ast_node) != new_token
+        ):
+            flag = "update"
+        else:
+            return
+
+        new_code = self._token_to_code(new_token)
+
+        yield Replace(
+            node=self._ast_node,
+            source=self._source,
+            new_code=new_code,
+            flag=flag,
+            old_value=self._old_value,
+            new_value=self._old_value,
+        )
 
     # functions which determine the type
 
@@ -161,6 +215,19 @@ class UndecidedValue(GenericValue):
         return self[item]
 
 
+try:
+    import dirty_equals  # type: ignore
+except:
+
+    def update_allowed(value):
+        return True
+
+else:
+
+    def update_allowed(value):
+        return not isinstance(value, dirty_equals.DirtyEquals)
+
+
 class EqValue(GenericValue):
     _current_op = "x == snapshot"
 
@@ -172,13 +239,145 @@ class EqValue(GenericValue):
 
         return self._visible_value() == other
 
-    def _needs_fix(self):
-        return self._old_value is not undefined and self._old_value != self._new_value
+    def _new_code(self):
+        return self._value_to_code(self._new_value)
 
-    def get_result(self, flags):
-        if flags.fix and self._needs_fix() or flags.create and self._needs_create():
-            return self._new_value
-        return self._old_value
+    def _get_changes(self) -> Iterator[Change]:
+
+        assert self._old_value is not undefined
+
+        def check(old_value, old_node, new_value):
+
+            if (
+                isinstance(old_node, ast.List)
+                and isinstance(new_value, list)
+                and isinstance(old_value, list)
+                or isinstance(old_node, ast.Tuple)
+                and isinstance(new_value, tuple)
+                and isinstance(old_value, tuple)
+            ):
+                diff = add_x(align(old_value, new_value))
+                old = zip(old_value, old_node.elts)
+                new = iter(new_value)
+                old_position = 0
+                to_insert = defaultdict(list)
+                for c in diff:
+                    if c in "mx":
+                        old_value_element, old_node_element = next(old)
+                        new_value_element = next(new)
+                        yield from check(
+                            old_value_element, old_node_element, new_value_element
+                        )
+                        old_position += 1
+                    elif c == "i":
+                        new_value_element = next(new)
+                        new_code = self._value_to_code(new_value_element)
+                        to_insert[old_position].append((new_code, new_value_element))
+                    elif c == "d":
+                        old_value_element, old_node_element = next(old)
+                        yield Delete(
+                            "fix", self._source, old_node_element, old_value_element
+                        )
+                        old_position += 1
+                    else:
+                        assert False
+
+                for position, code_values in to_insert.items():
+                    yield ListInsert(
+                        "fix", self._source, old_node, position, *zip(*code_values)
+                    )
+
+                return
+
+            elif (
+                isinstance(old_node, ast.Dict)
+                and isinstance(new_value, dict)
+                and isinstance(old_value, dict)
+                and len(old_value) == len(old_node.keys)
+            ):
+                for value, node in zip(old_value.keys(), old_node.keys):
+                    assert node is not None
+
+                    try:
+                        # this is just a sanity check, dicts should be ordered
+                        node_value = ast.literal_eval(node)
+                    except:
+                        continue
+                    assert node_value == value
+
+                for key, node in zip(old_value.keys(), old_node.values):
+                    if key in new_value:
+                        # check values with same keys
+                        yield from check(old_value[key], node, new_value[key])
+                    else:
+                        # delete entries
+                        yield Delete("fix", self._source, node, old_value[key])
+
+                to_insert = []
+                insert_pos = 0
+                for key, new_value_element in new_value.items():
+                    if key not in old_value:
+                        # add new values
+                        to_insert.append((key, new_value_element))
+                    else:
+                        if to_insert:
+                            new_code = [
+                                (self._value_to_code(k), self._value_to_code(v))
+                                for k, v in to_insert
+                            ]
+                            yield DictInsert(
+                                "fix",
+                                self._source,
+                                old_node,
+                                insert_pos,
+                                new_code,
+                                to_insert,
+                            )
+                            to_insert = []
+                        insert_pos += 1
+
+                if to_insert:
+                    new_code = [
+                        (self._value_to_code(k), self._value_to_code(v))
+                        for k, v in to_insert
+                    ]
+                    yield DictInsert(
+                        "fix",
+                        self._source,
+                        old_node,
+                        len(old_node.values),
+                        new_code,
+                        to_insert,
+                    )
+
+                return
+
+            # generic fallback
+            new_token = value_to_token(new_value)
+
+            if not old_value == new_value:
+                flag = "fix"
+            elif (
+                self._ast_node is not None
+                and self._token_of_node(old_node) != new_token
+                and update_allowed(old_value)
+            ):
+                flag = "update"
+            else:
+                return
+
+            new_code = self._token_to_code(new_token)
+
+            yield Replace(
+                node=old_node,
+                source=self._source,
+                new_code=new_code,
+                flag=flag,
+                old_value=old_value,
+                new_value=new_value,
+            )
+
+        yield from check(self._old_value, self._ast_node, self._new_value)
 
 
 class MinMaxValue(GenericValue):
@@ -200,28 +399,33 @@ class MinMaxValue(GenericValue):
 
         return self.cmp(self._visible_value(), other)
 
-    def _needs_trim(self):
-        if self._old_value is undefined:
-            return False
+    def _new_code(self):
+        return self._value_to_code(self._new_value)
 
-        return not self.cmp(self._new_value, self._old_value)
+    def _get_changes(self) -> Iterator[Change]:
+        new_token = value_to_token(self._new_value)
+        if not self.cmp(self._old_value, self._new_value):
+            flag = "fix"
+        elif not self.cmp(self._new_value, self._old_value):
+            flag = "trim"
+        elif (
+            self._ast_node is not None
+            and self._token_of_node(self._ast_node) != new_token
+        ):
+            flag = "update"
+        else:
+            return
 
-    def _needs_fix(self):
-        if self._old_value is undefined:
-            return False
-        return not self.cmp(self._old_value, self._new_value)
+        new_code = self._token_to_code(new_token)
 
-    def get_result(self, flags):
-        if flags.create and self._needs_create():
-            return self._new_value
-
-        if flags.fix and self._needs_fix():
-            return self._new_value
-
-        if flags.trim and self._needs_trim():
-            return self._new_value
-
-        return self._old_value
+        yield Replace(
+            node=self._ast_node,
+            source=self._source,
+            new_code=new_code,
+            flag=flag,
+            old_value=self._old_value,
+            new_value=self._new_value,
+        )
 
 
 class MinValue(MinMaxValue):
@@ -283,30 +487,49 @@ class CollectionValue(GenericValue):
         else:
             return item in self._old_value
 
-    def _needs_trim(self):
-        if self._old_value is undefined:
-            return False
-        return any(item not in self._new_value for item in self._old_value)
+    def _new_code(self):
+        return self._value_to_code(self._new_value)
 
-    def _needs_fix(self):
-        if self._old_value is undefined:
-            return False
-        return any(item not in self._old_value for item in self._new_value)
+    def _get_changes(self) -> Iterator[Change]:
 
-    def get_result(self, flags):
-        if (flags.fix and flags.trim) or (flags.create and self._needs_create()):
-            return self._new_value
+        if self._ast_node is None:
+            elements = [None] * len(self._old_value)
+        else:
+            assert isinstance(self._ast_node, ast.List)
+            elements = self._ast_node.elts
 
-        if self._old_value is not undefined:
-            if flags.fix:
-                return self._old_value + [
-                    v for v in self._new_value if v not in self._old_value
-                ]
+        for old_value, old_node in zip(self._old_value, elements):
+            if old_value not in self._new_value:
+                yield Delete(
+                    flag="trim", source=self._source, node=old_node, old_value=old_value
+                )
+                continue
 
-            if flags.trim:
-                return [v for v in self._old_value if v in self._new_value]
+            # check for update
+            new_token = value_to_token(old_value)
 
-        return self._old_value
+            if old_node is not None and self._token_of_node(old_node) != new_token:
+                new_code = self._token_to_code(new_token)
+
+                yield Replace(
+                    node=old_node,
+                    source=self._source,
+                    new_code=new_code,
+                    flag="update",
+                    old_value=old_value,
+                    new_value=old_value,
+                )
+
+        new_values = [v for v in self._new_value if v not in self._old_value]
+        if new_values:
+            yield ListInsert(
+                flag="fix",
+                source=self._source,
+                node=self._ast_node,
+                position=len(self._old_value),
+                new_code=[self._value_to_code(v) for v in new_values],
+                new_values=new_values,
+            )
 
 
 class DictValue(GenericValue):
@@ -320,43 +543,66 @@ class DictValue(GenericValue):
         if old_value is undefined:
             old_value = {}
 
+        child_node = None
+        if self._ast_node is not None:
+            assert isinstance(self._ast_node, ast.Dict)
+            if index in old_value:
+                pos = list(old_value.keys()).index(index)
+                child_node = self._ast_node.values[pos]
+
         if index not in self._new_value:
-            self._new_value[index] = UndecidedValue(old_value.get(index, undefined))
+            self._new_value[index] = UndecidedValue(
+                old_value.get(index, undefined), child_node, self._source
+            )
 
         return self._new_value[index]
 
-    def _needs_fix(self):
-        if self._old_value is not undefined and self._new_value is not undefined:
-            if any(v._needs_fix() for v in self._new_value.values()):
-                return True
+    def _new_code(self):
+        return (
+            "{"
+            + ", ".join(
+                [
+                    f"{self._value_to_code(k)}: {v._new_code()}"
+                    for k, v in self._new_value.items()
+                ]
+            )
+            + "}"
+        )
 
-        return False
+    def _get_changes(self) -> Iterator[Change]:
 
-    def _needs_trim(self):
-        if self._old_value is not undefined and self._new_value is not undefined:
-            if any(v._needs_trim() for v in self._new_value.values()):
-                return True
+        assert self._old_value is not undefined
 
-            return any(item not in self._new_value for item in self._old_value)
-        return False
+        if self._ast_node is None:
+            values = [None] * len(self._old_value)
+        else:
+            assert isinstance(self._ast_node, ast.Dict)
+            values = self._ast_node.values
 
-    def _needs_create(self):
-        if super()._needs_create():
-            return True
+        for key, node in zip(self._old_value.keys(), values):
+            if key in self._new_value:
+                # check values with same keys
+                yield from self._new_value[key]._get_changes()
+            else:
+                # delete entries
+                yield Delete("trim", self._source, node, self._old_value[key])
 
-        return any(item not in self._old_value for item in self._new_value)
+        to_insert = []
+        for key, new_value_element in self._new_value.items():
+            if key not in self._old_value:
+                # add new values
+                to_insert.append((key, new_value_element._new_code()))
 
-    def get_result(self, flags):
-        result = {k: v.get_result(flags) for k, v in self._new_value.items()}
-
-        result = {k: v for k, v in result.items() if v is not undefined}
-
-        if not flags.trim and self._old_value is not undefined:
-            for k, v in self._old_value.items():
-                if k not in result:
-                    result[k] = v
-
-        return result
+        if to_insert:
+            new_code = [(self._value_to_code(k), v) for k, v in to_insert]
+            yield DictInsert(
+                "create",
+                self._source,
+                self._ast_node,
+                len(self._old_value),
+                new_code,
+                to_insert,
+            )
 
 
 T = TypeVar("T")
@@ -410,7 +656,7 @@ def snapshot(obj=undefined):
     `snapshot(value)` has the semantic of an noop which returns `value`.
     """
     if not _active:
-        if isinstance(obj, Undefined):
+        if obj is undefined:
             raise AssertionError(
                 "your snapshot is missing a value run pytest with --inline-snapshot=create"
             )
@@ -440,64 +686,6 @@ def snapshot(obj=undefined):
     return snapshots[key]._value
 
 
-ignore_tokens = (token.NEWLINE, token.ENDMARKER, token.NL)
-
-
-# based on ast.unparse
-def _str_literal_helper(string, *, quote_types):
-    """Helper for writing string literals, minimizing escapes.
-
-    Returns the tuple (string literal to write, possible quote types).
-    """
-
-    def escape_char(c):
-        # \n and \t are non-printable, but we only escape them if
-        # escape_special_whitespace is True
-        if c in "\n\t":
-            return c
-        # Always escape backslashes and other non-printable characters
-        if c == "\\" or not c.isprintable():
-            return c.encode("unicode_escape").decode("ascii")
-        if c == extra:
-            return "\\" + c
-        return c
-
-    extra = ""
-    if "'''" in string and '"""' in string:
-        extra = '"' if string.count("'") >= string.count('"') else "'"
-
-    escaped_string = "".join(map(escape_char, string))
-
-    possible_quotes = [q for q in quote_types if q not in escaped_string]
-
-    if escaped_string:
-        # Sort so that we prefer '''"''' over """\""""
-        possible_quotes.sort(key=lambda q: q[0] == escaped_string[-1])
-        # If we're using triple quotes and we'd need to escape a final
-        # quote, escape it
-        if possible_quotes[0][0] == escaped_string[-1]:
-            assert len(possible_quotes[0]) == 3
-            escaped_string = escaped_string[:-1] + "\\" + escaped_string[-1]
-    return escaped_string, possible_quotes
-
-
-def triple_quote(string):
-    """Write string literal value with a best effort attempt to avoid
-    backslashes."""
-    string, quote_types = _str_literal_helper(string, quote_types=['"""', "'''"])
-    quote_type = quote_types[0]
-
-    string = "\\\n" + string
-
-    if not string.endswith("\n"):
-        string = string + "\\\n"
-
-    return f"{quote_type}{string}{quote_type}"
-
-
-simple_token = namedtuple("simple_token", "type,string")
-
-
 def used_externals(tree):
     if sys.version_info < (3, 8):
         return [
@@ -524,142 +712,53 @@ def used_externals(tree):
 class Snapshot:
     def __init__(self, value, expr):
         self._expr = expr
-        self._value = UndecidedValue(value)
+        node = expr.node.args[0] if expr is not None and expr.node.args else None
+        source = expr.source if expr is not None else None
+        self._value = UndecidedValue(value, node, source)
         self._uses_externals = []
 
     @property
     def _filename(self):
         return self._expr.source.filename
 
-    def _format(self, text):
-        return format_code(text, Path(self._filename))
-
-    def _value_to_token(self, value):
-        if value is undefined:
-            return []
-        input = io.StringIO(self._format(repr(value)))
-
-        def map_string(tok):
-            """Convert strings with newlines in triple quoted strings."""
-            if tok.type == token.STRING:
-                s = ast.literal_eval(tok.string)
-                if isinstance(s, str) and "\n" in s:
-                    # unparse creates a triple quoted string here,
-                    # because it thinks that the string should be a docstring
-                    tripple_quoted_string = triple_quote(s)
-
-                    assert ast.literal_eval(tripple_quoted_string) == s
-
-                    return simple_token(tok.type, tripple_quoted_string)
-
-            return simple_token(tok.type, tok.string)
-
-        return [
-            map_string(t)
-            for t in tokenize.generate_tokens(input.readline)
-            if t.type not in ignore_tokens
-        ]
-
     def _change(self):
-        assert self._expr is not None
 
-        change = ChangeRecorder.current.new_change()
-
-        tokens = list(self._expr.source.asttokens().get_tokens(self._expr.node))
-        assert tokens[0].string == "snapshot"
-        assert tokens[1].string == "("
-        assert tokens[-1].string == ")"
-
-        change.set_tags("inline_snapshot")
-
-        needs_fix = self._value._needs_fix()
-        needs_create = self._value._needs_create()
-        needs_trim = self._value._needs_trim()
-        needs_update = self._needs_update()
-
-        if (
-            _update_flags.update
-            and needs_update
-            or _update_flags.fix
-            and needs_fix
-            or _update_flags.create
-            and needs_create
-            or _update_flags.trim
-            and needs_trim
-        ):
-            new_value = self._value.get_result(_update_flags)
-
-            text = self._format(
-                tokenize.untokenize(self._value_to_token(new_value))
-            ).strip()
-
-            try:
-                tree = ast.parse(text)
-            except:
+        if self._value._old_value is undefined:
+            if _update_flags.create:
+                new_code = self._value._new_code()
+                try:
+                    ast.parse(new_code)
+                except:
+                    return
+            else:
                 return
 
-            self._uses_externals = used_externals(tree)
+            assert self._expr is not None
 
+            tokens = list(self._expr.source.asttokens().get_tokens(self._expr.node))
+            assert tokens[0].string == "snapshot"
+            assert tokens[1].string == "("
+            assert tokens[-1].string == ")"
+
+            change = ChangeRecorder.current.new_change()
+            change.set_tags("inline_snapshot")
             change.replace(
                 (end_of(tokens[1]), start_of(tokens[-1])),
-                text,
+                new_code,
                 filename=self._filename,
             )
+            return
 
-    def _current_tokens(self):
-        if not self._expr.node.args:
-            return []
-
-        return [
-            simple_token(t.type, t.string)
-            for t in self._expr.source.asttokens().get_tokens(self._expr.node.args[0])
-            if t.type not in ignore_tokens
-        ]
-
-    def _normalize_strings(self, token_sequence):
-        """Normalize string concattenanion.
-
-        "a" "b" -> "ab"
-        """
-
-        current_string = None
-        for t in token_sequence:
-            if (
-                t.type == token.STRING
-                and not t.string.startswith(("'''", '"""', "b'''", 'b"""'))
-                and t.string.startswith(("'", '"', "b'", 'b"'))
-            ):
-                if current_string is None:
-                    current_string = ast.literal_eval(t.string)
-                else:
-                    current_string += ast.literal_eval(t.string)
-
-                continue
-
-            if current_string is not None:
-                yield (token.STRING, repr(current_string))
-                current_string = None
-
-            yield t
-
-        if current_string is not None:
-            yield (token.STRING, repr(current_string))
-
-    def _needs_update(self):
-        return self._expr is not None and [] != list(
-            self._normalize_strings(self._current_tokens())
-        ) != list(self._normalize_strings(self._value_to_token(self._value._old_value)))
+        changes = self._value._get_changes()
+        apply_all(
+            [change for change in changes if change.flag in _update_flags.to_set()]
+        )
 
     @property
     def _flags(self):
-        s = set()
-        if self._value._needs_fix():
-            s.add("fix")
-        if self._value._needs_trim():
-            s.add("trim")
-        if self._value._needs_create():
-            s.add("create")
-        if self._value._old_value is not undefined and self._needs_update():
-            s.add("update")
 
-        return s
+        if self._value._old_value is undefined:
+            return {"create"}
+
+        changes = self._value._get_changes()
+        return {change.flag for change in changes}
