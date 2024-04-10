@@ -75,7 +75,7 @@ def test(session):
 
 
 @session(python="python3.10")
-def docs(session):
+def mkdocs(session):
     session.install(
         "mkdocs",
         "mkdocs-material[imaging]",
@@ -85,7 +85,7 @@ def docs(session):
         "pytest",
         ".",
     )
-    session.run("mkdocs", "build", *session.posargs)
+    session.run("mkdocs", *session.posargs)
 
 
 @session(python="python3.10")
