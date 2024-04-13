@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import textwrap
 import traceback
@@ -136,6 +137,22 @@ from inline_snapshot import outsource
     return w
 
 
+ansi_escape = re.compile(
+    r"""
+    \x1B  # ESC
+    (?:   # 7-bit C1 Fe (except CSI)
+        [@-Z\\-_]
+    |     # or [ for CSI, followed by a control sequence
+        \[
+        [0-?]*  # Parameter bytes
+        [ -/]*  # Intermediate bytes
+        [@-~]   # Final byte
+    )
+""",
+    re.VERBOSE,
+)
+
+
 class RunResult:
     def __init__(self, result):
         self._result = result
@@ -166,7 +183,16 @@ class RunResult:
 
             if line.startswith("====") and "inline snapshot" in line:
                 record = True
-        return self._join_lines(result)
+
+        result = self._join_lines(result)
+
+        result = ansi_escape.sub("", result)
+        result = result.replace("\r", "")
+
+        if " \n" in result:
+            result = result.replace(" \n", " ⏎\n")
+
+        return result
 
     def errorLines(self):
         return self._join_lines(
@@ -231,18 +257,19 @@ def set_time(time_machine):
             (pytester.path / "pyproject.toml").write_text(source, "utf-8")
 
         def storage(self):
-            return sorted(
-                p.name
-                for p in (pytester.path / ".inline-snapshot" / "external").iterdir()
-                if p.name != ".gitignore"
-            )
+            dir = pytester.path / ".inline-snapshot" / "external"
+
+            if not dir.exists():
+                return []
+
+            return sorted(p.name for p in dir.iterdir() if p.name != ".gitignore")
 
         @property
         def source(self):
             assert self._filename.read_text("utf-8")[: len(self.header)] == self.header
             return self._filename.read_text("utf-8")[len(self.header) :].lstrip()
 
-        def run(self, *args):
+        def run(self, *args, stdin=""):
             cache = pytester.path / "__pycache__"
             if cache.exists():
                 shutil.rmtree(cache)
@@ -253,7 +280,11 @@ def set_time(time_machine):
                 del os.environ["CI"]  # pragma: no cover
 
             try:
-                result = pytester.runpytest_subprocess(*args)
+                # result = pytester.runpytest_subprocess(*args)
+                if stdin:
+                    result = pytester.run("pytest", *args, stdin=stdin)
+                else:
+                    result = pytester.run("pytest", *args)
             finally:
                 os.environ.update(old_environ)
 

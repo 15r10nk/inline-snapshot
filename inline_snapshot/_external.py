@@ -44,10 +44,14 @@ class DiscStorage:
             return set()
 
     def persist(self, name):
-        file = self._lookup_path(name)
-        if file.stem.endswith("-new"):
-            stem = file.stem[:-4]
-            file.rename(file.with_name(stem + file.suffix))
+        try:
+            file = self._lookup_path(name)
+        except HashError:
+            pass
+        else:
+            if file.stem.endswith("-new"):
+                stem = file.stem[:-4]
+                file.rename(file.with_name(stem + file.suffix))
 
     def _lookup_path(self, name) -> pathlib.Path:
         files = list(self.directory.glob(name))

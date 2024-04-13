@@ -5,7 +5,7 @@ import logging
 import pathlib
 import sys
 from collections import defaultdict
-from collections.abc import Generator
+from collections.abc import Iterable
 from dataclasses import dataclass
 from difflib import unified_diff
 from itertools import islice
@@ -223,7 +223,7 @@ class ChangeRecorder:
     def change_set(self):
         return Change(self)
 
-    def files(self) -> Generator[SourceFile]:
+    def files(self) -> Iterable[SourceFile]:
         return self._source_files.values()
 
     def new_change(self):

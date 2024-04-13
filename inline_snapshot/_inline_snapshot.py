@@ -56,9 +56,6 @@ class Flags:
         self.create = "create" in flags
         self.trim = "trim" in flags
 
-    def change_something(self):
-        return self.fix or self.update or self.create or self.trim
-
     def to_set(self):
         return {k for k, v in self.__dict__.items() if v}
 
@@ -651,7 +648,7 @@ def snapshot(obj=undefined):
 
     >>> assert 5 == snapshot(5)
 
-    `snapshot(value)` has the semantic of an noop which returns `value`.
+    `snapshot(value)` has general the semantic of an noop which returns `value`.
     """
     if not _active:
         if obj is undefined:
@@ -715,27 +712,18 @@ class Snapshot:
         self._value = UndecidedValue(value, node, source)
         self._uses_externals = []
 
-    @property
-    def _filename(self):
-        return self._expr.source.filename
-
     def _changes(self):
         if self._value._old_value is undefined:
-            if _update_flags.create:
-                new_code = self._value._new_code()
-                try:
-                    ast.parse(new_code)
-                except:
-                    return
-            else:
+            new_code = self._value._new_code()
+            try:
+                ast.parse(new_code)
+            except:
                 return
-
-            assert self._expr is not None
 
             yield CallArg(
                 "create",
                 self._value._source,
-                self._expr.node,
+                self._expr.node if self._expr is not None else None,
                 0,
                 None,
                 new_code,

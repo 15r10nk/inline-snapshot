@@ -1,4 +1,5 @@
 import ast
+import sys
 from pathlib import Path
 
 import pytest
@@ -71,8 +72,7 @@ def pytest_configure(config):
 
     _config.config = _config.read_config(config.rootpath / "pyproject.toml")
 
-    if _inline_snapshot._update_flags.change_something():
-        import sys
+    if config.option.inline_snapshot != "":
 
         # hack to disable the assertion rewriting
         # I found no other way because the hook gets installed early
@@ -140,137 +140,138 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     capture = config.pluginmanager.getplugin("capturemanager")
 
     if config.option.inline_snapshot is None:
-        # auto mode
-        changes = {
-            "update": [],
-            "fix": [],
-            "trim": [],
-            "create": [],
-        }
-        for snapshot in _inline_snapshot.snapshots.values():
-            for change in snapshot._changes():
-                changes[change.flag].append(change)
+        # --inline-snapshot
 
-        console = Console(color_system="256")
+        def apply_changes(flag):
+            return Confirm.ask(
+                f"[bold]do you want to [blue]{flag}[/] these snapshots?[/]",
+                default=False,
+            )
 
-        capture.suspend_global_capture(in_=True)
-        try:
-            used_changes = []
-            for flag in ("create", "fix", "trim", "update"):
-                if not changes[flag]:
-                    continue
+    else:
 
-                console.rule(f"[yellow bold]{flag.capitalize()} snapshots")
+        def apply_changes(flag):
+            if flag in _inline_snapshot._update_flags.to_set():
+                console.print(
+                    f"These changes will be applied, because you used [b]--inline-snapshot={flag}[/]",
+                    highlight=False,
+                )
+                return True
+            else:
+                console.print(f"These changes are not applied.")
+                console.print(
+                    f"Use [b]--inline-snapshot={flag}[/] to apply theme, or use the interactive mode with --inline-snapshot",
+                    highlight=False,
+                )
+                return False
 
-                with ChangeRecorder().activate() as cr:
-                    apply_all(used_changes)
-                    cr.virtual_write()
-                    apply_all(changes[flag])
+    # auto mode
+    changes = {
+        "update": [],
+        "fix": [],
+        "trim": [],
+        "create": [],
+    }
 
-                    for file in cr.files():
-                        console.print()
-                        console.print(f"[green]{file.filename}")
-                        console.print(Markdown(f"```diff\n{file.diff()}\n```"))
+    snapshot_changes = {
+        "update": 0,
+        "fix": 0,
+        "trim": 0,
+        "create": 0,
+    }
 
-                    apply = Confirm.ask(
-                        f"[bold]do you want to [blue]{flag}[/] these snapshots?[/]",
-                        default=False,
+    for snapshot in _inline_snapshot.snapshots.values():
+        all_categories = set()
+        for change in snapshot._changes():
+            changes[change.flag].append(change)
+            all_categories.add(change.flag)
+
+        for category in all_categories:
+            snapshot_changes[category] += 1
+
+    console = Console(color_system="256")
+
+    capture.suspend_global_capture(in_=True)
+    try:
+        if config.option.inline_snapshot == "":
+
+            def report(flag, message):
+
+                if snapshot_changes[flag] and not getattr(
+                    _inline_snapshot._update_flags, flag
+                ):
+                    console.print(
+                        message.format(num=snapshot_changes[flag]) + "\n",
+                        highlight=False,
                     )
 
-                    if apply:
-                        used_changes += changes[flag]
+            report(
+                "fix",
+                "Error: {num} snapshots have incorrect values ([b]--inline-snapshot=fix[/])",
+            )
 
-            if used_changes:
-                with ChangeRecorder().activate() as cr:
-                    apply_all(used_changes)
+            report(
+                "trim",
+                "Info: {num} snapshots can be trimmed ([b]--inline-snapshot=trim[/])",
+            )
 
-                    for test_file in cr.files():
-                        tree = ast.parse(cr.get_source(test_file).new_code())
-                        used = used_externals(tree)
+            report(
+                "create",
+                "Error: {num} snapshots are missing values ([b]--inline-snapshot=create[/])",
+            )
 
-                        if used:
-                            ensure_import(test_file, {"inline_snapshot": ["external"]})
+            report(
+                "update",
+                "Info: {num} snapshots changed their representation ([b]--inline-snapshot=update[/])",
+            )
+            return
 
-                        for external_name in used:
-                            _external.storage.persist(external_name)
-
-                    cr.fix_all()
-
-        finally:
-            capture.resume_global_capture()
-
-        return
-
-    recorder = ChangeRecorder.current
-
-    unused_externals = _find_external.unused_externals()
-
-    def report(flag, message):
-        num = sum(
-            1
-            for snapshot in _inline_snapshot.snapshots.values()
-            if flag in snapshot._flags
+        assert not any(
+            type(e).__name__ == "AssertionRewritingHook" for e in sys.meta_path
         )
 
-        if flag == "trim":
-            num += len(unused_externals)
+        used_changes = []
+        for flag in ("create", "fix", "trim", "update"):
+            if not changes[flag]:
+                continue
 
-        if num and not getattr(_inline_snapshot._update_flags, flag):
-            terminalreporter.write(message.format(num=num) + "\n")
+            console.rule(f"[yellow bold]{flag.capitalize()} snapshots")
 
-    if exitstatus != 0:
-        report(
-            "fix",
-            "Error: {num} snapshots have incorrect values (--inline-snapshot=fix)",
-        )
+            with ChangeRecorder().activate() as cr:
+                apply_all(used_changes)
+                cr.virtual_write()
+                apply_all(changes[flag])
 
-    report("trim", "Info: {num} snapshots can be trimmed (--inline-snapshot=trim)")
+                for file in cr.files():
+                    diff = file.diff()
+                    if diff:
+                        console.print()
+                        name = file.filename.relative_to(Path.cwd())
+                        console.print(f"[green]{name}:")
+                        console.print(Markdown(f"```diff\n{diff}\n```"))
 
-    report(
-        "create",
-        "Error: {num} snapshots are missing values (--inline-snapshot=create)",
-    )
+                if apply_changes(flag):
+                    used_changes += changes[flag]
 
-    report(
-        "update",
-        "Info: {num} snapshots changed their representation (--inline-snapshot=update)",
-    )
+        if used_changes:
+            with ChangeRecorder().activate() as cr:
+                apply_all(used_changes)
 
-    if _inline_snapshot._update_flags.change_something():
-        count = {"create": 0, "fix": 0, "trim": 0, "update": 0}
+                for test_file in cr.files():
+                    tree = ast.parse(test_file.new_code())
+                    used = used_externals(tree)
 
-        for snapshot in _inline_snapshot.snapshots.values():
-            for flag in snapshot._flags:
-                assert flag in ("create", "fix", "trim", "update"), flag
-                count[flag] += 1
-            snapshot._change()
+                    if used:
+                        ensure_import(
+                            test_file.filename, {"inline_snapshot": ["external"]}
+                        )
 
-        test_files = set()
-        for snapshot in _inline_snapshot.snapshots.values():
-            test_files.add(Path(snapshot._filename))
+                    for external_name in used:
+                        _external.storage.persist(external_name)
 
-        for test_file in test_files:
-            tree = ast.parse(recorder.get_source(test_file).new_code())
-            used = used_externals(tree)
+                cr.fix_all()
 
-            if used:
-                ensure_import(test_file, {"inline_snapshot": ["external"]})
-
-            for external_name in used:
-                _external.storage.persist(external_name)
-
-        recorder.fix_all()
-
-        def report_change(flags, msg):
-            if count[flags]:
-                terminalreporter.write(msg.format(num=count[flags]) + "\n")
-
-        report_change("create", "defined values for {num} snapshots")
-        report_change("fix", "fixed {num} snapshots")
-        report_change("trim", "trimmed {num} snapshots")
-
-        # update does not work currently, because executing has limitations with pytest
-        report_change("update", "updated {num} snapshots")
+        unused_externals = _find_external.unused_externals()
 
         if unused_externals and _inline_snapshot._update_flags.trim:
             for name in unused_externals:
@@ -279,3 +280,8 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             terminalreporter.write(
                 f"removed {len(unused_externals)} unused externals\n"
             )
+
+    finally:
+        capture.resume_global_capture()
+
+    return
