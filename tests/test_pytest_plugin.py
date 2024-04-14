@@ -219,7 +219,7 @@ assert 5 <= snapshot(5)
 assert 5 == snapshot(5)
 These changes are not applied.
 Use --inline-snapshot=update to apply theme, or use the interactive mode with
---inline-snapshot
+--inline-snapshot=review
 """
     )
 
@@ -241,14 +241,14 @@ def test_a():
 """
     )
 
-    result = project.run("--inline-snapshot-disable", "--inline-snapshot=fix")
+    result = project.run("--inline-snapshot=disable,fix")
     assert result.stderr.str().strip() == snapshot(
-        "ERROR: --inline-snapshot-disable can not be combined with other flags (fix)"
+        "ERROR: --inline-snapshot=disable can not be combined with other flags (fix)"
     )
 
-    result = project.run("--inline-snapshot-disable", "--inline-snapshot")
+    result = project.run("--inline-snapshot=disable,review")
     assert result.stderr.str().strip() == snapshot(
-        "ERROR: --inline-snapshot-disable can not be combined with --inline-snapshot"
+        "ERROR: --inline-snapshot=disable can not be combined with other flags (review)"
     )
 
 
@@ -295,7 +295,7 @@ def test_a():
 """
     )
 
-    result = project.run("--inline-snapshot-disable")
+    result = project.run("--inline-snapshot=disable")
     result.assert_outcomes(failed=1)
 
     result = project.run("--inline-snapshot=fix")
@@ -306,7 +306,7 @@ def test_a():
 """
     )
 
-    result = project.run("--inline-snapshot-disable")
+    result = project.run("--inline-snapshot=disable")
     result.assert_outcomes(passed=1)
 
 
@@ -412,7 +412,7 @@ def test_something():
     assert 2 == snapshot(1)
 """
     )
-    result = project.run("--inline-snapshot", stdin=b"y\n")
+    result = project.run("--inline-snapshot=review", stdin=b"y\n")
     assert result.errorLines() == snapshot("")
 
     assert result.report == snapshot(

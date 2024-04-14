@@ -23,48 +23,46 @@ def pytest_addoption(parser):
 
     group.addoption(
         "--inline-snapshot",
-        metavar="(create,update,trim,fix)*",
-        default="",
-        nargs="?",
+        metavar="(disable,short-report,report,review,create,update,trim,fix)*",
+        default="short-report",
         dest="inline_snapshot",
         help="update specific snapshot values:\n"
+        "disable: disable the snapshot logic\n"
+        "short-report: show a short report\n"
+        "report: show a longer report with a diff report\n"
+        "review: allow to approve the changes interactive\n"
         "create: creates snapshots which are currently not defined\n"
         "update: update snapshots even if they are defined\n"
         "trim: changes the snapshot in a way which will make the snapshot more precise.\n"
         "fix: change snapshots which currently break your tests\n",
     )
 
-    group.addoption(
-        "--inline-snapshot-disable",
-        action="store_true",
-        dest="inline_snapshot_disable",
-        help="disable snapshot logic",
-    )
+
+categories = {"create", "update", "trim", "fix"}
+flags = {}
 
 
 def pytest_configure(config):
-    if config.option.inline_snapshot is None:
+    global flags
+    flags = config.option.inline_snapshot.split(",")
+    flags = {flag for flag in flags if flag}
+
+    if "disable" in flags and flags != {"disable"}:
+        raise pytest.UsageError(
+            f"--inline-snapshot=disable can not be combined with other flags ({', '.join(flags-{'disable'})})"
+        )
+
+    if flags & {"review"}:
         _inline_snapshot._active = True
-        if config.option.inline_snapshot_disable:
-            raise pytest.UsageError(
-                f"--inline-snapshot-disable can not be combined with --inline-snapshot"
-            )
 
         _inline_snapshot._update_flags = _inline_snapshot.Flags(
             {"fix", "create", "update", "trim"}
         )
     else:
-        flags = config.option.inline_snapshot.split(",")
-        flags = [flag for flag in flags if flag]
 
-        if config.option.inline_snapshot_disable and flags:
-            raise pytest.UsageError(
-                f"--inline-snapshot-disable can not be combined with other flags ({','.join(flags)})"
-            )
+        _inline_snapshot._active = "disable" not in flags
 
-        _inline_snapshot._active = not config.option.inline_snapshot_disable
-
-        _inline_snapshot._update_flags = _inline_snapshot.Flags(set(flags))
+        _inline_snapshot._update_flags = _inline_snapshot.Flags(flags & categories)
 
     snapshot_path = Path(config.rootpath) / ".inline-snapshot/external"
 
@@ -72,7 +70,7 @@ def pytest_configure(config):
 
     _config.config = _config.read_config(config.rootpath / "pyproject.toml")
 
-    if config.option.inline_snapshot != "":
+    if flags - {"short-report", "disable"}:
 
         # hack to disable the assertion rewriting
         # I found no other way because the hook gets installed early
@@ -139,31 +137,27 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
     capture = config.pluginmanager.getplugin("capturemanager")
 
-    if config.option.inline_snapshot is None:
-        # --inline-snapshot
+    # --inline-snapshot
 
-        def apply_changes(flag):
+    def apply_changes(flag):
+        if flag in flags:
+            console.print(
+                f"These changes will be applied, because you used [b]--inline-snapshot={flag}[/]",
+                highlight=False,
+            )
+            return True
+        if "review" in flags:
             return Confirm.ask(
                 f"[bold]do you want to [blue]{flag}[/] these snapshots?[/]",
                 default=False,
             )
-
-    else:
-
-        def apply_changes(flag):
-            if flag in _inline_snapshot._update_flags.to_set():
-                console.print(
-                    f"These changes will be applied, because you used [b]--inline-snapshot={flag}[/]",
-                    highlight=False,
-                )
-                return True
-            else:
-                console.print(f"These changes are not applied.")
-                console.print(
-                    f"Use [b]--inline-snapshot={flag}[/] to apply theme, or use the interactive mode with --inline-snapshot",
-                    highlight=False,
-                )
-                return False
+        else:
+            console.print(f"These changes are not applied.")
+            console.print(
+                f"Use [b]--inline-snapshot={flag}[/] to apply theme, or use the interactive mode with --inline-snapshot=review",
+                highlight=False,
+            )
+            return False
 
     # auto mode
     changes = {
@@ -192,7 +186,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     capture.suspend_global_capture(in_=True)
     try:
         console = Console()
-        if config.option.inline_snapshot == "":
+        if "short-report" in flags:
 
             def report(flag, message):
 
