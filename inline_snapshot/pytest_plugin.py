@@ -189,10 +189,9 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         for category in all_categories:
             snapshot_changes[category] += 1
 
-    console = Console(color_system="256")
-
     capture.suspend_global_capture(in_=True)
     try:
+        console = Console()
         if config.option.inline_snapshot == "":
 
             def report(flag, message):

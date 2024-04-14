@@ -187,10 +187,12 @@ class RunResult:
         result = self._join_lines(result)
 
         result = ansi_escape.sub("", result)
-        result = result.replace("\r", "")
 
-        if " \n" in result:
-            result = result.replace(" \n", " ⏎\n")
+        # fix windows problems
+        result = result.replace("\r", "")
+        result = re.sub("[-─]{4,}", "---", result)
+
+        result = result.replace(" \n", " ⏎\n")
 
         return result
 

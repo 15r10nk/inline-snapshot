@@ -87,32 +87,24 @@ def test_something():
     assert result.report == snapshot(
         """\
 
-──────────────────────────────── Fix snapshots ─────────────────────────────────
+--- Fix snapshots ---
 test_file.py:
-                                                                                ⏎
- @@ -4,5 +4,5 @@                                                                ⏎
-                                                                                ⏎
-  from inline_snapshot import external                                          ⏎
-                                                                                ⏎
-  def test_something():                                                         ⏎
- -    assert "hello" == snapshot(external("bbbbb*.txt"))                        ⏎
- +    assert "hello" == snapshot("hello")                                       ⏎
-      assert 2 == snapshot(1+1)                                                 ⏎
-                                                                                ⏎
+@@ -4,5 +4,5 @@
+from inline_snapshot import external
+def test_something():
+-    assert "hello" == snapshot(external("bbbbb*.txt"))
++    assert "hello" == snapshot("hello")
+assert 2 == snapshot(1+1)
 These changes are not applied.
 Use --inline-snapshot=fix to apply theme, or use the interactive mode with
 --inline-snapshot
-─────────────────────────────── Update snapshots ───────────────────────────────
+--- Update snapshots ---
 test_file.py:
-                                                                                ⏎
- @@ -5,4 +5,4 @@                                                                ⏎
-                                                                                ⏎
-                                                                                ⏎
-  def test_something():                                                         ⏎
-      assert "hello" == snapshot(external("bbbbb*.txt"))                        ⏎
- -    assert 2 == snapshot(1+1)                                                 ⏎
- +    assert 2 == snapshot(2)                                                   ⏎
-                                                                                ⏎
+@@ -5,4 +5,4 @@
+def test_something():
+assert "hello" == snapshot(external("bbbbb*.txt"))
+-    assert 2 == snapshot(1+1)
++    assert 2 == snapshot(2)
 These changes will be applied, because you used --inline-snapshot=update
 """
     )
