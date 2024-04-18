@@ -1,11 +1,14 @@
 import ast
+import os
 import sys
 from pathlib import Path
 
 import pytest
+from rich import box
 from rich.console import Console
-from rich.markdown import Markdown
+from rich.panel import Panel
 from rich.prompt import Confirm
+from rich.syntax import Syntax
 
 from . import _config
 from . import _external
@@ -145,18 +148,22 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                 f"These changes will be applied, because you used [b]--inline-snapshot={flag}[/]",
                 highlight=False,
             )
+            console.print()
             return True
         if "review" in flags:
-            return Confirm.ask(
+            result = Confirm.ask(
                 f"[bold]do you want to [blue]{flag}[/] these snapshots?[/]",
                 default=False,
             )
+            console.print()
+            return result
         else:
             console.print(f"These changes are not applied.")
             console.print(
                 f"Use [b]--inline-snapshot={flag}[/] to apply theme, or use the interactive mode with --inline-snapshot=review",
                 highlight=False,
             )
+            console.print()
             return False
 
     # auto mode
@@ -194,7 +201,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                     _inline_snapshot._update_flags, flag
                 ):
                     console.print(
-                        message.format(num=snapshot_changes[flag]) + "\n",
+                        message.format(num=snapshot_changes[flag]),
                         highlight=False,
                     )
 
@@ -217,6 +224,13 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                 "update",
                 "Info: {num} snapshots changed their representation ([b]--inline-snapshot=update[/])",
             )
+
+            if sum(snapshot_changes.values()) != 0:
+                console.print(
+                    "\nYou can also use [b]--inline-snapshot=review[/] to approve the changes interactiv",
+                    highlight=False,
+                )
+
             return
 
         assert not any(
@@ -238,10 +252,18 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                 for file in cr.files():
                     diff = file.diff()
                     if diff:
-                        console.print()
                         name = file.filename.relative_to(Path.cwd())
-                        console.print(f"[green]{name}:")
-                        console.print(Markdown(f"```diff\n{diff}\n```"))
+                        console.print(
+                            Panel(
+                                Syntax(diff, "diff", theme="ansi_light"),
+                                title=str(name),
+                                box=(
+                                    box.ASCII
+                                    if os.environ.get("TERM", "") == "unknown"
+                                    else box.ROUNDED
+                                ),
+                            )
+                        )
 
                 if apply_changes(flag):
                     used_changes += changes[flag]

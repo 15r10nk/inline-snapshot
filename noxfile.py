@@ -23,7 +23,7 @@ def coverage(session):
 
 @session(python=python_versions)
 def mypy(session):
-    session.install("mypy", "pytest", "hypothesis", ".")
+    session.install("mypy", "pytest", "hypothesis", "dirty-equals", ".")
     session.run("mypy", "inline_snapshot", "tests")
 
 
@@ -62,11 +62,21 @@ def test(session):
 
 @session(python="python3.10")
 def docs(session):
-    session.install("mkdocs", "mkdocs-material[imaging]", "mkdocstrings[python]")
+    session.install(
+        "mkdocs",
+        "mkdocs-material[imaging]",
+        "mkdocstrings[python]",
+        "markdown-exec[ansi]",
+    )
     session.run("mkdocs", "build", *session.posargs)
 
 
 @session(python="python3.10")
 def docs_serve(session):
-    session.install("mkdocs", "mkdocs-material[imaging]", "mkdocstrings[python]")
+    session.install(
+        "mkdocs",
+        "mkdocs-material[imaging]",
+        "mkdocstrings[python]",
+        "markdown-exec[ansi]",
+    )
     session.run("mkdocs", "serve", *session.posargs)

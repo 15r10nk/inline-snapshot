@@ -1,4 +1,5 @@
 import os
+import platform
 import re
 import shutil
 import textwrap
@@ -8,6 +9,7 @@ from dataclasses import field
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Set
+from unittest import mock
 
 import black
 import executing
@@ -189,9 +191,8 @@ class RunResult:
         result = ansi_escape.sub("", result)
 
         # fix windows problems
+        result = result.replace("\u2500", "-")
         result = result.replace("\r", "")
-        result = re.sub("[-─]{4,}", "---", result)
-
         result = result.replace(" \n", " ⏎\n")
 
         return result
@@ -283,10 +284,18 @@ def set_time(time_machine):
 
             try:
                 # result = pytester.runpytest_subprocess(*args)
-                if stdin:
-                    result = pytester.run("pytest", *args, stdin=stdin)
-                else:
-                    result = pytester.run("pytest", *args)
+                with mock.patch.dict(
+                    os.environ,
+                    {
+                        "TERM": "unknown",
+                        "COLUMNS": "81" if platform.system() == "Windows" else "80",
+                    },
+                ):
+
+                    if stdin:
+                        result = pytester.run("pytest", *args, stdin=stdin)
+                    else:
+                        result = pytester.run("pytest", *args)
             finally:
                 os.environ.update(old_environ)
 

@@ -20,7 +20,11 @@ def test_a():
     result.assert_outcomes(errors=1, passed=1)
 
     assert result.report == snapshot(
-        "Error: 1 snapshots are missing values (--inline-snapshot=create)"
+        """\
+
+Error: 1 snapshots are missing values (--inline-snapshot=create)
+You can also use --inline-snapshot=review to approve the changes interactiv
+"""
     )
 
     result = project.run("--inline-snapshot=create")
@@ -30,12 +34,16 @@ def test_a():
     assert result.report == snapshot(
         """\
 
---- Create snapshots ---
-test_file.py:
-@@ -4,4 +4,4 @@
-def test_a():
--    assert 5==snapshot()
-+    assert 5==snapshot(5)
+------------------------------- Create snapshots -------------------------------
++-------------------------------- test_file.py --------------------------------+
+| @@ -4,4 +4,4 @@                                                              |
+|                                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_a():                                                               |
+| -    assert 5==snapshot()                                                    |
+| +    assert 5==snapshot(5)                                                   |
++------------------------------------------------------------------------------+
 These changes will be applied, because you used --inline-snapshot=create
 """
     )
@@ -61,7 +69,11 @@ def test_a():
     result.assert_outcomes(failed=1)
 
     assert result.report == snapshot(
-        "Error: 1 snapshots have incorrect values (--inline-snapshot=fix)"
+        """\
+
+Error: 1 snapshots have incorrect values (--inline-snapshot=fix)
+You can also use --inline-snapshot=review to approve the changes interactiv
+"""
     )
 
     result = project.run("--inline-snapshot=fix")
@@ -71,12 +83,16 @@ def test_a():
     assert result.report == snapshot(
         """\
 
---- Fix snapshots ---
-test_file.py:
-@@ -4,4 +4,4 @@
-def test_a():
--    assert 5==snapshot(4)
-+    assert 5==snapshot(5)
+-------------------------------- Fix snapshots ---------------------------------
++-------------------------------- test_file.py --------------------------------+
+| @@ -4,4 +4,4 @@                                                              |
+|                                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_a():                                                               |
+| -    assert 5==snapshot(4)                                                   |
+| +    assert 5==snapshot(5)                                                   |
++------------------------------------------------------------------------------+
 These changes will be applied, because you used --inline-snapshot=fix
 """
     )
@@ -108,12 +124,16 @@ def test_a():
     assert result.report == snapshot(
         """\
 
---- Update snapshots ---
-test_file.py:
-@@ -4,4 +4,4 @@
-def test_a():
--    assert "5" == snapshot('''5''')
-+    assert "5" == snapshot("5")
+------------------------------- Update snapshots -------------------------------
++-------------------------------- test_file.py --------------------------------+
+| @@ -4,4 +4,4 @@                                                              |
+|                                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_a():                                                               |
+| -    assert "5" == snapshot('''5''')                                         |
+| +    assert "5" == snapshot("5")                                             |
++------------------------------------------------------------------------------+
 These changes will be applied, because you used --inline-snapshot=update
 """
     )
@@ -139,7 +159,11 @@ def test_a():
     result.assert_outcomes(passed=1)
 
     assert result.report == snapshot(
-        "Info: 1 snapshots can be trimmed (--inline-snapshot=trim)"
+        """\
+
+Info: 1 snapshots can be trimmed (--inline-snapshot=trim)
+You can also use --inline-snapshot=review to approve the changes interactiv
+"""
     )
 
     result = project.run("--inline-snapshot=trim")
@@ -147,12 +171,16 @@ def test_a():
     assert result.report == snapshot(
         """\
 
---- Trim snapshots ---
-test_file.py:
-@@ -4,4 +4,4 @@
-def test_a():
--    assert 5 in snapshot([4,5])
-+    assert 5 in snapshot([5])
+-------------------------------- Trim snapshots --------------------------------
++-------------------------------- test_file.py --------------------------------+
+| @@ -4,4 +4,4 @@                                                              |
+|                                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_a():                                                               |
+| -    assert 5 in snapshot([4,5])                                             |
+| +    assert 5 in snapshot([5])                                               |
++------------------------------------------------------------------------------+
 These changes will be applied, because you used --inline-snapshot=trim
 """
     )
@@ -180,9 +208,11 @@ def test_a():
     result.assert_outcomes(failed=1)
 
     assert result.report == snapshot(
-        """
+        """\
+
 Error: 1 snapshots have incorrect values (--inline-snapshot=fix)
 Info: 1 snapshots can be trimmed (--inline-snapshot=trim)
+You can also use --inline-snapshot=review to approve the changes interactiv
 """
     )
 
@@ -191,32 +221,41 @@ Info: 1 snapshots can be trimmed (--inline-snapshot=trim)
     assert result.report == snapshot(
         """\
 
---- Fix snapshots ---
-test_file.py:
-@@ -6,4 +6,4 @@
-def test_a():
-assert "5" == snapshot('''5''')
-assert 5 <= snapshot(8)
--    assert 5 == snapshot(4)
-+    assert 5 == snapshot(5)
+-------------------------------- Fix snapshots ---------------------------------
++-------------------------------- test_file.py --------------------------------+
+| @@ -6,4 +6,4 @@                                                              |
+|                                                                              |
+|  def test_a():                                                               |
+|      assert "5" == snapshot('''5''')                                         |
+|      assert 5 <= snapshot(8)                                                 |
+| -    assert 5 == snapshot(4)                                                 |
+| +    assert 5 == snapshot(5)                                                 |
++------------------------------------------------------------------------------+
 These changes will be applied, because you used --inline-snapshot=fix
---- Trim snapshots ---
-test_file.py:
-@@ -5,5 +5,5 @@
-def test_a():
-assert "5" == snapshot('''5''')
--    assert 5 <= snapshot(8)
-+    assert 5 <= snapshot(5)
-assert 5 == snapshot(5)
+-------------------------------- Trim snapshots --------------------------------
++-------------------------------- test_file.py --------------------------------+
+| @@ -5,5 +5,5 @@                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_a():                                                               |
+|      assert "5" == snapshot('''5''')                                         |
+| -    assert 5 <= snapshot(8)                                                 |
+| +    assert 5 <= snapshot(5)                                                 |
+|      assert 5 == snapshot(5)                                                 |
++------------------------------------------------------------------------------+
 These changes will be applied, because you used --inline-snapshot=trim
---- Update snapshots ---
-test_file.py:
-@@ -4,6 +4,6 @@
-def test_a():
--    assert "5" == snapshot('''5''')
-+    assert "5" == snapshot("5")
-assert 5 <= snapshot(5)
-assert 5 == snapshot(5)
+------------------------------- Update snapshots -------------------------------
++-------------------------------- test_file.py --------------------------------+
+| @@ -4,6 +4,6 @@                                                              |
+|                                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_a():                                                               |
+| -    assert "5" == snapshot('''5''')                                         |
+| +    assert "5" == snapshot("5")                                             |
+|      assert 5 <= snapshot(5)                                                 |
+|      assert 5 == snapshot(5)                                                 |
++------------------------------------------------------------------------------+
 These changes are not applied.
 Use --inline-snapshot=update to apply theme, or use the interactive mode with
 --inline-snapshot=review
@@ -418,12 +457,16 @@ def test_something():
     assert result.report == snapshot(
         """\
 
---- Fix snapshots ---
-test_file.py:
-@@ -4,4 +4,4 @@
-def test_something():
--    assert 2 == snapshot(1)
-+    assert 2 == snapshot(2)
+-------------------------------- Fix snapshots ---------------------------------
++-------------------------------- test_file.py --------------------------------+
+| @@ -4,4 +4,4 @@                                                              |
+|                                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_something():                                                       |
+| -    assert 2 == snapshot(1)                                                 |
+| +    assert 2 == snapshot(2)                                                 |
++------------------------------------------------------------------------------+
 do you want to fix these snapshots? [y/n] (n):
 """
     )

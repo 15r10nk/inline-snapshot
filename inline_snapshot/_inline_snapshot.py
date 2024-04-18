@@ -211,7 +211,7 @@ class UndecidedValue(GenericValue):
 
 try:
     import dirty_equals  # type: ignore
-except:
+except ImportError:  # pragma: no cover
 
     def update_allowed(value):
         return True
