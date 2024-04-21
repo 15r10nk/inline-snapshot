@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 from typing import Dict  # noqa
 from typing import Iterator
-from typing import overload
+from typing import Set
 from typing import Tuple  # noqa
 from typing import TypeVar
 
@@ -41,7 +41,7 @@ snapshots = {}  # type: Dict[Tuple[int, int], Snapshot]
 
 _active = False
 
-_files_with_snapshots = set()
+_files_with_snapshots: Set[str] = set()
 
 
 class Flags:
@@ -628,16 +628,8 @@ def repr_wrapper(func: _T) -> _T:
     return ReprWrapper(func)  # type: ignore
 
 
-@overload
-def snapshot() -> Any: ...
-
-
-@overload
-def snapshot(obj: T) -> T: ...
-
-
 @repr_wrapper
-def snapshot(obj=undefined):
+def snapshot(obj: Any = undefined) -> Any:
     """`snapshot()` is a placeholder for some value.
 
     `pytest --inline-snapshot=create` will create the value which matches your conditions.
@@ -663,11 +655,17 @@ def snapshot(obj=undefined):
         else:
             return obj
 
-    frame = inspect.currentframe().f_back.f_back
+    frame = inspect.currentframe()
+    assert frame is not None
+    frame = frame.f_back
+    assert frame is not None
+    frame = frame.f_back
+    assert frame is not None
+
     expr = Source.executing(frame)
 
     module = inspect.getmodule(frame)
-    if module is not None:
+    if module is not None and module.__file__ is not None:
         _files_with_snapshots.add(module.__file__)
 
     key = id(frame.f_code), frame.f_lasti
@@ -678,6 +676,7 @@ def snapshot(obj=undefined):
             # we can run without knowing of the calling expression but we will not be able to fix code
             snapshots[key] = Snapshot(obj, None)
         else:
+            assert isinstance(node, ast.Call)
             assert isinstance(node.func, ast.Name)
             assert node.func.id == "snapshot"
             snapshots[key] = Snapshot(obj, expr)
