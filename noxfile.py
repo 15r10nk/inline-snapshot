@@ -24,7 +24,10 @@ def coverage(session):
 @session(python=python_versions)
 def mypy(session):
     session.install("mypy", "pytest", "hypothesis", ".")
-    session.run("mypy", "inline_snapshot", "tests")
+    args = ["inline_snapshot", "tests"]
+    if session.posargs:
+        args = session.posargs
+    session.run("mypy", *args)
 
 
 @session(python=python_versions)
@@ -40,6 +43,8 @@ def test(session):
         "coverage-enable-subprocess",
         "dirty-equals",
         "time-machine",
+        "mypy",
+        "pyright",
     )
     session.env["COVERAGE_PROCESS_START"] = str(
         Path(__file__).parent / "pyproject.toml"
