@@ -43,6 +43,8 @@ _active = False
 
 _files_with_snapshots: Set[str] = set()
 
+_missing_values = 0
+
 
 class Flags:
     """
@@ -232,6 +234,10 @@ class EqValue(GenericValue):
     _current_op = "x == snapshot"
 
     def __eq__(self, other):
+        global _missing_values
+        if self._old_value is undefined:
+            _missing_values += 1
+
         other = copy.deepcopy(other)
 
         if self._new_value is undefined:
@@ -388,6 +394,9 @@ class MinMaxValue(GenericValue):
         raise NotImplemented
 
     def _generic_cmp(self, other):
+        global _missing_values
+        if self._old_value is undefined:
+            _missing_values += 1
         other = copy.deepcopy(other)
 
         if self._new_value is undefined:
@@ -474,6 +483,10 @@ class CollectionValue(GenericValue):
     _current_op = "x in snapshot"
 
     def __contains__(self, item):
+        global _missing_values
+        if self._old_value is undefined:
+            _missing_values += 1
+
         item = copy.deepcopy(item)
 
         if self._new_value is undefined:
@@ -536,11 +549,14 @@ class DictValue(GenericValue):
     _current_op = "snapshot[key]"
 
     def __getitem__(self, index):
+        global _missing_values
+
         if self._new_value is undefined:
             self._new_value = {}
 
         old_value = self._old_value
         if old_value is undefined:
+            _missing_values += 1
             old_value = {}
 
         child_node = None
@@ -609,8 +625,6 @@ class DictValue(GenericValue):
 
 
 T = TypeVar("T")
-
-found_snapshots = []
 
 
 class ReprWrapper:
@@ -683,7 +697,6 @@ def snapshot(obj: Any = undefined) -> Any:
             assert isinstance(node.func, ast.Name)
             assert node.func.id == "snapshot"
             snapshots[key] = Snapshot(obj, expr)
-        found_snapshots.append(snapshots[key])
 
     return snapshots[key]._value
 

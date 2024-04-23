@@ -1,4 +1,6 @@
 import os
+import platform
+import re
 import shutil
 import textwrap
 import traceback
@@ -7,6 +9,7 @@ from dataclasses import field
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Set
+from unittest import mock
 
 import black
 import executing
@@ -168,6 +171,22 @@ class RunResult:
                 record = True
         return self._join_lines(result)
 
+    @property
+    def errors(self):
+        result = []
+        record = False
+        for line in self._result.stdout.lines:
+            line = line.strip()
+
+            if line.startswith("====") and "ERRORS" in line:
+                record = True
+            if record and line:
+                result.append(line)
+        result = self._join_lines(result)
+
+        result = re.sub(r"\d+\.\d+s", "<time>", result)
+        return result
+
     def errorLines(self):
         return self._join_lines(
             [line for line in self.stdout.lines if line and line[:2] in ("> ", "E ")]
@@ -177,6 +196,10 @@ class RunResult:
 @pytest.fixture
 def project(pytester):
     class Project:
+
+        def __init__(self):
+            self.term_columns = 80
+
         def setup(self, source: str):
             self.header = """\
 # äöß 🐍
@@ -253,7 +276,20 @@ def set_time(time_machine):
                 del os.environ["CI"]  # pragma: no cover
 
             try:
-                result = pytester.runpytest_subprocess(*args)
+
+                with mock.patch.dict(
+                    os.environ,
+                    {
+                        "TERM": "unknown",
+                        "COLUMNS": str(
+                            self.term_columns + 1
+                            if platform.system() == "Windows"
+                            else self.term_columns
+                        ),
+                    },
+                ):
+
+                    result = pytester.runpytest_subprocess(*args)
             finally:
                 os.environ.update(old_environ)
 
