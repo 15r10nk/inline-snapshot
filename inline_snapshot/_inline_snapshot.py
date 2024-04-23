@@ -564,6 +564,7 @@ class DictValue(GenericValue):
                 [
                     f"{self._value_to_code(k)}: {v._new_code()}"
                     for k, v in self._new_value.items()
+                    if not isinstance(v, UndecidedValue)
                 ]
             )
             + "}"
@@ -589,7 +590,9 @@ class DictValue(GenericValue):
 
         to_insert = []
         for key, new_value_element in self._new_value.items():
-            if key not in self._old_value:
+            if key not in self._old_value and not isinstance(
+                new_value_element, UndecidedValue
+            ):
                 # add new values
                 to_insert.append((key, new_value_element._new_code()))
 

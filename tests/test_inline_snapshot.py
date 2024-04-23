@@ -793,3 +793,50 @@ assert Thing() == snapshot()
 """
         )
     )
+
+
+def test_sub_snapshot_create(check_update):
+
+    assert (
+        check_update(
+            """\
+s=snapshot({})
+
+s["keya"]
+
+assert s["keyb"]==5
+""",
+            flags="create",
+        )
+        == snapshot(
+            """\
+s=snapshot({"keyb": 5})
+
+s["keya"]
+
+assert s["keyb"]==5
+"""
+        )
+    )
+
+    assert (
+        check_update(
+            """\
+s=snapshot()
+
+s["keya"]
+
+assert s["keyb"]==5
+""",
+            flags="create",
+        )
+        == snapshot(
+            """\
+s=snapshot({"keyb": 5})
+
+s["keya"]
+
+assert s["keyb"]==5
+"""
+        )
+    )
