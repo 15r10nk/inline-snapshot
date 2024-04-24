@@ -694,8 +694,6 @@ def snapshot(obj: Any = undefined) -> Any:
             snapshots[key] = Snapshot(obj, None)
         else:
             assert isinstance(node, ast.Call)
-            assert isinstance(node.func, ast.Name)
-            assert node.func.id == "snapshot"
             snapshots[key] = Snapshot(obj, expr)
 
     return snapshots[key]._value
@@ -750,15 +748,19 @@ class Snapshot:
 
             assert self._expr is not None
 
-            tokens = list(self._expr.source.asttokens().get_tokens(self._expr.node))
-            assert tokens[0].string == "snapshot"
-            assert tokens[1].string == "("
+            call = self._expr.node
+            tokens = list(self._expr.source.asttokens().get_tokens(call))
+
+            assert isinstance(call, ast.Call)
+            assert len(call.args) == 0
+            assert len(call.keywords) == 0
+            assert tokens[-2].string == "("
             assert tokens[-1].string == ")"
 
             change = ChangeRecorder.current.new_change()
             change.set_tags("inline_snapshot")
             change.replace(
-                (end_of(tokens[1]), start_of(tokens[-1])),
+                (end_of(tokens[-2]), start_of(tokens[-1])),
                 new_code,
                 filename=self._filename,
             )

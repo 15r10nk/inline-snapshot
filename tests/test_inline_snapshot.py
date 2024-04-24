@@ -840,3 +840,40 @@ assert s["keyb"]==5
 """
         )
     )
+
+
+def test_different_snapshot_name(check_update):
+
+    assert (
+        check_update(
+            """\
+from inline_snapshot import snapshot as s
+assert 4==s()
+
+""",
+            flags="create",
+        )
+        == snapshot(
+            """\
+from inline_snapshot import snapshot as s
+assert 4==s(4)
+
+"""
+        )
+    )
+
+    assert (
+        check_update(
+            """\
+import inline_snapshot
+assert 4==inline_snapshot.snapshot()
+""",
+            flags="create",
+        )
+        == snapshot(
+            """\
+import inline_snapshot
+assert 4==inline_snapshot.snapshot(4)
+"""
+        )
+    )
