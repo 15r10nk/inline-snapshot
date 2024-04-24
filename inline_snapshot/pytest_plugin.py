@@ -8,7 +8,6 @@ from . import _external
 from . import _find_external
 from . import _inline_snapshot
 from ._find_external import ensure_import
-from ._inline_snapshot import undefined
 from ._inline_snapshot import used_externals
 from ._rewrite_code import ChangeRecorder
 
@@ -68,12 +67,14 @@ def pytest_configure(config):
 
 @pytest.fixture(autouse=True)
 def snapshot_check():
-    found = _inline_snapshot.found_snapshots = []
+    _inline_snapshot._missing_values = 0
     yield
-    missing_values = sum(snapshot._value._old_value is undefined for snapshot in found)
-    if missing_values and not _inline_snapshot._update_flags.create:
+
+    missing_values = _inline_snapshot._missing_values
+
+    if missing_values != 0 and not _inline_snapshot._update_flags.create:
         pytest.fail(
-            "your snapshot is missing a value run pytest with --inline-snapshot=create to create the value",
+            f"your snapshot is missing {missing_values} value run pytest with --inline-snapshot=create to create the value",
             pytrace=False,
         )
 

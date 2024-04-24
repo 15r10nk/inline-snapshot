@@ -43,6 +43,8 @@ _active = False
 
 _files_with_snapshots: Set[str] = set()
 
+_missing_values = 0
+
 
 class Flags:
     """
@@ -232,6 +234,10 @@ class EqValue(GenericValue):
     _current_op = "x == snapshot"
 
     def __eq__(self, other):
+        global _missing_values
+        if self._old_value is undefined:
+            _missing_values += 1
+
         other = copy.deepcopy(other)
 
         if self._new_value is undefined:
@@ -388,6 +394,9 @@ class MinMaxValue(GenericValue):
         raise NotImplemented
 
     def _generic_cmp(self, other):
+        global _missing_values
+        if self._old_value is undefined:
+            _missing_values += 1
         other = copy.deepcopy(other)
 
         if self._new_value is undefined:
@@ -474,6 +483,10 @@ class CollectionValue(GenericValue):
     _current_op = "x in snapshot"
 
     def __contains__(self, item):
+        global _missing_values
+        if self._old_value is undefined:
+            _missing_values += 1
+
         item = copy.deepcopy(item)
 
         if self._new_value is undefined:
@@ -536,11 +549,14 @@ class DictValue(GenericValue):
     _current_op = "snapshot[key]"
 
     def __getitem__(self, index):
+        global _missing_values
+
         if self._new_value is undefined:
             self._new_value = {}
 
         old_value = self._old_value
         if old_value is undefined:
+            _missing_values += 1
             old_value = {}
 
         child_node = None
@@ -564,6 +580,7 @@ class DictValue(GenericValue):
                 [
                     f"{self._value_to_code(k)}: {v._new_code()}"
                     for k, v in self._new_value.items()
+                    if not isinstance(v, UndecidedValue)
                 ]
             )
             + "}"
@@ -589,7 +606,9 @@ class DictValue(GenericValue):
 
         to_insert = []
         for key, new_value_element in self._new_value.items():
-            if key not in self._old_value:
+            if key not in self._old_value and not isinstance(
+                new_value_element, UndecidedValue
+            ):
                 # add new values
                 to_insert.append((key, new_value_element._new_code()))
 
@@ -606,8 +625,6 @@ class DictValue(GenericValue):
 
 
 T = TypeVar("T")
-
-found_snapshots = []
 
 
 class ReprWrapper:
@@ -677,10 +694,7 @@ def snapshot(obj: Any = undefined) -> Any:
             snapshots[key] = Snapshot(obj, None)
         else:
             assert isinstance(node, ast.Call)
-            assert isinstance(node.func, ast.Name)
-            assert node.func.id == "snapshot"
             snapshots[key] = Snapshot(obj, expr)
-        found_snapshots.append(snapshots[key])
 
     return snapshots[key]._value
 
@@ -734,15 +748,19 @@ class Snapshot:
 
             assert self._expr is not None
 
-            tokens = list(self._expr.source.asttokens().get_tokens(self._expr.node))
-            assert tokens[0].string == "snapshot"
-            assert tokens[1].string == "("
+            call = self._expr.node
+            tokens = list(self._expr.source.asttokens().get_tokens(call))
+
+            assert isinstance(call, ast.Call)
+            assert len(call.args) == 0
+            assert len(call.keywords) == 0
+            assert tokens[-2].string == "("
             assert tokens[-1].string == ")"
 
             change = ChangeRecorder.current.new_change()
             change.set_tags("inline_snapshot")
             change.replace(
-                (end_of(tokens[1]), start_of(tokens[-1])),
+                (end_of(tokens[-2]), start_of(tokens[-1])),
                 new_code,
                 filename=self._filename,
             )
