@@ -1,3 +1,17 @@
+## v0.8.2 (2024-04-24)
+
+### Fix
+
+- removed restriction that the snapshot functions has to be called snapshot (#72)
+- report error in tear down for sub-snapshots with missing values (#70)
+- element access in sub-snapshots does not create new values
+
+## v0.8.1 (2024-04-22)
+
+### Fix
+
+- make typing less strict
+
 ## v0.8.0 (2024-04-09)
 
 ### Feat

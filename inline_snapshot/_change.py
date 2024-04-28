@@ -82,7 +82,7 @@ class Replace(Change):
 
 @dataclass()
 class CallArg(Change):
-    node: ast.Call
+    node: Optional[ast.Call]
     arg_pos: Optional[int]
     arg_name: Optional[str]
 
@@ -93,17 +93,23 @@ class CallArg(Change):
     def apply(self):
         change = ChangeRecorder.current.new_change()
         tokens = list(self.source.asttokens().get_tokens(self.node))
+
+        call = self.node
+        tokens = list(self.source.asttokens().get_tokens(call))
+
+        assert isinstance(call, ast.Call)
+        assert len(call.args) == 0
+        assert len(call.keywords) == 0
+        assert tokens[-2].string == "("
+        assert tokens[-1].string == ")"
+
         assert self.arg_pos == 0
         assert self.arg_name == None
-
-        assert tokens[0].string == "snapshot"
-        assert tokens[1].string == "("
-        assert tokens[-1].string == ")"
 
         change = ChangeRecorder.current.new_change()
         change.set_tags("inline_snapshot")
         change.replace(
-            (end_of(tokens[1]), start_of(tokens[-1])),
+            (end_of(tokens[-2]), start_of(tokens[-1])),
             self.new_code,
             filename=self.filename,
         )

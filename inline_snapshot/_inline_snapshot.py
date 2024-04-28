@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 from typing import Dict  # noqa
 from typing import Iterator
-from typing import overload
+from typing import Set
 from typing import Tuple  # noqa
 from typing import TypeVar
 
@@ -38,7 +38,9 @@ snapshots = {}  # type: Dict[Tuple[int, int], Snapshot]
 
 _active = False
 
-_files_with_snapshots = set()
+_files_with_snapshots: Set[str] = set()
+
+_missing_values = 0
 
 
 class Flags:
@@ -226,6 +228,10 @@ class EqValue(GenericValue):
     _current_op = "x == snapshot"
 
     def __eq__(self, other):
+        global _missing_values
+        if self._old_value is undefined:
+            _missing_values += 1
+
         other = copy.deepcopy(other)
 
         if self._new_value is undefined:
@@ -382,6 +388,9 @@ class MinMaxValue(GenericValue):
         raise NotImplemented
 
     def _generic_cmp(self, other):
+        global _missing_values
+        if self._old_value is undefined:
+            _missing_values += 1
         other = copy.deepcopy(other)
 
         if self._new_value is undefined:
@@ -468,6 +477,10 @@ class CollectionValue(GenericValue):
     _current_op = "x in snapshot"
 
     def __contains__(self, item):
+        global _missing_values
+        if self._old_value is undefined:
+            _missing_values += 1
+
         item = copy.deepcopy(item)
 
         if self._new_value is undefined:
@@ -530,11 +543,14 @@ class DictValue(GenericValue):
     _current_op = "snapshot[key]"
 
     def __getitem__(self, index):
+        global _missing_values
+
         if self._new_value is undefined:
             self._new_value = {}
 
         old_value = self._old_value
         if old_value is undefined:
+            _missing_values += 1
             old_value = {}
 
         child_node = None
@@ -558,6 +574,7 @@ class DictValue(GenericValue):
                 [
                     f"{self._value_to_code(k)}: {v._new_code()}"
                     for k, v in self._new_value.items()
+                    if not isinstance(v, UndecidedValue)
                 ]
             )
             + "}"
@@ -583,7 +600,9 @@ class DictValue(GenericValue):
 
         to_insert = []
         for key, new_value_element in self._new_value.items():
-            if key not in self._old_value:
+            if key not in self._old_value and not isinstance(
+                new_value_element, UndecidedValue
+            ):
                 # add new values
                 to_insert.append((key, new_value_element._new_code()))
 
@@ -600,8 +619,6 @@ class DictValue(GenericValue):
 
 
 T = TypeVar("T")
-
-found_snapshots = []
 
 
 class ReprWrapper:
@@ -622,16 +639,8 @@ def repr_wrapper(func: _T) -> _T:
     return ReprWrapper(func)  # type: ignore
 
 
-@overload
-def snapshot() -> Any: ...
-
-
-@overload
-def snapshot(obj: T) -> T: ...
-
-
 @repr_wrapper
-def snapshot(obj=undefined):
+def snapshot(obj: Any = undefined) -> Any:
     """`snapshot()` is a placeholder for some value.
 
     `pytest --inline-snapshot=create` will create the value which matches your conditions.
@@ -657,11 +666,17 @@ def snapshot(obj=undefined):
         else:
             return obj
 
-    frame = inspect.currentframe().f_back.f_back
+    frame = inspect.currentframe()
+    assert frame is not None
+    frame = frame.f_back
+    assert frame is not None
+    frame = frame.f_back
+    assert frame is not None
+
     expr = Source.executing(frame)
 
     module = inspect.getmodule(frame)
-    if module is not None:
+    if module is not None and module.__file__ is not None:
         _files_with_snapshots.add(module.__file__)
 
     key = id(frame.f_code), frame.f_lasti
@@ -672,10 +687,8 @@ def snapshot(obj=undefined):
             # we can run without knowing of the calling expression but we will not be able to fix code
             snapshots[key] = Snapshot(obj, None)
         else:
-            assert isinstance(node.func, ast.Name)
-            assert node.func.id == "snapshot"
+            assert isinstance(node, ast.Call)
             snapshots[key] = Snapshot(obj, expr)
-        found_snapshots.append(snapshots[key])
 
     return snapshots[key]._value
 

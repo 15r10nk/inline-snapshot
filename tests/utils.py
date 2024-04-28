@@ -15,17 +15,17 @@ def snapshot_env():
         inline_snapshot.snapshots,
         inline_snapshot._update_flags,
         inline_snapshot._active,
-        inline_snapshot.found_snapshots,
         external.storage,
         inline_snapshot._files_with_snapshots,
+        inline_snapshot._missing_values,
     )
 
     inline_snapshot.snapshots = {}
     inline_snapshot._update_flags = inline_snapshot.Flags()
     inline_snapshot._active = True
-    inline_snapshot.found_snapshots = []
     external.storage = None
     inline_snapshot._files_with_snapshots = set()
+    inline_snapshot._missing_values = 0
 
     try:
         yield
@@ -34,9 +34,9 @@ def snapshot_env():
             inline_snapshot.snapshots,
             inline_snapshot._update_flags,
             inline_snapshot._active,
-            inline_snapshot.found_snapshots,
             external.storage,
             inline_snapshot._files_with_snapshots,
+            inline_snapshot._missing_values,
         ) = current
 
 

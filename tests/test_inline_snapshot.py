@@ -719,15 +719,13 @@ def test_format_file(check_update):
         'assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot()\n', flags="create"
     ) == snapshot(
         """\
-assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot(
-    [
-        "aaaaaaaaaaaaaaaaa",
-        "aaaaaaaaaaaaaaaaa",
-        "aaaaaaaaaaaaaaaaa",
-        "aaaaaaaaaaaaaaaaa",
-        "aaaaaaaaaaaaaaaaa",
-    ]
-)
+assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot([
+    "aaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaa",
+])
 """
     )
 
@@ -790,6 +788,90 @@ class Thing:
         return "+++"
 
 assert Thing() == snapshot()
+"""
+        )
+    )
+
+
+def test_sub_snapshot_create(check_update):
+
+    assert (
+        check_update(
+            """\
+s=snapshot({})
+
+s["keya"]
+
+assert s["keyb"]==5
+""",
+            flags="create",
+        )
+        == snapshot(
+            """\
+s=snapshot({"keyb": 5})
+
+s["keya"]
+
+assert s["keyb"]==5
+"""
+        )
+    )
+
+    assert (
+        check_update(
+            """\
+s=snapshot()
+
+s["keya"]
+
+assert s["keyb"]==5
+""",
+            flags="create",
+        )
+        == snapshot(
+            """\
+s=snapshot({"keyb": 5})
+
+s["keya"]
+
+assert s["keyb"]==5
+"""
+        )
+    )
+
+
+def test_different_snapshot_name(check_update):
+
+    assert (
+        check_update(
+            """\
+from inline_snapshot import snapshot as s
+assert 4==s()
+
+""",
+            flags="create",
+        )
+        == snapshot(
+            """\
+from inline_snapshot import snapshot as s
+assert 4==s(4)
+
+"""
+        )
+    )
+
+    assert (
+        check_update(
+            """\
+import inline_snapshot
+assert 4==inline_snapshot.snapshot()
+""",
+            flags="create",
+        )
+        == snapshot(
+            """\
+import inline_snapshot
+assert 4==inline_snapshot.snapshot(4)
 """
         )
     )

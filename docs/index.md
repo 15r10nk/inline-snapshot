@@ -113,7 +113,7 @@ It is possible to place `snapshot()` anywhere in the tests and reuse it multiple
 
 === "original code"
 
-    <!-- inline-snapshot: outcome-passed=2 -->
+    <!-- inline-snapshot: outcome-passed=2 outcome-errors=2 -->
     ```python
     def something():
         return 21 * 2

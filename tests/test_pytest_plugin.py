@@ -359,9 +359,11 @@ def test_a():
 
     result = project.run()
     assert result.errorLines() == snapshot(
-        """
+        """\
+
 >       assert "a"==snapshot("b")
 E       AssertionError: assert 'a' == 'b'
+E
 E         - b
 E         + a
 """
@@ -376,9 +378,11 @@ def test_a():
 
     result = project.run()
     assert result.errorLines() == snapshot(
-        """
+        """\
+
 >       assert snapshot("b")=="a"
 E       AssertionError: assert 'b' == 'a'
+E
 E         - a
 E         + b
 """
@@ -475,5 +479,37 @@ do you want to fix these snapshots? [y/n] (n):
         """\
 def test_something():
     assert 2 == snapshot(2)
+"""
+    )
+
+
+def test_empty_sub_snapshot(project):
+
+    project.setup(
+        """\
+
+def test_sub_snapshot():
+    assert 1==snapshot({})["key"]
+"""
+    )
+
+    project.term_columns = 160
+
+    result = project.run()
+
+    assert result.ret == 1
+
+    assert result.errors == snapshot(
+        """\
+
+============================================================================ ERRORS ============================================================================
+____________________________________________________________ ERROR at teardown of test_sub_snapshot ____________________________________________________________
+your snapshot is missing 1 value run pytest with --inline-snapshot=create to create the value
+======================================================================= inline snapshot ========================================================================
+Error: 1 snapshots are missing values (--inline-snapshot=create)
+You can also use --inline-snapshot=review to approve the changes interactiv
+=================================================================== short test summary info ====================================================================
+ERROR test_file.py::test_sub_snapshot - Failed: your snapshot is missing 1 value run pytest with --inline-snapshot=create to create the value
+================================================================== 1 passed, 1 error in <time> ==================================================================
 """
     )
