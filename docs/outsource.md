@@ -23,7 +23,7 @@ Example:
     ```
 
 === "--inline-snapshot=create"
-    <!-- inline-snapshot: create -->
+    <!-- inline-snapshot: create outcome-passed=1 -->
     ```python
     from inline_snapshot import external
 
@@ -46,7 +46,7 @@ The `external` object can be used inside other data structures.
     ```
 
 === "--inline-snapshot=create"
-    <!-- inline-snapshot: create -->
+    <!-- inline-snapshot: create outcome-passed=1 -->
     ```python
     from inline_snapshot import external
 

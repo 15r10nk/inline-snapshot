@@ -14,7 +14,7 @@ Example:
     ```
 
 === "--inline-snapshot=create"
-    <!-- inline-snapshot: create -->
+    <!-- inline-snapshot: create outcome-passed=1 -->
     ```python
     def test_something():
         assert 2 + 4 == snapshot(6)
@@ -28,7 +28,7 @@ Example:
     ```
 
 === "--inline-snapshot=fix"
-    <!-- inline-snapshot: fix -->
+    <!-- inline-snapshot: fix outcome-passed=1 -->
     ```python
     def test_something():
         assert 2 + 40 == snapshot(42)
@@ -61,7 +61,7 @@ Example:
     ```
 
 === "--inline-snapshot=create"
-    <!-- inline-snapshot: create -->
+    <!-- inline-snapshot: create outcome-passed=1 -->
     ```python
     from inline_snapshot import snapshot
     import datetime
@@ -136,7 +136,7 @@ Example:
 
 
 === "--inline-snapshot=fix"
-    <!-- inline-snapshot: fix -->
+    <!-- inline-snapshot: fix outcome-passed=1 -->
     ```python
     from inline_snapshot import snapshot
     from dirty_equals import IsDatetime

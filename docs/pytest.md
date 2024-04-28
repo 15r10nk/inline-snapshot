@@ -20,7 +20,7 @@ This allows you to control which snapshots you want to modify.
 
 === "original code"
 
-    <!-- inline-snapshot: outcome-errors=1 outcome-passed=1 -->
+    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
     ```python
     def test_something():
         assert 7 <= snapshot(10)  # only changed with trim
@@ -30,7 +30,7 @@ This allows you to control which snapshots you want to modify.
 
 === "--inline-snapshot=create"
 
-    <!-- inline-snapshot: create -->
+    <!-- inline-snapshot: create outcome-passed=1 -->
     ```python
     def test_something():
         assert 7 <= snapshot(10)  # only changed with trim
@@ -39,7 +39,7 @@ This allows you to control which snapshots you want to modify.
 
 === "--inline-snapshot=trim"
 
-    <!-- inline-snapshot: trim -->
+    <!-- inline-snapshot: trim outcome-passed=1 -->
     ```python
     def test_something():
         assert 7 <= snapshot(7)  # only changed with trim

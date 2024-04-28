@@ -31,7 +31,7 @@ Example:
     ```
 
 === "--inline-snapshot=create"
-    <!-- inline-snapshot: create -->
+    <!-- inline-snapshot: create outcome-passed=1 -->
     ```python
     def gcd(x, y):
         iterations = 0
@@ -74,7 +74,7 @@ Example:
     ```
 
 === "--inline-snapshot=trim"
-    <!-- inline-snapshot: trim -->
+    <!-- inline-snapshot: trim outcome-passed=1 -->
     ```python
     def gcd(x, y):
         # use Euclidean Algorithm
@@ -98,7 +98,7 @@ Example:
 The same snapshot value can also be used in multiple assertions.
 
 === "original code"
-    <!-- inline-snapshot: outcome-errors=1 outcome-passed=1 -->
+    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
     ```python
     def test_something():
         value = snapshot()
@@ -107,7 +107,7 @@ The same snapshot value can also be used in multiple assertions.
         assert 6 <= value
     ```
 === "--inline-snapshot=create"
-    <!-- inline-snapshot: create -->
+    <!-- inline-snapshot: create outcome-passed=1 -->
     ```python
     def test_something():
         value = snapshot(6)

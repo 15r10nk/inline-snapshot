@@ -49,9 +49,9 @@ line-length=80
     for linenumber, line in enumerate(text.splitlines(), start=1):
         m = block_start.fullmatch(line)
         if m and is_block == True:
+            block_start_line = line
             indent = m[1]
             block_lines = []
-            new_lines.append(line)
             continue
 
         if block_end.fullmatch(line.strip()) and is_block:
@@ -91,6 +91,23 @@ line-length=80
                 if (
                     inline_snapshot._inline_snapshot._update_flags.fix
                 ):  # pragma: no cover
+                    flags_str = " ".join(
+                        sorted(flags)
+                        + list(options & {"this", "show_error"})
+                        + [
+                            f"outcome-{k}={v}"
+                            for k, v in result.parseoutcomes().items()
+                            if k in ("failed", "errors", "passed")
+                        ]
+                    )
+                    header_line = f"{indent}<!-- inline-snapshot: {flags_str} -->"
+
+                new_lines.append(header_line)
+                new_lines.append(block_start_line)
+
+                if (
+                    inline_snapshot._inline_snapshot._update_flags.fix
+                ):  # pragma: no cover
                     new_lines.append(textwrap.indent(new_code.rstrip("\n"), indent))
                 else:
                     new_lines += block_lines
@@ -115,8 +132,8 @@ line-length=80
         m = header.fullmatch(line.strip())
         if m:
             options = set(m.group(1).split())
+            header_line = line
             is_block = True
-            new_lines.append(line)
 
         if is_block:
             block_lines.append(line)
