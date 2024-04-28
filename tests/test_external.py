@@ -139,7 +139,7 @@ def test_a():
 
 >       assert outsource("test2") == snapshot(
 E       AssertionError: assert 'test2' == 'test'
-E
+E         ⏎
 E         - test
 E         + test2
 E         ?     +
@@ -170,7 +170,7 @@ def test_a():
 
 >       assert outsource(b"test2") == snapshot(
 E       AssertionError: assert b'test2' == b'test'
-E
+E         ⏎
 E         Use -v to get more diff
 """
     )
