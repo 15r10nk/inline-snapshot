@@ -1,7 +1,6 @@
 import ast
 import copy
 import inspect
-import sys
 import tokenize
 from collections import defaultdict
 from pathlib import Path
@@ -682,26 +681,15 @@ def snapshot(obj=undefined):
 
 
 def used_externals(tree):
-    if sys.version_info < (3, 8):
-        return [
-            n.args[0].s
-            for n in ast.walk(tree)
-            if isinstance(n, ast.Call)
-            and isinstance(n.func, ast.Name)
-            and n.func.id == "external"
-            and n.args
-            and isinstance(n.args[0], ast.Str)
-        ]
-    else:
-        return [
-            n.args[0].value
-            for n in ast.walk(tree)
-            if isinstance(n, ast.Call)
-            and isinstance(n.func, ast.Name)
-            and n.func.id == "external"
-            and n.args
-            and isinstance(n.args[0], ast.Constant)
-        ]
+    return [
+        n.args[0].value
+        for n in ast.walk(tree)
+        if isinstance(n, ast.Call)
+        and isinstance(n.func, ast.Name)
+        and n.func.id == "external"
+        and n.args
+        and isinstance(n.args[0], ast.Constant)
+    ]
 
 
 class Snapshot:

@@ -1,5 +1,4 @@
 import re
-import sys
 import textwrap
 from pathlib import Path
 
@@ -27,8 +26,6 @@ def test_docs(project, file, subtests):
         * `outcome-passed=2` to check for the pytest test outcome
     """
 
-    if sys.version_info < (3, 8) and file.stem == "eq_snapshot":
-        pytest.skip()
     block_start = re.compile("( *)``` *python")
     block_end = re.compile("```.*")
 
