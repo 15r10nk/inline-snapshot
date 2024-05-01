@@ -360,3 +360,29 @@ ERROR test_file.py::test_sub_snapshot - Failed: your snapshot is missing 1 value
 ================================================================== 1 passed, 1 error in <time> ==================================================================
 """
     )
+
+
+def test_persist_unknown_external(project):
+    project.setup(
+        """\
+from inline_snapshot import external, snapshot
+
+def test_sub_snapshot():
+    external("123*.png")
+    assert 1==snapshot(2)
+"""
+    )
+
+    result = project.run("--inline-snapshot=fix")
+
+    assert project.source == snapshot(
+        """\
+from inline_snapshot import external, snapshot
+
+def test_sub_snapshot():
+    external("123*.png")
+    assert 1==snapshot(1)
+"""
+    )
+
+    assert result.ret == 0
