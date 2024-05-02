@@ -877,3 +877,55 @@ assert 4==inline_snapshot.snapshot(4)
 """
         )
     )
+
+
+def test_quoting_change_is_no_update(source):
+
+    s = source(
+        """\
+from inline_snapshot import external,snapshot
+
+class X:
+    def __init__(self,a):
+        self.a=a
+        pass
+
+    def __repr__(self):
+        return f'X("{self.a}")'
+
+    def __eq__(self,other):
+        if not hasattr(other,"a"):
+            return NotImplemented
+        return other.a==self.a
+
+assert X("a") == snapshot()
+"""
+    )
+    assert s.flags == snapshot({"create"})
+
+    s = s.run("create")
+
+    assert s.source == snapshot(
+        """\
+from inline_snapshot import external,snapshot
+
+class X:
+    def __init__(self,a):
+        self.a=a
+        pass
+
+    def __repr__(self):
+        return f'X("{self.a}")'
+
+    def __eq__(self,other):
+        if not hasattr(other,"a"):
+            return NotImplemented
+        return other.a==self.a
+
+assert X("a") == snapshot(X("a"))
+"""
+    )
+
+    assert s.flags == snapshot({"create"})
+    s = s.run()
+    assert s.flags == snapshot(set())
