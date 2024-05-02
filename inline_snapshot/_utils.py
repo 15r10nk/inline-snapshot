@@ -26,13 +26,13 @@ def normalize_strings(token_sequence):
             continue
 
         if current_string is not None:
-            yield (token.STRING, repr(current_string))
+            yield simple_token(token.STRING, repr(current_string))
             current_string = None
 
         yield t
 
     if current_string is not None:
-        yield (token.STRING, repr(current_string))
+        yield simple_token(token.STRING, repr(current_string))
 
 
 ignore_tokens = (token.NEWLINE, token.ENDMARKER, token.NL)
@@ -90,7 +90,15 @@ def triple_quote(string):
     return f"{quote_type}{string}{quote_type}"
 
 
-simple_token = namedtuple("simple_token", "type,string")
+class simple_token(namedtuple("simple_token", "type,string")):
+
+    def __eq__(self, other):
+        if self.type == other.type == 3:
+            return ast.literal_eval(self.string) == ast.literal_eval(
+                other.string
+            ) and self.string.replace("'", '"') == other.string.replace("'", '"')
+        else:
+            return super().__eq__(other)
 
 
 def value_to_token(value):
