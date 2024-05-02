@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-13]
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
@@ -73,7 +73,7 @@ jobs:
         TOP: ${{github.workspace}}
       run: |
         rm .coverage.*.windows-latest
-        rm .coverage.*.macos-latest
+        rm .coverage.*.macos-13
         pip install coverage
         coverage combine
         coverage
