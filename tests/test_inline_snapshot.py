@@ -787,7 +787,7 @@ class Thing:
     def __repr__(self):
         return "+++"
 
-assert Thing() == snapshot()
+assert Thing() == snapshot(HasRepr("+++"))
 """
         )
     )
