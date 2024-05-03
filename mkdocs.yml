@@ -36,9 +36,11 @@ nav:
   - x in snapshot(): in_snapshot.md
   - snapshot()[key]: getitem_snapshot.md
   - outsource(data): outsource.md
+  - '@customize_repr': customize_repr.md
 - pytest integration: pytest.md
 - Categories: categories.md
 - Configuration: configuration.md
+- Code generation: code_generation.md
 - Contributing: contributing.md
 - Changelog: changelog.md
 

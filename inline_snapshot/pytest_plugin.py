@@ -15,6 +15,7 @@ from . import _external
 from . import _find_external
 from . import _inline_snapshot
 from ._change import apply_all
+from ._code_repr import used_hasrepr
 from ._find_external import ensure_import
 from ._inline_snapshot import used_externals
 from ._rewrite_code import ChangeRecorder
@@ -312,9 +313,17 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                     tree = ast.parse(test_file.new_code())
                     used = used_externals(tree)
 
+                    required_imports = []
+
                     if used:
+                        required_imports.append("external")
+
+                    if used_hasrepr(tree):
+                        required_imports.append("HasRepr")
+
+                    if required_imports:
                         ensure_import(
-                            test_file.filename, {"inline_snapshot": ["external"]}
+                            test_file.filename, {"inline_snapshot": required_imports}
                         )
 
                     for external_name in used:

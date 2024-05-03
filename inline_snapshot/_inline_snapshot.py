@@ -716,10 +716,6 @@ class Snapshot:
     def _changes(self):
         if self._value._old_value is undefined:
             new_code = self._value._new_code()
-            try:
-                ast.parse(new_code)
-            except:
-                return
 
             yield CallArg(
                 "create",
