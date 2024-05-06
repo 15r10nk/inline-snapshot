@@ -44,7 +44,10 @@ class DiscStorage:
             return set()
 
     def persist(self, name):
-        file = self._lookup_path(name)
+        try:
+            file = self._lookup_path(name)
+        except HashError:
+            return
         if file.stem.endswith("-new"):
             stem = file.stem[:-4]
             file.rename(file.with_name(stem + file.suffix))
