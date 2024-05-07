@@ -17,13 +17,31 @@ class HasRepr:
     def __repr__(self):
         return f"HasRepr({self._str_repr!r})"
 
+    def __eq__(self, other):
+        return code_repr(other) == self._str_repr
+
 
 @singledispatch
 def code_repr_dispatch(v):
     return real_repr(v)
 
 
-register_repr = code_repr_dispatch.register
+def register_repr(f):
+    """Register a funtion which should be used to get the code representation
+    of a object.
+
+    ```python
+    @register_repr
+    def _(obj: MyCustomClass):
+        return f"MyCustomClass({repr(obj.attr)})"
+    ```
+    it is important to use `repr()` inside the implementation, because it is mocked to return the code represenation
+
+    you dont have to provide a custom implementation if:
+    * __repr__() of your class returns a valid code representation,
+    * and __repr__() uses `repr()` to get the representaion of the child objects
+    """
+    code_repr_dispatch.register(f)
 
 
 def code_repr(obj):
