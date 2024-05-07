@@ -1,3 +1,13 @@
+## v0.9.0 (2024-05-07)
+
+### Feat
+
+- check if inline-snapshot is used in combination with xdist and notify the user that this is not possible
+
+### Fix
+
+- change the quoting of strings does not trigger an update
+
 ## v0.8.2 (2024-04-24)
 
 ### Fix
