@@ -44,6 +44,13 @@ categories = {"create", "update", "trim", "fix"}
 flags = {}
 
 
+def xdist_running(config):
+    return (
+        hasattr(config.option, "numprocesses")
+        and config.option.numprocesses is not None
+    )
+
+
 def pytest_configure(config):
     global flags
     flags = config.option.inline_snapshot.split(",")
@@ -54,7 +61,13 @@ def pytest_configure(config):
             f"--inline-snapshot=disable can not be combined with other flags ({', '.join(flags-{'disable'})})"
         )
 
-    if flags & {"review"}:
+    if xdist_running(config) and flags - {"disabled", "short-report"}:
+        raise pytest.UsageError(f"inline-snapshot can not be combined with xdist")
+
+    if xdist_running(config):
+        _inline_snapshot._active = False
+
+    elif flags & {"review"}:
         _inline_snapshot._active = True
 
         _inline_snapshot._update_flags = _inline_snapshot.Flags(
@@ -134,6 +147,14 @@ def pytest_assertrepr_compare(config, op, left, right):
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
+
+    if xdist_running(config):
+        terminalreporter.section("inline snapshot")
+        terminalreporter.write(
+            "INFO: inline-snapshot was disabled because you used xdist\n"
+        )
+        return
+
     if not _inline_snapshot._active:
         return
 
@@ -276,6 +297,9 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                 for test_file in cr.files():
                     tree = ast.parse(test_file.new_code())
                     used = used_externals(tree)
+                    # if _inline_snapshot._update_flags.change_something():
+
+                    #     count = {"create": 0, "fix": 0, "trim": 0, "update": 0}
 
                     if used:
                         ensure_import(
