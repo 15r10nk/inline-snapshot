@@ -1,4 +1,5 @@
 from inline_snapshot import snapshot
+from tests.example import Example
 
 
 def test_help_message(testdir):
@@ -539,3 +540,71 @@ def test_sub_snapshot():
     )
 
     assert result.ret == 0
+
+
+def test_diff_multiple_files():
+
+    Example(
+        {
+            "test_a.py": """
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 1==snapshot(2)
+    """,
+            "test_b.py": """
+from inline_snapshot import snapshot
+
+def test_b():
+    assert 1==snapshot()
+    """,
+        }
+    ).run_pytest(
+        "--inline-snapshot=create,fix",
+        files=snapshot(
+            {
+                "test_b": """\
+
+from inline_snapshot import snapshot
+
+def test_b():
+    assert 1==snapshot(1)
+    \
+""",
+                "test_a": """\
+
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 1==snapshot(1)
+    \
+""",
+            }
+        ),
+        report=snapshot(
+            """\
+------------------------------- Create snapshots -------------------------------
++--------------------------------- test_b.py ----------------------------------+
+| @@ -2,5 +2,5 @@                                                              |
+|                                                                              |
+|  from inline_snapshot import snapshot                                        |
+|                                                                              |
+|  def test_b():                                                               |
+| -    assert 1==snapshot()                                                    |
+| +    assert 1==snapshot(1)                                                   |
++------------------------------------------------------------------------------+
+These changes will be applied, because you used --inline-snapshot=create
+-------------------------------- Fix snapshots ---------------------------------
++--------------------------------- test_a.py ----------------------------------+
+| @@ -2,5 +2,5 @@                                                              |
+|                                                                              |
+|  from inline_snapshot import snapshot                                        |
+|                                                                              |
+|  def test_a():                                                               |
+| -    assert 1==snapshot(2)                                                   |
+| +    assert 1==snapshot(1)                                                   |
++------------------------------------------------------------------------------+
+These changes will be applied, because you used --inline-snapshot=fix\
+"""
+        ),
+    )
