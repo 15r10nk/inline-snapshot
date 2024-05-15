@@ -26,7 +26,6 @@ def pytest_addoption(parser):
     group.addoption(
         "--inline-snapshot",
         metavar="(disable,short-report,report,review,create,update,trim,fix)*",
-        default="short-report",
         dest="inline_snapshot",
         help="update specific snapshot values:\n"
         "disable: disable the snapshot logic\n"
@@ -53,15 +52,21 @@ def xdist_running(config):
 
 def pytest_configure(config):
     global flags
-    flags = config.option.inline_snapshot.split(",")
-    flags = {flag for flag in flags if flag}
+
+    _config.config = _config.read_config(config.rootpath / "pyproject.toml")
+
+    if config.option.inline_snapshot is None:
+        flags = set(_config.config.default_flags)
+    else:
+        flags = config.option.inline_snapshot.split(",")
+        flags = {flag for flag in flags if flag}
 
     if "disable" in flags and flags != {"disable"}:
         raise pytest.UsageError(
             f"--inline-snapshot=disable can not be combined with other flags ({', '.join(flags-{'disable'})})"
         )
 
-    if xdist_running(config) and flags - {"disabled", "short-report"}:
+    if xdist_running(config) and flags - {"disabled", "short-report", "report"}:
         raise pytest.UsageError(f"inline-snapshot can not be combined with xdist")
 
     if xdist_running(config):
@@ -82,8 +87,6 @@ def pytest_configure(config):
     snapshot_path = Path(config.rootpath) / ".inline-snapshot/external"
 
     _external.storage = _external.DiscStorage(snapshot_path)
-
-    _config.config = _config.read_config(config.rootpath / "pyproject.toml")
 
     if flags - {"short-report", "disable"}:
 
@@ -297,9 +300,6 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                 for test_file in cr.files():
                     tree = ast.parse(test_file.new_code())
                     used = used_externals(tree)
-                    # if _inline_snapshot._update_flags.change_something():
-
-                    #     count = {"create": 0, "fix": 0, "trim": 0, "update": 0}
 
                     if used:
                         ensure_import(

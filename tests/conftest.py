@@ -25,6 +25,8 @@ from inline_snapshot._rewrite_code import ChangeRecorder
 pytest_plugins = "pytester"
 
 
+pytest.register_assert_rewrite("tests.example")
+
 black.files.find_project_root = black.files.find_project_root.__wrapped__  # type: ignore
 
 

@@ -5,6 +5,7 @@ import subprocess as sp
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+
 ansi_escape = re.compile(
     r"""
     \x1B  # ESC
@@ -35,7 +36,7 @@ class Example:
     def read_files(self, dir: Path):
         return {p.stem: p.read_text() for p in dir.iterdir() if p.is_file()}
 
-    def run_pytest(self, *args, files=None, report=None):
+    def run_pytest(self, *args, files=None, report=None, env={}):
         with TemporaryDirectory() as dir:
             dir = Path(dir)
             self.write_files(dir)
@@ -44,14 +45,16 @@ class Example:
 
             term_columns = 80
 
-            env = dict(os.environ)
-            env["TERM"] = "unknown"
-            env["COLUMNS"] = str(
+            command_env = dict(os.environ)
+            command_env["TERM"] = "unknown"
+            command_env["COLUMNS"] = str(
                 term_columns + 1 if platform.system() == "Windows" else term_columns
             )
-            env.pop("CI", None)
+            command_env.pop("CI", None)
 
-            result = sp.run(cmd, cwd=dir, capture_output=True, env=env)
+            command_env.update(env)
+
+            result = sp.run(cmd, cwd=dir, capture_output=True, env=command_env)
 
             print("run>", *cmd)
             print("stdout:")
