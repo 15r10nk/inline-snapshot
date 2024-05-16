@@ -1,16 +1,16 @@
 import sys
 
 import pytest
-from pandas import DataFrame
-from pandas import Index
-from pandas import Series
 
-from inline_snapshot import snapshot
-from inline_snapshot._pandas import assert_frame_equal
-from inline_snapshot._pandas import assert_index_equal
-from inline_snapshot._pandas import assert_series_equal
+if sys.version_info >= (3, 9):
+    from pandas import DataFrame
+    from pandas import Index
+    from pandas import Series
 
-nan = float("nan")
+    from inline_snapshot import snapshot
+    from inline_snapshot._pandas import assert_frame_equal
+    from inline_snapshot._pandas import assert_index_equal
+    from inline_snapshot._pandas import assert_series_equal
 
 
 @pytest.mark.skipif(sys.version_info < (3, 9), reason="no pandas for 3.9")
