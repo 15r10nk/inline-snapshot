@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import nox
@@ -46,16 +47,24 @@ def test(session):
         "mypy",
         "pyright",
     )
-    session.env["COVERAGE_PROCESS_START"] = str(
-        Path(__file__).parent / "pyproject.toml"
-    )
+
+    cmd = []
+    if (
+        session.python in (python_versions[0], python_versions[-1])
+        or "CI" in os.environ
+    ):
+        cmd += ["coverage", "run", "-m"]
+        session.env["COVERAGE_PROCESS_START"] = str(
+            Path(__file__).parent / "pyproject.toml"
+        )
+        session.env["TOP"] = str(Path(__file__).parent)
+    else:
+        cmd = ["python", "-m"]
+
     args = [] if session.posargs else ["-n", "auto", "-v"]
 
-    session.env["TOP"] = str(Path(__file__).parent)
     session.run(
-        "coverage",
-        "run",
-        "-m",
+        *cmd,
         "pytest",
         "--doctest-modules",
         *args,
