@@ -34,9 +34,9 @@ class Example:
             (dir / name).write_text(content)
 
     def read_files(self, dir: Path):
-        return {p.stem: p.read_text() for p in dir.iterdir() if p.is_file()}
+        return {p.name: p.read_text() for p in dir.iterdir() if p.is_file()}
 
-    def run_pytest(self, *args, files=None, report=None, env={}):
+    def run_pytest(self, *args, changed_files=None, report=None, env={}):
         with TemporaryDirectory() as dir:
             dir = Path(dir)
             self.write_files(dir)
@@ -88,7 +88,12 @@ class Example:
 
                 assert new_report == report
 
-            if files is not None:
-                assert files == self.read_files(dir)
+            if changed_files is not None:
+                current_files = {}
+
+                for name, content in sorted(self.read_files(dir).items()):
+                    if name not in self.files or self.files[name] != content:
+                        current_files[name] = content
+                assert changed_files == current_files
 
             return Example(self.read_files(dir))

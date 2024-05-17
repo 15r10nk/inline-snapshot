@@ -561,9 +561,9 @@ def test_b():
         }
     ).run_pytest(
         "--inline-snapshot=create,fix",
-        files=snapshot(
+        changed_files=snapshot(
             {
-                "test_b": """\
+                "test_b.py": """\
 
 from inline_snapshot import snapshot
 
@@ -571,7 +571,7 @@ def test_b():
     assert 1==snapshot(1)
     \
 """,
-                "test_a": """\
+                "test_a.py": """\
 
 from inline_snapshot import snapshot
 
