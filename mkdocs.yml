@@ -71,6 +71,7 @@ plugins:
           heading_level: 3
 - social
 - search
+- replace-url
 
 extra:
   social:
