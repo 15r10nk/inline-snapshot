@@ -74,6 +74,7 @@ plugins:
 - search
 - markdown-exec:
     ansi: required
+- replace-url
 
 extra:
   social:

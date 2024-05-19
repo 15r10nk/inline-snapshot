@@ -81,6 +81,7 @@ def docs(session):
         "mkdocs-material[imaging]",
         "mkdocstrings[python]",
         "markdown-exec[ansi]",
+        "docs/plugins",
     )
     session.run("mkdocs", "build", *session.posargs)
 
@@ -92,5 +93,6 @@ def docs_serve(session):
         "mkdocs-material[imaging]",
         "mkdocstrings[python]",
         "markdown-exec[ansi]",
+        "docs/plugins",
     )
     session.run("mkdocs", "serve", *session.posargs)

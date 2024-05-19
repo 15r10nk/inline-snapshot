@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://15r10nk.github.io/inline-snapshot/">
-    <img src="https://raw.githubusercontent.com/15r10nk/inline-snapshot/main/docs/assets/logo.svg" width="500" alt="inline-snapshot">
+    <img src="docs/assets/logo.svg" width="500" alt="inline-snapshot">
   </a>
 </p>
 
