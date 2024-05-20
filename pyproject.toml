@@ -76,7 +76,7 @@ time-machine = ">=2.10.0"
 [tool.poetry.group.doc.dependencies]
 markdown-exec = {extras = ["ansi"], version = "^1.8.0"}
 mkdocs = ">=1.4.2"
-mkdocs-material = {extras = ["imaging"], version = ">=8.5.10"}
+mkdocs-material = {extras = ["imaging"], version = ">=9.5.17"}
 mkdocstrings = {extras = ["python-legacy"], version = ">=0.19.0"}
 
 [tool.poetry.plugins.pytest11]
