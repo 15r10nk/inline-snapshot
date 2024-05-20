@@ -82,6 +82,8 @@ def docs(session):
         "mkdocstrings[python]",
         "markdown-exec[ansi]",
         "docs/plugins",
+        "pytest",
+        ".",
     )
     session.run("mkdocs", "build", *session.posargs)
 
@@ -94,5 +96,7 @@ def docs_serve(session):
         "mkdocstrings[python]",
         "markdown-exec[ansi]",
         "docs/plugins",
+        "pytest",
+        ".",
     )
     session.run("mkdocs", "serve", *session.posargs)

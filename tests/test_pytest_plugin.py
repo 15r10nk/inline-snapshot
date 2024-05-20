@@ -23,7 +23,7 @@ def test_a():
     assert result.report == snapshot(
         """\
 
-Error: 1 snapshots are missing values (--inline-snapshot=create)
+Error: one snapshot is missing a value (--inline-snapshot=create)
 You can also use --inline-snapshot=review to approve the changes interactiv
 """
     )
@@ -72,7 +72,7 @@ def test_a():
     assert result.report == snapshot(
         """\
 
-Error: 1 snapshots have incorrect values (--inline-snapshot=fix)
+Error: one snapshot has incorrect values (--inline-snapshot=fix)
 You can also use --inline-snapshot=review to approve the changes interactiv
 """
     )
@@ -162,7 +162,7 @@ def test_a():
     assert result.report == snapshot(
         """\
 
-Info: 1 snapshots can be trimmed (--inline-snapshot=trim)
+Info: one snapshot can be trimmed (--inline-snapshot=trim)
 You can also use --inline-snapshot=review to approve the changes interactiv
 """
     )
@@ -211,8 +211,8 @@ def test_a():
     assert result.report == snapshot(
         """\
 
-Error: 1 snapshots have incorrect values (--inline-snapshot=fix)
-Info: 1 snapshots can be trimmed (--inline-snapshot=trim)
+Error: one snapshot has incorrect values (--inline-snapshot=fix)
+Info: one snapshot can be trimmed (--inline-snapshot=trim)
 You can also use --inline-snapshot=review to approve the changes interactiv
 """
     )
@@ -505,12 +505,12 @@ def test_sub_snapshot():
 
 ============================================================================ ERRORS ============================================================================
 ____________________________________________________________ ERROR at teardown of test_sub_snapshot ____________________________________________________________
-your snapshot is missing 1 value run pytest with --inline-snapshot=create to create the value
+your snapshot is missing one value run pytest with --inline-snapshot=create to create it
 ======================================================================= inline snapshot ========================================================================
-Error: 1 snapshots are missing values (--inline-snapshot=create)
+Error: one snapshot is missing a value (--inline-snapshot=create)
 You can also use --inline-snapshot=review to approve the changes interactiv
 =================================================================== short test summary info ====================================================================
-ERROR test_file.py::test_sub_snapshot - Failed: your snapshot is missing 1 value run pytest with --inline-snapshot=create to create the value
+ERROR test_file.py::test_sub_snapshot - Failed: your snapshot is missing one value run pytest with --inline-snapshot=create to create it
 ================================================================== 1 passed, 1 error in <time> ==================================================================
 """
     )

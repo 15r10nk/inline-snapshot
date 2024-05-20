@@ -5,10 +5,10 @@ There are changes which:
 
 * [create](#create) new snapshot values
 * [fix](#fix) your tests
-* [update](#update) only the syntax
+* [update](#update) only the syntax to a new representation
 * [trim](#trim) unused pieces from your snapshots
 
-You will mainly use *create* and *fix*, but it is good to know what type of change you are approving and that they are not mixed together.
+*Create* and *fix* are mainly used, but it is good to know what type of change you are approving, because it helps with the decision if this changes should be applied.
 
 
 ## Categories
@@ -88,7 +88,7 @@ def test_something():
 
 
 !!! info
-    The main reason for the different categories is to make the changes in the **fix** category as small as possible.
+    The main reason for the different categories is to make the number of changes in the **fix** category as small as possible.
     The changes in the **fix** category are the only changes which change the value of the snapshots and should be reviewed carefully.
 
 
@@ -96,7 +96,7 @@ def test_something():
 
 ### Trim
 
-This changes are made when parts of the snapshots are removed which are no longer needed, or if limits can be reduced.
+These changes are made when parts of the snapshots are removed which are no longer needed, or if limits can be reduced.
 
 <div class="grid" markdown>
 
@@ -124,41 +124,44 @@ def test_something():
 
 </div>
 
-There might be problems in cases where you use the same snapshot in different tests, run only one test and trim the snapshot like in this case:
+There might be problems in cases where you use the same snapshot in different tests, run only one test and trim the snapshot with `pytest -k test_a --inline-snapshot=trim` in this case:
 
-=== "original code"
-    <!-- no-inline-snapshot: -->
-    ```python
-    s = snapshot(5)
+<div class="grid" markdown>
 
-
-    def test_a():
-        assert 2 <= s
+<!-- no-inline-snapshot: -->
+```python
+s = snapshot(5)
 
 
-    def test_b():
-        assert 5 <= s
-    ```
-
-=== "-k test_a --inline-snapshot=trim"
-    <!-- no-inline-snapshot: trim  -->
-    ```python
-    s = snapshot(2)
+def test_a():
+    assert 2 <= s
 
 
-    def test_a():
-        assert 2 <= s
+def test_b():
+    assert 5 <= s
+```
+
+<!-- no-inline-snapshot: trim  -->
+```python
+s = snapshot(2)
 
 
-    def test_b():
-        assert 5 <= s
-    ```
+def test_a():
+    assert 2 <= s
 
-The value of the snapshot is reduced, because `test_a()` was the only test running and inline-snapshot does not know about `5 <= s`.
+
+def test_b():
+    assert 5 <= s
+```
+
+</div>
+
+The value of the snapshot is reduced to `2`, because `test_a()` was the only test running and inline-snapshot does not know about `5 <= s`.
+It is recommended to use trim only if you run your complete test suite.
 
 ### Update
 
-Changes in the update category does not change the value in the code, just the representation. The reason might be that `#!python repr()` of the object has changed or that inline-snapshot provides some new logic which changes the representation. Like with the strings in the following example:
+Changes in the update category do not change the value in the code, just the representation. The reason might be that `#!python repr()` of the object has changed or that inline-snapshot provides some new logic which changes the representation. Like with the strings in the following example:
 
 
 
@@ -219,5 +222,4 @@ c
 ```
 
 
-The approval of this type of changes is easier, because inline-snapshot knows that the value has not changed.
-It is the responsibility of the developer to ensure that `#!python eval(repr(a))==a`.
+The approval of this type of changes is easier, because inline-snapshot assures that the value has not changed.

@@ -108,7 +108,11 @@ def snapshot_check():
 
     if missing_values != 0 and not _inline_snapshot._update_flags.create:
         pytest.fail(
-            f"your snapshot is missing {missing_values} value run pytest with --inline-snapshot=create to create the value",
+            (
+                f"your snapshot is missing one value run pytest with --inline-snapshot=create to create it"
+                if missing_values == 1
+                else f"your snapshot is missing {missing_values} values run pytest with --inline-snapshot=create to create them"
+            ),
             pytrace=False,
         )
 
@@ -185,7 +189,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         else:
             console.print(f"These changes are not applied.")
             console.print(
-                f"Use [b]--inline-snapshot={flag}[/] to apply theme, or use the interactive mode with --inline-snapshot=review",
+                f"Use [b]--inline-snapshot={flag}[/] to apply theme, or use the interactive mode with [b]--inline-snapshot=review[/]",
                 highlight=False,
             )
             console.print()
@@ -217,36 +221,41 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
     capture.suspend_global_capture(in_=True)
     try:
-        console = Console()
+        console = Console(
+            highlight=False,
+        )
         if "short-report" in flags:
 
-            def report(flag, message):
+            def report(flag, message, message_n):
+                num = snapshot_changes[flag]
 
-                if snapshot_changes[flag] and not getattr(
-                    _inline_snapshot._update_flags, flag
-                ):
+                if num and not getattr(_inline_snapshot._update_flags, flag):
                     console.print(
-                        message.format(num=snapshot_changes[flag]),
+                        message if num == 1 else message.format(num=num),
                         highlight=False,
                     )
 
             report(
                 "fix",
+                "Error: one snapshot has incorrect values ([b]--inline-snapshot=fix[/])",
                 "Error: {num} snapshots have incorrect values ([b]--inline-snapshot=fix[/])",
             )
 
             report(
                 "trim",
+                "Info: one snapshot can be trimmed ([b]--inline-snapshot=trim[/])",
                 "Info: {num} snapshots can be trimmed ([b]--inline-snapshot=trim[/])",
             )
 
             report(
                 "create",
+                "Error: one snapshot is missing a value ([b]--inline-snapshot=create[/])",
                 "Error: {num} snapshots are missing values ([b]--inline-snapshot=create[/])",
             )
 
             report(
                 "update",
+                "Info: one snapshot changed its representation ([b]--inline-snapshot=update[/])",
                 "Info: {num} snapshots changed their representation ([b]--inline-snapshot=update[/])",
             )
 
