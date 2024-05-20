@@ -1,7 +1,6 @@
 import ast
 import copy
 import inspect
-import sys
 import tokenize
 from collections import defaultdict
 from pathlib import Path
@@ -17,15 +16,13 @@ from executing import Source
 from ._align import add_x
 from ._align import align
 from ._change import apply_all
+from ._change import CallArg
 from ._change import Change
 from ._change import Delete
 from ._change import DictInsert
 from ._change import ListInsert
 from ._change import Replace
 from ._format import format_code
-from ._rewrite_code import ChangeRecorder
-from ._rewrite_code import end_of
-from ._rewrite_code import start_of
 from ._sentinels import undefined
 from ._utils import ignore_tokens
 from ._utils import normalize_strings
@@ -59,9 +56,6 @@ class Flags:
         self.update = "update" in flags
         self.create = "create" in flags
         self.trim = "trim" in flags
-
-    def change_something(self):
-        return self.fix or self.update or self.create or self.trim
 
     def to_set(self):
         return {k for k, v in self.__dict__.items() if v}
@@ -219,7 +213,7 @@ class UndecidedValue(GenericValue):
 
 try:
     import dirty_equals  # type: ignore
-except:
+except ImportError:  # pragma: no cover
 
     def update_allowed(value):
         return True
@@ -662,7 +656,7 @@ def snapshot(obj: Any = undefined) -> Any:
 
     >>> assert 5 == snapshot(5)
 
-    `snapshot(value)` has the semantic of an noop which returns `value`.
+    `snapshot(value)` has general the semantic of an noop which returns `value`.
     """
     if not _active:
         if obj is undefined:
@@ -700,26 +694,15 @@ def snapshot(obj: Any = undefined) -> Any:
 
 
 def used_externals(tree):
-    if sys.version_info < (3, 8):
-        return [
-            n.args[0].s
-            for n in ast.walk(tree)
-            if isinstance(n, ast.Call)
-            and isinstance(n.func, ast.Name)
-            and n.func.id == "external"
-            and n.args
-            and isinstance(n.args[0], ast.Str)
-        ]
-    else:
-        return [
-            n.args[0].value
-            for n in ast.walk(tree)
-            if isinstance(n, ast.Call)
-            and isinstance(n.func, ast.Name)
-            and n.func.id == "external"
-            and n.args
-            and isinstance(n.args[0], ast.Constant)
-        ]
+    return [
+        n.args[0].value
+        for n in ast.walk(tree)
+        if isinstance(n, ast.Call)
+        and isinstance(n.func, ast.Name)
+        and n.func.id == "external"
+        and n.args
+        and isinstance(n.args[0], ast.Constant)
+    ]
 
 
 class Snapshot:
@@ -730,43 +713,31 @@ class Snapshot:
         self._value = UndecidedValue(value, node, source)
         self._uses_externals = []
 
-    @property
-    def _filename(self):
-        return self._expr.source.filename
-
-    def _change(self):
-
+    def _changes(self):
         if self._value._old_value is undefined:
-            if _update_flags.create:
-                new_code = self._value._new_code()
-                try:
-                    ast.parse(new_code)
-                except:
-                    return
-            else:
+            new_code = self._value._new_code()
+            try:
+                ast.parse(new_code)
+            except:
                 return
 
-            assert self._expr is not None
-
-            call = self._expr.node
-            tokens = list(self._expr.source.asttokens().get_tokens(call))
-
-            assert isinstance(call, ast.Call)
-            assert len(call.args) == 0
-            assert len(call.keywords) == 0
-            assert tokens[-2].string == "("
-            assert tokens[-1].string == ")"
-
-            change = ChangeRecorder.current.new_change()
-            change.set_tags("inline_snapshot")
-            change.replace(
-                (end_of(tokens[-2]), start_of(tokens[-1])),
+            yield CallArg(
+                "create",
+                self._value._source,
+                self._expr.node if self._expr is not None else None,
+                0,
+                None,
                 new_code,
-                filename=self._filename,
+                self._value._old_value,
+                self._value._new_value,
             )
-            return
 
-        changes = self._value._get_changes()
+        else:
+
+            yield from self._value._get_changes()
+
+    def _change(self):
+        changes = list(self._changes())
         apply_all(
             [change for change in changes if change.flag in _update_flags.to_set()]
         )

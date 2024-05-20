@@ -1,6 +1,5 @@
 import ast
 import pathlib
-import sys
 from typing import Set
 
 from executing import Source
@@ -39,16 +38,11 @@ def used_externals_in(source) -> Set[str]:
         ):
             usages.append(node)
 
-    if sys.version_info < (3, 8):
-        return {
-            u.args[0].s for u in usages if u.args and isinstance(u.args[0], ast.Str)
-        }
-    else:
-        return {
-            u.args[0].value
-            for u in usages
-            if u.args and isinstance(u.args[0], ast.Constant)
-        }
+    return {
+        u.args[0].value
+        for u in usages
+        if u.args and isinstance(u.args[0], ast.Constant)
+    }
 
 
 def used_externals() -> Set[str]:

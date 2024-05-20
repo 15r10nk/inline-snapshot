@@ -37,6 +37,7 @@ nav:
   - snapshot()[key]: getitem_snapshot.md
   - outsource(data): outsource.md
 - pytest integration: pytest.md
+- Categories: categories.md
 - Configuration: configuration.md
 - Contributing: contributing.md
 - Changelog: changelog.md
@@ -71,6 +72,8 @@ plugins:
           heading_level: 3
 - social
 - search
+- markdown-exec:
+    ansi: required
 - replace-url
 
 extra:

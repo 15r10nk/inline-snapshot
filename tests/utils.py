@@ -63,7 +63,7 @@ def apply_changes():
     with ChangeRecorder().activate() as recorder:
         yield
 
-        recorder.fix_all(tags=["inline_snapshot"])
+        recorder.fix_all()
 
 
 @contextmanager

@@ -21,7 +21,7 @@ You can use `snapshot()` instead of the value which you want to compare with and
 
 === "original code"
 
-    <!-- inline-snapshot: outcome-errors=1 outcome-passed=1 -->
+    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
     ```python
     from inline_snapshot import snapshot
 
@@ -37,7 +37,7 @@ You can use `snapshot()` instead of the value which you want to compare with and
 
 === "--inline-snapshot=create"
 
-    <!-- inline-snapshot: create -->
+    <!-- inline-snapshot: create outcome-passed=1 -->
     ```python
     from inline_snapshot import snapshot
 
@@ -67,7 +67,7 @@ your code is correct and you want to update your test results.
 
 
 === "--inline-snapshot=fix"
-    <!-- inline-snapshot: fix -->
+    <!-- inline-snapshot: fix outcome-passed=1 -->
     ```python
     def something():
         return (1548 * 18489) // 18
@@ -113,7 +113,7 @@ It is possible to place `snapshot()` anywhere in the tests and reuse it multiple
 
 === "original code"
 
-    <!-- inline-snapshot: outcome-passed=2 outcome-errors=2-->
+    <!-- inline-snapshot: outcome-passed=2 outcome-errors=2 -->
     ```python
     def something():
         return 21 * 2
@@ -134,7 +134,7 @@ It is possible to place `snapshot()` anywhere in the tests and reuse it multiple
 
 === "--inline-snapshot=create"
 
-    <!-- inline-snapshot: outcome-passed=2 create -->
+    <!-- inline-snapshot: create outcome-passed=2 -->
     ```python
     def something():
         return 21 * 2
@@ -163,7 +163,7 @@ It is possible to place `snapshot()` anywhere in the tests and reuse it multiple
             assert len(name) == snapshot()
     ```
 === "--inline-snapshot=create"
-    <!-- inline-snapshot: outcome-passed=1 create -->
+    <!-- inline-snapshot: create outcome-passed=1 -->
     ```python
     def test_loop():
         for name in ["Mia", "Eva", "Leo"]:
@@ -187,7 +187,7 @@ or passed as an argument to a function:
     ```
 
 === "--inline-snapshot=create"
-    <!-- inline-snapshot: create -->
+    <!-- inline-snapshot: create outcome-passed=1 -->
     ``` python
     def check_string_len(string, snapshot_value):
         assert len(string) == snapshot_value
@@ -229,7 +229,7 @@ It might be necessary to import the right modules to match the `repr()` output.
         assert something() == snapshot()
     ```
 === "--inline-snapshot=create"
-    <!-- inline-snapshot: create -->
+    <!-- inline-snapshot: create outcome-passed=1 -->
     ```python
     from inline_snapshot import snapshot
     import datetime
@@ -281,7 +281,7 @@ The code is generated in the following way:
             ```
 
         === "--inline-snapshot=update"
-            <!-- inline-snapshot: update -->
+            <!-- inline-snapshot: update outcome-passed=1 -->
             ``` python
             def test_something():
                 assert "first line\nsecond line" == snapshot(

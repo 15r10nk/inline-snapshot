@@ -58,6 +58,64 @@ def test_diskstorage(storage):
         external("bbbbb*.txt")._load_value()
 
 
+def test_persist(project):
+
+    project.setup(
+        """\
+from inline_snapshot import external
+
+def test_something():
+    assert "hello" == snapshot(external("bbbbb*.txt"))
+    assert 2 == snapshot(1+1)
+"""
+    )
+
+    result = project.run("--inline-snapshot=update")
+
+    assert project.storage() == snapshot([])
+
+    assert project.source == snapshot(
+        """\
+from inline_snapshot import external
+
+def test_something():
+    assert "hello" == snapshot(external("bbbbb*.txt"))
+    assert 2 == snapshot(2)
+"""
+    )
+
+    assert result.report == snapshot(
+        """\
+
+-------------------------------- Fix snapshots ---------------------------------
++-------------------------------- test_file.py --------------------------------+
+| @@ -4,5 +4,5 @@                                                              |
+|                                                                              |
+|  from inline_snapshot import external                                        |
+|                                                                              |
+|  def test_something():                                                       |
+| -    assert "hello" == snapshot(external("bbbbb*.txt"))                      |
+| +    assert "hello" == snapshot("hello")                                     |
+|      assert 2 == snapshot(1+1)                                               |
++------------------------------------------------------------------------------+
+These changes are not applied.
+Use --inline-snapshot=fix to apply theme, or use the interactive mode with
+--inline-snapshot=review
+------------------------------- Update snapshots -------------------------------
++-------------------------------- test_file.py --------------------------------+
+| @@ -5,4 +5,4 @@                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_something():                                                       |
+|      assert "hello" == snapshot(external("bbbbb*.txt"))                      |
+| -    assert 2 == snapshot(1+1)                                               |
+| +    assert 2 == snapshot(2)                                                 |
++------------------------------------------------------------------------------+
+These changes will be applied, because you used --inline-snapshot=update
+"""
+    )
+
+
 def test_pytest_compare_external(project):
     project.setup(
         """\
@@ -81,6 +139,7 @@ def test_a():
 
 >       assert outsource("test2") == snapshot(
 E       AssertionError: assert 'test2' == 'test'
+E         ⏎
 E         - test
 E         + test2
 E         ?     +
@@ -111,6 +170,7 @@ def test_a():
 
 >       assert outsource(b"test2") == snapshot(
 E       AssertionError: assert b'test2' == b'test'
+E         ⏎
 E         Use -v to get more diff
 """
     )
@@ -184,9 +244,7 @@ def test_a():
         ]
     )
 
-    assert result.report == snapshot(
-        "Info: 1 snapshots can be trimmed (--inline-snapshot=trim)"
-    )
+    assert result.report == snapshot("")
 
     result = project.run("--inline-snapshot=trim")
 

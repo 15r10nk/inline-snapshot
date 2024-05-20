@@ -25,6 +25,8 @@ from inline_snapshot._rewrite_code import ChangeRecorder
 pytest_plugins = "pytester"
 
 
+pytest.register_assert_rewrite("tests.example")
+
 black.files.find_project_root = black.files.find_project_root.__wrapped__  # type: ignore
 
 
@@ -113,7 +115,7 @@ from inline_snapshot import outsource
 
                     changes = recorder.changes()
 
-                    recorder.fix_all(tags=["inline_snapshot"])
+                    recorder.fix_all()
 
             source = filename.read_text("utf-8")[len(prefix) :]
             print("reported_flags:", snapshot_flags)
@@ -137,6 +139,22 @@ from inline_snapshot import outsource
         return Source(source=source).run()
 
     return w
+
+
+ansi_escape = re.compile(
+    r"""
+    \x1B  # ESC
+    (?:   # 7-bit C1 Fe (except CSI)
+        [@-Z\\-_]
+    |     # or [ for CSI, followed by a control sequence
+        \[
+        [0-?]*  # Parameter bytes
+        [ -/]*  # Intermediate bytes
+        [@-~]   # Final byte
+    )
+""",
+    re.VERBOSE,
+)
 
 
 class RunResult:
@@ -169,7 +187,17 @@ class RunResult:
 
             if line.startswith("====") and "inline snapshot" in line:
                 record = True
-        return self._join_lines(result)
+
+        result = self._join_lines(result)
+
+        result = ansi_escape.sub("", result)
+
+        # fix windows problems
+        result = result.replace("\u2500", "-")
+        result = result.replace("\r", "")
+        result = result.replace(" \n", " ⏎\n")
+
+        return result
 
     @property
     def errors(self):
@@ -183,14 +211,17 @@ class RunResult:
             if record and line:
                 result.append(line)
         result = self._join_lines(result)
+        result = result.replace(" \n", " ⏎\n")
 
         result = re.sub(r"\d+\.\d+s", "<time>", result)
         return result
 
     def errorLines(self):
-        return self._join_lines(
+        result = self._join_lines(
             [line for line in self.stdout.lines if line and line[:2] in ("> ", "E ")]
         )
+        result = result.replace(" \n", " ⏎\n")
+        return result
 
 
 @pytest.fixture
@@ -254,18 +285,19 @@ def set_time(time_machine):
             (pytester.path / "pyproject.toml").write_text(source, "utf-8")
 
         def storage(self):
-            return sorted(
-                p.name
-                for p in (pytester.path / ".inline-snapshot" / "external").iterdir()
-                if p.name != ".gitignore"
-            )
+            dir = pytester.path / ".inline-snapshot" / "external"
+
+            if not dir.exists():
+                return []
+
+            return sorted(p.name for p in dir.iterdir() if p.name != ".gitignore")
 
         @property
         def source(self):
             assert self._filename.read_text("utf-8")[: len(self.header)] == self.header
             return self._filename.read_text("utf-8")[len(self.header) :].lstrip()
 
-        def run(self, *args):
+        def run(self, *args, stdin=""):
             cache = pytester.path / "__pycache__"
             if cache.exists():
                 shutil.rmtree(cache)
@@ -276,7 +308,6 @@ def set_time(time_machine):
                 del os.environ["CI"]  # pragma: no cover
 
             try:
-
                 with mock.patch.dict(
                     os.environ,
                     {
@@ -289,7 +320,10 @@ def set_time(time_machine):
                     },
                 ):
 
-                    result = pytester.runpytest_subprocess(*args)
+                    if stdin:
+                        result = pytester.run("pytest", *args, stdin=stdin)
+                    else:
+                        result = pytester.run("pytest", *args)
             finally:
                 os.environ.update(old_environ)
 
