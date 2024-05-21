@@ -1,3 +1,17 @@
+## v0.10.0 (2024-05-21)
+
+### BREAKING CHANGE
+
+- removed support for python 3.7
+- removed `--inline-snapshot-disable` option and replaced it with `--inline-snapshot=disable`
+
+### Feat
+
+- new flags: *disable*, *short-report*, *report* and *review*
+- added config option and environment variable to specify default flags
+- show diff of changed snapshots in pytest report
+- interactive *review* mode
+
 ## v0.9.0 (2024-05-07)
 
 ### Feat
