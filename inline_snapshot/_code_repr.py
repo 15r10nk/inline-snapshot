@@ -90,6 +90,27 @@ def _(v: type):
     return v.__qualname__
 
 
+from dataclasses import is_dataclass, fields
+from abc import ABC
+
+
+class IsDataclass(ABC):
+    @staticmethod
+    def __subclasshook__(subclass):
+        return is_dataclass(subclass)
+
+
+@register_repr
+def _(v: IsDataclass):
+    attrs = []
+    for field in fields(v):
+        if field.repr:
+            value = getattr(v, field.name)
+            attrs.append(f"{field.name} = {repr(value)}")
+
+    return f"{repr(type(v))}({', '.join(attrs)})"
+
+
 try:
     from pydantic import BaseModel
 except ImportError:

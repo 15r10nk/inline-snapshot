@@ -33,6 +33,50 @@ assert [color.val] == snapshot([color.val])
     )
 
 
+def test_enum_in_dataclass(check_update):
+
+    assert (
+        check_update(
+            """
+from enum import Enum
+from dataclasses import dataclass
+
+class color(Enum):
+    red="red"
+    blue="blue"
+
+@dataclass
+class container:
+    bg: color=color.red
+    fg: color=color.blue
+
+assert container(bg=color.red,fg=color.red) == snapshot()
+
+    """,
+            flags="create",
+        )
+        == snapshot(
+            """\
+
+from enum import Enum
+from dataclasses import dataclass
+
+class color(Enum):
+    red="red"
+    blue="blue"
+
+@dataclass
+class container:
+    bg: color=color.red
+    fg: color=color.blue
+
+assert container(bg=color.red,fg=color.red) == snapshot(container(bg=color.red, fg=color.red))
+
+"""
+        )
+    )
+
+
 def test_flag(check_update):
 
     assert (
