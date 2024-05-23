@@ -1,9 +1,26 @@
+from __future__ import annotations
+
 import os
 import platform
 import re
 import subprocess as sp
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import Any
+
+import black
+
+import inline_snapshot._external
+from .utils import snapshot_env
+from inline_snapshot import _inline_snapshot
+from inline_snapshot._inline_snapshot import Flags
+from inline_snapshot._rewrite_code import ChangeRecorder
+
+pytest_plugins = "pytester"
+
+
+if hasattr(black.files.find_project_root, "__wrapped__"):
+    black.files.find_project_root = black.files.find_project_root.__wrapped__  # type: ignore
 
 
 ansi_escape = re.compile(
@@ -36,10 +53,70 @@ class Example:
     def read_files(self, dir: Path):
         return {p.name: p.read_text() for p in dir.iterdir() if p.is_file()}
 
-    def run_pytest(self, *args, changed_files=None, report=None, env={}):
+    def run_inline(
+        self, *flags, changes=None, reported_flags=None, files=None
+    ) -> Example:
+
         with TemporaryDirectory() as dir:
-            dir = Path(dir)
-            self.write_files(dir)
+            tmp_path = Path(dir)
+
+            self.write_files(tmp_path)
+
+            with snapshot_env():
+                with ChangeRecorder().activate() as recorder:
+                    _inline_snapshot._update_flags = Flags({*flags})
+                    inline_snapshot._external.storage = (
+                        inline_snapshot._external.DiscStorage(tmp_path / ".storage")
+                    )
+
+                    error = False
+
+                    try:
+                        for filename in tmp_path.glob("*.py"):
+                            globals: dict[str, Any] = {}
+                            exec(
+                                compile(filename.read_text("utf-8"), filename, "exec"),
+                                globals,
+                            )
+
+                            # run all test_* functions
+                            for k, v in globals.items():
+                                if k.startswith("test_") and callable(v):
+                                    v()
+
+                    finally:
+                        _inline_snapshot._active = False
+
+                    # number_snapshots = len(_inline_snapshot.snapshots)
+
+                    snapshot_flags = set()
+
+                    all_changes = []
+
+                    for snapshot in _inline_snapshot.snapshots.values():
+                        snapshot_flags |= snapshot._flags
+                        snapshot._change()
+                        all_changes += snapshot._changes()
+
+                    if reported_flags is not None:
+                        assert sorted(snapshot_flags) == reported_flags
+
+                    if changes is not None:
+                        assert [repr(c) for c in all_changes] == changes
+
+                    recorder.fix_all()
+
+            if files is not None:
+                assert files == self.read_files(tmp_path)
+
+            return Example(self.read_files(tmp_path))
+
+    def run_pytest(
+        self, *args, changed_files=None, report=None, env={}, returncode=None
+    ) -> Example:
+        with TemporaryDirectory() as dir:
+            tmp_path = Path(dir)
+            self.write_files(tmp_path)
 
             cmd = ["pytest", *args]
 
@@ -54,7 +131,7 @@ class Example:
 
             command_env.update(env)
 
-            result = sp.run(cmd, cwd=dir, capture_output=True, env=command_env)
+            result = sp.run(cmd, cwd=tmp_path, capture_output=True, env=command_env)
 
             print("run>", *cmd)
             print("stdout:")
@@ -62,9 +139,12 @@ class Example:
             print("stderr:")
             print(result.stderr.decode())
 
+            if returncode is not None:
+                assert result.returncode == returncode
+
             if report is not None:
 
-                new_report = []
+                report_list = []
                 record = False
                 for line in result.stdout.decode().splitlines():
                     line = line.strip()
@@ -72,28 +152,28 @@ class Example:
                         record = False
 
                     if record and line:
-                        new_report.append(line)
+                        report_list.append(line)
 
                     if line.startswith("====") and "inline snapshot" in line:
                         record = True
 
-                new_report = "\n".join(new_report)
+                report_str = "\n".join(report_list)
 
-                new_report = ansi_escape.sub("", new_report)
+                report_str = ansi_escape.sub("", report_str)
 
                 # fix windows problems
-                new_report = new_report.replace("\u2500", "-")
-                new_report = new_report.replace("\r", "")
-                new_report = new_report.replace(" \n", " ⏎\n")
+                report_str = report_str.replace("\u2500", "-")
+                report_str = report_str.replace("\r", "")
+                report_str = report_str.replace(" \n", " ⏎\n")
 
-                assert new_report == report
+                assert report_str == report
 
             if changed_files is not None:
                 current_files = {}
 
-                for name, content in sorted(self.read_files(dir).items()):
+                for name, content in sorted(self.read_files(tmp_path).items()):
                     if name not in self.files or self.files[name] != content:
                         current_files[name] = content
                 assert changed_files == current_files
 
-            return Example(self.read_files(dir))
+            return Example(self.read_files(tmp_path))

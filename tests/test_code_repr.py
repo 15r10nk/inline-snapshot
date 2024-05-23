@@ -1,3 +1,4 @@
+from .example import Example
 from inline_snapshot import snapshot
 
 
@@ -30,6 +31,48 @@ assert [color.val] == snapshot([color.val])
 
 """
         )
+    )
+
+
+def test_hasrepr():
+
+    Example(
+        """\
+from inline_snapshot import snapshot
+
+class Thing:
+    def __repr__(self):
+        return "<something>"
+
+def test_thing():
+    assert Thing() == snapshot()
+
+    """
+    ).run_pytest(
+        "--inline-snapshot=create",
+        returncode=snapshot(0),
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot
+
+from inline_snapshot import HasRepr
+
+class Thing:
+    def __repr__(self):
+        return "<something>"
+
+def test_thing():
+    assert Thing() == snapshot(HasRepr("<something>"))
+
+    \
+"""
+            }
+        ),
+    ).run_pytest(
+        "--inline-snapshot=disable", returncode=0
+    ).run_pytest(
+        returncode=0
     )
 
 
@@ -134,3 +177,40 @@ assert [Color,int] == snapshot([Color, int])
 """
         )
     )
+
+
+def test_qualname():
+
+    Example(
+        """\
+from enum import Enum
+from inline_snapshot import snapshot
+
+
+class Namespace:
+    class Color(Enum):
+        red="red"
+
+assert Namespace.Color.red == snapshot()
+
+    """
+    ).run_inline(
+        "create",
+        files=snapshot(
+            {
+                "test_something.py": """\
+from enum import Enum
+from inline_snapshot import snapshot
+
+
+class Namespace:
+    class Color(Enum):
+        red="red"
+
+assert Namespace.Color.red == snapshot(Namespace.Color.red)
+
+    \
+"""
+            }
+        ),
+    ).run_inline()

@@ -18,7 +18,19 @@ class HasRepr:
         return f"HasRepr({self._str_repr!r})"
 
     def __eq__(self, other):
-        return code_repr(other) == self._str_repr
+        other_repr = code_repr(other)
+        return other_repr == self._str_repr or other_repr == repr(self)
+
+
+def used_hasrepr(tree):
+    return [
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.Call)
+        and isinstance(n.func, ast.Name)
+        and n.func.id == "HasRepr"
+        and len(n.args) == 1
+    ]
 
 
 @singledispatch
@@ -58,13 +70,13 @@ def code_repr(obj):
 
 @register_repr
 def _(v: Enum):
-    return str(v)
+    return f"{type(v).__qualname__}.{v.name}"
 
 
 @register_repr
 def _(v: Flag):
-    name = type(v).__name__
-    return " | ".join(str(flag) for flag in type(v) if flag in v)
+    name = type(v).__qualname__
+    return " | ".join(f"{name}.{flag.name}" for flag in type(v) if flag in v)
 
 
 @register_repr
@@ -103,7 +115,7 @@ class IsDataclass(ABC):
 @register_repr
 def _(v: IsDataclass):
     attrs = []
-    for field in fields(v):
+    for field in fields(v):  # type: ignore
         if field.repr:
             value = getattr(v, field.name)
             attrs.append(f"{field.name} = {repr(value)}")
@@ -120,7 +132,7 @@ else:
     @register_repr
     def _(model: BaseModel):
         return (
-            type(model).__name__
+            type(model).__qualname__
             + "("
             + ", ".join(
                 e + "=" + repr(getattr(model, e)) for e in model.__pydantic_fields_set__
