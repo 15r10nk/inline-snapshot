@@ -71,7 +71,8 @@ class Example:
     def __init__(self, files: str | dict[str, str]):
         """
         Parameters:
-            files: a collecton of files where inline-snapshot opperates on.
+            files: a collecton of files where inline-snapshot opperates on,
+                   or just a string which will be saved as *test_something.py*.
         """
         if isinstance(files, str):
             files = {"test_something.py": files}

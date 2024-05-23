@@ -37,6 +37,8 @@ nav:
   - snapshot()[key]: getitem_snapshot.md
   - outsource(data): outsource.md
   - '@customize_repr': customize_repr.md
+  - extras: extras.md
+  - types: types.md
 - pytest integration: pytest.md
 - Categories: categories.md
 - Configuration: configuration.md
@@ -64,15 +66,7 @@ markdown_extensions:
     alternate_style: true
 
 plugins:
-- mkdocstrings:
-    handlers:
-      python:
-        options:
-          show_root_heading: true
-          show_source: false
-          show_root_full_path: false
-          merge_init_into_class: true
-          heading_level: 3
+- mkdocstrings
 - social
 - search
 - markdown-exec:

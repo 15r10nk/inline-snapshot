@@ -21,14 +21,6 @@ def config(**args):
 
 
 @contextlib.contextmanager
-def raises(snapshot):
-    with pytest.raises(Exception) as excinfo:
-        yield
-
-    assert f"{type(excinfo.value).__name__}: {excinfo.value}" == snapshot
-
-
-@contextlib.contextmanager
 def apply_changes():
     with ChangeRecorder().activate() as recorder:
         yield
