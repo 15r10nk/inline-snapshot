@@ -11,11 +11,12 @@ class HasRepr:
     """This class is used for objects where `__repr__()` returns an non
     parsable representation."""
 
-    def __init__(self, str_repr: str) -> None:
+    def __init__(self, type, str_repr: str) -> None:
+        self._type = type
         self._str_repr = str_repr
 
     def __repr__(self):
-        return f"HasRepr({self._str_repr!r})"
+        return f"HasRepr({self._type.__qualname__}, {self._str_repr!r})"
 
     def __eq__(self, other):
         other_repr = code_repr(other)
@@ -29,7 +30,7 @@ def used_hasrepr(tree):
         if isinstance(n, ast.Call)
         and isinstance(n.func, ast.Name)
         and n.func.id == "HasRepr"
-        and len(n.args) == 1
+        and len(n.args) == 2
     ]
 
 
@@ -63,7 +64,7 @@ def code_repr(obj):
     try:
         ast.parse(result)
     except SyntaxError:
-        return real_repr(HasRepr(result))
+        return real_repr(HasRepr(type(obj), result))
 
     return result
 

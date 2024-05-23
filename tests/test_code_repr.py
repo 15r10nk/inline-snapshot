@@ -63,7 +63,7 @@ class Thing:
         return "<something>"
 
 def test_thing():
-    assert Thing() == snapshot(HasRepr("<something>"))
+    assert Thing() == snapshot(HasRepr(Thing, "<something>"))
 
     \
 """
