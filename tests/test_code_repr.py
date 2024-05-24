@@ -120,6 +120,40 @@ assert container(bg=color.red,fg=color.red) == snapshot(container(bg=color.red, 
     )
 
 
+def test_dataclass_field_repr(check_update):
+
+    Example(
+        """\
+from inline_snapshot import snapshot
+from dataclasses import dataclass,field
+
+@dataclass
+class container:
+    a: int
+    b: int = field(default=5,repr=False)
+
+assert container(a=1,b=5) == snapshot()
+"""
+    ).run_inline(
+        "create",
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot
+from dataclasses import dataclass,field
+
+@dataclass
+class container:
+    a: int
+    b: int = field(default=5,repr=False)
+
+assert container(a=1,b=5) == snapshot(container(a=1))
+"""
+            }
+        ),
+    ).run_inline()
+
+
 def test_flag(check_update):
 
     assert (
@@ -196,7 +230,7 @@ assert Namespace.Color.red == snapshot()
     """
     ).run_inline(
         "create",
-        files=snapshot(
+        changed_files=snapshot(
             {
                 "test_something.py": """\
 from enum import Enum

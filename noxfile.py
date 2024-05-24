@@ -46,6 +46,7 @@ def test(session):
         "time-machine",
         "mypy",
         "pyright",
+        "pydantic",
     )
 
     cmd = []

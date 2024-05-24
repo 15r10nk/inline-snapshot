@@ -8,8 +8,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
-import black
-
 import inline_snapshot._external
 from .utils import snapshot_env
 from inline_snapshot import _inline_snapshot
@@ -17,10 +15,6 @@ from inline_snapshot._inline_snapshot import Flags
 from inline_snapshot._rewrite_code import ChangeRecorder
 
 pytest_plugins = "pytester"
-
-
-if hasattr(black.files.find_project_root, "__wrapped__"):
-    black.files.find_project_root = black.files.find_project_root.__wrapped__  # type: ignore
 
 
 ansi_escape = re.compile(
@@ -54,7 +48,7 @@ class Example:
         return {p.name: p.read_text() for p in dir.iterdir() if p.is_file()}
 
     def run_inline(
-        self, *flags, changes=None, reported_flags=None, files=None
+        self, *flags, changes=None, reported_flags=None, changed_files=None
     ) -> Example:
 
         with TemporaryDirectory() as dir:
@@ -102,12 +96,17 @@ class Example:
                         assert sorted(snapshot_flags) == reported_flags
 
                     if changes is not None:
-                        assert [repr(c) for c in all_changes] == changes
+                        assert [c for c in all_changes] == changes
 
                     recorder.fix_all()
 
-            if files is not None:
-                assert files == self.read_files(tmp_path)
+            if changed_files is not None:
+                current_files = {}
+
+                for name, content in sorted(self.read_files(tmp_path).items()):
+                    if name not in self.files or self.files[name] != content:
+                        current_files[name] = content
+                assert changed_files == current_files
 
             return Example(self.read_files(tmp_path))
 

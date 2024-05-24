@@ -58,7 +58,7 @@ def register_repr(f):
 
 
 def code_repr(obj):
-    with mock.patch("builtins.repr", code_repr_dispatch):
+    with mock.patch("builtins.repr", code_repr):
         result = code_repr_dispatch(obj)
 
     try:
@@ -126,7 +126,7 @@ def _(v: IsDataclass):
 
 try:
     from pydantic import BaseModel
-except ImportError:
+except ImportError:  # pragma: no cover
     pass
 else:
 
@@ -136,7 +136,8 @@ else:
             type(model).__qualname__
             + "("
             + ", ".join(
-                e + "=" + repr(getattr(model, e)) for e in model.__pydantic_fields_set__
+                e + "=" + repr(getattr(model, e))
+                for e in sorted(model.__pydantic_fields_set__)
             )
             + ")"
         )

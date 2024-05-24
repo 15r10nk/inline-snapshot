@@ -1,3 +1,4 @@
+import ast
 import os
 import platform
 import re
@@ -18,6 +19,7 @@ import pytest
 import inline_snapshot._external
 from .utils import snapshot_env
 from inline_snapshot import _inline_snapshot
+from inline_snapshot import register_repr
 from inline_snapshot._format import format_code
 from inline_snapshot._inline_snapshot import Flags
 from inline_snapshot._rewrite_code import ChangeRecorder
@@ -28,6 +30,16 @@ pytest_plugins = "pytester"
 pytest.register_assert_rewrite("tests.example")
 
 black.files.find_project_root = black.files.find_project_root.__wrapped__  # type: ignore
+
+
+@register_repr
+def _(v: executing.Source):
+    return f"<source {Path(v.filename).name}>"
+
+
+@register_repr
+def _(v: ast.AST):
+    return repr(ast.dump(v))
 
 
 @pytest.fixture()
