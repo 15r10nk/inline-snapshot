@@ -1,3 +1,9 @@
+## v0.10.1 (2024-05-26)
+
+### Fix
+
+- trigger no update for trailing comma changes
+
 ## v0.10.0 (2024-05-21)
 
 ### BREAKING CHANGE
