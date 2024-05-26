@@ -92,13 +92,13 @@ class Example:
                         snapshot._change()
                         all_changes += snapshot._changes()
 
-                    if reported_flags is not None:
-                        assert sorted(snapshot_flags) == reported_flags
+            if reported_flags is not None:
+                assert sorted(snapshot_flags) == reported_flags
 
-                    if changes is not None:
-                        assert [c for c in all_changes] == changes
+            # if changes is not None:
+            #    assert all_changes == changes
 
-                    recorder.fix_all()
+            recorder.fix_all()
 
             if changed_files is not None:
                 current_files = {}

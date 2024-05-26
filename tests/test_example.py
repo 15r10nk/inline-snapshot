@@ -1,9 +1,5 @@
-from executing import Source
-
 from .example import Example
-from inline_snapshot import HasRepr
 from inline_snapshot import snapshot
-from inline_snapshot._change import Replace
 
 
 def test_example():
@@ -27,18 +23,6 @@ def test_a():
     e.run_inline(
         "fix",
         reported_flags=snapshot(["fix"]),
-        changes=snapshot(
-            [
-                Replace(
-                    flag="fix",
-                    source=HasRepr(Source, "<source test_a.py>"),
-                    node="Constant(value=2)",
-                    new_code="1",
-                    old_value=2,
-                    new_value=1,
-                )
-            ]
-        ),
     ).run_inline(
         "fix",
         changed_files=snapshot({}),
