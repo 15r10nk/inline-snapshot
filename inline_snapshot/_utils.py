@@ -35,6 +35,22 @@ def normalize_strings(token_sequence):
         yield simple_token(token.STRING, repr(current_string))
 
 
+def skip_trailing_comma(token_sequence):
+    token_sequence = list(token_sequence)
+
+    for index, token in enumerate(token_sequence):
+        if index + 1 < len(token_sequence):
+            next_token = token_sequence[index + 1]
+
+            if token.string == "," and next_token.string in ("]", ")", "}"):
+                continue
+        yield token
+
+
+def normalize(token_sequence):
+    return skip_trailing_comma(normalize_strings(token_sequence))
+
+
 ignore_tokens = (token.NEWLINE, token.ENDMARKER, token.NL)
 
 

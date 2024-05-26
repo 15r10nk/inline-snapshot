@@ -25,7 +25,7 @@ from ._change import Replace
 from ._format import format_code
 from ._sentinels import undefined
 from ._utils import ignore_tokens
-from ._utils import normalize_strings
+from ._utils import normalize
 from ._utils import simple_token
 from ._utils import value_to_token
 
@@ -81,7 +81,7 @@ class GenericValue:
     def _token_of_node(self, node):
 
         return list(
-            normalize_strings(
+            normalize(
                 [
                     simple_token(t.type, t.string)
                     for t in self._source.asttokens().get_tokens(node)

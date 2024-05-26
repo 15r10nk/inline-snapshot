@@ -927,3 +927,58 @@ assert X("a") == snapshot(X("a"))
     assert s.flags == snapshot({"create"})
     s = s.run()
     assert s.flags == snapshot(set())
+
+
+def test_trailing_comma(project):
+
+    project.setup(
+        """\
+from inline_snapshot import external, snapshot
+
+class X:
+    def __init__(self, *args):
+        self.args = args
+
+    def __repr__(self):
+        return f"X({', '.join(map(repr,self.args))})"
+
+    def __eq__(self,other):
+        if not isinstance(other,X):
+            return NotImplemented
+
+        return self.args == other.args
+
+def test_thing():
+    assert X("a" * 40, "a" * 40) == snapshot()
+"""
+    )
+
+    project.format()
+
+    result = project.run("--inline-snapshot=create")
+
+    assert result.report == snapshot(
+        """\
+
+------------------------------- Create snapshots -------------------------------
++-------------------------------- test_file.py --------------------------------+
+| @@ -19,4 +19,9 @@                                                            |
+|                                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_thing():                                                           |
+| -    assert X("a" * 40, "a" * 40) == snapshot()                              |
+| +    assert X("a" * 40, "a" * 40) == snapshot(                               |
+| +        X(                                                                  |
+| +            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",                     |
+| +            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",                     |
+| +        )                                                                   |
+| +    )                                                                       |
++------------------------------------------------------------------------------+
+These changes will be applied, because you used --inline-snapshot=create
+"""
+    )
+
+    result = project.run("--inline-snapshot=report")
+
+    assert result.report == snapshot("")
