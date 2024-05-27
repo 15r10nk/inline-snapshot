@@ -258,7 +258,7 @@ These changes will be applied, because you used --inline-snapshot=trim
 |      assert 5 == snapshot(5)                                                 |
 +------------------------------------------------------------------------------+
 These changes are not applied.
-Use --inline-snapshot=update to apply theme, or use the interactive mode with
+Use --inline-snapshot=update to apply them, or use the interactive mode with
 --inline-snapshot=review
 """
     )
