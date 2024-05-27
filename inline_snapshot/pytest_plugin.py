@@ -189,7 +189,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         else:
             console.print(f"These changes are not applied.")
             console.print(
-                f"Use [b]--inline-snapshot={flag}[/] to apply theme, or use the interactive mode with [b]--inline-snapshot=review[/]",
+                f"Use [b]--inline-snapshot={flag}[/] to apply them, or use the interactive mode with [b]--inline-snapshot=review[/]",
                 highlight=False,
             )
             console.print()
