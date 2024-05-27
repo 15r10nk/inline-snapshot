@@ -14,7 +14,7 @@ def test_a():
     result = project.run("--inline-snapshot=create", "-n=auto")
 
     assert "\n".join(result.stderr.lines).strip() == snapshot(
-        "ERROR: inline-snapshot can not be combined with xdist"
+        "ERROR: --inline-snapshot=create can not be combined with xdist"
     )
 
     assert result.ret == 4
@@ -35,5 +35,51 @@ def test_a():
     assert result.report == snapshot(
         "INFO: inline-snapshot was disabled because you used xdist"
     )
+
+    assert result.ret == 0
+
+
+def test_xdist_and_disable(project):
+
+    project.setup(
+        """\
+
+def test_a():
+    assert 1==snapshot(2)
+"""
+    )
+
+    result = project.run("-n=auto", "--inline-snapshot=disable")
+
+    assert result.report == snapshot("")
+
+    assert result.stderr.lines == snapshot([])
+
+    assert result.ret == 1
+
+    result = project.run("-n=auto", "--inline-snapshot=fix")
+
+    assert result.report == snapshot("")
+
+    assert result.stderr.lines == snapshot(
+        ["ERROR: --inline-snapshot=fix can not be combined with xdist", ""]
+    )
+
+    assert result.ret == 4
+
+    project.pyproject(
+        """\
+[tool.inline-snapshot]
+default-flags = ["fix"]
+"""
+    )
+
+    result = project.run("-n=auto")
+
+    assert result.report == snapshot(
+        "INFO: inline-snapshot was disabled because you used xdist"
+    )
+
+    assert result.stderr.lines == snapshot([])
 
     assert result.ret == 0
