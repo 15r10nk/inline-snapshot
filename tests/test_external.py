@@ -99,7 +99,7 @@ def test_something():
 |      assert 2 == snapshot(1+1)                                               |
 +------------------------------------------------------------------------------+
 These changes are not applied.
-Use --inline-snapshot=fix to apply theme, or use the interactive mode with
+Use --inline-snapshot=fix to apply them, or use the interactive mode with
 --inline-snapshot=review
 ------------------------------- Update snapshots -------------------------------
 +-------------------------------- test_file.py --------------------------------+
