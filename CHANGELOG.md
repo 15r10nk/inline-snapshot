@@ -1,3 +1,10 @@
+## v0.10.2 (2024-05-28)
+
+### Fix
+
+- changed how --inline-snapshot=disable works in combination with xdist (#90)
+- fix typo, rename 'theme' with 'them'
+
 ## v0.10.1 (2024-05-26)
 
 ### Fix
