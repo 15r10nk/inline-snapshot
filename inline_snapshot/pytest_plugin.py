@@ -60,14 +60,15 @@ def pytest_configure(config):
     else:
         flags = config.option.inline_snapshot.split(",")
         flags = {flag for flag in flags if flag}
+        if xdist_running(config) and flags - {"disable"}:
+            raise pytest.UsageError(
+                f"--inline-snapshot={','.join(flags)} can not be combined with xdist"
+            )
 
     if "disable" in flags and flags != {"disable"}:
         raise pytest.UsageError(
             f"--inline-snapshot=disable can not be combined with other flags ({', '.join(flags-{'disable'})})"
         )
-
-    if xdist_running(config) and flags - {"disabled", "short-report", "report"}:
-        raise pytest.UsageError(f"inline-snapshot can not be combined with xdist")
 
     if xdist_running(config):
         _inline_snapshot._active = False
@@ -156,10 +157,11 @@ def pytest_assertrepr_compare(config, op, left, right):
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
     if xdist_running(config):
-        terminalreporter.section("inline snapshot")
-        terminalreporter.write(
-            "INFO: inline-snapshot was disabled because you used xdist\n"
-        )
+        if flags != {"disable"}:
+            terminalreporter.section("inline snapshot")
+            terminalreporter.write(
+                "INFO: inline-snapshot was disabled because you used xdist\n"
+            )
         return
 
     if not _inline_snapshot._active:
