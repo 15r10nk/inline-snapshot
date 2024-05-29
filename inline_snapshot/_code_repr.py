@@ -19,6 +19,13 @@ class HasRepr:
         return f"HasRepr({self._type.__qualname__}, {self._str_repr!r})"
 
     def __eq__(self, other):
+        if isinstance(other, HasRepr):
+            if other._type is not self._type:
+                return False
+        else:
+            if type(other) is not self._type:
+                return False
+
         other_repr = code_repr(other)
         return other_repr == self._str_repr or other_repr == repr(self)
 

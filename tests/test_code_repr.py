@@ -1,4 +1,5 @@
 from .example import Example
+from inline_snapshot import HasRepr
 from inline_snapshot import snapshot
 
 
@@ -34,7 +35,7 @@ assert [color.val] == snapshot([color.val])
     )
 
 
-def test_hasrepr():
+def test_snapshot_generates_hasrepr():
 
     Example(
         """\
@@ -74,6 +75,13 @@ def test_thing():
     ).run_pytest(
         returncode=0
     )
+
+
+def test_hasrepr_type():
+    assert 5 == HasRepr(int, "5")
+    assert not "a" == HasRepr(int, "5")
+    assert not HasRepr(float, "nan") == HasRepr(str, "nan")
+    assert not HasRepr(str, "a") == HasRepr(str, "b")
 
 
 def test_enum_in_dataclass(check_update):
