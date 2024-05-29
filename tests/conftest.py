@@ -98,7 +98,7 @@ from inline_snapshot import outsource
                     error = False
 
                     try:
-                        exec(compile(filename.read_text("utf-8"), filename, "exec"))
+                        exec(compile(filename.read_text("utf-8"), filename, "exec"), {})
                     except AssertionError:
                         traceback.print_exc()
                         error = True
