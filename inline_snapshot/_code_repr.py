@@ -76,9 +76,13 @@ def code_repr(obj):
     return result
 
 
+# -8<- [start:Enum]
 @register_repr
 def _(v: Enum):
     return f"{type(v).__qualname__}.{v.name}"
+
+
+# -8<- [end:Enum]
 
 
 @register_repr
@@ -87,9 +91,13 @@ def _(v: Flag):
     return " | ".join(f"{name}.{flag.name}" for flag in type(v) if flag in v)
 
 
+# -8<- [start:list]
 @register_repr
 def _(v: list):
     return "[" + ", ".join(map(repr, v)) + "]"
+
+
+# -8<- [end:list]
 
 
 @register_repr

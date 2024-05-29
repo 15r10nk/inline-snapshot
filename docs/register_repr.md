@@ -1,0 +1,89 @@
+
+
+
+`repr()` can be used to convert a python object into a source code representation of the object, but this does not work for every type.
+Here are some examples:
+```pycon
+>>> repr(int)
+"<class 'int'>"
+
+>>> from enum import Enum
+>>> E = Enum("E", ["a", "b"])
+>>> repr(E.a)
+'<E.a: 1>'
+```
+
+`register_repr` can be used to overwrite the default `repr()` behaviour.
+
+The implementation for `Enum` looks like this:
+
+```python exec="1" result="python"
+print('--8<-- "inline_snapshot/_code_repr.py:Enum"')
+```
+
+This implementation is then used by inline-snapshot if `repr()` is called during the code generation, but not in normal code.
+
+<!-- inline-snapshot: create fix this outcome-passed=1 -->
+```python
+from enum import Enum
+
+
+def test_enum():
+    E = Enum("E", ["a", "b"])
+
+    assert repr(E.a) == "<E.a: 1>"
+    assert E.a == snapshot(E.a)
+```
+
+inline-snapshot comes with a special implementation for the following types:
+```python exec="1"
+from inline_snapshot._code_repr import code_repr_dispatch, code_repr
+
+for k in sorted(
+    f"{k.__module__}.{k.__qualname__}"
+    for k in code_repr_dispatch.registry.keys()
+):
+    print(f"- `{k}`")
+```
+
+Container types like `dict` or `dataclass` need a special implementation because it is necessary that the implementation uses `repr()` for the child elements.
+
+```python exec="1" result="python"
+print('--8<-- "inline_snapshot/_code_repr.py:list"')
+```
+
+!!! note
+    using `#!python f"{obj!r}"` or `#!c PyObject_Repr()` will not work, because inline-snapshot replaces `#!python builtins.repr` during the code generation.
+
+You can also use `repr()` inside `__repr__()`, if you want to make your own type compatible with inline-snapshot.
+
+<!-- inline-snapshot: create fix this outcome-passed=1 -->
+```python
+from enum import Enum
+
+
+class Pair:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def __repr__(self):
+        # this would not work
+        # return f"Pair({self.a!r}, {self.b!r})"
+
+        # you have to use repr()
+        return f"Pair({repr(self.a)}, {repr(self.b)})"
+
+    def __eq__(self, other):
+        if not isinstance(other, Pair):
+            return NotImplemented
+        return self.a == other.a and self.b == other.b
+
+
+def test_enum():
+    E = Enum("E", ["a", "b"])
+
+    # the special repr implementation is used recursive here
+    # to convert every Enum to the correct representation
+    assert Pair(E.a, [E.b]) == snapshot(Pair(E.a, [E.b]))
+```
