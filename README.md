@@ -32,6 +32,7 @@ pip install inline-snapshot
 - **Preserved Black Formatting:** Retains formatting consistency with Black formatting.
 - **External File Storage:** Store snapshots externally using `outsource(data)`.
 - **Seamless Pytest Integration:** Integrated seamlessly with pytest for effortless testing.
+- **Customizable:** code generation can be customized with [@customize_repr](https://15r10nk.github.io/inline-snapshot/customize_repr)
 - **Comprehensive Documentation:** Access detailed [documentation](https://15r10nk.github.io/inline-snapshot/) for complete guidance.
 
 
@@ -51,7 +52,7 @@ def test_something():
 You can now run the tests and record the correct values.
 
 ```
-$ pytest --inline-snapshot=create
+$ pytest --inline-snapshot=review
 ```
 
 <!-- inline-snapshot: create outcome-passed=1 -->
@@ -63,7 +64,8 @@ def test_something():
     assert 1548 * 18489 == snapshot(28620972)
 ```
 
-inline-snapshot provides more advanced features like:
+The following examples show how you can use inline-snapshot in your tests. Take a look at the
+[documentation](https://15r10nk.github.io/inline-snapshot/) if you want to know more.
 
 <!-- inline-snapshot: create fix trim this outcome-passed=1 -->
 ```python
@@ -99,6 +101,56 @@ def test_something():
 
     assert outsource("large string\n" * 1000) == snapshot(
         external("8bf10bdf2c30*.txt")
+    )
+
+    assert "generates\nmultiline\nstrings" == snapshot(
+        """\
+generates
+multiline
+strings\
+"""
+    )
+```
+
+
+`snapshot()` can also be used as parameter for functions:
+
+<!-- inline-snapshot: create fix trim this outcome-passed=1 -->
+```python
+from inline_snapshot import snapshot
+import subprocess as sp
+import sys
+
+
+def run_python(cmd, stdout=None, stderr=None):
+    result = sp.run([sys.executable, "-c", cmd], capture_output=True)
+    if stdout is not None:
+        assert result.stdout.decode() == stdout
+    if stderr is not None:
+        assert result.stderr.decode() == stderr
+
+
+def test_cmd():
+    run_python(
+        "print('hello world')",
+        stdout=snapshot(
+            """\
+hello world
+"""
+        ),
+        stderr=snapshot(""),
+    )
+
+    run_python(
+        "1/0",
+        stdout=snapshot(""),
+        stderr=snapshot(
+            """\
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ZeroDivisionError: division by zero
+"""
+        ),
     )
 ```
 
