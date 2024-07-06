@@ -48,7 +48,7 @@ class Example:
         return {p.name: p.read_text() for p in dir.iterdir() if p.is_file()}
 
     def run_inline(
-        self, *flags, changes=None, reported_flags=None, changed_files=None
+        self, *flags, changes=None, reported_flags=None, changed_files=None, raises=None
     ) -> Example:
 
         with TemporaryDirectory() as dir:
@@ -77,6 +77,8 @@ class Example:
                             for k, v in globals.items():
                                 if k.startswith("test_") and callable(v):
                                     v()
+                    except Exception as e:
+                        assert raises == f"{type(e).__name__}:\n" + str(e)
 
                     finally:
                         _inline_snapshot._active = False

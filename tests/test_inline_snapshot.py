@@ -777,6 +777,11 @@ class Thing:
     def __repr__(self):
         return "+++"
 
+    def __eq__(self,other):
+        if not isinstance(other,Thing):
+            return NotImplemented
+        return True
+
 assert Thing() == snapshot()
 """,
             flags="create",
@@ -786,6 +791,11 @@ assert Thing() == snapshot()
 class Thing:
     def __repr__(self):
         return "+++"
+
+    def __eq__(self,other):
+        if not isinstance(other,Thing):
+            return NotImplemented
+        return True
 
 assert Thing() == snapshot(HasRepr(Thing, "+++"))
 """

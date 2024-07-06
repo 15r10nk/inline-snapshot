@@ -7,6 +7,7 @@ from .example import Example
 from inline_snapshot import HasRepr
 from inline_snapshot import snapshot
 from inline_snapshot._code_repr import code_repr
+from inline_snapshot._sentinels import undefined
 
 
 def test_enum(check_update):
@@ -51,6 +52,11 @@ class Thing:
     def __repr__(self):
         return "<something>"
 
+    def __eq__(self,other):
+        if not isinstance(other,Thing):
+            return NotImplemented
+        return True
+
 def test_thing():
     assert Thing() == snapshot()
 
@@ -68,6 +74,11 @@ from inline_snapshot import HasRepr
 class Thing:
     def __repr__(self):
         return "<something>"
+
+    def __eq__(self,other):
+        if not isinstance(other,Thing):
+            return NotImplemented
+        return True
 
 def test_thing():
     assert Thing() == snapshot(HasRepr(Thing, "<something>"))
@@ -324,6 +335,7 @@ default_dict[3].append(1)
         OrderedDict({1: 2, 3: 4}),
         UserDict({1: 2}),
         UserList([1, 2]),
+        undefined,
     ],
 )
 def test_datatypes(d):
