@@ -22,6 +22,8 @@ from ._change import Delete
 from ._change import DictInsert
 from ._change import ListInsert
 from ._change import Replace
+from ._code_repr import code_repr
+from ._exceptions import UsageError
 from ._format import format_code
 from ._sentinels import undefined
 from ._utils import ignore_tokens
@@ -163,7 +165,7 @@ class UndecidedValue(GenericValue):
         self.__class__ = cls
 
     def _new_code(self):
-        return ""
+        assert False
 
     def _get_changes(self) -> Iterator[Change]:
         # generic fallback
@@ -224,6 +226,23 @@ else:
         return not isinstance(value, dirty_equals.DirtyEquals)
 
 
+def clone(obj):
+    new = copy.deepcopy(obj)
+    if not obj == new:
+        raise UsageError(
+            f"""\
+inline-snapshot uses `copy.deepcopy` to copy objects,
+but the copied object is not equal to the original one:
+
+original: {code_repr(obj)}
+copied:   {code_repr(new)}
+
+Please fix the way your object is copied or your __eq__ implementation.
+"""
+        )
+    return new
+
+
 class EqValue(GenericValue):
     _current_op = "x == snapshot"
 
@@ -232,10 +251,8 @@ class EqValue(GenericValue):
         if self._old_value is undefined:
             _missing_values += 1
 
-        other = copy.deepcopy(other)
-
         if self._new_value is undefined:
-            self._new_value = other
+            self._new_value = clone(other)
 
         return self._visible_value() == other
 
@@ -391,13 +408,12 @@ class MinMaxValue(GenericValue):
         global _missing_values
         if self._old_value is undefined:
             _missing_values += 1
-        other = copy.deepcopy(other)
 
         if self._new_value is undefined:
-            self._new_value = other
+            self._new_value = clone(other)
         else:
             self._new_value = (
-                self._new_value if self.cmp(self._new_value, other) else other
+                self._new_value if self.cmp(self._new_value, other) else clone(other)
             )
 
         return self.cmp(self._visible_value(), other)
@@ -481,13 +497,11 @@ class CollectionValue(GenericValue):
         if self._old_value is undefined:
             _missing_values += 1
 
-        item = copy.deepcopy(item)
-
         if self._new_value is undefined:
-            self._new_value = [item]
+            self._new_value = [clone(item)]
         else:
             if item not in self._new_value:
-                self._new_value.append(item)
+                self._new_value.append(clone(item))
 
         if ignore_old_value() or self._old_value is undefined:
             return True
@@ -714,12 +728,13 @@ class Snapshot:
         self._uses_externals = []
 
     def _changes(self):
+
         if self._value._old_value is undefined:
-            new_code = self._value._new_code()
-            try:
-                ast.parse(new_code)
-            except:
+
+            if self._value._new_value is undefined:
                 return
+
+            new_code = self._value._new_code()
 
             yield CallArg(
                 "create",

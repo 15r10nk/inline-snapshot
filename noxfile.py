@@ -24,7 +24,7 @@ def coverage(session):
 
 @session(python=python_versions)
 def mypy(session):
-    session.install("mypy", "pytest", "hypothesis", "dirty-equals", ".")
+    session.install("mypy", "pytest", "hypothesis", "dirty-equals", "pydantic", ".")
     args = ["inline_snapshot", "tests"]
     if session.posargs:
         args = session.posargs
@@ -46,6 +46,7 @@ def test(session):
         "time-machine",
         "mypy",
         "pyright",
+        "pydantic",
     )
 
     cmd = []

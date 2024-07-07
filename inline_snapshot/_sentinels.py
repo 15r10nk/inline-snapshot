@@ -1,6 +1,7 @@
 # sentinels
 class Undefined:
-    pass
+    def __repr__(self):
+        return "undefined"
 
 
 undefined = Undefined()

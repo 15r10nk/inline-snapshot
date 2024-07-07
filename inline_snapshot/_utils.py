@@ -4,6 +4,8 @@ import token
 import tokenize
 from collections import namedtuple
 
+from ._code_repr import code_repr
+
 
 def normalize_strings(token_sequence):
     """Normalize string concattenanion.
@@ -118,7 +120,7 @@ class simple_token(namedtuple("simple_token", "type,string")):
 
 
 def value_to_token(value):
-    input = io.StringIO(repr(value))
+    input = io.StringIO(code_repr(value))
 
     def map_string(tok):
         """Convert strings with newlines in triple quoted strings."""

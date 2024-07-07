@@ -90,3 +90,7 @@ Funding = "https://github.com/sponsors/15r10nk"
 Homepage = "https://15r10nk.github.io/inline-snapshot"
 Issues = "https://github.com/15r10nk/inline-snapshots/issues"
 Repository = "https://github.com/15r10nk/inline-snapshot/"
+
+[tool.pyright]
+venv = "test-3-12"
+venvPath = ".nox"

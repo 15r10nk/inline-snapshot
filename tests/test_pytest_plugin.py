@@ -608,3 +608,36 @@ These changes will be applied, because you used --inline-snapshot=fix\
 """
         ),
     )
+
+
+def test_equal_check():
+
+    Example(
+        {
+            "test_a.py": """
+from inline_snapshot import snapshot
+
+class Thing:
+    def __repr__(self):
+        return "Thing()"
+
+def test_a():
+    assert Thing()==snapshot()
+    """,
+        }
+    ).run_inline(
+        "--inline-snapshot=create",
+        changed_files=snapshot({}),
+        raises=snapshot(
+            """\
+UsageError:
+inline-snapshot uses `copy.deepcopy` to copy objects,
+but the copied object is not equal to the original one:
+
+original: Thing()
+copied:   Thing()
+
+Please fix the way your object is copied or your __eq__ implementation.
+"""
+        ),
+    )

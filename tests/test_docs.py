@@ -1,3 +1,4 @@
+import platform
 import re
 import textwrap
 from pathlib import Path
@@ -7,6 +8,10 @@ import pytest
 import inline_snapshot._inline_snapshot
 
 
+@pytest.mark.skipif(
+    platform.system() == "Windows",
+    reason="\r in stdout can cause problems in snapshot strings",
+)
 @pytest.mark.parametrize(
     "file",
     [
