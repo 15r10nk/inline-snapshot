@@ -1,3 +1,10 @@
+## v0.11.0 (2024-07-07)
+
+### Feat
+
+- check if the result of copy.deepcopy() is equal to the copied value
+- support for `enum.Enum`, `enum.Flag`, `type` and omitting of default values (#73)
+
 ## v0.10.2 (2024-05-28)
 
 ### Fix

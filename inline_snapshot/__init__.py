@@ -6,4 +6,4 @@ from ._inline_snapshot import snapshot
 
 __all__ = ["snapshot", "external", "outsource", "customize_repr", "HasRepr"]
 
-__version__ = "0.10.2"
+__version__ = "0.11.0"
