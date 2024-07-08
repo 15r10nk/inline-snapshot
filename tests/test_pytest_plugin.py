@@ -560,7 +560,7 @@ def test_b():
     """,
         }
     ).run_pytest(
-        "--inline-snapshot=create,fix",
+        ["--inline-snapshot=create,fix"],
         changed_files=snapshot(
             {
                 "test_b.py": """\
@@ -626,7 +626,7 @@ def test_a():
     """,
         }
     ).run_inline(
-        "--inline-snapshot=create",
+        ["create"],
         changed_files=snapshot({}),
         raises=snapshot(
             """\

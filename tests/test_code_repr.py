@@ -62,7 +62,7 @@ def test_thing():
 
     """
     ).run_pytest(
-        "--inline-snapshot=create",
+        ["--inline-snapshot=create"],
         returncode=snapshot(0),
         changed_files=snapshot(
             {
@@ -88,7 +88,7 @@ def test_thing():
             }
         ),
     ).run_pytest(
-        "--inline-snapshot=disable", returncode=0
+        ["--inline-snapshot=disable"], returncode=0
     ).run_pytest(
         returncode=0
     )
@@ -160,7 +160,7 @@ class container:
 assert container(a=1,b=5) == snapshot()
 """
     ).run_inline(
-        "create",
+        ["create"],
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -254,7 +254,7 @@ assert Namespace.Color.red == snapshot()
 
     """
     ).run_inline(
-        "create",
+        ["create"],
         changed_files=snapshot(
             {
                 "test_something.py": """\

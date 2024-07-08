@@ -26,6 +26,7 @@ from ._code_repr import code_repr
 from ._exceptions import UsageError
 from ._format import format_code
 from ._sentinels import undefined
+from ._types import Category
 from ._utils import ignore_tokens
 from ._utils import normalize
 from ._utils import simple_token
@@ -53,7 +54,7 @@ class Flags:
     trim: the snapshot contains more values than neccessary. 1 could be trimmed in `5 in snapshot([1,5])`.
     """
 
-    def __init__(self, flags=set()):
+    def __init__(self, flags: Set[Category] = set()):
         self.fix = "fix" in flags
         self.update = "update" in flags
         self.create = "create" in flags

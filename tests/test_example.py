@@ -17,13 +17,13 @@ def test_a():
     )
 
     e.run_pytest(
-        "--inline-snapshot=create,fix",
+        ["--inline-snapshot=create,fix"],
     )
 
     e.run_inline(
-        "fix",
+        ["fix"],
         reported_flags=snapshot(["fix"]),
     ).run_inline(
-        "fix",
+        ["fix"],
         changed_files=snapshot({}),
     )
