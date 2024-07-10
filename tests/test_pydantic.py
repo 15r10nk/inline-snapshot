@@ -19,7 +19,7 @@ def test_pydantic():
 
     """
     ).run_inline(
-        "create",
+        ["create"],
         changed_files=snapshot(
             {
                 "test_something.py": """\

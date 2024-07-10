@@ -5,39 +5,10 @@ import pytest
 
 import inline_snapshot._config as _config
 import inline_snapshot._external as external
-import inline_snapshot._inline_snapshot as inline_snapshot
 from inline_snapshot._rewrite_code import ChangeRecorder
+from inline_snapshot.testing._example import snapshot_env
 
-
-@contextlib.contextmanager
-def snapshot_env():
-    current = (
-        inline_snapshot.snapshots,
-        inline_snapshot._update_flags,
-        inline_snapshot._active,
-        external.storage,
-        inline_snapshot._files_with_snapshots,
-        inline_snapshot._missing_values,
-    )
-
-    inline_snapshot.snapshots = {}
-    inline_snapshot._update_flags = inline_snapshot.Flags()
-    inline_snapshot._active = True
-    external.storage = None
-    inline_snapshot._files_with_snapshots = set()
-    inline_snapshot._missing_values = 0
-
-    try:
-        yield
-    finally:
-        (
-            inline_snapshot.snapshots,
-            inline_snapshot._update_flags,
-            inline_snapshot._active,
-            external.storage,
-            inline_snapshot._files_with_snapshots,
-            inline_snapshot._missing_values,
-        ) = current
+__all__ = ("snapshot_env",)
 
 
 @contextlib.contextmanager

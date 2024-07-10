@@ -41,6 +41,7 @@ nav:
 - Categories: categories.md
 - Configuration: configuration.md
 - Code generation: code_generation.md
+- Testing: testing.md
 - Contributing: contributing.md
 - Changelog: changelog.md
 
