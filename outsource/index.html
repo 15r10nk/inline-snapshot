@@ -552,16 +552,16 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#inline_snapshot._external.outsource" class="md-nav__link">
+  <a href="#inline_snapshot.outsource" class="md-nav__link">
     <span class="md-ellipsis">
-      outsource()
+      outsource
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#inline_snapshot._external.external" class="md-nav__link">
+  <a href="#inline_snapshot.external" class="md-nav__link">
     <span class="md-ellipsis">
       external
     </span>
@@ -571,27 +571,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#inline_snapshot._external.external.__eq__" class="md-nav__link">
+  <a href="#inline_snapshot.external.__eq__" class="md-nav__link">
     <span class="md-ellipsis">
-      __eq__()
+      __eq__
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#inline_snapshot._external.external.__init__" class="md-nav__link">
+  <a href="#inline_snapshot.external.__repr__" class="md-nav__link">
     <span class="md-ellipsis">
-      __init__()
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#inline_snapshot._external.external.__repr__" class="md-nav__link">
-    <span class="md-ellipsis">
-      __repr__()
+      __repr__
     </span>
   </a>
   
@@ -740,6 +731,26 @@
   
   
     <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Testing
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../contributing/" class="md-nav__link">
         
   
@@ -817,16 +828,16 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#inline_snapshot._external.outsource" class="md-nav__link">
+  <a href="#inline_snapshot.outsource" class="md-nav__link">
     <span class="md-ellipsis">
-      outsource()
+      outsource
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#inline_snapshot._external.external" class="md-nav__link">
+  <a href="#inline_snapshot.external" class="md-nav__link">
     <span class="md-ellipsis">
       external
     </span>
@@ -836,27 +847,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#inline_snapshot._external.external.__eq__" class="md-nav__link">
+  <a href="#inline_snapshot.external.__eq__" class="md-nav__link">
     <span class="md-ellipsis">
-      __eq__()
+      __eq__
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#inline_snapshot._external.external.__init__" class="md-nav__link">
+  <a href="#inline_snapshot.external.__repr__" class="md-nav__link">
     <span class="md-ellipsis">
-      __init__()
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#inline_snapshot._external.external.__repr__" class="md-nav__link">
-    <span class="md-ellipsis">
-      __repr__()
+      __repr__
     </span>
   </a>
   
@@ -968,15 +970,14 @@ The actual data is stored in a separate file in your project.</p>
 <h2 id="api">API<a class="headerlink" href="#api" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-object doc-function">
+<div class="doc doc-object doc-function">
 
 
+<h3 id="inline_snapshot.outsource" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">outsource</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
-<h3 id="inline_snapshot._external.outsource" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">outsource</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<a href="#inline_snapshot.outsource" class="headerlink" title="Permanent link">&para;</a></h3>
 
-
-<a href="#inline_snapshot._external.outsource" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents first">
 
@@ -986,66 +987,123 @@ The actual data is stored in a separate file in your project.</p>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="go">external(&quot;212974ed1835*.png&quot;)</span>
 </code></pre></div>
 
-<p><strong>Parameters:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
-      <tr>
-        <td><code>data</code></td>
-        <td><code>Union[str, bytes]</code></td>
-        <td><p>data which should be outsourced. strings are encoded with <code>"utf-8"</code>.</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>suffix</code></td>
-        <td><code>Optional[str]</code></td>
-        <td><p>overwrite file suffix. The default is <code>".bin"</code> if data is an instance of <code class="highlight"><span class="nb">bytes</span></code> and <code>".txt"</code> for <code class="highlight"><span class="nb">str</span></code>.</p></td>
-        <td><code>None</code></td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>Returns:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>external</code></td>
-      <td><p>The external data.</p></td>
-    </tr>
-  </tbody>
-</table>
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>data</code></td>
+            <td>
+                  <code><span title="typing.Union">Union</span>[str, bytes]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>data which should be outsourced. strings are encoded with <code>"utf-8"</code>.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>suffix</code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[str]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>overwrite file suffix. The default is <code>".bin"</code> if data is an instance of <code class="highlight"><span class="nb">bytes</span></code> and <code>".txt"</code> for <code class="highlight"><span class="nb">str</span></code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="inline_snapshot._external.external" href="#inline_snapshot.external">external</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The external data.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
     </div>
 
-  </div>
+</div>
+
+<div class="doc doc-object doc-class">
 
 
 
-  <div class="doc doc-object doc-class">
+<h3 id="inline_snapshot.external" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">external</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></code>
 
+<a href="#inline_snapshot.external" class="headerlink" title="Permanent link">&para;</a></h3>
 
-
-<h3 id="inline_snapshot._external.external" class="doc doc-heading">
-        <code>
-external        </code>
-
-
-
-<a href="#inline_snapshot._external.external" class="headerlink" title="Permanent link">&para;</a></h3>
 
     <div class="doc doc-contents first">
 
+
+      <p>External objects are used as a representation for outsourced data.
+You should not create them directly.</p>
+<p>The external data is stored inside <code>&lt;pytest_config_dir&gt;/.inline_snapshot/external</code>,
+where <code>&lt;pytest_config_dir&gt;</code> is replaced by the directory containing the Pytest configuration file, if any.
+Data which is outsourced but not referenced in the source code jet has a '-new' suffix in the filename.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>name</code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>the name of the external stored object.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
 
@@ -1060,18 +1118,14 @@ external        </code>
 
 
 
-  <div class="doc doc-object doc-method">
+<div class="doc doc-object doc-function">
 
 
+<h4 id="inline_snapshot.external.__eq__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></code>
 
-<h4 id="inline_snapshot._external.external.__eq__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span></code>
+<a href="#inline_snapshot.external.__eq__" class="headerlink" title="Permanent link">&para;</a></h4>
 
-  <span class="doc doc-properties">
-      <small class="doc doc-property doc-property-special"><code>special</code></small>
-  </span>
-
-<a href="#inline_snapshot._external.external.__eq__" class="headerlink" title="Permanent link">&para;</a></h4>
 
     <div class="doc doc-contents ">
 
@@ -1080,68 +1134,16 @@ suffix.</p>
 
     </div>
 
-  </div>
+</div>
+
+<div class="doc doc-object doc-function">
 
 
+<h4 id="inline_snapshot.external.__repr__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__repr__</span><span class="p">()</span></code>
 
-  <div class="doc doc-object doc-method">
+<a href="#inline_snapshot.external.__repr__" class="headerlink" title="Permanent link">&para;</a></h4>
 
-
-
-<h4 id="inline_snapshot._external.external.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></code>
-
-  <span class="doc doc-properties">
-      <small class="doc doc-property doc-property-special"><code>special</code></small>
-  </span>
-
-<a href="#inline_snapshot._external.external.__init__" class="headerlink" title="Permanent link">&para;</a></h4>
-
-    <div class="doc doc-contents ">
-
-      <p>External objects are used as a representation for outsourced data.
-You should not create them directly.</p>
-<p>The external data is stored inside <code>&lt;pytest_config_dir&gt;/.inline_snapshot/external</code>,
-where <code>&lt;pytest_config_dir&gt;</code> is replaced by the directory containing the Pytest configuration file, if any.
-Data which is outsourced but not referenced in the source code jet has a '-new' suffix in the filename.</p>
-
-<p><strong>Parameters:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
-      <tr>
-        <td><code>name</code></td>
-        <td><code>str</code></td>
-        <td><p>the name of the external stored object.</p></td>
-        <td><em>required</em></td>
-      </tr>
-  </tbody>
-</table>
-    </div>
-
-  </div>
-
-
-
-  <div class="doc doc-object doc-method">
-
-
-
-<h4 id="inline_snapshot._external.external.__repr__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
-
-  <span class="doc doc-properties">
-      <small class="doc doc-property doc-property-special"><code>special</code></small>
-  </span>
-
-<a href="#inline_snapshot._external.external.__repr__" class="headerlink" title="Permanent link">&para;</a></h4>
 
     <div class="doc doc-contents ">
 
@@ -1151,9 +1153,7 @@ Data which is outsourced but not referenced in the source code jet has a '-new' 
 
     </div>
 
-  </div>
-
-
+</div>
 
 
 
@@ -1161,9 +1161,7 @@ Data which is outsourced but not referenced in the source code jet has a '-new' 
 
     </div>
 
-  </div>
-
-<h2 id="pytest-options">pytest options<a class="headerlink" href="#pytest-options" title="Permanent link">&para;</a></h2>
+</div><h2 id="pytest-options">pytest options<a class="headerlink" href="#pytest-options" title="Permanent link">&para;</a></h2>
 <p>It interacts with the following <code>--inline-snapshot</code> flags:</p>
 <ul>
 <li><code>trim</code> removes every snapshots form the storage which is not referenced with <code>external(...)</code> in the code.</li>
