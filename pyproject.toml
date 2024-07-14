@@ -78,6 +78,7 @@ markdown-exec = {extras = ["ansi"], version = "^1.8.0"}
 mkdocs = ">=1.4.2"
 mkdocs-material = {extras = ["imaging"], version = ">=9.5.17"}
 mkdocstrings = {extras = ["python-legacy"], version = ">=0.19.0"}
+pytest = ">=7.1"
 
 [tool.poetry.plugins.pytest11]
 inline_snapshot = "inline_snapshot.pytest_plugin"
