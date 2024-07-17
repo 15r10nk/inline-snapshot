@@ -7,7 +7,7 @@ not depend on other libraries.
 
 ...  # prevent lint error with black and reorder-python-imports
 import contextlib
-from inline_snapshot import Snapshot
+from inline_snapshot._types import Snapshot
 
 
 @contextlib.contextmanager

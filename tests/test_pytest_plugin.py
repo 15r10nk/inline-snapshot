@@ -1,6 +1,5 @@
 from inline_snapshot import snapshot
-
-from tests.example import Example
+from inline_snapshot.testing import Example
 
 
 def test_help_message(testdir):

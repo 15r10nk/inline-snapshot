@@ -13,10 +13,10 @@ from typing import Any
 import inline_snapshot._external
 import inline_snapshot._external as external
 from inline_snapshot import _inline_snapshot
-from inline_snapshot import Snapshot
 from inline_snapshot._inline_snapshot import Flags
 from inline_snapshot._rewrite_code import ChangeRecorder
 from inline_snapshot._types import Category
+from inline_snapshot._types import Snapshot
 
 
 @contextlib.contextmanager
