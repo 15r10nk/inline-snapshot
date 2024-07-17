@@ -160,7 +160,7 @@ class container:
 assert container(a=1,b=5) == snapshot()
 """
     ).run_inline(
-        ["create"],
+        ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -254,7 +254,7 @@ assert Namespace.Color.red == snapshot()
 
     """
     ).run_inline(
-        ["create"],
+        ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
                 "test_something.py": """\

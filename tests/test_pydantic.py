@@ -20,7 +20,7 @@ def test_pydantic():
 
     """
     ).run_inline(
-        ["create"],
+        ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
                 "test_something.py": """\

@@ -24,7 +24,7 @@ The following example shows how you can use the `Example` class to test what inl
     """
             }
         ).run_inline(  # run without flags
-            reported_flags=snapshot(),
+            reported_categories=snapshot(),
         ).run_pytest(  # run without flags and check the pytest report
             changed_files=snapshot(),
             report=snapshot(),
@@ -53,7 +53,7 @@ The following example shows how you can use the `Example` class to test what inl
     """
             }
         ).run_inline(  # run without flags
-            reported_flags=snapshot(["create"]),
+            reported_categories=snapshot(["create"]),
         ).run_pytest(  # run without flags and check the pytest report
             changed_files=snapshot({}),
             report=snapshot(

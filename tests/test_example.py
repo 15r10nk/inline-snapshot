@@ -22,9 +22,9 @@ def test_a():
     )
 
     e.run_inline(
-        ["fix"],
-        reported_flags=snapshot(["fix"]),
+        ["--inline-snapshot=fix"],
+        reported_categories=snapshot(["fix"]),
     ).run_inline(
-        ["fix"],
+        ["--inline-snapshot=fix"],
         changed_files=snapshot({}),
     )

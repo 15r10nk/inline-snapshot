@@ -627,7 +627,7 @@ def test_a():
     """,
         }
     ).run_inline(
-        ["create"],
+        ["--inline-snapshot=create"],
         changed_files=snapshot({}),
         raises=snapshot(
             """\
