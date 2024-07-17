@@ -1,5 +1,6 @@
-from .example import Example
 from inline_snapshot import snapshot
+
+from .example import Example
 
 file_to_trim = {
     "test_a.py": """\

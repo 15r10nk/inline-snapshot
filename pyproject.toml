@@ -1,88 +1,48 @@
 [build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core>=1.0.0"]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
 
-[tool.commitizen]
-changelog_incremental = true
-major_version_zero = true
-tag_format = "v$major.$minor.$patch$prerelease"
-update_changelog_on_bump = true
-version_files = [
-  "inline_snapshot/__init__.py:version"
+[project]
+authors = [
+  {name = "Frank Hoffmann", email = "15r10nk-git@polarbit.de"}
 ]
-version_provider = "poetry"
-
-[tool.coverage.paths]
-source = [
-  "./",
-  ".nox/test-*/lib/python*/site-packages/"
-]
-
-[tool.coverage.report]
-exclude_lines = ["pragma: no cover", "assert False", "raise NotImplemented", "\\.\\.\\."]
-
-[tool.coverage.run]
-branch = true
-data_file = "$TOP/.coverage"
-parallel = true
-source = [
-  "tests",
-  "inline_snapshot",
-  ".nox/test-*/lib/python*/site-packages"
-]
-
-[tool.poetry]
-authors = ["Frank Hoffmann <15r10nk@polarbit.de>"]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Framework :: Pytest",
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development :: Testing",
-  "Framework :: Pytest"
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy"
+]
+dependencies = [
+  "asttokens>=2.0.5",
+  "black>=23.3.0",
+  "click>=8.1.4",
+  "executing>=2.0.0",
+  "rich>=13.7.1",
+  "toml>=0.10.2",
+  "types-toml>=0.10.8.7",
+  "typing-extensions"
 ]
 description = "golden master/snapshot/approval testing library which puts the values right into your source code"
-keywords = ["pytest", "testing", "snapshot", "approval", "golden-master"]
+keywords = []
 license = "MIT"
 name = "inline-snapshot"
 readme = "README.md"
-repository = "https://github.com/15r10nk/inline-snapshots"
+requires-python = ">=3.8"
 version = "0.11.0"
 
-[tool.poetry.dependencies]
-asttokens = ">=2.0.5"
-black = ">=23.3.0"
-click = ">=8.1.4"
-executing = ">=2.0.0"
-python = ">=3.8"
-rich = ">=13.7.1"
-toml = ">=0.10.2"
-types-toml = ">=0.10.8.7"
-
-[tool.poetry.group.dev.dependencies]
-coverage = ">=7.2.3"
-coverage-enable-subprocess = ">=1.0"
-dirty-equals = ">=0.7.0"
-hypothesis = ">=6.75.5"
-mypy = ">=1.2.0"
-pyright = ">=1.1.359"
-pytest = ">=7.1"
-pytest-subtests = ">=0.11.0"
-pytest-xdist = {extras = ["psutil"], version = ">=3.2.1"}
-time-machine = ">=2.10.0"
-
-[tool.poetry.group.doc.dependencies]
-markdown-exec = {extras = ["ansi"], version = "^1.8.0"}
-mkdocs = ">=1.4.2"
-mkdocs-material = {extras = ["imaging"], version = ">=9.5.17"}
-mkdocstrings = {extras = ["python-legacy"], version = ">=0.19.0"}
-
-[tool.poetry.plugins.pytest11]
+[project.entry-points.pytest11]
 inline_snapshot = "inline_snapshot.pytest_plugin"
 
-[tool.poetry.urls]
+[project.urls]
 Changelog = "https://15r10nk.github.io/inline-snapshot/changelog/"
 Discussions = "https://15r10nk.github.io/inline-snapshot/discussions"
 Documentation = "https://15r10nk.github.io/inline-snapshot"
@@ -90,6 +50,83 @@ Funding = "https://github.com/sponsors/15r10nk"
 Homepage = "https://15r10nk.github.io/inline-snapshot"
 Issues = "https://github.com/15r10nk/inline-snapshots/issues"
 Repository = "https://github.com/15r10nk/inline-snapshot/"
+
+[tool.commitizen]
+changelog_incremental = true
+major_version_zero = true
+tag_format = "v$major.$minor.$patch$prerelease"
+update_changelog_on_bump = true
+version_files = [
+  "src/inline_snapshot/__init__.py:__version__"
+]
+version_provider = "pep621"
+
+[tool.coverage.paths]
+inline_snapshot = ["src/inline_snapshot", "*/inline_snapshot/src/inline_snapshot"]
+tests = ["tests", "*/inline_snapshot/tests"]
+
+[tool.coverage.report]
+exclude_lines = ["assert False", "raise NotImplemented", "# pragma: no cover"]
+
+[tool.coverage.run]
+branch = true
+data_file = "$TOP/.coverage"
+omit = [
+  "src/inline_snapshot/__about__.py"
+]
+parallel = true
+source_pkgs = ["inline_snapshot", "tests"]
+
+[tool.hatch.envs.coverage]
+dependencies = [
+  "coverage"
+]
+env-vars.TOP = "{root}"
+scripts.report = "coverage html"
+
+[tool.hatch.envs.docs]
+dependencies = [
+  "markdown-exec[ansi]>=1.8.0",
+  "mkdocs>=1.4.2",
+  "mkdocs-material[imaging]>=9.5.17",
+  "mkdocstrings[python-legacy]>=0.19.0",
+  "replace-url @ {root:uri}/docs/plugins",
+  "pytest"
+]
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build"
+export-deps = "pip freeze"
+serve = "mkdocs serve"
+
+[tool.hatch.envs.hatch-test]
+extra-dependencies = [
+  "dirty-equals>=0.7.0",
+  "hypothesis>=6.75.5",
+  "mypy>=1.2.0",
+  "pyright>=1.1.359",
+  "pytest-subtests>=0.11.0",
+  "time-machine>=2.10.0",
+  "pydantic"
+]
+env-vars.TOP = "{root}"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+  "pytest",
+  "hypothesis>=6.75.5",
+  "pydantic"
+]
+
+[[tool.hatch.envs.types.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/inline_snapshot tests}"
+
+[tool.mypy]
+exclude = "tests/.*_samples"
 
 [tool.pyright]
 venv = "test-3-12"

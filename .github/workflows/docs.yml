@@ -13,10 +13,8 @@ jobs:
     - name: Checkout main
       uses: actions/checkout@v2
 
-    - run: pip install poetry==1.2.2
-    - run: poetry export --with=doc -o doc_requirements.txt --without-hashes
-    - run: echo . >> doc_requirements.txt
-    - run: echo docs/plugins >> doc_requirements.txt
+    - run: pip install hatch
+    - run: hatch run docs:export-deps > doc_requirements.txt
 
     - name: Deploy docs
       uses: mhausenblas/mkdocs-deploy-gh-pages@master
