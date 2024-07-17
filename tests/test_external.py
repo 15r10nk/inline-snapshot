@@ -87,7 +87,6 @@ def test_something():
 
     assert result.report == snapshot(
         """\
-
 -------------------------------- Fix snapshots ---------------------------------
 +-------------------------------- test_file.py --------------------------------+
 | @@ -4,5 +4,5 @@                                                              |
@@ -137,7 +136,6 @@ def test_a():
 
     assert result.errorLines() == snapshot(
         """\
-
 >       assert outsource("test2") == snapshot(
 E       AssertionError: assert 'test2' == 'test'
 E         ⏎
@@ -168,7 +166,6 @@ def test_a():
 
     assert result.errorLines() == snapshot(
         """\
-
 >       assert outsource(b"test2") == snapshot(
 E       AssertionError: assert b'test2' == b'test'
 E         ⏎

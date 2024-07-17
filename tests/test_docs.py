@@ -86,7 +86,9 @@ line-length=80
 
                 if "show_error" in options:
                     new_code = new_code.split("# Error:")[0]
-                    new_code += "# Error:" + textwrap.indent(result.errorLines(), "# ")
+                    new_code += "# Error:\n" + textwrap.indent(
+                        result.errorLines(), "# "
+                    )
 
                 print("new code:")
                 print(new_code)

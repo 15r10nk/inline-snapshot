@@ -174,7 +174,8 @@ assert l==snapshot()
             number=2,
         )
         == snapshot(
-            """
+            """\
+
 l=[1,2]
 assert l==snapshot([1, 2])
 l.append(3)
@@ -195,7 +196,8 @@ assert l<=snapshot()
             number=2,
         )
         == snapshot(
-            """
+            """\
+
 l=[1,2]
 assert l<=snapshot([1, 2])
 l.append(3)
@@ -216,7 +218,8 @@ assert l>=snapshot()
             number=2,
         )
         == snapshot(
-            """
+            """\
+
 l=[1,2]
 assert l>=snapshot([1, 2])
 l.append(3)
@@ -237,7 +240,8 @@ assert l in snapshot()
             number=2,
         )
         == snapshot(
-            """
+            """\
+
 l=[1,2]
 assert l in snapshot([[1, 2]])
 l.append(3)
@@ -273,7 +277,8 @@ def test_comparison(check_update):
             flags="create",
         )
         == snapshot(
-            """
+            """\
+
 for a in [1,1,1]:
     assert a==snapshot(1)
 """
@@ -289,7 +294,8 @@ for a in [1,1,1]:
             flags="fix",
         )
         == snapshot(
-            """
+            """\
+
 for a in [1,1,1]:
     assert a==snapshot(1)
 """
@@ -317,7 +323,8 @@ assert 5==s["q"]
             reported_flags="fix,trim",
         )
         == snapshot(
-            """
+            """\
+
 s=snapshot({"v": 7, "q": 5})
 assert 5<=s["v"]
 assert 5==s["q"]
@@ -336,7 +343,8 @@ assert 5==s["q"]
             reported_flags="fix,create",
         )
         == snapshot(
-            """
+            """\
+
 s=snapshot({"q": 5})
 assert 5<=s["v"]
 assert 5==s["q"]
@@ -383,7 +391,8 @@ assert 5==s["q"]
             reported_flags="fix,trim",
         )
         == snapshot(
-            """
+            """\
+
 s=snapshot({"v": 3, "q": 5})
 assert 5>=s["v"]
 assert 5==s["q"]
@@ -402,7 +411,8 @@ assert 5==s["q"]
             reported_flags="fix,create",
         )
         == snapshot(
-            """
+            """\
+
 s=snapshot({"q": 5})
 assert 5>=s["v"]
 assert 5==s["q"]
@@ -465,7 +475,8 @@ assert 5 in s
             flags="create",
         )
         == snapshot(
-            """
+            """\
+
 s=snapshot([4, 5])
 assert 4 in s
 assert 5 in s
@@ -547,7 +558,8 @@ assert 5 == s["q"]
             flags="create",
         )
         == snapshot(
-            """
+            """\
+
 s=snapshot({"q": 5})
 assert 5 == s["q"]
 assert 5 == s["q"]
@@ -969,7 +981,6 @@ def test_thing():
 
     assert result.report == snapshot(
         """\
-
 ------------------------------- Create snapshots -------------------------------
 +-------------------------------- test_file.py --------------------------------+
 | @@ -19,4 +19,9 @@                                                            |

@@ -169,7 +169,7 @@ class RunResult:
         text = "\n".join(lines).rstrip()
 
         if "\n" in text:
-            return "\n" + text + "\n"
+            return text + "\n"
         else:
             return text
 
