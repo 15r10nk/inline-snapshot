@@ -17,8 +17,8 @@ Here are some examples:
 
 The implementation for `Enum` looks like this:
 
-```python exec="1" result="python"
-print('--8<-- "inline_snapshot/_code_repr.py:Enum"')
+``` python exec="1" result="python"
+print('--8<-- "src/inline_snapshot/_code_repr.py:Enum"')
 ```
 
 This implementation is then used by inline-snapshot if `repr()` is called during the code generation, but not in normal code.
@@ -41,6 +41,7 @@ def test_enum():
 ## builtin datatypes
 
 inline-snapshot comes with a special implementation for the following types:
+
 ```python exec="1"
 from inline_snapshot._code_repr import code_repr_dispatch, code_repr
 
@@ -60,7 +61,7 @@ for name, obj in sorted(
 Container types like `dict` or `dataclass` need a special implementation because it is necessary that the implementation uses `repr()` for the child elements.
 
 ```python exec="1" result="python"
-print('--8<-- "inline_snapshot/_code_repr.py:list"')
+print('--8<-- "src/inline_snapshot/_code_repr.py:list"')
 ```
 
 !!! note
