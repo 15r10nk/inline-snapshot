@@ -66,7 +66,7 @@ inline_snapshot = ["src/inline_snapshot", "*/inline_snapshot/src/inline_snapshot
 tests = ["tests", "*/inline_snapshot/tests"]
 
 [tool.coverage.report]
-exclude_lines = ["assert False", "raise NotImplemented", "# pragma: no cover"]
+exclude_lines = ["assert False", "raise NotImplemented", "# pragma: no cover", "if TYPE_CHECKING:"]
 
 [tool.coverage.run]
 branch = true
@@ -89,9 +89,10 @@ dependencies = [
   "markdown-exec[ansi]>=1.8.0",
   "mkdocs>=1.4.2",
   "mkdocs-material[imaging]>=9.5.17",
-  "mkdocstrings[python-legacy]>=0.19.0",
+  "mkdocstrings[python]>=0.19.0",
   "replace-url @ {root:uri}/docs/plugins",
-  "pytest"
+  "pytest",
+  "black"
 ]
 
 [tool.hatch.envs.docs.scripts]
@@ -124,6 +125,9 @@ python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/inline_snapshot tests}"
+
+[tool.hatch.venv.typing]
+inherit = "types"
 
 [tool.mypy]
 exclude = "tests/.*_samples"

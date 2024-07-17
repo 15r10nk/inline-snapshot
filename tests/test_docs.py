@@ -9,7 +9,7 @@ import pytest
 
 @pytest.mark.skipif(
     platform.system() == "Windows",
-    reason="\r in stdout can cause problems in snapshot strings",
+    reason="\\r in stdout can cause problems in snapshot strings",
 )
 @pytest.mark.parametrize(
     "file",
@@ -18,6 +18,7 @@ import pytest
         for file in [
             *(Path(__file__).parent.parent / "docs").rglob("*.md"),
             *(Path(__file__).parent.parent).glob("*.md"),
+            *(Path(__file__).parent.parent / "inline_snapshot").rglob("*.py"),
         ]
     ],
 )

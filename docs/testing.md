@@ -23,12 +23,12 @@ The following example shows how you can use the `Example` class to test what inl
         assert 1+1 == snapshot()
     """
             }
-        ).run_inline(
+        ).run_inline(  # run without flags
             reported_flags=snapshot(),
-        ).run_pytest(
+        ).run_pytest(  # run without flags and check the pytest report
             changed_files=snapshot(),
             report=snapshot(),
-        ).run_pytest(
+        ).run_pytest(  # run with create flag and check the changed files
             ["--inline-snapshot=create"],
             changed_files=snapshot(),
         )
@@ -52,9 +52,9 @@ The following example shows how you can use the `Example` class to test what inl
         assert 1+1 == snapshot()
     """
             }
-        ).run_inline(
+        ).run_inline(  # run without flags
             reported_flags=snapshot(["create"]),
-        ).run_pytest(
+        ).run_pytest(  # run without flags and check the pytest report
             changed_files=snapshot({}),
             report=snapshot(
                 """\
@@ -62,7 +62,7 @@ The following example shows how you can use the `Example` class to test what inl
     You can also use --inline-snapshot=review to approve the changes interactiv\
     """
             ),
-        ).run_pytest(
+        ).run_pytest(  # run with create flag and check the changed files
             ["--inline-snapshot=create"],
             changed_files=snapshot(
                 {
@@ -80,53 +80,9 @@ The following example shows how you can use the `Example` class to test what inl
 ## API
 ::: inline_snapshot.testing.Example
     options:
-      separate_signature: true
+      heading_level: 3
+      show_root_heading: true
+      show_root_full_path: false
       show_signature_annotations: true
-
-
-## Types
-
-The following types are for type checking.
-
-::: inline_snapshot.Category
-
-see [categories](categories.md)
-
-::: inline_snapshot.Snapshot
-
-Can be used to annotate where snapshots can be passed as function arguments.
-
-??? note "Example"
-    <!-- inline-snapshot: create fix trim this outcome-passed=2 -->
-    ```python
-    from typing import Optional
-    from inline_snapshot import snapshot, Snapshot
-
-
-    def check_in_bounds(value, lower: Snapshot[int], upper: Snapshot[int]):
-        assert lower <= value <= upper
-
-
-    def test_numbers():
-        for c in "hello world":
-            check_in_bounds(ord(c), snapshot(32), snapshot(119))
-
-
-    def check_container(
-        value,
-        *,
-        value_repr: Optional[Snapshot[str]] = None,
-        length: Optional[Snapshot[int]] = None
-    ):
-        if value_repr is not None:
-            assert repr(value) == value_repr
-
-        if length is not None:
-            assert len(value) == length
-
-
-    def test_container():
-        check_container([1, 2], value_repr=snapshot("[1, 2]"), length=snapshot(2))
-
-        check_container({1, 1}, length=snapshot(1))
-    ```
+      show_source: false
+      annotations_path: brief
