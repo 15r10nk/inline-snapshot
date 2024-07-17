@@ -1,10 +1,9 @@
 import contextlib
 from contextlib import contextmanager
 
-import pytest
-
 import inline_snapshot._config as _config
 import inline_snapshot._external as external
+import pytest
 from inline_snapshot._rewrite_code import ChangeRecorder
 from inline_snapshot.testing._example import snapshot_env
 

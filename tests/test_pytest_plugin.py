@@ -1,4 +1,5 @@
 from inline_snapshot import snapshot
+
 from tests.example import Example
 
 

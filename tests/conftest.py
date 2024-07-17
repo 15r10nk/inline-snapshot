@@ -13,14 +13,14 @@ from unittest import mock
 
 import black
 import executing
-import pytest
-
 import inline_snapshot._external
-from .utils import snapshot_env
+import pytest
 from inline_snapshot import _inline_snapshot
 from inline_snapshot._format import format_code
 from inline_snapshot._inline_snapshot import Flags
 from inline_snapshot._rewrite_code import ChangeRecorder
+
+from .utils import snapshot_env
 
 pytest_plugins = "pytester"
 

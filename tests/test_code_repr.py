@@ -2,12 +2,12 @@ import dataclasses
 from dataclasses import dataclass
 
 import pytest
-
-from .example import Example
 from inline_snapshot import HasRepr
 from inline_snapshot import snapshot
 from inline_snapshot._code_repr import code_repr
 from inline_snapshot._sentinels import undefined
+
+from .example import Example
 
 
 def test_enum(check_update):

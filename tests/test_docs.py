@@ -3,9 +3,8 @@ import re
 import textwrap
 from pathlib import Path
 
-import pytest
-
 import inline_snapshot._inline_snapshot
+import pytest
 
 
 @pytest.mark.skipif(
