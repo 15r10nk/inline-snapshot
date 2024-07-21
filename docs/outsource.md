@@ -67,7 +67,12 @@ The `external` object can be used inside other data structures.
 ## API
 
 ::: inline_snapshot.outsource
+    options:
+      show_root_heading: true
+
 ::: inline_snapshot.external
+    options:
+      show_root_heading: true
 
 ## pytest options
 

@@ -83,6 +83,5 @@ The following example shows how you can use the `Example` class to test what inl
       heading_level: 3
       show_root_heading: true
       show_root_full_path: false
-      show_signature_annotations: true
       show_source: false
       annotations_path: brief
