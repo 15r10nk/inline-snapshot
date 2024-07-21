@@ -5,8 +5,8 @@ The default `__repr__()` behaviour can be [customized](customize_repr.md).
 It might be necessary to import the right modules to match the `repr()` output.
 
 === "original code"
-    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
     from inline_snapshot import snapshot
     import datetime
 
@@ -28,7 +28,7 @@ It might be necessary to import the right modules to match the `repr()` output.
     ```
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="18 19 20 21 22 23 24 25 26 27 28"
     from inline_snapshot import snapshot
     import datetime
 
@@ -69,7 +69,7 @@ The code is generated in the following way:
         Missing newlines at start or end are escaped (since 0.4.0).
 
         === "original code"
-            <!-- inline-snapshot: outcome-passed=1 -->
+            <!-- inline-snapshot: first_block outcome-passed=1 -->
             ``` python
             def test_something():
                 assert "first line\nsecond line" == snapshot(
@@ -80,7 +80,7 @@ The code is generated in the following way:
 
         === "--inline-snapshot=update"
             <!-- inline-snapshot: update outcome-passed=1 -->
-            ``` python
+            ``` python hl_lines="3 4 5 6"
             def test_something():
                 assert "first line\nsecond line" == snapshot(
                     """\

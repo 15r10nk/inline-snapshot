@@ -23,8 +23,8 @@ print('--8<-- "src/inline_snapshot/_code_repr.py:Enum"')
 
 This implementation is then used by inline-snapshot if `repr()` is called during the code generation, but not in normal code.
 
-<!-- inline-snapshot: create fix this outcome-passed=1 -->
-```python
+<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
+``` python
 from enum import Enum
 
 
@@ -71,8 +71,8 @@ print('--8<-- "src/inline_snapshot/_code_repr.py:list"')
 
 You can also use `repr()` inside `__repr__()`, if you want to make your own type compatible with inline-snapshot.
 
-<!-- inline-snapshot: create fix this outcome-passed=1 -->
-```python
+<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
+``` python
 from enum import Enum
 
 

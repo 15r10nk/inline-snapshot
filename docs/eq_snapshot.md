@@ -7,29 +7,29 @@ The value can later be changed with `--inline-snapshot=fix` if the value the sna
 Example:
 
 === "original code"
-    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
     def test_something():
         assert 2 + 4 == snapshot()
     ```
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="2"
     def test_something():
         assert 2 + 4 == snapshot(6)
     ```
 
 === "value changed"
     <!-- inline-snapshot: outcome-failed=1 -->
-    ```python
+    ``` python hl_lines="2"
     def test_something():
         assert 2 + 40 == snapshot(4)
     ```
 
 === "--inline-snapshot=fix"
     <!-- inline-snapshot: fix outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="2"
     def test_something():
         assert 2 + 40 == snapshot(42)
     ```
@@ -43,8 +43,8 @@ They might be part of larger data structures and be difficult to normalize.
 Example:
 
 === "original code"
-    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
     from inline_snapshot import snapshot
     import datetime
 
@@ -62,7 +62,7 @@ Example:
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="13 14 15"
     from inline_snapshot import snapshot
     import datetime
 
@@ -87,8 +87,8 @@ This expressions are preserved as long as the `==` comparison with them is `True
 Example:
 
 === "using IsDatetime()"
-    <!-- inline-snapshot: outcome-passed=1 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=1 -->
+    ``` python
     from inline_snapshot import snapshot
     from dirty_equals import IsDatetime
     import datetime
@@ -112,7 +112,7 @@ Example:
 
 === "changed payload"
     <!-- inline-snapshot: outcome-failed=1 -->
-    ```python
+    ``` python hl_lines="9"
     from inline_snapshot import snapshot
     from dirty_equals import IsDatetime
     import datetime
@@ -137,7 +137,7 @@ Example:
 
 === "--inline-snapshot=fix"
     <!-- inline-snapshot: fix outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="17"
     from inline_snapshot import snapshot
     from dirty_equals import IsDatetime
     import datetime

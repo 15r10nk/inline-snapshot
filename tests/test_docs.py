@@ -27,11 +27,11 @@ def test_docs(project, file, subtests):
 
     where options can be:
         * flags passed to --inline-snapshot=...
-        * `this` to specify that the input source code should be the current block and not the last
+        * `first_block` to specify that the input source code should be the current block and not the last
         * `outcome-passed=2` to check for the pytest test outcome
     """
 
-    block_start = re.compile("( *)``` *python")
+    block_start = re.compile("( *)``` *python.*")
     block_end = re.compile("```.*")
 
     header = re.compile("<!-- inline-snapshot:(.*)-->")
@@ -43,6 +43,7 @@ def test_docs(project, file, subtests):
     is_block = False
     code = None
     indent = ""
+    first_block = True
 
     project.pyproject(
         """
@@ -71,7 +72,7 @@ line-length=80
 
                 args = ["--inline-snapshot", ",".join(flags)] if flags else []
 
-                if flags and "this" not in options:
+                if flags and "first_block" not in options:
                     project.setup(last_code)
                 else:
                     project.setup(code)
@@ -100,7 +101,7 @@ line-length=80
                 ):  # pragma: no cover
                     flags_str = " ".join(
                         sorted(flags)
-                        + list(options & {"this", "show_error"})
+                        + list(options & {"first_block", "show_error"})
                         + [
                             f"outcome-{k}={v}"
                             for k, v in result.parseoutcomes().items()
@@ -110,7 +111,28 @@ line-length=80
                     header_line = f"{indent}<!-- inline-snapshot: {flags_str} -->"
 
                 new_lines.append(header_line)
-                new_lines.append(block_start_line)
+
+                from inline_snapshot._align import align
+
+                linenum = 1
+                hl_lines = ""
+                if last_code is not None and "first_block" not in options:
+                    changed_lines = []
+                    alignment = align(last_code.split("\n"), new_code.split("\n"))
+                    for c in alignment:
+                        if c == "d":
+                            continue
+                        elif c == "m":
+                            linenum += 1
+                        else:
+                            changed_lines.append(str(linenum))
+                            linenum += 1
+                    if changed_lines:
+                        hl_lines = f' hl_lines="{" ".join(changed_lines)}"'
+                    else:
+                        assert False, "no lines changed"
+
+                new_lines.append(f"{indent}``` python{hl_lines}")
 
                 if (
                     inline_snapshot._inline_snapshot._update_flags.fix
@@ -139,6 +161,9 @@ line-length=80
         m = header.fullmatch(line.strip())
         if m:
             options = set(m.group(1).split())
+            if first_block:
+                options.add("first_block")
+                first_block = False
             header_line = line
             is_block = True
 

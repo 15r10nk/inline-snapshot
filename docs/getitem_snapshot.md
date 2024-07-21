@@ -6,8 +6,8 @@ This sub-snapshots can be used like a normal snapshot.
 Example:
 
 === "original code"
-    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
     def test_something():
         s = snapshot()
 
@@ -17,7 +17,7 @@ Example:
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="2"
     def test_something():
         s = snapshot({"a": 4, "b": 5})
 

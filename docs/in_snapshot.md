@@ -5,8 +5,8 @@ It is possible to check if an value is in a snapshot. The value of the generated
 Example:
 
 === "original code"
-    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
     def test_something():
         s = snapshot()
 
@@ -20,7 +20,7 @@ Example:
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="2"
     def test_something():
         s = snapshot([5, 8, "a", "b"])
 
