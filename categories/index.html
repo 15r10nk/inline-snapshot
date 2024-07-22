@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.24">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.76a95c52.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -270,7 +270,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -515,6 +515,48 @@
   
   <span class="md-ellipsis">
     @customize_repr
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../types/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extra/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    extensions
   </span>
   
 
@@ -869,7 +911,7 @@
 <p>Example:</p>
 <div class="grid" markdown>
 
-<!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span> <span class="nf">test_something</span><span class="p">():</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">assert</span> <span class="mi">5</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">()</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -883,14 +925,14 @@
 
 <!-- inline-snapshot: create outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span> <span class="nf">test_something</span><span class="p">():</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">assert</span> <span class="mi">5</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">assert</span> <span class="mi">5</span> <span class="o">&lt;=</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="k">assert</span> <span class="mi">5</span> <span class="ow">in</span> <span class="n">snapshot</span><span class="p">([</span><span class="mi">5</span><span class="p">])</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">s</span> <span class="o">=</span> <span class="n">snapshot</span><span class="p">({</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="k">assert</span> <span class="mi">5</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">]</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="hll">    <span class="k">assert</span> <span class="mi">5</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</span><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="hll">    <span class="k">assert</span> <span class="mi">5</span> <span class="o">&lt;=</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</span><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="hll">    <span class="k">assert</span> <span class="mi">5</span> <span class="ow">in</span> <span class="n">snapshot</span><span class="p">([</span><span class="mi">5</span><span class="p">])</span>
+</span><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="hll">    <span class="n">s</span> <span class="o">=</span> <span class="n">snapshot</span><span class="p">({</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+</span><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="k">assert</span> <span class="mi">5</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">]</span>
 </code></pre></div>
 
 </div>
@@ -900,7 +942,7 @@
 The result of each comparison is <code>True</code> if you change something from this category, which allows to run the whole test and to fix other snapshots.</p>
 <div class="grid" markdown>
 
-<!-- inline-snapshot: outcome-failed=1 -->
+<!-- inline-snapshot: first_block outcome-failed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span> <span class="nf">test_something</span><span class="p">():</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="k">assert</span> <span class="mi">8</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
@@ -914,14 +956,14 @@ The result of each comparison is <code>True</code> if you change something from 
 
 <!-- inline-snapshot: fix outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span> <span class="nf">test_something</span><span class="p">():</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="k">assert</span> <span class="mi">8</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="k">assert</span> <span class="mi">8</span> <span class="o">&lt;=</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="k">assert</span> <span class="mi">8</span> <span class="ow">in</span> <span class="n">snapshot</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">])</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">s</span> <span class="o">=</span> <span class="n">snapshot</span><span class="p">({</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">})</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="k">assert</span> <span class="mi">8</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">]</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="hll">    <span class="k">assert</span> <span class="mi">8</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+</span><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="hll">    <span class="k">assert</span> <span class="mi">8</span> <span class="o">&lt;=</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+</span><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="hll">    <span class="k">assert</span> <span class="mi">8</span> <span class="ow">in</span> <span class="n">snapshot</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">])</span>
+</span><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="hll">    <span class="n">s</span> <span class="o">=</span> <span class="n">snapshot</span><span class="p">({</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">})</span>
+</span><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="k">assert</span> <span class="mi">8</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">]</span>
 </code></pre></div>
 
 </div>
@@ -935,7 +977,7 @@ The changes in the <strong>fix</strong> category are the only changes which chan
 <p>These changes are made when parts of the snapshots are removed which are no longer needed, or if limits can be reduced.</p>
 <div class="grid" markdown>
 
-<!-- inline-snapshot: outcome-passed=1 -->
+<!-- inline-snapshot: first_block outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span> <span class="nf">test_something</span><span class="p">():</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="k">assert</span> <span class="mi">2</span> <span class="o">&lt;=</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
@@ -947,12 +989,12 @@ The changes in the <strong>fix</strong> category are the only changes which chan
 
 <!-- inline-snapshot: trim outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">def</span> <span class="nf">test_something</span><span class="p">():</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="k">assert</span> <span class="mi">2</span> <span class="o">&lt;=</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="k">assert</span> <span class="mi">8</span> <span class="ow">in</span> <span class="n">snapshot</span><span class="p">([</span><span class="mi">8</span><span class="p">])</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">s</span> <span class="o">=</span> <span class="n">snapshot</span><span class="p">({</span><span class="s2">&quot;key2&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="k">assert</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;key2&quot;</span><span class="p">]</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="hll">    <span class="k">assert</span> <span class="mi">2</span> <span class="o">&lt;=</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="hll">    <span class="k">assert</span> <span class="mi">8</span> <span class="ow">in</span> <span class="n">snapshot</span><span class="p">([</span><span class="mi">8</span><span class="p">])</span>
+</span><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="hll">    <span class="n">s</span> <span class="o">=</span> <span class="n">snapshot</span><span class="p">({</span><span class="s2">&quot;key2&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+</span><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="k">assert</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;key2&quot;</span><span class="p">]</span>
 </code></pre></div>
 
 </div>
@@ -960,7 +1002,7 @@ The changes in the <strong>fix</strong> category are the only changes which chan
 <p>There might be problems in cases where you use the same snapshot in different tests, run only one test and trim the snapshot with <code>pytest -k test_a --inline-snapshot=trim</code> in this case:</p>
 <div class="grid" markdown>
 
-<!-- no-inline-snapshot: -->
+<!-- todo-inline-snapshot: first_block outcome-passed=2 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">s</span> <span class="o">=</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
@@ -972,9 +1014,9 @@ The changes in the <strong>fix</strong> category are the only changes which chan
 <a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="k">assert</span> <span class="mi">5</span> <span class="o">&lt;=</span> <span class="n">s</span>
 </code></pre></div>
 
-<!-- no-inline-snapshot: trim  -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">s</span> <span class="o">=</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<!-- todo-inline-snapshot: trim outcome-passed=2 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="hll"><span class="n">s</span> <span class="o">=</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="k">assert</span> <span class="mi">2</span> <span class="o">&lt;=</span> <span class="n">s</span>
@@ -990,7 +1032,10 @@ The changes in the <strong>fix</strong> category are the only changes which chan
 It is recommended to use trim only if you run your complete test suite.</p>
 <h3 id="update">Update<a class="headerlink" href="#update" title="Permanent link">&para;</a></h3>
 <p>Changes in the update category do not change the value in the code, just the representation. The reason might be that <code class="highlight"><span class="nb">repr</span><span class="p">()</span></code> of the object has changed or that inline-snapshot provides some new logic which changes the representation. Like with the strings in the following example:</p>
-<!-- inline-snapshot: outcome-passed=1 -->
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">original</label><label for="__tabbed_1_2">--inline-snapshot=update</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p><!-- inline-snapshot: first_block outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span> <span class="nc">Vector</span><span class="p">:</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
@@ -1012,8 +1057,10 @@ It is recommended to use trim only if you run your complete test suite.</p>
 <a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>    <span class="k">assert</span> <span class="mi">5</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 <a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>
 <a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>    <span class="k">assert</span> <span class="n">Vector</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="n">Vector</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
-</code></pre></div>
-<!-- inline-snapshot: update outcome-passed=1 -->
+</code></pre></div></p>
+</div>
+<div class="tabbed-block">
+<p><!-- inline-snapshot: update outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">class</span> <span class="nc">Vector</span><span class="p">:</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
@@ -1030,18 +1077,21 @@ It is recommended to use trim only if you run your complete test suite.</p>
 <a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
 <a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>
 <a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="k">def</span> <span class="nf">test_something</span><span class="p">():</span>
-<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>    <span class="k">assert</span> <span class="s2">&quot;a</span><span class="se">\n</span><span class="s2">b</span><span class="se">\n</span><span class="s2">c</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
-<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;\</span>
-<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="sd">a</span>
-<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="sd">b</span>
-<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="sd">c</span>
-<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>    <span class="p">)</span>
-<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>
-<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>    <span class="k">assert</span> <span class="mi">5</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>
-<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>    <span class="k">assert</span> <span class="n">Vector</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="n">Vector</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-</code></pre></div>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="hll">    <span class="k">assert</span> <span class="s2">&quot;a</span><span class="se">\n</span><span class="s2">b</span><span class="se">\n</span><span class="s2">c</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
+</span><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="hll"><span class="w">        </span><span class="sd">&quot;&quot;&quot;\</span>
+</span><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="hll"><span class="sd">a</span>
+</span><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="hll"><span class="sd">b</span>
+</span><a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="hll"><span class="sd">c</span>
+</span><a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="hll"><span class="sd">&quot;&quot;&quot;</span>
+</span><a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="hll">    <span class="p">)</span>
+</span><a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a><span class="hll">    <span class="k">assert</span> <span class="mi">5</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</span><a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a><span class="hll">    <span class="k">assert</span> <span class="n">Vector</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="n">Vector</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+</span></code></pre></div></p>
+</div>
+</div>
+</div>
 <p>The approval of this type of changes is easier, because inline-snapshot assures that the value has not changed.</p>
 
 
@@ -1123,7 +1173,7 @@ It is recommended to use trim only if you run your complete test suite.</p>
     <script id="__config" type="application/json">{"base": "..", "features": ["toc.follow", "content.code.annotate"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.081f42fc.min.js"></script>
+      <script src="../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
         <script src="../assets/_markdown_exec_pyodide.js"></script>
       

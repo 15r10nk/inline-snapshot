@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.24">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.76a95c52.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -270,7 +270,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -589,6 +589,48 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../types/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    types
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extra/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    extensions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -815,7 +857,7 @@ The value can later be changed with <code>--inline-snapshot=fix</code> if the va
 <div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">original code</label><label for="__tabbed_1_2">--inline-snapshot=create</label><label for="__tabbed_1_3">value changed</label><label for="__tabbed_1_4">--inline-snapshot=fix</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p><!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
+<p><!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span> <span class="nf">test_something</span><span class="p">():</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">assert</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">()</span>
 </code></pre></div></p>
@@ -823,20 +865,20 @@ The value can later be changed with <code>--inline-snapshot=fix</code> if the va
 <div class="tabbed-block">
 <p><!-- inline-snapshot: create outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span> <span class="nf">test_something</span><span class="p">():</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">assert</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
-</code></pre></div></p>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="hll">    <span class="k">assert</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+</span></code></pre></div></p>
 </div>
 <div class="tabbed-block">
 <p><!-- inline-snapshot: outcome-failed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span> <span class="nf">test_something</span><span class="p">():</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="k">assert</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">40</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-</code></pre></div></p>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="hll">    <span class="k">assert</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">40</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span></code></pre></div></p>
 </div>
 <div class="tabbed-block">
 <p><!-- inline-snapshot: fix outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span> <span class="nf">test_something</span><span class="p">():</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="k">assert</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">40</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-</code></pre></div></p>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="hll">    <span class="k">assert</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">40</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</span></code></pre></div></p>
 </div>
 </div>
 </div>
@@ -847,7 +889,7 @@ They might be part of larger data structures and be difficult to normalize.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">original code</label><label for="__tabbed_2_2">--inline-snapshot=create</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p><!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
+<p><!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">import</span> <span class="nn">datetime</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
@@ -877,10 +919,10 @@ They might be part of larger data structures and be difficult to normalize.</p>
 <a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
 <a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
 <a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="k">def</span> <span class="nf">test_function</span><span class="p">():</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>    <span class="k">assert</span> <span class="n">get_data</span><span class="p">()</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>        <span class="p">{</span><span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="s2">&quot;some data&quot;</span><span class="p">}</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>    <span class="p">)</span>
-</code></pre></div></p>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="hll">    <span class="k">assert</span> <span class="n">get_data</span><span class="p">()</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
+</span><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="hll">        <span class="p">{</span><span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="s2">&quot;some data&quot;</span><span class="p">}</span>
+</span><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="hll">    <span class="p">)</span>
+</span></code></pre></div></p>
 </div>
 </div>
 </div>
@@ -891,7 +933,7 @@ This expressions are preserved as long as the <code>==</code> comparison with th
 <div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">using IsDatetime()</label><label for="__tabbed_3_2">changed payload</label><label for="__tabbed_3_3">--inline-snapshot=fix</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p><!-- inline-snapshot: outcome-passed=1 -->
+<p><!-- inline-snapshot: first_block outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span> <span class="nn">dirty_equals</span> <span class="kn">import</span> <span class="n">IsDatetime</span>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kn">import</span> <span class="nn">datetime</span>
@@ -923,8 +965,8 @@ This expressions are preserved as long as the <code>==</code> comparison with th
 <a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">def</span> <span class="nf">get_data</span><span class="p">():</span>
 <a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="k">return</span> <span class="p">{</span>
 <a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">(),</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="s2">&quot;data changed for some good reason&quot;</span><span class="p">,</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="p">}</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="hll">        <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="s2">&quot;data changed for some good reason&quot;</span><span class="p">,</span>
+</span><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="p">}</span>
 <a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
 <a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
 <a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="k">def</span> <span class="nf">test_function</span><span class="p">():</span>
@@ -954,8 +996,8 @@ This expressions are preserved as long as the <code>==</code> comparison with th
 <a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    <span class="k">assert</span> <span class="n">get_data</span><span class="p">()</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
 <a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>        <span class="p">{</span>
 <a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>            <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">IsDatetime</span><span class="p">(),</span>
-<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>            <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="s2">&quot;data changed for some good reason&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>        <span class="p">}</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="hll">            <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="s2">&quot;data changed for some good reason&quot;</span><span class="p">,</span>
+</span><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>        <span class="p">}</span>
 <a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>    <span class="p">)</span>
 </code></pre></div></p>
 </div>
@@ -1053,7 +1095,7 @@ This expressions are preserved as long as the <code>==</code> comparison with th
     <script id="__config" type="application/json">{"base": "..", "features": ["toc.follow", "content.code.annotate"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.081f42fc.min.js"></script>
+      <script src="../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
         <script src="../assets/_markdown_exec_pyodide.js"></script>
       
