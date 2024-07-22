@@ -1,3 +1,10 @@
+## v0.12.0 (2024-07-22)
+
+### Feat
+
+- implement extra.raises
+- added inline_snapshot.testing.Example which can be used to test 3rd-party extensions
+
 ## v0.11.0 (2024-07-07)
 
 ### Feat
