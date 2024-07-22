@@ -37,8 +37,8 @@ nav:
   - snapshot()[key]: getitem_snapshot.md
   - outsource(data): outsource.md
   - '@customize_repr': customize_repr.md
-  - extras: extras.md
   - types: types.md
+  - extensions: extra.md
 - pytest integration: pytest.md
 - Categories: categories.md
 - Configuration: configuration.md

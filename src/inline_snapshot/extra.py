@@ -22,7 +22,7 @@ def raises(exception: Snapshot[str]):
         <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
         ```python
         from inline_snapshot import snapshot
-        from inline_snapshot.extras import raises
+        from inline_snapshot.extra import raises
 
 
         def test_raises():
@@ -35,7 +35,7 @@ def raises(exception: Snapshot[str]):
         <!-- inline-snapshot: create outcome-passed=1 -->
         ```python
         from inline_snapshot import snapshot
-        from inline_snapshot.extras import raises
+        from inline_snapshot.extra import raises
 
 
         def test_raises():

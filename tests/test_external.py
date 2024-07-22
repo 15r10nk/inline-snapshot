@@ -3,7 +3,7 @@ import ast
 from inline_snapshot import external
 from inline_snapshot import outsource
 from inline_snapshot import snapshot
-from inline_snapshot.extras import raises
+from inline_snapshot.extra import raises
 
 from tests.utils import config
 

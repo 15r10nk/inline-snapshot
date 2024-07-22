@@ -1,5 +1,5 @@
 from inline_snapshot import snapshot
-from inline_snapshot.extras import raises
+from inline_snapshot.extra import raises
 
 
 def test_raises():
