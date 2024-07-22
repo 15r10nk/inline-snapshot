@@ -7,8 +7,8 @@ The following example shows how you can use the `Example` class to test what inl
 
 === "original"
 
-    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
     from inline_snapshot.testing import Example
     from inline_snapshot import snapshot
 
@@ -24,7 +24,7 @@ The following example shows how you can use the `Example` class to test what inl
     """
             }
         ).run_inline(  # run without flags
-            reported_flags=snapshot(),
+            reported_categories=snapshot(),
         ).run_pytest(  # run without flags and check the pytest report
             changed_files=snapshot(),
             report=snapshot(),
@@ -37,7 +37,7 @@ The following example shows how you can use the `Example` class to test what inl
 === "--inline-snapshot=create"
 
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="16 18 19 20 21 22 23 24 27 28 29 30 31 32 33 34 35"
     from inline_snapshot.testing import Example
     from inline_snapshot import snapshot
 
@@ -53,7 +53,7 @@ The following example shows how you can use the `Example` class to test what inl
     """
             }
         ).run_inline(  # run without flags
-            reported_flags=snapshot(["create"]),
+            reported_categories=snapshot(["create"]),
         ).run_pytest(  # run without flags and check the pytest report
             changed_files=snapshot({}),
             report=snapshot(
@@ -83,6 +83,5 @@ The following example shows how you can use the `Example` class to test what inl
       heading_level: 3
       show_root_heading: true
       show_root_full_path: false
-      show_signature_annotations: true
       show_source: false
       annotations_path: brief

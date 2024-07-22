@@ -3,7 +3,7 @@ import ast
 from inline_snapshot import external
 from inline_snapshot import outsource
 from inline_snapshot import snapshot
-from inline_snapshot.extras import raises
+from inline_snapshot.extra import raises
 
 from tests.utils import config
 
@@ -87,7 +87,6 @@ def test_something():
 
     assert result.report == snapshot(
         """\
-
 -------------------------------- Fix snapshots ---------------------------------
 +-------------------------------- test_file.py --------------------------------+
 | @@ -4,5 +4,5 @@                                                              |
@@ -137,7 +136,6 @@ def test_a():
 
     assert result.errorLines() == snapshot(
         """\
-
 >       assert outsource("test2") == snapshot(
 E       AssertionError: assert 'test2' == 'test'
 E         ⏎
@@ -168,7 +166,6 @@ def test_a():
 
     assert result.errorLines() == snapshot(
         """\
-
 >       assert outsource(b"test2") == snapshot(
 E       AssertionError: assert b'test2' == b'test'
 E         ⏎

@@ -19,8 +19,7 @@ from inline_snapshot import _inline_snapshot
 from inline_snapshot._format import format_code
 from inline_snapshot._inline_snapshot import Flags
 from inline_snapshot._rewrite_code import ChangeRecorder
-
-from .utils import snapshot_env
+from inline_snapshot.testing._example import snapshot_env
 
 pytest_plugins = "pytester"
 
@@ -169,7 +168,7 @@ class RunResult:
         text = "\n".join(lines).rstrip()
 
         if "\n" in text:
-            return "\n" + text + "\n"
+            return text + "\n"
         else:
             return text
 

@@ -40,8 +40,8 @@ pip install inline-snapshot
 
 You can use `snapshot()` instead of the value which you want to compare with.
 
-<!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-```python
+<!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+``` python
 from inline_snapshot import snapshot
 
 
@@ -56,7 +56,7 @@ $ pytest --inline-snapshot=review
 ```
 
 <!-- inline-snapshot: create outcome-passed=1 -->
-```python
+``` python hl_lines="5"
 from inline_snapshot import snapshot
 
 
@@ -67,8 +67,8 @@ def test_something():
 The following examples show how you can use inline-snapshot in your tests. Take a look at the
 [documentation](https://15r10nk.github.io/inline-snapshot/) if you want to know more.
 
-<!-- inline-snapshot: create fix trim this outcome-passed=1 -->
-```python
+<!-- inline-snapshot: create fix trim first_block outcome-passed=1 -->
+``` python
 from inline_snapshot import snapshot, outsource, external
 
 
@@ -115,8 +115,8 @@ strings\
 
 `snapshot()` can also be used as parameter for functions:
 
-<!-- inline-snapshot: create fix trim this outcome-passed=1 -->
-```python
+<!-- inline-snapshot: create fix trim first_block outcome-passed=1 -->
+``` python
 from inline_snapshot import snapshot
 import subprocess as sp
 import sys

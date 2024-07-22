@@ -1,6 +1,5 @@
 from inline_snapshot import snapshot
-
-from .example import Example
+from inline_snapshot.testing import Example
 
 
 def test_example():
@@ -22,9 +21,9 @@ def test_a():
     )
 
     e.run_inline(
-        ["fix"],
-        reported_flags=snapshot(["fix"]),
+        ["--inline-snapshot=fix"],
+        reported_categories=snapshot(["fix"]),
     ).run_inline(
-        ["fix"],
+        ["--inline-snapshot=fix"],
         changed_files=snapshot({}),
     )

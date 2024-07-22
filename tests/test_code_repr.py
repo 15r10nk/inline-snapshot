@@ -6,8 +6,7 @@ from inline_snapshot import HasRepr
 from inline_snapshot import snapshot
 from inline_snapshot._code_repr import code_repr
 from inline_snapshot._sentinels import undefined
-
-from .example import Example
+from inline_snapshot.testing import Example
 
 
 def test_enum(check_update):
@@ -160,7 +159,7 @@ class container:
 assert container(a=1,b=5) == snapshot()
 """
     ).run_inline(
-        ["create"],
+        ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -254,7 +253,7 @@ assert Namespace.Color.red == snapshot()
 
     """
     ).run_inline(
-        ["create"],
+        ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
                 "test_something.py": """\

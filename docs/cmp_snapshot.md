@@ -7,8 +7,8 @@ The snapshot value can be trimmed to the lowest/largest valid value.
 Example:
 
 === "original code"
-    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
     def gcd(x, y):
         iterations = 0
         if x > y:
@@ -32,7 +32,7 @@ Example:
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="18 19"
     def gcd(x, y):
         iterations = 0
         if x > y:
@@ -56,7 +56,7 @@ Example:
 
 === "optimized code "
     <!-- inline-snapshot: outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="2 4 6 7"
     def gcd(x, y):
         # use Euclidean Algorithm
         iterations = 0
@@ -75,7 +75,7 @@ Example:
 
 === "--inline-snapshot=trim"
     <!-- inline-snapshot: trim outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="14"
     def gcd(x, y):
         # use Euclidean Algorithm
         iterations = 0
@@ -98,8 +98,8 @@ Example:
 The same snapshot value can also be used in multiple assertions.
 
 === "original code"
-    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
     def test_something():
         value = snapshot()
 
@@ -108,7 +108,7 @@ The same snapshot value can also be used in multiple assertions.
     ```
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="2"
     def test_something():
         value = snapshot(6)
 

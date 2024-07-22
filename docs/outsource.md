@@ -16,15 +16,15 @@ This allows the test to be renamed and moved around in your code without losing 
 Example:
 
 === "original code"
-    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
     def test_something():
         assert outsource("long text\n" * 1000) == snapshot()
     ```
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="1 2 3 5 6 7"
     from inline_snapshot import external
 
 
@@ -37,8 +37,8 @@ Example:
 The `external` object can be used inside other data structures.
 
 === "original code"
-    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
     def test_something():
         assert [
             outsource("long text\n" * times) for times in [50, 100, 1000]
@@ -47,7 +47,7 @@ The `external` object can be used inside other data structures.
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="1 2 3 7 8 9 10 11 12 13"
     from inline_snapshot import external
 
 
@@ -67,7 +67,12 @@ The `external` object can be used inside other data structures.
 ## API
 
 ::: inline_snapshot.outsource
+    options:
+      show_root_heading: true
+
 ::: inline_snapshot.external
+    options:
+      show_root_heading: true
 
 ## pytest options
 

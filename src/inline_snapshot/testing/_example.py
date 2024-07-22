@@ -5,6 +5,7 @@ import os
 import platform
 import re
 import subprocess as sp
+from argparse import ArgumentParser
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
@@ -12,10 +13,10 @@ from typing import Any
 import inline_snapshot._external
 import inline_snapshot._external as external
 from inline_snapshot import _inline_snapshot
-from inline_snapshot import Snapshot
 from inline_snapshot._inline_snapshot import Flags
 from inline_snapshot._rewrite_code import ChangeRecorder
 from inline_snapshot._types import Category
+from inline_snapshot._types import Snapshot
 
 
 @contextlib.contextmanager
@@ -88,9 +89,9 @@ class Example:
 
     def run_inline(
         self,
-        flags: list[Category] = [],
+        args: list[str] = [],
         *,
-        reported_flags: Snapshot[list[Category]] | None = None,
+        reported_categories: Snapshot[list[Category]] | None = None,
         changed_files: Snapshot[dict[str, str]] | None = None,
         raises: Snapshot[str] | None = None,
     ) -> Example:
@@ -100,8 +101,8 @@ class Example:
         This is useful for fast test execution.
 
         Parameters:
-            flags: list of inline-snapshot flags (like "fix" or "create") which should be used.
-            reported_flags: snapshot of flags which inline-snapshot thinks could be applied.
+            args: inline-snapshot arguments (supports only "--inline-snapshot=fix|create|..." ).
+            reported_categories: snapshot of categories which inline-snapshot thinks could be applied.
             changed_files: snapshot of files which are changed by this run.
             raises: snapshot of the exception which is raised during the test execution.
                     It is required if your code raises an exception.
@@ -109,6 +110,25 @@ class Example:
         Returns:
             A new Example instance which contains the changed files.
         """
+
+        parser = ArgumentParser()
+
+        parser.add_argument(
+            "--inline-snapshot",
+            metavar="(disable,short-report,report,review,create,update,trim,fix)*",
+            dest="inline_snapshot",
+            help="update specific snapshot values:\n"
+            "disable: disable the snapshot logic\n"
+            "short-report: show a short report\n"
+            "report: show a longer report with a diff report\n"
+            "review: allow to approve the changes interactive\n"
+            "create: creates snapshots which are currently not defined\n"
+            "update: update snapshots even if they are defined\n"
+            "trim: changes the snapshot in a way which will make the snapshot more precise.\n"
+            "fix: change snapshots which currently break your tests\n",
+        )
+        parsed_args = parser.parse_args(args)
+        flags = (parsed_args.inline_snapshot or "").split(",")
 
         with TemporaryDirectory() as dir:
             tmp_path = Path(dir)
@@ -146,8 +166,8 @@ class Example:
                         snapshot_flags |= snapshot._flags
                         snapshot._change()
 
-            if reported_flags is not None:
-                assert sorted(snapshot_flags) == reported_flags
+            if reported_categories is not None:
+                assert sorted(snapshot_flags) == reported_categories
 
             recorder.fix_all()
 

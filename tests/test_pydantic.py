@@ -1,6 +1,5 @@
 from inline_snapshot import snapshot
-
-from .example import Example
+from inline_snapshot.testing import Example
 
 
 def test_pydantic_repr():
@@ -20,7 +19,7 @@ def test_pydantic():
 
     """
     ).run_inline(
-        ["create"],
+        ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
                 "test_something.py": """\

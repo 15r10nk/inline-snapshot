@@ -21,8 +21,8 @@ You can use `snapshot()` instead of the value which you want to compare with and
 
 === "original code"
 
-    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
     from inline_snapshot import snapshot
 
 
@@ -38,7 +38,7 @@ You can use `snapshot()` instead of the value which you want to compare with and
 === "--inline-snapshot=create"
 
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="9"
     from inline_snapshot import snapshot
 
 
@@ -56,7 +56,7 @@ your code is correct and you want to update your test results.
 
 === "changed code"
     <!-- inline-snapshot: outcome-failed=1 -->
-    ```python
+    ``` python hl_lines="2"
     def something():
         return (1548 * 18489) // 18
 
@@ -68,7 +68,7 @@ your code is correct and you want to update your test results.
 
 === "--inline-snapshot=fix"
     <!-- inline-snapshot: fix outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="6"
     def something():
         return (1548 * 18489) // 18
 
@@ -93,7 +93,7 @@ You can use `snapshot(x)` like you can use `x` in your assertion with a limited 
 !!! warning
     One snapshot can only be used with one operation.
     The following code will not work:
-    <!-- inline-snapshot: show_error outcome-failed=1 -->
+    <!-- inline-snapshot: first_block show_error outcome-failed=1 -->
     ``` python
     def test_something():
         s = snapshot(5)
@@ -113,8 +113,8 @@ It is possible to place `snapshot()` anywhere in the tests and reuse it multiple
 
 === "original code"
 
-    <!-- inline-snapshot: outcome-passed=2 outcome-errors=2 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=2 outcome-errors=2 -->
+    ``` python
     def something():
         return 21 * 2
 
@@ -135,7 +135,7 @@ It is possible to place `snapshot()` anywhere in the tests and reuse it multiple
 === "--inline-snapshot=create"
 
     <!-- inline-snapshot: create outcome-passed=2 -->
-    ```python
+    ``` python hl_lines="5"
     def something():
         return 21 * 2
 
@@ -156,15 +156,15 @@ It is possible to place `snapshot()` anywhere in the tests and reuse it multiple
 `snapshot()` can also be used in loops:
 
 === "original code"
-    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
     def test_loop():
         for name in ["Mia", "Eva", "Leo"]:
             assert len(name) == snapshot()
     ```
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ```python
+    ``` python hl_lines="3"
     def test_loop():
         for name in ["Mia", "Eva", "Leo"]:
             assert len(name) == snapshot(3)
@@ -174,8 +174,8 @@ or passed as an argument to a function:
 
 
 === "original code"
-    <!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-    ```python
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
     def check_string_len(string, snapshot_value):
         assert len(string) == snapshot_value
 
@@ -188,7 +188,7 @@ or passed as an argument to a function:
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ``` python
+    ``` python hl_lines="6 7 8"
     def check_string_len(string, snapshot_value):
         assert len(string) == snapshot_value
 

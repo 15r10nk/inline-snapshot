@@ -1,6 +1,5 @@
 from inline_snapshot import snapshot
-
-from tests.example import Example
+from inline_snapshot.testing import Example
 
 
 def test_help_message(testdir):
@@ -23,7 +22,6 @@ def test_a():
 
     assert result.report == snapshot(
         """\
-
 Error: one snapshot is missing a value (--inline-snapshot=create)
 You can also use --inline-snapshot=review to approve the changes interactiv
 """
@@ -35,7 +33,6 @@ You can also use --inline-snapshot=review to approve the changes interactiv
 
     assert result.report == snapshot(
         """\
-
 ------------------------------- Create snapshots -------------------------------
 +-------------------------------- test_file.py --------------------------------+
 | @@ -4,4 +4,4 @@                                                              |
@@ -72,7 +69,6 @@ def test_a():
 
     assert result.report == snapshot(
         """\
-
 Error: one snapshot has incorrect values (--inline-snapshot=fix)
 You can also use --inline-snapshot=review to approve the changes interactiv
 """
@@ -84,7 +80,6 @@ You can also use --inline-snapshot=review to approve the changes interactiv
 
     assert result.report == snapshot(
         """\
-
 -------------------------------- Fix snapshots ---------------------------------
 +-------------------------------- test_file.py --------------------------------+
 | @@ -4,4 +4,4 @@                                                              |
@@ -125,7 +120,6 @@ def test_a():
 
     assert result.report == snapshot(
         """\
-
 ------------------------------- Update snapshots -------------------------------
 +-------------------------------- test_file.py --------------------------------+
 | @@ -4,4 +4,4 @@                                                              |
@@ -162,7 +156,6 @@ def test_a():
 
     assert result.report == snapshot(
         """\
-
 Info: one snapshot can be trimmed (--inline-snapshot=trim)
 You can also use --inline-snapshot=review to approve the changes interactiv
 """
@@ -172,7 +165,6 @@ You can also use --inline-snapshot=review to approve the changes interactiv
 
     assert result.report == snapshot(
         """\
-
 -------------------------------- Trim snapshots --------------------------------
 +-------------------------------- test_file.py --------------------------------+
 | @@ -4,4 +4,4 @@                                                              |
@@ -211,7 +203,6 @@ def test_a():
 
     assert result.report == snapshot(
         """\
-
 Error: one snapshot has incorrect values (--inline-snapshot=fix)
 Info: one snapshot can be trimmed (--inline-snapshot=trim)
 You can also use --inline-snapshot=review to approve the changes interactiv
@@ -222,7 +213,6 @@ You can also use --inline-snapshot=review to approve the changes interactiv
 
     assert result.report == snapshot(
         """\
-
 -------------------------------- Fix snapshots ---------------------------------
 +-------------------------------- test_file.py --------------------------------+
 | @@ -6,4 +6,4 @@                                                              |
@@ -362,7 +352,6 @@ def test_a():
     result = project.run()
     assert result.errorLines() == snapshot(
         """\
-
 >       assert "a"==snapshot("b")
 E       AssertionError: assert 'a' == 'b'
 E         ⏎
@@ -381,7 +370,6 @@ def test_a():
     result = project.run()
     assert result.errorLines() == snapshot(
         """\
-
 >       assert snapshot("b")=="a"
 E       AssertionError: assert 'b' == 'a'
 E         ⏎
@@ -400,7 +388,7 @@ for e in (1, 2):
     )
     result = project.run()
     assert result.errorLines() == snapshot(
-        """
+        """\
 E   assert 2 == 1
 E    +  where 1 = snapshot()
 """
@@ -416,7 +404,7 @@ for e in (1, 2):
     )
     result = project.run()
     assert result.errorLines() == snapshot(
-        """
+        """\
 E   assert 2 == 1
 E    +  where 1 = snapshot(1)
 """
@@ -427,7 +415,7 @@ def test_assertion_error(project):
     project.setup("assert 2 == snapshot(1)")
     result = project.run()
     assert result.errorLines() == snapshot(
-        """
+        """\
 E   assert 2 == 1
 E    +  where 1 = snapshot(1)
 """
@@ -462,7 +450,6 @@ def test_something():
 
     assert result.report == snapshot(
         """\
-
 -------------------------------- Fix snapshots ---------------------------------
 +-------------------------------- test_file.py --------------------------------+
 | @@ -4,4 +4,4 @@                                                              |
@@ -503,7 +490,6 @@ def test_sub_snapshot():
 
     assert result.errors == snapshot(
         """\
-
 ============================================================================ ERRORS ============================================================================
 ____________________________________________________________ ERROR at teardown of test_sub_snapshot ____________________________________________________________
 your snapshot is missing one value run pytest with --inline-snapshot=create to create it
@@ -627,7 +613,7 @@ def test_a():
     """,
         }
     ).run_inline(
-        ["create"],
+        ["--inline-snapshot=create"],
         changed_files=snapshot({}),
         raises=snapshot(
             """\

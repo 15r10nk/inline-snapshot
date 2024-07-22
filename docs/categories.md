@@ -23,8 +23,8 @@ Example:
 
 <div class="grid" markdown>
 
-<!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
-```python
+<!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+``` python
 def test_something():
     assert 5 == snapshot()
 
@@ -37,7 +37,7 @@ def test_something():
 ```
 
 <!-- inline-snapshot: create outcome-passed=1 -->
-```python
+``` python hl_lines="2 4 6 8"
 def test_something():
     assert 5 == snapshot(5)
 
@@ -58,8 +58,8 @@ The result of each comparison is `True` if you change something from this catego
 
 <div class="grid" markdown>
 
-<!-- inline-snapshot: outcome-failed=1 -->
-```python
+<!-- inline-snapshot: first_block outcome-failed=1 -->
+``` python
 def test_something():
     assert 8 == snapshot(5)
 
@@ -72,7 +72,7 @@ def test_something():
 ```
 
 <!-- inline-snapshot: fix outcome-passed=1 -->
-```python
+``` python hl_lines="2 4 6 8"
 def test_something():
     assert 8 == snapshot(8)
 
@@ -100,8 +100,8 @@ These changes are made when parts of the snapshots are removed which are no long
 
 <div class="grid" markdown>
 
-<!-- inline-snapshot: outcome-passed=1 -->
-```python
+<!-- inline-snapshot: first_block outcome-passed=1 -->
+``` python
 def test_something():
     assert 2 <= snapshot(8)
 
@@ -112,7 +112,7 @@ def test_something():
 ```
 
 <!-- inline-snapshot: trim outcome-passed=1 -->
-```python
+``` python hl_lines="2 4 6"
 def test_something():
     assert 2 <= snapshot(2)
 
@@ -128,8 +128,8 @@ There might be problems in cases where you use the same snapshot in different te
 
 <div class="grid" markdown>
 
-<!-- no-inline-snapshot: -->
-```python
+<!-- todo-inline-snapshot: first_block outcome-passed=2 -->
+``` python
 s = snapshot(5)
 
 
@@ -141,8 +141,8 @@ def test_b():
     assert 5 <= s
 ```
 
-<!-- no-inline-snapshot: trim  -->
-```python
+<!-- todo-inline-snapshot: trim outcome-passed=2 -->
+``` python hl_lines="1"
 s = snapshot(2)
 
 
@@ -164,62 +164,64 @@ It is recommended to use trim only if you run your complete test suite.
 Changes in the update category do not change the value in the code, just the representation. The reason might be that `#!python repr()` of the object has changed or that inline-snapshot provides some new logic which changes the representation. Like with the strings in the following example:
 
 
+=== "original"
+    <!-- inline-snapshot: first_block outcome-passed=1 -->
+    ``` python
+    class Vector:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
 
-<!-- inline-snapshot: outcome-passed=1 -->
-```python
-class Vector:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        def __eq__(self, other):
+            if not isinstance(other, Vector):
+                return NotImplemented
+            return self.x == other.x and self.y == other.y
 
-    def __eq__(self, other):
-        if not isinstance(other, Vector):
-            return NotImplemented
-        return self.x == other.x and self.y == other.y
-
-    def __repr__(self):
-        # return f"Vector(x={self.x}, y={self.y})"
-        return f"Vector({self.x}, {self.y})"
-
-
-def test_something():
-    assert "a\nb\nc\n" == snapshot("a\nb\nc\n")
-
-    assert 5 == snapshot(4 + 1)
-
-    assert Vector(1, 2) == snapshot(Vector(x=1, y=2))
-```
-
-<!-- inline-snapshot: update outcome-passed=1 -->
-```python
-class Vector:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def __eq__(self, other):
-        if not isinstance(other, Vector):
-            return NotImplemented
-        return self.x == other.x and self.y == other.y
-
-    def __repr__(self):
-        # return f"Vector(x={self.x}, y={self.y})"
-        return f"Vector({self.x}, {self.y})"
+        def __repr__(self):
+            # return f"Vector(x={self.x}, y={self.y})"
+            return f"Vector({self.x}, {self.y})"
 
 
-def test_something():
-    assert "a\nb\nc\n" == snapshot(
-        """\
-a
-b
-c
-"""
-    )
+    def test_something():
+        assert "a\nb\nc\n" == snapshot("a\nb\nc\n")
 
-    assert 5 == snapshot(5)
+        assert 5 == snapshot(4 + 1)
 
-    assert Vector(1, 2) == snapshot(Vector(1, 2))
-```
+        assert Vector(1, 2) == snapshot(Vector(x=1, y=2))
+    ```
+
+=== "--inline-snapshot=update"
+
+    <!-- inline-snapshot: update outcome-passed=1 -->
+    ``` python hl_lines="17 18 19 20 21 22 23 25 27"
+    class Vector:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+        def __eq__(self, other):
+            if not isinstance(other, Vector):
+                return NotImplemented
+            return self.x == other.x and self.y == other.y
+
+        def __repr__(self):
+            # return f"Vector(x={self.x}, y={self.y})"
+            return f"Vector({self.x}, {self.y})"
+
+
+    def test_something():
+        assert "a\nb\nc\n" == snapshot(
+            """\
+    a
+    b
+    c
+    """
+        )
+
+        assert 5 == snapshot(5)
+
+        assert Vector(1, 2) == snapshot(Vector(1, 2))
+    ```
 
 
 The approval of this type of changes is easier, because inline-snapshot assures that the value has not changed.
