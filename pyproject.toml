@@ -19,7 +19,8 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy"
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "License :: OSI Approved :: MIT License",
 ]
 dependencies = [
   "asttokens>=2.0.5",
@@ -33,7 +34,6 @@ dependencies = [
 ]
 description = "golden master/snapshot/approval testing library which puts the values right into your source code"
 keywords = []
-license = "MIT"
 name = "inline-snapshot"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -97,6 +97,7 @@ dependencies = [
 
 [tool.hatch.envs.docs.scripts]
 build = "mkdocs build"
+deploy = "mkdocs gh-deploy"
 export-deps = "pip freeze"
 serve = "mkdocs serve"
 
@@ -125,9 +126,6 @@ python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/inline_snapshot tests}"
-
-[tool.hatch.venv.typing]
-inherit = "types"
 
 [tool.mypy]
 exclude = "tests/.*_samples"
