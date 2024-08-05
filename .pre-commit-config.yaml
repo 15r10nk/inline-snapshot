@@ -60,9 +60,6 @@ repos:
   hooks:
   - id: pretty-format-yaml
     args: [--autofix, --indent, '2']
-  - id: pretty-format-toml
-    exclude: ^poetry.lock$
-    args: [--autofix]
 
 - hooks:
   - id: commitizen
@@ -76,3 +73,10 @@ repos:
   rev: v1.7.5
   hooks:
   - id: docformatter
+
+- repo: https://github.com/abravalheri/validate-pyproject
+  rev: v0.18
+  hooks:
+  - id: validate-pyproject
+    # Optional extra validations from SchemaStore:
+    additional_dependencies: ['validate-pyproject-schema-store[all]']
