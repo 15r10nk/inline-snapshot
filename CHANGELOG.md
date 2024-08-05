@@ -1,3 +1,9 @@
+## v0.12.1 (2024-08-05)
+
+### Fix
+
+- add license to project metadata and some other fixes in pyproject.toml (#104)
+
 ## v0.12.0 (2024-07-22)
 
 ### Feat
