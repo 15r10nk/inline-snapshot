@@ -27,8 +27,8 @@ else:
 
 
         Example:
-        <!-- inline-snapshot: create fix trim this outcome-passed=2 -->
-        ```python
+        <!-- inline-snapshot: create fix trim first_block outcome-passed=2 -->
+        ``` python
         from typing import Optional
         from inline_snapshot import snapshot, Snapshot
 
