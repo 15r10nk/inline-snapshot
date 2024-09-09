@@ -686,21 +686,24 @@ s = snapshot("""\\
 
 def test_string_quote_choice(check_update):
     assert check_update(
-        "s = snapshot(\" \\'\\'\\' \\'\\'\\' \\\"\\\"\\\"\\n\")", flags="update"
+        "s = snapshot(\" \\'\\'\\' \\'\\'\\' \\\"\\\"\\\"\\nother_line\")",
+        flags="update",
     ) == snapshot(
         '''\
 s = snapshot("""\\
  \'\'\' \'\'\' \\"\\"\\"
+other_line\\
 """)\
 '''
     )
 
     assert check_update(
-        's = snapshot(" \\\'\\\'\\\' \\"\\"\\" \\"\\"\\"\\n")', flags="update"
+        's = snapshot(" \\\'\\\'\\\' \\"\\"\\" \\"\\"\\"\\nother_line")', flags="update"
     ) == snapshot(
         """\
 s = snapshot('''\\
  \\'\\'\\' \"\"\" \"\"\"
+other_line\\
 ''')\
 """
     )
@@ -712,6 +715,49 @@ s = snapshot("""\\
 "\\
 """)\
 '''
+    )
+
+    assert check_update(
+        "s=snapshot('\\n')", flags="update", reported_flags=""
+    ) == snapshot("s=snapshot('\\n')")
+    assert check_update(
+        "s=snapshot('abc\\n')", flags="update", reported_flags=""
+    ) == snapshot("s=snapshot('abc\\n')")
+    assert check_update("s=snapshot('abc\\nabc')", flags="update") == snapshot(
+        '''\
+s=snapshot("""\\
+abc
+abc\\
+""")\
+'''
+    )
+    assert check_update("s=snapshot('\\nabc')", flags="update") == snapshot(
+        '''\
+s=snapshot("""\\
+
+abc\\
+""")\
+'''
+    )
+    assert check_update("s=snapshot('a\\na\\n')", flags="update") == snapshot(
+        '''\
+s=snapshot("""\\
+a
+a
+""")\
+'''
+    )
+
+    assert (
+        check_update(
+            '''\
+s=snapshot("""\\
+a
+""")\
+''',
+            flags="update",
+        )
+        == snapshot('s=snapshot("a\\n")')
     )
 
 
