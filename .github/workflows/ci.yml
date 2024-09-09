@@ -36,43 +36,59 @@ jobs:
         architecture: x64
         allow-prereleases: true
     - run: pip install hatch
-    - run: hatch test -cp -py ${{matrix.python-version}}
 
-    - name: rename coverage files
-      run: |
+    - run: |
+        hatch test -cp -py ${{matrix.python-version}}
         mv .coverage .coverage.${{ matrix.python-version }}.${{matrix.os}}
+      if: matrix.os == 'ubuntu-latest'
+
+    - run: hatch test -p -py ${{matrix.python-version}}
+      if: matrix.os != 'ubuntu-latest'
 
     - name: Upload coverage data
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: coverage
+        name: coverage-data-${{ matrix.python-version }}-${{matrix.os}}
         path: .coverage.*
         include-hidden-files: true
+        if-no-files-found: ignore
 
-  combine_coverage:
-    name: combine coverage and check for 100%
+  coverage:
+    name: Combine & check coverage
+    env:
+      TOP: ${{github.workspace}}
+    if: always()
     needs: test
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
-        architecture: x64
+            # Use latest Python, so it understands all syntax.
+        python-version: '3.12'
 
-    - name: Download coverage data
-      uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
-        name: coverage
+        pattern: coverage-data-*
+        merge-multiple: true
 
-    - name: Combine data
-      env:
-        TOP: ${{github.workspace}}
+    - name: Combine coverage & fail if it's <100%
       run: |
-        rm .coverage.*.windows-latest
-        rm .coverage.*.macos-13
-        pip install coverage
-        coverage combine
-        coverage html
-        coverage report --fail-under 100
+        python -Im pip install --upgrade coverage[toml]
+
+        python -Im coverage combine
+        python -Im coverage html --skip-covered --skip-empty
+
+        # Report and write to summary.
+        python -Im coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+
+        # Report again and fail if under 100%.
+        python -Im coverage report --fail-under=100
+
+    - name: Upload HTML report if check failed
+      uses: actions/upload-artifact@v4
+      with:
+        name: html-report
+        path: htmlcov
+      if: ${{ failure() }}
