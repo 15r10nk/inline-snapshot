@@ -46,6 +46,7 @@ jobs:
       with:
         name: coverage
         path: .coverage.*
+        include-hidden-files: true
 
   combine_coverage:
     name: combine coverage and check for 100%

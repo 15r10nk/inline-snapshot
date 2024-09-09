@@ -126,7 +126,9 @@ def value_to_token(value):
         """Convert strings with newlines in triple quoted strings."""
         if tok.type == token.STRING:
             s = ast.literal_eval(tok.string)
-            if isinstance(s, str) and "\n" in s:
+            if isinstance(s, str) and (
+                ("\n" in s and s[-1] != "\n") or s.count("\n") > 1
+            ):
                 # unparse creates a triple quoted string here,
                 # because it thinks that the string should be a docstring
                 tripple_quoted_string = triple_quote(s)
