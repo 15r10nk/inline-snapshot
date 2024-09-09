@@ -1,5 +1,6 @@
 import platform
 import re
+import sys
 import textwrap
 from pathlib import Path
 
@@ -9,6 +10,10 @@ import pytest
 
 @pytest.mark.skipif(
     platform.system() == "Windows",
+    reason="\\r in stdout can cause problems in snapshot strings",
+)
+@pytest.mark.skipif(
+    sys.version_info[:2] != (3, 12),
     reason="\\r in stdout can cause problems in snapshot strings",
 )
 @pytest.mark.parametrize(

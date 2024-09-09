@@ -18,6 +18,7 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
   "License :: OSI Approved :: MIT License",
@@ -26,7 +27,7 @@ dependencies = [
   "asttokens>=2.0.5",
   "black>=23.3.0",
   "click>=8.1.4",
-  "executing>=2.0.0",
+  "executing>=2.1.0",
   "rich>=13.7.1",
   "toml>=0.10.2",
   "types-toml>=0.10.8.7",
@@ -101,6 +102,9 @@ deploy = "mkdocs gh-deploy"
 export-deps = "pip freeze"
 serve = "mkdocs serve"
 
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.13", "3.12", "3.11", "3.10", "3.9", "3.8"]
+
 [tool.hatch.envs.hatch-test]
 extra-dependencies = [
   "dirty-equals>=0.7.0",
@@ -122,7 +126,7 @@ extra-dependencies = [
 ]
 
 [[tool.hatch.envs.types.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12","3.13"]
 
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/inline_snapshot tests}"
