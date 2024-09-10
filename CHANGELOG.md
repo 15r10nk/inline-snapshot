@@ -1,3 +1,11 @@
+## v0.13.0 (2024-09-10)
+
+### Feat
+
+- added extra.prints
+- 3.13 support
+- strings with one line-break at the end become no multiline strings
+
 ## v0.12.1 (2024-08-05)
 
 ### Fix
