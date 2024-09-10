@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout main
-      uses: actions/checkout@v2
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
     - run: pip install hatch
     - run: hatch run docs:export-deps > doc_requirements.txt
 
     - name: Deploy docs
-      uses: mhausenblas/mkdocs-deploy-gh-pages@master
+      uses: mhausenblas/mkdocs-deploy-gh-pages@d77dd03172e96abbcdb081d8c948224762033653 # 1.26
         # Or use mhausenblas/mkdocs-deploy-gh-pages@nomaterial to build without the mkdocs-material theme
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
