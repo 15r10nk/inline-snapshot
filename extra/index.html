@@ -14,7 +14,7 @@
         <link rel="prev" href="../types/">
       
       
-        <link rel="next" href="../pytest/">
+        <link rel="next" href="../third_party/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>extensions - inline-snapshot</title>
+        <title>first-party (extra) - inline-snapshot</title>
       
     
     
@@ -63,7 +63,7 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="extensions - inline-snapshot" >
+        <meta  property="og:title"  content="first-party (extra) - inline-snapshot" >
       
         <meta  property="og:description"  content="None" >
       
@@ -79,7 +79,7 @@
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="extensions - inline-snapshot" >
+        <meta  name="twitter:title"  content="first-party (extra) - inline-snapshot" >
       
         <meta  name="twitter:description"  content="None" >
       
@@ -209,7 +209,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              extensions
+              first-party (extra)
             
           </span>
         </div>
@@ -367,36 +367,34 @@
       
   
   
-    
   
   
-  
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Reference
+    Core
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
-            Reference
+            Core
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -547,6 +545,50 @@
 
               
             
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Extensions
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Extensions
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
               
                 
   
@@ -567,7 +609,7 @@
           
   
   <span class="md-ellipsis">
-    extensions
+    first-party (extra)
   </span>
   
 
@@ -578,7 +620,7 @@
         
   
   <span class="md-ellipsis">
-    extensions
+    first-party (extra)
   </span>
   
 
@@ -600,6 +642,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#inline_snapshot.extra.prints" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;prints
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#inline_snapshot.extra.raises" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;raises
@@ -612,6 +663,27 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../third_party/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    third-party
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -791,6 +863,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#inline_snapshot.extra.prints" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;prints
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#inline_snapshot.extra.raises" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;raises
@@ -849,6 +930,256 @@ not depend on other libraries.</p>
 <div class="doc doc-object doc-function">
 
 
+<h2 id="inline_snapshot.extra.prints" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">prints</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span></code>
+
+<a href="#inline_snapshot.extra.prints" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Uses <code>contextlib.redirect_stderr/stdout</code> to capture the output and
+compare it with the snapshots. <code>dirty_equals.IsStr</code> can be used to ignore
+the output if needed.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>stdout</code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="inline_snapshot._types.Snapshot" href="../types/#inline_snapshot.Snapshot">Snapshot</a>[str]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>snapshot which is compared to the recorded output</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;&#39;</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>stderr</code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="inline_snapshot._types.Snapshot" href="../types/#inline_snapshot.Snapshot">Snapshot</a>[str]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>snapshot which is compared to the recorded error output</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;&#39;</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+      <div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="inline_snapshot.extra.prints--__tabbed_1_1" name="inline_snapshot.extra.prints--__tabbed_1" type="radio" /><input id="inline_snapshot.extra.prints--__tabbed_1_2" name="inline_snapshot.extra.prints--__tabbed_1" type="radio" /><input id="inline_snapshot.extra.prints--__tabbed_1_3" name="inline_snapshot.extra.prints--__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="inline_snapshot.extra.prints--__tabbed_1_1">original</label><label for="inline_snapshot.extra.prints--__tabbed_1_2">--inline-snapshot=create</label><label for="inline_snapshot.extra.prints--__tabbed_1_3">ignore stdout</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p><!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">snapshot</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">inline_snapshot.extra</span> <span class="kn">import</span> <span class="n">prints</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">import</span> <span class="nn">sys</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">def</span> <span class="nf">test_prints</span><span class="p">():</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">with</span> <span class="n">prints</span><span class="p">(</span><span class="n">stdout</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(),</span> <span class="n">stderr</span><span class="o">=</span><span class="n">snapshot</span><span class="p">()):</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;hello world&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;some error&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+</code></pre></div></p>
+</div>
+<div class="tabbed-block">
+<p><!-- inline-snapshot: create outcome-passed=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">snapshot</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">inline_snapshot.extra</span> <span class="kn">import</span> <span class="n">prints</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">import</span> <span class="nn">sys</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">def</span> <span class="nf">test_prints</span><span class="p">():</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="hll">    <span class="k">with</span> <span class="n">prints</span><span class="p">(</span>
+</span><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="hll">        <span class="n">stdout</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="s2">&quot;hello world</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">stderr</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="s2">&quot;some error</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="hll">    <span class="p">):</span>
+</span><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;hello world&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;some error&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+</code></pre></div></p>
+</div>
+<div class="tabbed-block">
+<p><!-- inline-snapshot: outcome-passed=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">snapshot</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">inline_snapshot.extra</span> <span class="kn">import</span> <span class="n">prints</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="hll"><span class="kn">from</span> <span class="nn">dirty_equals</span> <span class="kn">import</span> <span class="n">IsStr</span>
+</span><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kn">import</span> <span class="nn">sys</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">def</span> <span class="nf">test_prints</span><span class="p">():</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="k">with</span> <span class="n">prints</span><span class="p">(</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="hll">        <span class="n">stdout</span><span class="o">=</span><span class="n">IsStr</span><span class="p">(),</span>
+</span><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="n">stderr</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="s2">&quot;some error</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="p">):</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;hello world&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;some error&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+</code></pre></div></p>
+</div>
+</div>
+</div>
+
+            <details class="quote">
+              <summary>Source code in <code>src/inline_snapshot/extra.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-61"> 61</a></span>
+<span class="normal"><a href="#__codelineno-0-62"> 62</a></span>
+<span class="normal"><a href="#__codelineno-0-63"> 63</a></span>
+<span class="normal"><a href="#__codelineno-0-64"> 64</a></span>
+<span class="normal"><a href="#__codelineno-0-65"> 65</a></span>
+<span class="normal"><a href="#__codelineno-0-66"> 66</a></span>
+<span class="normal"><a href="#__codelineno-0-67"> 67</a></span>
+<span class="normal"><a href="#__codelineno-0-68"> 68</a></span>
+<span class="normal"><a href="#__codelineno-0-69"> 69</a></span>
+<span class="normal"><a href="#__codelineno-0-70"> 70</a></span>
+<span class="normal"><a href="#__codelineno-0-71"> 71</a></span>
+<span class="normal"><a href="#__codelineno-0-72"> 72</a></span>
+<span class="normal"><a href="#__codelineno-0-73"> 73</a></span>
+<span class="normal"><a href="#__codelineno-0-74"> 74</a></span>
+<span class="normal"><a href="#__codelineno-0-75"> 75</a></span>
+<span class="normal"><a href="#__codelineno-0-76"> 76</a></span>
+<span class="normal"><a href="#__codelineno-0-77"> 77</a></span>
+<span class="normal"><a href="#__codelineno-0-78"> 78</a></span>
+<span class="normal"><a href="#__codelineno-0-79"> 79</a></span>
+<span class="normal"><a href="#__codelineno-0-80"> 80</a></span>
+<span class="normal"><a href="#__codelineno-0-81"> 81</a></span>
+<span class="normal"><a href="#__codelineno-0-82"> 82</a></span>
+<span class="normal"><a href="#__codelineno-0-83"> 83</a></span>
+<span class="normal"><a href="#__codelineno-0-84"> 84</a></span>
+<span class="normal"><a href="#__codelineno-0-85"> 85</a></span>
+<span class="normal"><a href="#__codelineno-0-86"> 86</a></span>
+<span class="normal"><a href="#__codelineno-0-87"> 87</a></span>
+<span class="normal"><a href="#__codelineno-0-88"> 88</a></span>
+<span class="normal"><a href="#__codelineno-0-89"> 89</a></span>
+<span class="normal"><a href="#__codelineno-0-90"> 90</a></span>
+<span class="normal"><a href="#__codelineno-0-91"> 91</a></span>
+<span class="normal"><a href="#__codelineno-0-92"> 92</a></span>
+<span class="normal"><a href="#__codelineno-0-93"> 93</a></span>
+<span class="normal"><a href="#__codelineno-0-94"> 94</a></span>
+<span class="normal"><a href="#__codelineno-0-95"> 95</a></span>
+<span class="normal"><a href="#__codelineno-0-96"> 96</a></span>
+<span class="normal"><a href="#__codelineno-0-97"> 97</a></span>
+<span class="normal"><a href="#__codelineno-0-98"> 98</a></span>
+<span class="normal"><a href="#__codelineno-0-99"> 99</a></span>
+<span class="normal"><a href="#__codelineno-0-100">100</a></span>
+<span class="normal"><a href="#__codelineno-0-101">101</a></span>
+<span class="normal"><a href="#__codelineno-0-102">102</a></span>
+<span class="normal"><a href="#__codelineno-0-103">103</a></span>
+<span class="normal"><a href="#__codelineno-0-104">104</a></span>
+<span class="normal"><a href="#__codelineno-0-105">105</a></span>
+<span class="normal"><a href="#__codelineno-0-106">106</a></span>
+<span class="normal"><a href="#__codelineno-0-107">107</a></span>
+<span class="normal"><a href="#__codelineno-0-108">108</a></span>
+<span class="normal"><a href="#__codelineno-0-109">109</a></span>
+<span class="normal"><a href="#__codelineno-0-110">110</a></span>
+<span class="normal"><a href="#__codelineno-0-111">111</a></span>
+<span class="normal"><a href="#__codelineno-0-112">112</a></span>
+<span class="normal"><a href="#__codelineno-0-113">113</a></span>
+<span class="normal"><a href="#__codelineno-0-114">114</a></span>
+<span class="normal"><a href="#__codelineno-0-115">115</a></span>
+<span class="normal"><a href="#__codelineno-0-116">116</a></span>
+<span class="normal"><a href="#__codelineno-0-117">117</a></span>
+<span class="normal"><a href="#__codelineno-0-118">118</a></span>
+<span class="normal"><a href="#__codelineno-0-119">119</a></span>
+<span class="normal"><a href="#__codelineno-0-120">120</a></span>
+<span class="normal"><a href="#__codelineno-0-121">121</a></span>
+<span class="normal"><a href="#__codelineno-0-122">122</a></span>
+<span class="normal"><a href="#__codelineno-0-123">123</a></span>
+<span class="normal"><a href="#__codelineno-0-124">124</a></span>
+<span class="normal"><a href="#__codelineno-0-125">125</a></span>
+<span class="normal"><a href="#__codelineno-0-126">126</a></span>
+<span class="normal"><a href="#__codelineno-0-127">127</a></span>
+<span class="normal"><a href="#__codelineno-0-128">128</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="k">def</span> <span class="nf">prints</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">stdout</span><span class="p">:</span> <span class="n">Snapshot</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">stderr</span><span class="p">:</span> <span class="n">Snapshot</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+<a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Uses `contextlib.redirect_stderr/stdout` to capture the output and</span>
+<a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="sd">    compare it with the snapshots. `dirty_equals.IsStr` can be used to ignore</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="sd">    the output if needed.</span>
+<a id="__codelineno-0-66" name="__codelineno-0-66"></a>
+<a id="__codelineno-0-67" name="__codelineno-0-67"></a><span class="sd">    Parameters:</span>
+<a id="__codelineno-0-68" name="__codelineno-0-68"></a><span class="sd">        stdout: snapshot which is compared to the recorded output</span>
+<a id="__codelineno-0-69" name="__codelineno-0-69"></a><span class="sd">        stderr: snapshot which is compared to the recorded error output</span>
+<a id="__codelineno-0-70" name="__codelineno-0-70"></a>
+<a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="sd">    === &quot;original&quot;</span>
+<a id="__codelineno-0-72" name="__codelineno-0-72"></a>
+<a id="__codelineno-0-73" name="__codelineno-0-73"></a><span class="sd">        &lt;!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 --&gt;</span>
+<a id="__codelineno-0-74" name="__codelineno-0-74"></a><span class="sd">        ``` python</span>
+<a id="__codelineno-0-75" name="__codelineno-0-75"></a><span class="sd">        from inline_snapshot import snapshot</span>
+<a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="sd">        from inline_snapshot.extra import prints</span>
+<a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">        import sys</span>
+<a id="__codelineno-0-78" name="__codelineno-0-78"></a>
+<a id="__codelineno-0-79" name="__codelineno-0-79"></a>
+<a id="__codelineno-0-80" name="__codelineno-0-80"></a><span class="sd">        def test_prints():</span>
+<a id="__codelineno-0-81" name="__codelineno-0-81"></a><span class="sd">            with prints(stdout=snapshot(), stderr=snapshot()):</span>
+<a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="sd">                print(&quot;hello world&quot;)</span>
+<a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="sd">                print(&quot;some error&quot;, file=sys.stderr)</span>
+<a id="__codelineno-0-84" name="__codelineno-0-84"></a><span class="sd">        ```</span>
+<a id="__codelineno-0-85" name="__codelineno-0-85"></a>
+<a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="sd">    === &quot;--inline-snapshot=create&quot;</span>
+<a id="__codelineno-0-87" name="__codelineno-0-87"></a>
+<a id="__codelineno-0-88" name="__codelineno-0-88"></a><span class="sd">        &lt;!-- inline-snapshot: create outcome-passed=1 --&gt;</span>
+<a id="__codelineno-0-89" name="__codelineno-0-89"></a><span class="sd">        ``` python hl_lines=&quot;7 8 9&quot;</span>
+<a id="__codelineno-0-90" name="__codelineno-0-90"></a><span class="sd">        from inline_snapshot import snapshot</span>
+<a id="__codelineno-0-91" name="__codelineno-0-91"></a><span class="sd">        from inline_snapshot.extra import prints</span>
+<a id="__codelineno-0-92" name="__codelineno-0-92"></a><span class="sd">        import sys</span>
+<a id="__codelineno-0-93" name="__codelineno-0-93"></a>
+<a id="__codelineno-0-94" name="__codelineno-0-94"></a>
+<a id="__codelineno-0-95" name="__codelineno-0-95"></a><span class="sd">        def test_prints():</span>
+<a id="__codelineno-0-96" name="__codelineno-0-96"></a><span class="sd">            with prints(</span>
+<a id="__codelineno-0-97" name="__codelineno-0-97"></a><span class="sd">                stdout=snapshot(&quot;hello world\\n&quot;), stderr=snapshot(&quot;some error\\n&quot;)</span>
+<a id="__codelineno-0-98" name="__codelineno-0-98"></a><span class="sd">            ):</span>
+<a id="__codelineno-0-99" name="__codelineno-0-99"></a><span class="sd">                print(&quot;hello world&quot;)</span>
+<a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="sd">                print(&quot;some error&quot;, file=sys.stderr)</span>
+<a id="__codelineno-0-101" name="__codelineno-0-101"></a><span class="sd">        ```</span>
+<a id="__codelineno-0-102" name="__codelineno-0-102"></a>
+<a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="sd">    === &quot;ignore stdout&quot;</span>
+<a id="__codelineno-0-104" name="__codelineno-0-104"></a>
+<a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="sd">        &lt;!-- inline-snapshot: outcome-passed=1 --&gt;</span>
+<a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="sd">        ``` python hl_lines=&quot;3 9&quot;</span>
+<a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="sd">        from inline_snapshot import snapshot</span>
+<a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="sd">        from inline_snapshot.extra import prints</span>
+<a id="__codelineno-0-109" name="__codelineno-0-109"></a><span class="sd">        from dirty_equals import IsStr</span>
+<a id="__codelineno-0-110" name="__codelineno-0-110"></a><span class="sd">        import sys</span>
+<a id="__codelineno-0-111" name="__codelineno-0-111"></a>
+<a id="__codelineno-0-112" name="__codelineno-0-112"></a>
+<a id="__codelineno-0-113" name="__codelineno-0-113"></a><span class="sd">        def test_prints():</span>
+<a id="__codelineno-0-114" name="__codelineno-0-114"></a><span class="sd">            with prints(</span>
+<a id="__codelineno-0-115" name="__codelineno-0-115"></a><span class="sd">                stdout=IsStr(),</span>
+<a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="sd">                stderr=snapshot(&quot;some error\\n&quot;),</span>
+<a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="sd">            ):</span>
+<a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="sd">                print(&quot;hello world&quot;)</span>
+<a id="__codelineno-0-119" name="__codelineno-0-119"></a><span class="sd">                print(&quot;some error&quot;, file=sys.stderr)</span>
+<a id="__codelineno-0-120" name="__codelineno-0-120"></a><span class="sd">        ```</span>
+<a id="__codelineno-0-121" name="__codelineno-0-121"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-122" name="__codelineno-0-122"></a>
+<a id="__codelineno-0-123" name="__codelineno-0-123"></a>    <span class="k">with</span> <span class="n">redirect_stdout</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">())</span> <span class="k">as</span> <span class="n">stdout_io</span><span class="p">:</span>
+<a id="__codelineno-0-124" name="__codelineno-0-124"></a>        <span class="k">with</span> <span class="n">redirect_stderr</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">())</span> <span class="k">as</span> <span class="n">stderr_io</span><span class="p">:</span>
+<a id="__codelineno-0-125" name="__codelineno-0-125"></a>            <span class="k">yield</span>
+<a id="__codelineno-0-126" name="__codelineno-0-126"></a>
+<a id="__codelineno-0-127" name="__codelineno-0-127"></a>    <span class="k">assert</span> <span class="n">stderr_io</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span> <span class="o">==</span> <span class="n">stderr</span>
+<a id="__codelineno-0-128" name="__codelineno-0-128"></a>    <span class="k">assert</span> <span class="n">stdout_io</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span> <span class="o">==</span> <span class="n">stdout</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h2 id="inline_snapshot.extra.raises" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">raises</span><span class="p">(</span><span class="n">exception</span><span class="p">)</span></code>
 
@@ -890,7 +1221,7 @@ not depend on other libraries.</p>
       <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="inline_snapshot.extra.raises--__tabbed_1_1" name="inline_snapshot.extra.raises--__tabbed_1" type="radio" /><input id="inline_snapshot.extra.raises--__tabbed_1_2" name="inline_snapshot.extra.raises--__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="inline_snapshot.extra.raises--__tabbed_1_1">original</label><label for="inline_snapshot.extra.raises--__tabbed_1_2">--inline-snapshot=create</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p><!-- inline-snapshot: outcome-passed=1 outcome-errors=1 -->
+<p><!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">inline_snapshot.extra</span> <span class="kn">import</span> <span class="n">raises</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -907,8 +1238,8 @@ not depend on other libraries.</p>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">def</span> <span class="nf">test_raises</span><span class="p">():</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="k">with</span> <span class="n">raises</span><span class="p">(</span><span class="n">snapshot</span><span class="p">(</span><span class="s2">&quot;ZeroDivisionError: division by zero&quot;</span><span class="p">)):</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="mi">1</span> <span class="o">/</span> <span class="mi">0</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="hll">    <span class="k">with</span> <span class="n">raises</span><span class="p">(</span><span class="n">snapshot</span><span class="p">(</span><span class="s2">&quot;ZeroDivisionError: division by zero&quot;</span><span class="p">)):</span>
+</span><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="mi">1</span> <span class="o">/</span> <span class="mi">0</span>
 </code></pre></div></p>
 </div>
 </div>
@@ -916,9 +1247,7 @@ not depend on other libraries.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/inline_snapshot/extra.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-13">13</a></span>
-<span class="normal"><a href="#__codelineno-0-14">14</a></span>
-<span class="normal"><a href="#__codelineno-0-15">15</a></span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-15">15</a></span>
 <span class="normal"><a href="#__codelineno-0-16">16</a></span>
 <span class="normal"><a href="#__codelineno-0-17">17</a></span>
 <span class="normal"><a href="#__codelineno-0-18">18</a></span>
@@ -959,50 +1288,52 @@ not depend on other libraries.</p>
 <span class="normal"><a href="#__codelineno-0-53">53</a></span>
 <span class="normal"><a href="#__codelineno-0-54">54</a></span>
 <span class="normal"><a href="#__codelineno-0-55">55</a></span>
-<span class="normal"><a href="#__codelineno-0-56">56</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="k">def</span> <span class="nf">raises</span><span class="p">(</span><span class="n">exception</span><span class="p">:</span> <span class="n">Snapshot</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Check that an exception is raised.</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16"></a>
-<a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="sd">    Parameters:</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="sd">        exception: snapshot which is compared with `#!python f&quot;{type}: {message}&quot;` if an exception occured or `#!python &quot;&lt;no exception&gt;&quot;` if no exception was raised.</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19"></a>
-<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="sd">    === &quot;original&quot;</span>
+<span class="normal"><a href="#__codelineno-0-56">56</a></span>
+<span class="normal"><a href="#__codelineno-0-57">57</a></span>
+<span class="normal"><a href="#__codelineno-0-58">58</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="k">def</span> <span class="nf">raises</span><span class="p">(</span><span class="n">exception</span><span class="p">:</span> <span class="n">Snapshot</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Check that an exception is raised.</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18"></a>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="sd">    Parameters:</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="sd">        exception: snapshot which is compared with `#!python f&quot;{type}: {message}&quot;` if an exception occured or `#!python &quot;&lt;no exception&gt;&quot;` if no exception was raised.</span>
 <a id="__codelineno-0-21" name="__codelineno-0-21"></a>
-<a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="sd">        &lt;!-- inline-snapshot: outcome-passed=1 outcome-errors=1 --&gt;</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="sd">        ```python</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="sd">        from inline_snapshot import snapshot</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="sd">        from inline_snapshot.extra import raises</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26"></a>
-<a id="__codelineno-0-27" name="__codelineno-0-27"></a>
-<a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="sd">        def test_raises():</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="sd">            with raises(snapshot()):</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">                1 / 0</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">        ```</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32"></a>
-<a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="sd">    === &quot;--inline-snapshot=create&quot;</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="sd">    === &quot;original&quot;</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23"></a>
+<a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="sd">        &lt;!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 --&gt;</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="sd">        ``` python</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="sd">        from inline_snapshot import snapshot</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="sd">        from inline_snapshot.extra import raises</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28"></a>
+<a id="__codelineno-0-29" name="__codelineno-0-29"></a>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">        def test_raises():</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">            with raises(snapshot()):</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">                1 / 0</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="sd">        ```</span>
 <a id="__codelineno-0-34" name="__codelineno-0-34"></a>
-<a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="sd">        &lt;!-- inline-snapshot: create outcome-passed=1 --&gt;</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="sd">        ```python</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="sd">        from inline_snapshot import snapshot</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="sd">        from inline_snapshot.extra import raises</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39"></a>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="sd">        def test_raises():</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="sd">            with raises(snapshot(&quot;ZeroDivisionError: division by zero&quot;)):</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="sd">                1 / 0</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="sd">        ```</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46"></a>
-<a id="__codelineno-0-47" name="__codelineno-0-47"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48"></a>        <span class="k">yield</span>
-<a id="__codelineno-0-49" name="__codelineno-0-49"></a>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="n">msg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-<a id="__codelineno-0-51" name="__codelineno-0-51"></a>        <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">msg</span><span class="p">:</span>
-<a id="__codelineno-0-52" name="__codelineno-0-52"></a>            <span class="k">assert</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">ex</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">==</span> <span class="n">exception</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53"></a>        <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54"></a>            <span class="k">assert</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">ex</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">==</span> <span class="n">exception</span>
-<a id="__codelineno-0-55" name="__codelineno-0-55"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-0-56" name="__codelineno-0-56"></a>        <span class="k">assert</span> <span class="s2">&quot;&lt;no exception&gt;&quot;</span> <span class="o">==</span> <span class="n">exception</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="sd">    === &quot;--inline-snapshot=create&quot;</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="sd">        &lt;!-- inline-snapshot: create outcome-passed=1 --&gt;</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="sd">        ``` python hl_lines=&quot;6&quot;</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="sd">        from inline_snapshot import snapshot</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">        from inline_snapshot.extra import raises</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="sd">        def test_raises():</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="sd">            with raises(snapshot(&quot;ZeroDivisionError: division by zero&quot;)):</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="sd">                1 / 0</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="sd">        ```</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="k">yield</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51"></a>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+<a id="__codelineno-0-52" name="__codelineno-0-52"></a>        <span class="n">msg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+<a id="__codelineno-0-53" name="__codelineno-0-53"></a>        <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">msg</span><span class="p">:</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54"></a>            <span class="k">assert</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">ex</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">==</span> <span class="n">exception</span>
+<a id="__codelineno-0-55" name="__codelineno-0-55"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56"></a>            <span class="k">assert</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">ex</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">==</span> <span class="n">exception</span>
+<a id="__codelineno-0-57" name="__codelineno-0-57"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-58" name="__codelineno-0-58"></a>        <span class="k">assert</span> <span class="s2">&quot;&lt;no exception&gt;&quot;</span> <span class="o">==</span> <span class="n">exception</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

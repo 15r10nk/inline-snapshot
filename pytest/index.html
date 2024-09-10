@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://15r10nk.github.io/inline-snapshot/pytest/">
       
       
-        <link rel="prev" href="../extra/">
+        <link rel="prev" href="../third_party/">
       
       
         <link rel="next" href="../categories/">
@@ -384,7 +384,7 @@
             
   
   <span class="md-ellipsis">
-    Reference
+    Core
   </span>
   
 
@@ -394,7 +394,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
-            Reference
+            Core
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -545,6 +545,48 @@
 
               
             
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Extensions
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Extensions
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
               
                 
   
@@ -556,7 +598,28 @@
         
   
   <span class="md-ellipsis">
-    extensions
+    first-party (extra)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../third_party/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    third-party
   </span>
   
 
@@ -916,7 +979,7 @@ These flags can be combined with <em>report</em> and <em>review</em>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class=" -Color -Color-Bold -Color-Bold-Blue">&gt; pytest test_something.py --inline-snapshot=create,report</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class=" -Color -Color-Bold">============================= test session starts ==============================</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>platform linux -- Python 3.12.3, pytest-8.2.2, pluggy-1.5.0
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.m006I84QuS
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.jWVcDhNWR9
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.11.0
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>collected 1 item
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
@@ -950,14 +1013,14 @@ These flags can be combined with <em>report</em> and <em>review</em>.</p>
 <a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class=" -Color -Color-Bold">--inline-snapshot=review</span>
 <a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>
 <a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class=" -Color -Color-Green">============================== </span><span class=" -Color -Color-Bold -Color-Bold-Green">1 passed</span><span class=" -Color -Color-Green"> in 0.19s ===============================</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class=" -Color -Color-Green">============================== </span><span class=" -Color -Color-Bold -Color-Bold-Green">1 passed</span><span class=" -Color -Color-Green"> in 0.06s ===============================</span>
 </code></pre></div>
 <h2 id="-inline-snapshotshort-report">--inline-snapshot=short-report<a class="headerlink" href="#-inline-snapshotshort-report" title="Permanent link">&para;</a></h2>
 <p>give a short report over which changes can be made to the snapshots</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class=" -Color -Color-Bold -Color-Bold-Blue">&gt; pytest test_something.py --inline-snapshot=short-report</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class=" -Color -Color-Bold">============================= test session starts ==============================</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>platform linux -- Python 3.12.3, pytest-8.2.2, pluggy-1.5.0
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.70DnLwjEGz
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.NmvT3KHcv1
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.11.0
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>collected 1 item
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
@@ -973,7 +1036,7 @@ These flags can be combined with <em>report</em> and <em>review</em>.</p>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>You can also use <span class=" -Color -Color-Bold">--inline-snapshot=review</span> to approve the changes interactiv
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class=" -Color -Color-Bold -Color-Bold-Cyan">=========================== short test summary info ============================</span>
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class=" -Color -Color-Red">ERROR</span> test_something.py::<span class=" -Color -Color-Bold">test_something</span> - Failed: your snapshot is missing one value run pytest with --inline-snapsho...
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class=" -Color -Color-Red">========================== </span><span class=" -Color -Color-Green">1 passed</span>, <span class=" -Color -Color-Bold -Color-Bold-Red">1 error</span><span class=" -Color -Color-Red"> in 0.09s ==========================</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class=" -Color -Color-Red">========================== </span><span class=" -Color -Color-Green">1 passed</span>, <span class=" -Color -Color-Bold -Color-Bold-Red">1 error</span><span class=" -Color -Color-Red"> in 0.07s ==========================</span>
 </code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -985,7 +1048,7 @@ This option will be replaced with <em>report</em> when this restriction is lifte
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class=" -Color -Color-Bold -Color-Bold-Blue">&gt; pytest test_something.py --inline-snapshot=report</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class=" -Color -Color-Bold">============================= test session starts ==============================</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>platform linux -- Python 3.12.3, pytest-8.2.2, pluggy-1.5.0
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.nRzm3b5FTj
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.XsnrEwXE1i
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.11.0
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>collected 1 item
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
@@ -1033,7 +1096,7 @@ This option will be replaced with <em>report</em> when this restriction is lifte
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class=" -Color -Color-Bold -Color-Bold-Blue">&gt; pytest test_something.py --inline-snapshot=review</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class=" -Color -Color-Bold">============================= test session starts ==============================</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>platform linux -- Python 3.12.3, pytest-8.2.2, pluggy-1.5.0
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.awNicNpI2s
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.wtS4Tf6NZy
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.11.0
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>collected 1 item
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
