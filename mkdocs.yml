@@ -30,7 +30,7 @@ watch:
 
 nav:
 - Introduction: index.md
-- Reference:
+- Core:
   - x == snapshot(): eq_snapshot.md
   - x <= snapshot(): cmp_snapshot.md
   - x in snapshot(): in_snapshot.md
@@ -38,7 +38,9 @@ nav:
   - outsource(data): outsource.md
   - '@customize_repr': customize_repr.md
   - types: types.md
-  - extensions: extra.md
+- Extensions:
+  - first-party (extra): extra.md
+  - third-party: third_party.md
 - pytest integration: pytest.md
 - Categories: categories.md
 - Configuration: configuration.md

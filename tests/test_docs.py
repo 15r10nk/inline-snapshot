@@ -19,11 +19,11 @@ import pytest
 @pytest.mark.parametrize(
     "file",
     [
-        pytest.param(file, id=file.stem)
+        pytest.param(file, id=file.name)
         for file in [
             *(Path(__file__).parent.parent / "docs").rglob("*.md"),
             *(Path(__file__).parent.parent).glob("*.md"),
-            *(Path(__file__).parent.parent / "inline_snapshot").rglob("*.py"),
+            *(Path(__file__).parent.parent / "src").rglob("*.py"),
         ]
     ],
 )
@@ -72,6 +72,8 @@ line-length=80
                 last_code = code
                 code = "\n".join(block_lines) + "\n"
                 code = textwrap.dedent(code)
+                if file.suffix == ".py":
+                    code = code.replace("\\\\", "\\")
 
                 flags = options & {"fix", "update", "create", "trim"}
 
@@ -106,7 +108,7 @@ line-length=80
                 ):  # pragma: no cover
                     flags_str = " ".join(
                         sorted(flags)
-                        + list(options & {"first_block", "show_error"})
+                        + sorted(options & {"first_block", "show_error"})
                         + [
                             f"outcome-{k}={v}"
                             for k, v in result.parseoutcomes().items()
@@ -142,7 +144,12 @@ line-length=80
                 if (
                     inline_snapshot._inline_snapshot._update_flags.fix
                 ):  # pragma: no cover
-                    new_lines.append(textwrap.indent(new_code.rstrip("\n"), indent))
+                    new_code = new_code.rstrip("\n")
+                    if file.suffix == ".py":
+                        new_code = new_code.replace("\\", "\\\\")
+                    new_code = textwrap.indent(new_code, indent)
+
+                    new_lines.append(new_code)
                 else:
                     new_lines += block_lines
 
