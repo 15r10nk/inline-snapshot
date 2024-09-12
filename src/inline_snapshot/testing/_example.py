@@ -109,16 +109,14 @@ class Example:
         return {
             str(p.relative_to(dir)): p.read_text()
             for p in [*dir.iterdir(), *dir.rglob("*.py"), *storage_dir.rglob("*")]
-            if p.is_file()
+            if p.is_file() and p.name != ".gitignore"
         }
 
     def with_files(self, extra_files):
         return Example(self.files | extra_files)
 
-    def code_change(self, src, dest):
-        return Example(
-            {name: file.replace(src, dest) for name, file in self.files.items()}
-        )
+    def change_code(self, func):
+        return Example({name: func(text) for name, text in self.files.items()})
 
     def run_inline(
         self,
@@ -174,6 +172,7 @@ class Example:
                 recorder = ChangeRecorder()
                 state.update_flags = Flags({*flags})
                 state.storage = DiscStorage(tmp_path / ".storage")
+
                 try:
                     tests_found = False
                     for filename in tmp_path.glob("*.py"):
