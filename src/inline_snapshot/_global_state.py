@@ -9,7 +9,7 @@ from typing import Generator
 from ._flags import Flags
 
 if TYPE_CHECKING:
-    from ._external import DiscStorage
+    from ._external import HashStorage
 
 
 @dataclass
@@ -24,7 +24,7 @@ class State:
     files_with_snapshots: set[str] = field(default_factory=set)
 
     # external
-    storage: DiscStorage | None = None
+    storage: HashStorage | None = None
 
 
 _current = State()

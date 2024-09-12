@@ -16,7 +16,7 @@ from typing import Any
 from rich.console import Console
 
 from inline_snapshot._exceptions import UsageError
-from inline_snapshot._external import DiscStorage
+from inline_snapshot._external import HashStorage
 from inline_snapshot._problems import report_problems
 
 from .._change import apply_all
@@ -84,6 +84,9 @@ class Example:
             if p.is_file()
         }
 
+    def change_code(self, func):
+        return Example({name: func(text) for name, text in self.files.items()})
+
     def run_inline(
         self,
         args: list[str] = [],
@@ -137,7 +140,8 @@ class Example:
             with snapshot_env() as state:
                 recorder = ChangeRecorder()
                 state.update_flags = Flags({*flags})
-                state.storage = DiscStorage(tmp_path / ".storage")
+                state.storage =     HashStorage(tmp_path / ".storage")
+
                 try:
                     tests_found = False
                     for filename in tmp_path.glob("*.py"):

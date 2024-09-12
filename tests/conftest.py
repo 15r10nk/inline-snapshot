@@ -104,7 +104,7 @@ from inline_snapshot import outsource
             with snapshot_env() as state:
                 recorder = ChangeRecorder()
                 state.update_flags = flags
-                state.storage = inline_snapshot._external.DiscStorage(
+                state.storage = inline_snapshot._external.HashStorage(
                     tmp_path / ".storage"
                 )
 
