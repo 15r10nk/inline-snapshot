@@ -11,12 +11,15 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
 
+from inline_snapshot._unmanaged import Unmanaged
+
 from . import _config
-from . import _external
-from . import _find_external
 from ._change import apply_all
 from ._code_repr import used_hasrepr
-from ._find_external import ensure_import
+from ._external import _external
+from ._external import _find_external
+from ._external._external import LegacyType
+from ._external._find_external import ensure_import
 from ._flags import Flags
 from ._global_state import snapshot_env
 from ._global_state import state
@@ -167,7 +170,7 @@ def pytest_configure(config):
         _config.config.storage_dir or config.rootpath / ".inline-snapshot"
     ) / "external"
 
-    state().storage = _external.HashStorage(external_storage)
+    state().storage = _external.DiscStorage(external_storage)
 
     if flags - {"short-report", "disable"} and not is_pytest_compatible():
 
@@ -224,35 +227,38 @@ def snapshot_check(request):
         )
 
 
+def unwrap(value):
+    if isinstance(value, GenericValue):
+        return unwrap(value._visible_value())[0], True
+
+    if isinstance(value, (_external.External, _external.Outsourced)):
+        return unwrap(value._load_value())[0], True
+
+    if isinstance(value, Unmanaged):
+        return unwrap(value.value)[0], True
+
+    return value, False
+
+
 def pytest_assertrepr_compare(config, op, left, right):
 
     results = []
-    if isinstance(left, GenericValue):
-        results = config.hook.pytest_assertrepr_compare(
-            config=config, op=op, left=left._visible_value(), right=right
-        )
+    left, left_unwrapped = unwrap(left)
+    right, right_unwrapped = unwrap(right)
 
-    if isinstance(right, GenericValue):
-        results = config.hook.pytest_assertrepr_compare(
-            config=config, op=op, left=left, right=right._visible_value()
-        )
+    if isinstance(left, (bytes, LegacyType)) or isinstance(right, (bytes, LegacyType)):
+        if isinstance(left, LegacyType):
+            left = left.data
+        if isinstance(right, LegacyType):
+            right = right.data
 
-    external_used = False
-    if isinstance(right, _external.external):
-        external_used = True
-        if right._filename.endswith(".txt"):
-            right = right._load_value().decode()
-        else:
-            right = right._load_value()
+    if isinstance(left, (str, LegacyType)) or isinstance(right, (str, LegacyType)):
+        if isinstance(left, LegacyType):
+            left = left.data.decode()
+        if isinstance(right, LegacyType):
+            right = right.data.decode()
 
-    if isinstance(left, _external.external):
-        external_used = True
-        if left._filename.endswith(".txt"):
-            left = left._load_value().decode()
-        else:
-            left = left._load_value()
-
-    if external_used:
+    if left_unwrapped or right_unwrapped:
         results = config.hook.pytest_assertrepr_compare(
             config=config, op=op, left=left, right=right
         )
@@ -463,7 +469,7 @@ def pytest_sessionfinish(session, exitstatus):
                     name = file.filename.relative_to(Path.cwd())
                     console().print(
                         Panel(
-                            Syntax(diff, "diff", theme="ansi_light"),
+                            Syntax(diff, "diff", theme="ansi_light", word_wrap=True),
                             title=str(name),
                             box=(
                                 box.ASCII

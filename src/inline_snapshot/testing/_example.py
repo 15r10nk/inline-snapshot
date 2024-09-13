@@ -16,7 +16,7 @@ from typing import Any
 from rich.console import Console
 
 from inline_snapshot._exceptions import UsageError
-from inline_snapshot._external import HashStorage
+from inline_snapshot._external import DiscStorage
 from inline_snapshot._problems import report_problems
 
 from .._change import apply_all
@@ -140,7 +140,7 @@ class Example:
             with snapshot_env() as state:
                 recorder = ChangeRecorder()
                 state.update_flags = Flags({*flags})
-                state.storage =     HashStorage(tmp_path / ".storage")
+                state.storage = DiscStorage(tmp_path / ".storage")
 
                 try:
                     tests_found = False
@@ -228,6 +228,7 @@ class Example:
         env: dict[str, str] = {},
         changed_files: Snapshot[dict[str, str]] | None = None,
         report: Snapshot[str] | None = None,
+        error: Snapshot[str] | None = None,
         stderr: Snapshot[str] | None = None,
         returncode: Snapshot[int] = 0,
         stdin: bytes = b"",
@@ -323,6 +324,19 @@ class Example:
                 report_str = "\n".join(report_list)
 
                 assert report_str == report, repr(report_str)
+
+            if error is not None:
+                assert (
+                    error
+                    == "\n".join(
+                        [
+                            line
+                            for line in result_stdout.splitlines()
+                            if line and line[:2] in ("> ", "E ")
+                        ]
+                    )
+                    + "\n"
+                )
 
             if changed_files is not None:
                 current_files = {}
