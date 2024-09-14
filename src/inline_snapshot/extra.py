@@ -103,7 +103,7 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
     === "ignore stdout"
 
         <!-- inline-snapshot: outcome-passed=1 -->
-        ``` python hl_lines="3 9"
+        ``` python hl_lines="3 9 10"
         from inline_snapshot import snapshot
         from inline_snapshot.extra import prints
         from dirty_equals import IsStr

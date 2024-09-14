@@ -10,6 +10,7 @@ from inline_snapshot import _inline_snapshot
 from inline_snapshot import snapshot
 from inline_snapshot._inline_snapshot import Flags
 from inline_snapshot._utils import triple_quote
+from inline_snapshot.testing import Example
 from inline_snapshot.testing._example import snapshot_env
 
 
@@ -1048,3 +1049,58 @@ These changes will be applied, because you used --inline-snapshot=create
     result = project.run("--inline-snapshot=report")
 
     assert result.report == snapshot("")
+
+
+def test_compare_dirty_equals_twice() -> None:
+
+    Example(
+        """
+from dirty_equals import IsStr
+from inline_snapshot import snapshot
+
+for x in 'ab':
+    assert x == snapshot(IsStr())
+    assert [x,5] == snapshot([IsStr(),3])
+    assert {'a':x,'b':5} == snapshot({'a':IsStr(),'b':3})
+
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+
+from dirty_equals import IsStr
+from inline_snapshot import snapshot
+
+for x in 'ab':
+    assert x == snapshot(IsStr())
+    assert [x,5] == snapshot([IsStr(),5])
+    assert {'a':x,'b':5} == snapshot({'a':IsStr(),'b':5})
+
+"""
+            }
+        ),
+    )
+
+
+def test_dirty_equals_in_unused_snapshot() -> None:
+
+    Example(
+        """
+from dirty_equals import IsStr
+from inline_snapshot import snapshot
+
+snapshot([IsStr(),3])
+snapshot((IsStr(),3))
+snapshot({1:IsStr(),2:3})
+
+t=(1,2)
+d={1:2}
+l=[1,2]
+snapshot([t,d,l])
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot({}),
+    )
