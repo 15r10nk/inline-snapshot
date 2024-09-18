@@ -1,10 +1,14 @@
 import os
+import sys
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
 from typing import List
 
-import toml
+if sys.version_info >= (3, 11):
+    from tomllib import loads
+else:
+    from toml import loads
 
 
 @dataclass
@@ -20,7 +24,7 @@ def read_config(path: Path) -> Config:
     result = Config()
     if path.exists():
 
-        data = toml.loads(path.read_text("utf-8"))
+        data = loads(path.read_text("utf-8"))
 
         try:
             config = data["tool"]["inline-snapshot"]
