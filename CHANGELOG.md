@@ -1,3 +1,9 @@
+## v0.13.1 (2024-09-18)
+
+### Fix
+
+- Use tomllib instead of PyPI toml on Python 3.11 and later
+
 ## v0.13.0 (2024-09-10)
 
 ### Feat
