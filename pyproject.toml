@@ -29,8 +29,8 @@ dependencies = [
   "click>=8.1.4",
   "executing>=2.1.0",
   "rich>=13.7.1",
-  "toml>=0.10.2",
-  "types-toml>=0.10.8.7",
+  "toml>=0.10.2; python_version < '3.11'",
+  "types-toml>=0.10.8.7; python_version < '3.11'",
   "typing-extensions"
 ]
 description = "golden master/snapshot/approval testing library which puts the values right into your source code"
