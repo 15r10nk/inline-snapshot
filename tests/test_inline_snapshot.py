@@ -1176,3 +1176,55 @@ from inline_snapshot import snapshot
 assert {1:3} == snapshot({**{1:2}})
 """
         ).run_inline(["--inline-snapshot=fix"])
+
+
+def test_now_like_dirty_equals():
+    # test for cases like https://github.com/15r10nk/inline-snapshot/issues/116
+
+    Example(
+        """
+from dirty_equals import DirtyEquals
+from inline_snapshot import snapshot
+
+
+def test_time():
+
+    now = 5
+
+    class Now(DirtyEquals):
+        def equals(self, other):
+            return other == now
+
+    assert now == snapshot(Now())
+
+    now = 6
+
+    assert 5 == snapshot(Now())
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+
+from dirty_equals import DirtyEquals
+from inline_snapshot import snapshot
+
+
+def test_time():
+
+    now = 5
+
+    class Now(DirtyEquals):
+        def equals(self, other):
+            return other == now
+
+    assert now == snapshot(Now())
+
+    now = 6
+
+    assert 5 == snapshot(5)
+"""
+            }
+        ),
+    )
