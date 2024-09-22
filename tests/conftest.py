@@ -16,6 +16,7 @@ import executing
 import inline_snapshot._external
 import pytest
 from inline_snapshot import _inline_snapshot
+from inline_snapshot._change import apply_all
 from inline_snapshot._format import format_code
 from inline_snapshot._inline_snapshot import Flags
 from inline_snapshot._rewrite_code import ChangeRecorder
@@ -106,13 +107,19 @@ from inline_snapshot import outsource
 
                     number_snapshots = len(_inline_snapshot.snapshots)
 
-                    snapshot_flags = set()
-
+                    changes = []
                     for snapshot in _inline_snapshot.snapshots.values():
-                        snapshot_flags |= snapshot._flags
-                        snapshot._change()
+                        changes += snapshot._changes()
 
-                    changes = recorder.changes()
+                    snapshot_flags = {change.flag for change in changes}
+
+                    apply_all(
+                        [
+                            change
+                            for change in changes
+                            if change.flag in _inline_snapshot._update_flags.to_set()
+                        ]
+                    )
 
                     recorder.fix_all()
 
