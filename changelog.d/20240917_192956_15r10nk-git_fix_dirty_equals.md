@@ -16,12 +16,14 @@ Uncomment the section that is right (remove the HTML comment wrapper).
 - A bullet item for the Added category.
 
 -->
-<!--
 ### Changed
 
-- A bullet item for the Changed category.
+- star-expressions in list or dicts where never valid and cause a warning now.
+    ```
+        other=[2]
+        assert [5,2]==snapshot([5,*other])
+    ```
 
--->
 <!--
 ### Deprecated
 

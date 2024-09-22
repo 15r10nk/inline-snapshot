@@ -1,7 +1,11 @@
 import ast
+import contextlib
 import itertools
+import warnings
 from collections import namedtuple
 from contextlib import nullcontext
+from dataclasses import dataclass
+from typing import Union
 
 import pytest
 from hypothesis import given
@@ -575,9 +579,7 @@ def test_assert(check_update):
 def test_plain(check_update, executing_used):
     assert check_update("s = snapshot(5)", flags="") == snapshot("s = snapshot(5)")
 
-    assert check_update(
-        "s = snapshot()", flags="", reported_flags="create"
-    ) == snapshot("s = snapshot()")
+    assert check_update("s = snapshot()", flags="") == snapshot("s = snapshot()")
 
 
 def test_string_update(check_update):
@@ -805,7 +807,10 @@ assert ["aaaaaaaaaaaaaaaaa"] * 5==  snapshot([
 
 
 def test_unused_snapshot(check_update):
-    assert check_update("snapshot()\n", flags="create") == "snapshot()\n"
+    assert (
+        check_update("snapshot()\n", flags="create", reported_flags="")
+        == "snapshot()\n"
+    )
 
 
 def test_type_error(check_update):
@@ -1094,6 +1099,7 @@ from inline_snapshot import snapshot
 snapshot([IsStr(),3])
 snapshot((IsStr(),3))
 snapshot({1:IsStr(),2:3})
+snapshot({1+1:2})
 
 t=(1,2)
 d={1:2}
@@ -1104,3 +1110,69 @@ snapshot([t,d,l])
         ["--inline-snapshot=fix"],
         changed_files=snapshot({}),
     )
+
+
+@dataclass
+class Warning:
+    message: str
+    filename: Union[str, None] = None
+    line: Union[int, None] = None
+
+
+@contextlib.contextmanager
+def warns(expected_warnings=[], include_line=False, include_file=False):
+    with warnings.catch_warnings(record=True) as result:
+        warnings.simplefilter("always")
+        yield
+
+    assert [
+        Warning(
+            message=f"{w.category.__name__}: {w.message}",
+            line=w.lineno if include_line else None,
+            filename=w.filename if include_file else None,
+        )
+        for w in result
+    ] == expected_warnings
+
+
+def test_starred_warns_list():
+
+    with warns(
+        snapshot(
+            [
+                Warning(
+                    message="InlineSnapshotSyntaxWarning: star-expressions are not supported inside snapshots",
+                    line=4,
+                )
+            ]
+        ),
+        include_line=True,
+    ):
+        Example(
+            """
+from inline_snapshot import snapshot
+
+assert [5] == snapshot([*[4]])
+"""
+        ).run_inline(["--inline-snapshot=fix"])
+
+
+def test_starred_warns_dict():
+    with warns(
+        snapshot(
+            [
+                Warning(
+                    message="InlineSnapshotSyntaxWarning: star-expressions are not supported inside snapshots",
+                    line=4,
+                )
+            ]
+        ),
+        include_line=True,
+    ):
+        Example(
+            """
+from inline_snapshot import snapshot
+
+assert {1:3} == snapshot({**{1:2}})
+"""
+        ).run_inline(["--inline-snapshot=fix"])

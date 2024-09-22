@@ -2,6 +2,7 @@ import ast
 import copy
 import inspect
 import tokenize
+import warnings
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -44,6 +45,10 @@ _active = False
 _files_with_snapshots: Set[str] = set()
 
 _missing_values = 0
+
+
+class InlineSnapshotSyntaxWarning(Warning):
+    pass
 
 
 class Flags:
@@ -170,34 +175,36 @@ class UndecidedValue(GenericValue):
 
     def _get_changes(self) -> Iterator[Change]:
 
-        def handle(node, value):
-            if isinstance(value, list):
+        def handle(node, obj):
+            if isinstance(obj, list):
                 if not isinstance(node, ast.List):
                     return
-                for n, v in zip(node.elts, value):
-                    yield from handle(n, v)
-            elif isinstance(value, tuple):
+                for node_value, value in zip(node.elts, obj):
+                    yield from handle(node_value, value)
+            elif isinstance(obj, tuple):
                 if not isinstance(node, ast.Tuple):
                     return
-                for n, v in zip(node.elts, value):
-                    yield from handle(n, v)
+                for node_value, value in zip(node.elts, obj):
+                    yield from handle(node_value, value)
 
-            elif isinstance(value, dict):
+            elif isinstance(obj, dict):
                 if not isinstance(node, ast.Dict):
                     return
-                for vk, nk, n in zip(value.keys(), node.keys, node.values):
+                for value_key, node_key, node_value in zip(
+                    obj.keys(), node.keys, node.values
+                ):
                     try:
                         # this is just a sanity check, dicts should be ordered
-                        node_key = ast.literal_eval(nk)
+                        node_key = ast.literal_eval(node_key)
                     except Exception:
-                        assert False
+                        pass
                     else:
-                        assert node_key == vk
+                        assert node_key == value_key
 
-                    yield from handle(n, value[vk])
+                    yield from handle(node_value, obj[value_key])
             else:
-                if update_allowed(value):
-                    new_token = value_to_token(value)
+                if update_allowed(obj):
+                    new_token = value_to_token(obj)
                     if self._token_of_node(node) != new_token:
                         new_code = self._token_to_code(new_token)
 
@@ -345,6 +352,15 @@ class EqValue(GenericValue):
                 and isinstance(new_value, tuple)
                 and isinstance(old_value, tuple)
             ):
+                for e in old_node.elts:
+                    if isinstance(e, ast.Starred):
+                        warnings.warn_explicit(
+                            "star-expressions are not supported inside snapshots",
+                            filename=self._source.filename,
+                            lineno=e.lineno,
+                            category=InlineSnapshotSyntaxWarning,
+                        )
+                        return
                 diff = add_x(align(old_value, new_value))
                 old = zip(old_value, old_node.elts)
                 new = iter(new_value)
@@ -384,6 +400,17 @@ class EqValue(GenericValue):
                 and isinstance(old_value, dict)
                 and len(old_value) == len(old_node.keys)
             ):
+
+                for key, value in zip(old_node.keys, old_node.values):
+                    if key is None:
+                        warnings.warn_explicit(
+                            "star-expressions are not supported inside snapshots",
+                            filename=self._source.filename,
+                            lineno=value.lineno,
+                            category=InlineSnapshotSyntaxWarning,
+                        )
+                        return
+
                 for value, node in zip(old_value.keys(), old_node.keys):
                     assert node is not None
 
@@ -840,8 +867,5 @@ class Snapshot:
     @property
     def _flags(self):
 
-        if self._value._old_value is undefined:
-            return {"create"}
-
-        changes = self._value._get_changes()
+        changes = self._changes()
         return {change.flag for change in changes}
