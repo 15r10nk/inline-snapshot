@@ -1,3 +1,25 @@
+
+<a id='changelog-0.13.2'></a>
+# 0.13.2 — 2024-09-24
+
+## Changed
+
+- star-expressions in list or dicts where never valid and cause a warning now.
+    ```
+        other=[2]
+        assert [5,2]==snapshot([5,*other])
+    ```
+
+## Fixed
+
+- A snapshot which contains an dirty-equals expression can now be compared multiple times.
+
+    ``` python
+    def test_something():
+        greeting = "hello"
+        for name in ["alex", "bob"]:
+            assert (name, greeting) == snapshot((IsString(), "hello"))
+    ```
 ## v0.13.1 (2024-09-18)
 
 ### Fix
