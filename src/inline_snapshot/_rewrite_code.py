@@ -229,9 +229,6 @@ class ChangeRecorder:
     def new_change(self):
         return Change(self)
 
-    def changes(self):
-        return list(self._changes)
-
     def num_fixes(self):
         changes = set()
         for file in self._source_files.values():

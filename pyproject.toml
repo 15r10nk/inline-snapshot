@@ -141,3 +141,8 @@ exclude = "tests/.*_samples"
 [tool.pyright]
 venv = "test-3-12"
 venvPath = ".nox"
+
+
+[tool.scriv]
+format = "md"
+version = "literal: pyproject.toml: project.version"

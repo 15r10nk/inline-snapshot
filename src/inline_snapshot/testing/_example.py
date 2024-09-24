@@ -12,11 +12,13 @@ from typing import Any
 
 import inline_snapshot._external
 import inline_snapshot._external as external
-from inline_snapshot import _inline_snapshot
-from inline_snapshot._inline_snapshot import Flags
-from inline_snapshot._rewrite_code import ChangeRecorder
-from inline_snapshot._types import Category
-from inline_snapshot._types import Snapshot
+
+from .. import _inline_snapshot
+from .._change import apply_all
+from .._inline_snapshot import Flags
+from .._rewrite_code import ChangeRecorder
+from .._types import Category
+from .._types import Snapshot
 
 
 @contextlib.contextmanager
@@ -160,11 +162,19 @@ class Example:
                     finally:
                         _inline_snapshot._active = False
 
-                    snapshot_flags = set()
-
+                    changes = []
                     for snapshot in _inline_snapshot.snapshots.values():
-                        snapshot_flags |= snapshot._flags
-                        snapshot._change()
+                        changes += snapshot._changes()
+
+                    snapshot_flags = {change.flag for change in changes}
+
+                    apply_all(
+                        [
+                            change
+                            for change in changes
+                            if change.flag in _inline_snapshot._update_flags.to_set()
+                        ]
+                    )
 
             if reported_categories is not None:
                 assert sorted(snapshot_flags) == reported_categories

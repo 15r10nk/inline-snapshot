@@ -2,6 +2,7 @@ import ast
 import copy
 import inspect
 import tokenize
+import warnings
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -15,7 +16,6 @@ from executing import Source
 
 from ._align import add_x
 from ._align import align
-from ._change import apply_all
 from ._change import CallArg
 from ._change import Change
 from ._change import Delete
@@ -44,6 +44,10 @@ _active = False
 _files_with_snapshots: Set[str] = set()
 
 _missing_values = 0
+
+
+class InlineSnapshotSyntaxWarning(Warning):
+    pass
 
 
 class Flags:
@@ -169,27 +173,51 @@ class UndecidedValue(GenericValue):
         assert False
 
     def _get_changes(self) -> Iterator[Change]:
-        # generic fallback
-        new_token = value_to_token(self._old_value)
 
-        if (
-            self._ast_node is not None
-            and self._token_of_node(self._ast_node) != new_token
-        ):
-            flag = "update"
-        else:
-            return
+        def handle(node, obj):
+            if isinstance(obj, list):
+                if not isinstance(node, ast.List):
+                    return
+                for node_value, value in zip(node.elts, obj):
+                    yield from handle(node_value, value)
+            elif isinstance(obj, tuple):
+                if not isinstance(node, ast.Tuple):
+                    return
+                for node_value, value in zip(node.elts, obj):
+                    yield from handle(node_value, value)
 
-        new_code = self._token_to_code(new_token)
+            elif isinstance(obj, dict):
+                if not isinstance(node, ast.Dict):
+                    return
+                for value_key, node_key, node_value in zip(
+                    obj.keys(), node.keys, node.values
+                ):
+                    try:
+                        # this is just a sanity check, dicts should be ordered
+                        node_key = ast.literal_eval(node_key)
+                    except Exception:
+                        pass
+                    else:
+                        assert node_key == value_key
 
-        yield Replace(
-            node=self._ast_node,
-            source=self._source,
-            new_code=new_code,
-            flag=flag,
-            old_value=self._old_value,
-            new_value=self._old_value,
-        )
+                    yield from handle(node_value, obj[value_key])
+            else:
+                if update_allowed(obj):
+                    new_token = value_to_token(obj)
+                    if self._token_of_node(node) != new_token:
+                        new_code = self._token_to_code(new_token)
+
+                        yield Replace(
+                            node=self._ast_node,
+                            source=self._source,
+                            new_code=new_code,
+                            flag="update",
+                            old_value=self._old_value,
+                            new_value=self._old_value,
+                        )
+
+        if self._source is not None:
+            yield from handle(self._ast_node, self._old_value)
 
     # functions which determine the type
 
@@ -252,8 +280,57 @@ class EqValue(GenericValue):
         if self._old_value is undefined:
             _missing_values += 1
 
+        def use_valid_old_values(old_value, new_value):
+
+            if isinstance(new_value, dirty_equals.DirtyEquals):
+                assert False
+
+            if (
+                isinstance(new_value, list)
+                and isinstance(old_value, list)
+                or isinstance(new_value, tuple)
+                and isinstance(old_value, tuple)
+            ):
+                diff = add_x(align(old_value, new_value))
+                old = iter(old_value)
+                new = iter(new_value)
+                result = []
+                for c in diff:
+                    if c in "mx":
+                        old_value_element = next(old)
+                        new_value_element = next(new)
+                        result.append(
+                            use_valid_old_values(old_value_element, new_value_element)
+                        )
+                    elif c == "i":
+                        result.append(next(new))
+                    elif c == "d":
+                        pass
+                    else:
+                        assert False
+
+                return type(new_value)(result)
+
+            elif isinstance(new_value, dict) and isinstance(old_value, dict):
+                result = {}
+
+                for key, new_value_element in new_value.items():
+                    if key in old_value:
+                        result[key] = use_valid_old_values(
+                            old_value[key], new_value_element
+                        )
+                    else:
+                        result[key] = new_value_element
+
+                return result
+
+            if new_value == old_value:
+                return old_value
+            else:
+                return new_value
+
         if self._new_value is undefined:
-            self._new_value = clone(other)
+            self._new_value = use_valid_old_values(self._old_value, clone(other))
 
         return self._visible_value() == other
 
@@ -274,6 +351,15 @@ class EqValue(GenericValue):
                 and isinstance(new_value, tuple)
                 and isinstance(old_value, tuple)
             ):
+                for e in old_node.elts:
+                    if isinstance(e, ast.Starred):
+                        warnings.warn_explicit(
+                            "star-expressions are not supported inside snapshots",
+                            filename=self._source.filename,
+                            lineno=e.lineno,
+                            category=InlineSnapshotSyntaxWarning,
+                        )
+                        return
                 diff = add_x(align(old_value, new_value))
                 old = zip(old_value, old_node.elts)
                 new = iter(new_value)
@@ -313,6 +399,17 @@ class EqValue(GenericValue):
                 and isinstance(old_value, dict)
                 and len(old_value) == len(old_node.keys)
             ):
+
+                for key, value in zip(old_node.keys, old_node.values):
+                    if key is None:
+                        warnings.warn_explicit(
+                            "star-expressions are not supported inside snapshots",
+                            filename=self._source.filename,
+                            lineno=value.lineno,
+                            category=InlineSnapshotSyntaxWarning,
+                        )
+                        return
+
                 for value, node in zip(old_value.keys(), old_node.keys):
                     assert node is not None
 
@@ -371,14 +468,22 @@ class EqValue(GenericValue):
                 return
 
             # generic fallback
-            new_token = value_to_token(new_value)
+
+            # because IsStr() != IsStr()
+            if type(old_value) is type(new_value) and not update_allowed(new_value):
+                return
+
+            if old_node is None:
+                new_token = []
+            else:
+                new_token = value_to_token(new_value)
 
             if not old_value == new_value:
                 flag = "fix"
             elif (
                 self._ast_node is not None
-                and self._token_of_node(old_node) != new_token
                 and update_allowed(old_value)
+                and self._token_of_node(old_node) != new_token
             ):
                 flag = "update"
             else:
@@ -751,18 +856,3 @@ class Snapshot:
         else:
 
             yield from self._value._get_changes()
-
-    def _change(self):
-        changes = list(self._changes())
-        apply_all(
-            [change for change in changes if change.flag in _update_flags.to_set()]
-        )
-
-    @property
-    def _flags(self):
-
-        if self._value._old_value is undefined:
-            return {"create"}
-
-        changes = self._value._get_changes()
-        return {change.flag for change in changes}
