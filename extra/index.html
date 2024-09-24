@@ -1025,8 +1025,8 @@ the output if needed.</p>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">def</span> <span class="nf">test_prints</span><span class="p">():</span>
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="k">with</span> <span class="n">prints</span><span class="p">(</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="hll">        <span class="n">stdout</span><span class="o">=</span><span class="n">IsStr</span><span class="p">(),</span>
-</span><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="n">stderr</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="s2">&quot;some error</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="p">):</span>
+</span><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="hll">        <span class="n">stderr</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="s2">&quot;some error</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
+</span><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="p">):</span>
 <a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;hello world&quot;</span><span class="p">)</span>
 <a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;some error&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
 </code></pre></div></p>
@@ -1148,7 +1148,7 @@ the output if needed.</p>
 <a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="sd">    === &quot;ignore stdout&quot;</span>
 <a id="__codelineno-0-104" name="__codelineno-0-104"></a>
 <a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="sd">        &lt;!-- inline-snapshot: outcome-passed=1 --&gt;</span>
-<a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="sd">        ``` python hl_lines=&quot;3 9&quot;</span>
+<a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="sd">        ``` python hl_lines=&quot;3 9 10&quot;</span>
 <a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="sd">        from inline_snapshot import snapshot</span>
 <a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="sd">        from inline_snapshot.extra import prints</span>
 <a id="__codelineno-0-109" name="__codelineno-0-109"></a><span class="sd">        from dirty_equals import IsStr</span>
