@@ -1,4 +1,11 @@
 
+<a id='changelog-0.13.3'></a>
+# 0.13.3 — 2024-09-24
+
+## Fixed
+
+- removed non-optional dirty-equals dependency (#118)
+
 <a id='changelog-0.13.2'></a>
 # 0.13.2 — 2024-09-24
 
