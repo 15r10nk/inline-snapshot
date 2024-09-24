@@ -4,6 +4,7 @@ import inspect
 import tokenize
 import warnings
 from collections import defaultdict
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 from typing import Dict  # noqa
@@ -13,6 +14,7 @@ from typing import Tuple  # noqa
 from typing import TypeVar
 
 from executing import Source
+from inline_snapshot.testing._example import snapshot_env
 
 from ._align import add_x
 from ._align import align
@@ -29,6 +31,8 @@ from ._exceptions import UsageError
 from ._format import format_code
 from ._sentinels import undefined
 from ._types import Category
+from ._types import Snapshot
+from ._update_allowed import update_allowed
 from ._utils import ignore_tokens
 from ._utils import normalize
 from ._utils import simple_token
@@ -39,7 +43,7 @@ class NotImplementedYet(Exception):
     pass
 
 
-snapshots = {}  # type: Dict[Tuple[int, int], Snapshot]
+snapshots = {}  # type: Dict[Tuple[int, int], SnapshotReference]
 
 _active = False
 
@@ -80,7 +84,19 @@ def ignore_old_value():
     return _update_flags.fix or _update_flags.update
 
 
-class GenericValue:
+_record_eq = True
+
+
+@contextmanager
+def no_eq_recording():
+    global _record_eq
+    old = _record_eq
+    _record_eq = False
+    yield
+    _record_eq = True
+
+
+class GenericValue(Snapshot):
     _new_value: Any
     _old_value: Any
     _current_op = "undefined"
@@ -249,19 +265,6 @@ class UndecidedValue(GenericValue):
         return self[item]
 
 
-try:
-    import dirty_equals  # type: ignore
-except ImportError:  # pragma: no cover
-
-    def update_allowed(value):
-        return True
-
-else:
-
-    def update_allowed(value):
-        return not isinstance(value, dirty_equals.DirtyEquals)
-
-
 def clone(obj):
     new = copy.deepcopy(obj)
     if not obj == new:
@@ -295,7 +298,8 @@ class EqValue(GenericValue):
                 or isinstance(new_value, tuple)
                 and isinstance(old_value, tuple)
             ):
-                diff = add_x(align(old_value, new_value))
+                with snapshot_env:
+                    diff = add_x(align(old_value, new_value))
                 old = iter(old_value)
                 new = iter(new_value)
                 result = []
@@ -809,10 +813,10 @@ def snapshot(obj: Any = undefined) -> Any:
         node = expr.node
         if node is None:
             # we can run without knowing of the calling expression but we will not be able to fix code
-            snapshots[key] = Snapshot(obj, None)
+            snapshots[key] = SnapshotReference(obj, None)
         else:
             assert isinstance(node, ast.Call)
-            snapshots[key] = Snapshot(obj, expr)
+            snapshots[key] = SnapshotReference(obj, expr)
     else:
         node = expr.node.args[0] if expr.node is not None and expr.node.args else None
         snapshots[key]._re_eval(obj, node)
@@ -832,7 +836,7 @@ def used_externals(tree):
     ]
 
 
-class Snapshot:
+class SnapshotReference:
     def __init__(self, value, expr):
         self._expr = expr
         node = expr.node.args[0] if expr is not None and expr.node.args else None
