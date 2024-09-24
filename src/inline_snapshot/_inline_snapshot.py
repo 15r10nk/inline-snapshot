@@ -282,9 +282,6 @@ class EqValue(GenericValue):
 
         def use_valid_old_values(old_value, new_value):
 
-            if isinstance(new_value, dirty_equals.DirtyEquals):
-                assert False
-
             if (
                 isinstance(new_value, list)
                 and isinstance(old_value, list)
