@@ -23,6 +23,8 @@ from ._change import DictInsert
 from ._change import ListInsert
 from ._change import Replace
 from ._code_repr import code_repr
+from ._container import BaseHandler
+from ._container import get_handler
 from ._exceptions import UsageError
 from ._format import format_code
 from ._sentinels import undefined
@@ -84,6 +86,7 @@ class GenericValue:
     _current_op = "undefined"
     _ast_node: ast.Expr
     _source: Source
+    _handler: BaseHandler
 
     def _token_of_node(self, node):
 
@@ -108,6 +111,9 @@ class GenericValue:
 
     def _value_to_code(self, value):
         return self._token_to_code(value_to_token(value))
+
+    def _re_eval(self, obj, expr: ast.expr):
+        self._handler.re_eval(obj, expr)
 
     def _ignore_old(self):
         return (
@@ -165,6 +171,7 @@ class UndecidedValue(GenericValue):
         self._new_value = undefined
         self._ast_node = ast_node
         self._source = source
+        self._handler = get_handler(old_value)
 
     def _change(self, cls):
         self.__class__ = cls
@@ -806,6 +813,9 @@ def snapshot(obj: Any = undefined) -> Any:
         else:
             assert isinstance(node, ast.Call)
             snapshots[key] = Snapshot(obj, expr)
+    else:
+        node = expr.node.args[0] if expr.node is not None and expr.node.args else None
+        snapshots[key]._re_eval(obj, node)
 
     return snapshots[key]._value
 
@@ -853,3 +863,6 @@ class Snapshot:
         else:
 
             yield from self._value._get_changes()
+
+    def _re_eval(self, obj, expr):
+        self._value._re_eval(obj, expr)
