@@ -7,6 +7,7 @@ class HandlerMeta(type):
     def __getattr__(self, name):
         def m(*a, **ka):
             for cls in reversed(self.__subclasses__()):
+
                 result = getattr(cls, name)(*a, **ka)
                 if result is not NotImplemented:
                     return result
@@ -46,7 +47,9 @@ class TupleListHandler(Handler):
                     old_value_element = next(old)
                     new_value_element = next(new)
                     result.append(
-                        cls.use_valid_old_values(old_value_element, new_value_element)
+                        Handler.use_valid_old_values(
+                            old_value_element, new_value_element
+                        )
                     )
                 elif c == "i":
                     result.append(next(new))
@@ -68,7 +71,7 @@ class DictHandler(Handler):
 
             for key, new_value_element in new_value.items():
                 if key in old_value:
-                    result[key] = cls.use_valid_old_values(
+                    result[key] = Handler.use_valid_old_values(
                         old_value[key], new_value_element
                     )
                 else:
