@@ -14,7 +14,6 @@ from typing import Tuple  # noqa
 from typing import TypeVar
 
 from executing import Source
-from inline_snapshot.testing._example import snapshot_env
 
 from ._align import add_x
 from ._align import align
@@ -29,6 +28,7 @@ from ._container import BaseHandler
 from ._container import get_handler
 from ._exceptions import UsageError
 from ._format import format_code
+from ._handler import Handler
 from ._sentinels import undefined
 from ._types import Category
 from ._types import Snapshot
@@ -298,8 +298,7 @@ class EqValue(GenericValue):
                 or isinstance(new_value, tuple)
                 and isinstance(old_value, tuple)
             ):
-                with snapshot_env:
-                    diff = add_x(align(old_value, new_value))
+                diff = add_x(align(old_value, new_value))
                 old = iter(old_value)
                 new = iter(new_value)
                 result = []
@@ -338,7 +337,9 @@ class EqValue(GenericValue):
                 return new_value
 
         if self._new_value is undefined:
-            self._new_value = use_valid_old_values(self._old_value, clone(other))
+            self._new_value = Handler.use_valid_old_values(
+                self._old_value, clone(other)
+            )
 
         return self._visible_value() == other
 

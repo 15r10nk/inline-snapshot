@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 
 from ._sentinels import undefined
+from ._update_allowed import update_allowed
 
 
 def get_handler(value) -> BaseHandler:
@@ -12,6 +13,9 @@ def get_handler(value) -> BaseHandler:
         return TupleHandler(value)
     if isinstance(value, dict):
         return DictHandler(value)
+
+    if not update_allowed(value):
+        return UnmanagedValueHandler(value)
 
     return ValueHandler(value)
 
@@ -28,7 +32,6 @@ class BaseHandler:
 
 
 class ValueHandler(BaseHandler):
-
     def __init__(self, value):
         self._old_value = value
         self._new_value = undefined
@@ -37,8 +40,26 @@ class ValueHandler(BaseHandler):
         pass
 
     def re_eval(self, value, node):
-
         assert self._old_value == value
+
+    def try_assign(self, value):
+        if self._new_value is undefined:
+            self._new_value = value
+            return True
+        else:
+            return self._new_value == value
+
+
+class UnmanagedValueHandler(BaseHandler):
+    def __init__(self, value):
+        self._old_value = value
+        self._new_value = undefined
+
+    def get_changes(self, node: ast.AST):
+        pass
+
+    def re_eval(self, value, node):
+        pass
 
     def try_assign(self, value):
         if self._new_value is undefined:
