@@ -98,11 +98,7 @@ class Change:  # ChangeSet
         self.change_recorder._changes.append(self)
 
         self.change_id = self._next_change_id
-        self._tags = []
         type(self)._next_change_id += 1
-
-    def set_tags(self, *tags):
-        self._tags = tags
 
     def replace(self, node, new_contend, *, filename):
         assert isinstance(new_contend, str)
@@ -128,7 +124,7 @@ class Change:  # ChangeSet
 
 
 class SourceFile:
-    def __init__(self, filename):
+    def __init__(self, filename: pathlib.Path):
         self.replacements: list[Replacement] = []
         self.filename = filename
         self.source = self.filename.read_text("utf-8")

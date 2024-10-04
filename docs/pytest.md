@@ -11,7 +11,7 @@ inline-snapshot provides one pytest option with different flags (*create*,
 Snapshot comparisons return always `True` if you use one of the flags *create*, *fix* or *review*.
 This is necessary because the whole test needs to be run to fix all snapshots like in this case:
 
-```python
+``` python
 from inline_snapshot import snapshot
 
 
@@ -30,7 +30,7 @@ def test_something():
 Approve the changes of the given [category](categories.md).
 These flags can be combined with *report* and *review*.
 
-```python title="test_something.py"
+``` python title="test_something.py"
 from inline_snapshot import snapshot
 
 

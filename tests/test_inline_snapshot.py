@@ -832,62 +832,6 @@ These changes will be applied, because you used --inline-snapshot=create
     assert result.report == snapshot("")
 
 
-def test_compare_dirty_equals_twice() -> None:
-
-    Example(
-        """
-from dirty_equals import IsStr
-from inline_snapshot import snapshot
-
-for x in 'ab':
-    assert x == snapshot(IsStr())
-    assert [x,5] == snapshot([IsStr(),3])
-    assert {'a':x,'b':5} == snapshot({'a':IsStr(),'b':3})
-
-"""
-    ).run_inline(
-        ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "test_something.py": """\
-
-from dirty_equals import IsStr
-from inline_snapshot import snapshot
-
-for x in 'ab':
-    assert x == snapshot(IsStr())
-    assert [x,5] == snapshot([IsStr(),5])
-    assert {'a':x,'b':5} == snapshot({'a':IsStr(),'b':5})
-
-"""
-            }
-        ),
-    )
-
-
-def test_dirty_equals_in_unused_snapshot() -> None:
-
-    Example(
-        """
-from dirty_equals import IsStr
-from inline_snapshot import snapshot
-
-snapshot([IsStr(),3])
-snapshot((IsStr(),3))
-snapshot({1:IsStr(),2:3})
-snapshot({1+1:2})
-
-t=(1,2)
-d={1:2}
-l=[1,2]
-snapshot([t,d,l])
-"""
-    ).run_inline(
-        ["--inline-snapshot=fix"],
-        changed_files=snapshot({}),
-    )
-
-
 @dataclass
 class Warning:
     message: str
@@ -928,7 +872,7 @@ def test_starred_warns_list():
             """
 from inline_snapshot import snapshot
 
-assert [5] == snapshot([*[4]])
+assert [5] == snapshot([*[5]])
 """
         ).run_inline(["--inline-snapshot=fix"])
 
@@ -949,57 +893,49 @@ def test_starred_warns_dict():
             """
 from inline_snapshot import snapshot
 
-assert {1:3} == snapshot({**{1:2}})
+assert {1:3} == snapshot({**{1:3}})
 """
         ).run_inline(["--inline-snapshot=fix"])
 
 
-def test_now_like_dirty_equals():
-    # test for cases like https://github.com/15r10nk/inline-snapshot/issues/116
+def test_is():
 
     Example(
         """
-from dirty_equals import DirtyEquals
-from inline_snapshot import snapshot
+from inline_snapshot import snapshot,Is
 
-
-def test_time():
-
-    now = 5
-
-    class Now(DirtyEquals):
-        def equals(self, other):
-            return other == now
-
-    assert now == snapshot(Now())
-
-    now = 6
-
-    assert 5 == snapshot(Now())
+def test_Is():
+    for i in range(3):
+        assert ["hello",i] == snapshot(["hi",Is(i)])
+        assert ["hello",i] == snapshot({1:["hi",Is(i)]})[i]
 """
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+
+from inline_snapshot import snapshot,Is
+
+def test_Is():
+    for i in range(3):
+        assert ["hello",i] == snapshot(["hi",Is(i)])
+        assert ["hello",i] == snapshot({1:["hi",Is(i)], 0: ["hello", 0], 2: ["hello", 2]})[i]
+"""
+            }
+        ),
     ).run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
                 "test_something.py": """\
 
-from dirty_equals import DirtyEquals
-from inline_snapshot import snapshot
+from inline_snapshot import snapshot,Is
 
-
-def test_time():
-
-    now = 5
-
-    class Now(DirtyEquals):
-        def equals(self, other):
-            return other == now
-
-    assert now == snapshot(Now())
-
-    now = 6
-
-    assert 5 == snapshot(5)
+def test_Is():
+    for i in range(3):
+        assert ["hello",i] == snapshot(["hello",Is(i)])
+        assert ["hello",i] == snapshot({1:["hello",Is(i)], 0: ["hello", 0], 2: ["hello", 2]})[i]
 """
             }
         ),
