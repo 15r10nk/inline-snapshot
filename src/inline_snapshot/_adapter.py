@@ -38,22 +38,23 @@ class DataclassAdapter:
         ]
 
 
-class ListAdapter:
+class SequenceAdapter:
+    node_type: type
+
     def items(self, value, node):
 
-        assert isinstance(node, ast.List)
+        assert isinstance(node, self.node_type)
         assert len(value) == len(node.elts)
 
         return [Item(value=v, node=n) for v, n in zip(value, node.elts)]
 
 
-class TupleAdapter:
-    def items(self, value, node):
+class ListAdapter(SequenceAdapter):
+    node_type = ast.List
 
-        assert isinstance(node, ast.Tuple)
-        assert len(value) == len(node.elts)
 
-        return [Item(value=v, node=n) for v, n in zip(value, node.elts)]
+class TupleAdapter(SequenceAdapter):
+    node_type = ast.Tuple
 
 
 class DictAdapter:
