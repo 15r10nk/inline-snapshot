@@ -14,6 +14,7 @@ from typing import TypeVar
 
 from executing import Source
 
+from ._adapter import get_adapter
 from ._align import add_x
 from ._align import align
 from ._change import CallArg
@@ -114,8 +115,26 @@ class GenericValue(Snapshot):
     def _value_to_code(self, value):
         return self._token_to_code(value_to_token(value))
 
-    def _re_eval(self, obj, expr: ast.expr):
-        self._handler.re_eval(obj, expr)
+    def _re_eval(self, obj):
+
+        def re_eval(old_value, node, new_value):
+            assert type(old_value) is type(new_value)
+
+            adapter = get_adapter(old_value)
+            if adapter is not None:
+                old_items = adapter.items(old_value, node)
+                new_items = adapter.items(new_value, node)
+                assert len(old_items) == len(new_items)
+
+                for old_item, new_item in zip(old_items, new_items):
+                    re_eval(old_item.value, old_item.node, new_item.value)
+
+            else:
+                if update_allowed(old_value):
+                    assert old_value == new_value
+
+        re_eval(self._old_value, self._ast_node, obj)
+        self._old_value = obj
 
     def _ignore_old(self):
         return (
@@ -184,46 +203,26 @@ class UndecidedValue(GenericValue):
     def _get_changes(self) -> Iterator[Change]:
 
         def handle(node, obj):
-            if isinstance(obj, list):
-                if not isinstance(node, ast.List):
-                    return
-                for node_value, value in zip(node.elts, obj):
-                    yield from handle(node_value, value)
-            elif isinstance(obj, tuple):
-                if not isinstance(node, ast.Tuple):
-                    return
-                for node_value, value in zip(node.elts, obj):
-                    yield from handle(node_value, value)
 
-            elif isinstance(obj, dict):
-                if not isinstance(node, ast.Dict):
-                    return
-                for value_key, node_key, node_value in zip(
-                    obj.keys(), node.keys, node.values
-                ):
-                    try:
-                        # this is just a sanity check, dicts should be ordered
-                        node_key = ast.literal_eval(node_key)
-                    except Exception:
-                        pass
-                    else:
-                        assert node_key == value_key
+            adapter = get_adapter(obj)
+            if adapter is not None:
+                for item in adapter.items(obj, node):
+                    yield from handle(item.node, item.value)
+                return
 
-                    yield from handle(node_value, obj[value_key])
-            else:
-                if update_allowed(obj):
-                    new_token = value_to_token(obj)
-                    if self._token_of_node(node) != new_token:
-                        new_code = self._token_to_code(new_token)
+            if update_allowed(obj):
+                new_token = value_to_token(obj)
+                if self._token_of_node(node) != new_token:
+                    new_code = self._token_to_code(new_token)
 
-                        yield Replace(
-                            node=self._ast_node,
-                            source=self._source,
-                            new_code=new_code,
-                            flag="update",
-                            old_value=self._old_value,
-                            new_value=self._old_value,
-                        )
+                    yield Replace(
+                        node=self._ast_node,
+                        source=self._source,
+                        new_code=new_code,
+                        flag="update",
+                        old_value=self._old_value,
+                        new_value=self._old_value,
+                    )
 
         if self._source is not None:
             yield from handle(self._ast_node, self._old_value)
@@ -803,8 +802,7 @@ def snapshot(obj: Any = undefined) -> Any:
             assert isinstance(node, ast.Call)
             snapshots[key] = SnapshotReference(obj, expr)
     else:
-        node = expr.node.args[0] if expr.node is not None and expr.node.args else None
-        snapshots[key]._re_eval(obj, node)
+        snapshots[key]._re_eval(obj)
 
     return snapshots[key]._value
 
@@ -853,5 +851,5 @@ class SnapshotReference:
 
             yield from self._value._get_changes()
 
-    def _re_eval(self, obj, expr):
-        self._value._re_eval(obj, expr)
+    def _re_eval(self, obj):
+        self._value._re_eval(obj)

@@ -1094,7 +1094,7 @@ def test_dirty_equals_in_unused_snapshot() -> None:
     Example(
         """
 from dirty_equals import IsStr
-from inline_snapshot import snapshot
+from inline_snapshot import snapshot,Is
 
 snapshot([IsStr(),3])
 snapshot((IsStr(),3))
@@ -1104,7 +1104,7 @@ snapshot({1+1:2})
 t=(1,2)
 d={1:2}
 l=[1,2]
-snapshot([t,d,l])
+snapshot([Is(t),Is(d),Is(l)])
 """
     ).run_inline(
         ["--inline-snapshot=fix"],
