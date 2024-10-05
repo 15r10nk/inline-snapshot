@@ -24,8 +24,6 @@ from ._change import DictInsert
 from ._change import ListInsert
 from ._change import Replace
 from ._code_repr import code_repr
-from ._container import BaseHandler
-from ._container import get_handler
 from ._exceptions import UsageError
 from ._format import format_code
 from ._sentinels import undefined
@@ -89,7 +87,6 @@ class GenericValue(Snapshot):
     _current_op = "undefined"
     _ast_node: ast.Expr
     _source: Source
-    _handler: BaseHandler
 
     def _token_of_node(self, node):
 
@@ -192,7 +189,6 @@ class UndecidedValue(GenericValue):
         self._new_value = undefined
         self._ast_node = ast_node
         self._source = source
-        self._handler = get_handler(old_value)
 
     def _change(self, cls):
         self.__class__ = cls
