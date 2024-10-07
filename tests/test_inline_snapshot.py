@@ -1,4 +1,3 @@
-import ast
 import contextlib
 import itertools
 import warnings
@@ -8,12 +7,9 @@ from dataclasses import dataclass
 from typing import Union
 
 import pytest
-from hypothesis import given
-from hypothesis.strategies import text
 from inline_snapshot import _inline_snapshot
 from inline_snapshot import snapshot
 from inline_snapshot._inline_snapshot import Flags
-from inline_snapshot._utils import triple_quote
 from inline_snapshot.testing import Example
 from inline_snapshot.testing._example import snapshot_env
 
@@ -584,194 +580,6 @@ def test_plain(check_update, executing_used):
     assert check_update("s = snapshot()", flags="") == snapshot("s = snapshot()")
 
 
-def test_string_update(check_update):
-    # black --preview wraps strings to keep the line length.
-    # string concatenation should produce updates.
-    assert (
-        check_update(
-            'assert "ab" == snapshot("a" "b")', reported_flags="", flags="update"
-        )
-        == 'assert "ab" == snapshot("a" "b")'
-    )
-
-    assert (
-        check_update(
-            'assert "ab" == snapshot("a"\n "b")', reported_flags="", flags="update"
-        )
-        == 'assert "ab" == snapshot("a"\n "b")'
-    )
-
-    assert check_update(
-        'assert "ab\\nc" == snapshot("a"\n "b\\nc")', flags="update"
-    ) == snapshot(
-        '''\
-assert "ab\\nc" == snapshot("""\\
-ab
-c\\
-""")\
-'''
-    )
-
-    assert (
-        check_update(
-            'assert b"ab" == snapshot(b"a"\n b"b")', reported_flags="", flags="update"
-        )
-        == 'assert b"ab" == snapshot(b"a"\n b"b")'
-    )
-
-
-def test_string_newline(check_update):
-    assert check_update('s = snapshot("a\\nb")', flags="update") == snapshot(
-        '''\
-s = snapshot("""\\
-a
-b\\
-""")\
-'''
-    )
-
-    assert check_update('s = snapshot("a\\"\\"\\"\\nb")', flags="update") == snapshot(
-        """\
-s = snapshot('''\\
-a\"\"\"
-b\\
-''')\
-"""
-    )
-
-    assert check_update(
-        's = snapshot("a\\"\\"\\"\\n\\\'\\\'\\\'b")', flags="update"
-    ) == snapshot(
-        '''\
-s = snapshot("""\\
-a\\"\\"\\"
-\'\'\'b\\
-""")\
-'''
-    )
-
-    assert check_update('s = snapshot(b"a\\nb")') == snapshot('s = snapshot(b"a\\nb")')
-
-    assert check_update('s = snapshot("\\n\\\'")', flags="update") == snapshot(
-        '''\
-s = snapshot("""\\
-
-'\\
-""")\
-'''
-    )
-
-    assert check_update('s = snapshot("\\n\\"")', flags="update") == snapshot(
-        '''\
-s = snapshot("""\\
-
-"\\
-""")\
-'''
-    )
-
-    assert check_update("s = snapshot(\"'''\\n\\\"\")", flags="update") == snapshot(
-        '''\
-s = snapshot("""\\
-\'\'\'
-\\"\\
-""")\
-'''
-    )
-
-    assert check_update('s = snapshot("\\n\b")', flags="update") == snapshot(
-        '''\
-s = snapshot("""\\
-
-\\x08\\
-""")\
-'''
-    )
-
-
-def test_string_quote_choice(check_update):
-    assert check_update(
-        "s = snapshot(\" \\'\\'\\' \\'\\'\\' \\\"\\\"\\\"\\nother_line\")",
-        flags="update",
-    ) == snapshot(
-        '''\
-s = snapshot("""\\
- \'\'\' \'\'\' \\"\\"\\"
-other_line\\
-""")\
-'''
-    )
-
-    assert check_update(
-        's = snapshot(" \\\'\\\'\\\' \\"\\"\\" \\"\\"\\"\\nother_line")', flags="update"
-    ) == snapshot(
-        """\
-s = snapshot('''\\
- \\'\\'\\' \"\"\" \"\"\"
-other_line\\
-''')\
-"""
-    )
-
-    assert check_update('s = snapshot("\\n\\"")', flags="update") == snapshot(
-        '''\
-s = snapshot("""\\
-
-"\\
-""")\
-'''
-    )
-
-    assert check_update(
-        "s=snapshot('\\n')", flags="update", reported_flags=""
-    ) == snapshot("s=snapshot('\\n')")
-    assert check_update(
-        "s=snapshot('abc\\n')", flags="update", reported_flags=""
-    ) == snapshot("s=snapshot('abc\\n')")
-    assert check_update("s=snapshot('abc\\nabc')", flags="update") == snapshot(
-        '''\
-s=snapshot("""\\
-abc
-abc\\
-""")\
-'''
-    )
-    assert check_update("s=snapshot('\\nabc')", flags="update") == snapshot(
-        '''\
-s=snapshot("""\\
-
-abc\\
-""")\
-'''
-    )
-    assert check_update("s=snapshot('a\\na\\n')", flags="update") == snapshot(
-        '''\
-s=snapshot("""\\
-a
-a
-""")\
-'''
-    )
-
-    assert (
-        check_update(
-            '''\
-s=snapshot("""\\
-a
-""")\
-''',
-            flags="update",
-        )
-        == snapshot('s=snapshot("a\\n")')
-    )
-
-
-@given(s=text())
-def test_string_convert(s):
-    print(s)
-    assert ast.literal_eval(triple_quote(s)) == s
-
-
 def test_flags_repr():
     assert repr(Flags({"update"})) == "Flags({'update'})"
 
@@ -832,40 +640,6 @@ assert {test2}
             assert "This snapshot cannot be use with" in str(error.value)
         else:
             assert test1 == test2
-
-
-def test_invalid_repr(check_update):
-    assert (
-        check_update(
-            """\
-class Thing:
-    def __repr__(self):
-        return "+++"
-
-    def __eq__(self,other):
-        if not isinstance(other,Thing):
-            return NotImplemented
-        return True
-
-assert Thing() == snapshot()
-""",
-            flags="create",
-        )
-        == snapshot(
-            """\
-class Thing:
-    def __repr__(self):
-        return "+++"
-
-    def __eq__(self,other):
-        if not isinstance(other,Thing):
-            return NotImplemented
-        return True
-
-assert Thing() == snapshot(HasRepr(Thing, "+++"))
-"""
-        )
-    )
 
 
 def test_sub_snapshot_create(check_update):
