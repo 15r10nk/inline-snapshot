@@ -26,6 +26,7 @@ from ._change import Replace
 from ._code_repr import code_repr
 from ._exceptions import UsageError
 from ._format import format_code
+from ._is import Is
 from ._sentinels import undefined
 from ._types import Category
 from ._types import Snapshot
@@ -112,26 +113,30 @@ class GenericValue(Snapshot):
     def _value_to_code(self, value):
         return self._token_to_code(value_to_token(value))
 
-    def _re_eval(self, obj):
+    def _re_eval(self, value):
 
-        def re_eval(old_value, node, new_value):
-            assert type(old_value) is type(new_value)
+        def re_eval(old_value, node, value):
+            assert type(old_value) is type(value)
 
             adapter = get_adapter(old_value)
             if adapter is not None:
                 old_items = adapter.items(old_value, node)
-                new_items = adapter.items(new_value, node)
+                new_items = adapter.items(value, node)
                 assert len(old_items) == len(new_items)
 
                 for old_item, new_item in zip(old_items, new_items):
                     re_eval(old_item.value, old_item.node, new_item.value)
 
+            elif isinstance(old_value, Is):
+                old_value.value = value.value
+
             else:
                 if update_allowed(old_value):
-                    assert old_value == new_value
+                    assert old_value == value
+                else:
+                    assert not update_allowed(value)
 
-        re_eval(self._old_value, self._ast_node, obj)
-        self._old_value = obj
+        re_eval(self._old_value, self._ast_node, value)
 
     def _ignore_old(self):
         return (
@@ -311,6 +316,10 @@ class EqValue(GenericValue):
                         result[key] = new_value_element
 
                 return result
+
+            elif isinstance(new_value, Is):
+                assert isinstance(old_value, Is)
+                return old_value
 
             if new_value == old_value:
                 return old_value
@@ -656,24 +665,32 @@ class DictValue(GenericValue):
         if self._new_value is undefined:
             self._new_value = {}
 
-        old_value = self._old_value
-        if old_value is undefined:
-            _missing_values += 1
-            old_value = {}
-
-        child_node = None
-        if self._ast_node is not None:
-            assert isinstance(self._ast_node, ast.Dict)
-            if index in old_value:
-                pos = list(old_value.keys()).index(index)
-                child_node = self._ast_node.values[pos]
-
         if index not in self._new_value:
+            old_value = self._old_value
+            if old_value is undefined:
+                _missing_values += 1
+                old_value = {}
+
+            child_node = None
+            if self._ast_node is not None:
+                assert isinstance(self._ast_node, ast.Dict)
+                if index in old_value:
+                    pos = list(old_value.keys()).index(index)
+                    child_node = self._ast_node.values[pos]
+
             self._new_value[index] = UndecidedValue(
                 old_value.get(index, undefined), child_node, self._source
             )
 
         return self._new_value[index]
+
+    def _re_eval(self, value):
+        super()._re_eval(value)
+
+        if self._new_value is not undefined and self._old_value is not undefined:
+            for key, s in self._new_value.items():
+                if key in self._old_value:
+                    s._re_eval(self._old_value[key])
 
     def _new_code(self):
         return (

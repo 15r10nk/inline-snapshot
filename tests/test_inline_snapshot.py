@@ -1228,3 +1228,47 @@ def test_time():
             }
         ),
     )
+
+
+def test_is():
+
+    Example(
+        """
+from inline_snapshot import snapshot,Is
+
+def test_Is():
+    for i in range(3):
+        assert ["hello",i] == snapshot(["hi",Is(i)])
+        assert ["hello",i] == snapshot({1:["hi",Is(i)]})[i]
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+
+from inline_snapshot import snapshot,Is
+
+def test_Is():
+    for i in range(3):
+        assert ["hello",i] == snapshot(["hi",Is(i)])
+        assert ["hello",i] == snapshot({1:["hi",Is(i)], 0: ["hello", 0], 2: ["hello", 2]})[i]
+"""
+            }
+        ),
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+
+from inline_snapshot import snapshot,Is
+
+def test_Is():
+    for i in range(3):
+        assert ["hello",i] == snapshot(["hello",Is(i)])
+        assert ["hello",i] == snapshot({1:["hello",Is(i)], 0: ["hello", 0], 2: ["hello", 2]})[i]
+"""
+            }
+        ),
+    )
