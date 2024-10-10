@@ -147,6 +147,8 @@ class Example:
                     try:
                         for filename in tmp_path.glob("*.py"):
                             globals: dict[str, Any] = {}
+                            print("run> pytest", filename)
+                            print(filename.read_text("utf-8"))
                             exec(
                                 compile(filename.read_text("utf-8"), filename, "exec"),
                                 globals,

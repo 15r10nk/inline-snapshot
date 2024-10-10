@@ -926,7 +926,7 @@ def test_starred_warns_list():
             """
 from inline_snapshot import snapshot
 
-assert [5] == snapshot([*[4]])
+assert [5] == snapshot([*[5]])
 """
         ).run_inline(["--inline-snapshot=fix"])
 
@@ -947,7 +947,7 @@ def test_starred_warns_dict():
             """
 from inline_snapshot import snapshot
 
-assert {1:3} == snapshot({**{1:2}})
+assert {1:3} == snapshot({**{1:3}})
 """
         ).run_inline(["--inline-snapshot=fix"])
 

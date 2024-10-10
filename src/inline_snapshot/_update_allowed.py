@@ -11,8 +11,10 @@ except ImportError:  # pragma: no cover
 else:
 
     def is_dirty_equal(value):
-        return isinstance(value, dirty_equals.DirtyEquals)
+        return isinstance(value, dirty_equals.DirtyEquals) or (
+            isinstance(value, type) and issubclass(value, dirty_equals.DirtyEquals)
+        )
 
 
 def update_allowed(value):
-    return not is_dirty_equal(value) and not isinstance(value, (Is, Snapshot))
+    return not (is_dirty_equal(value) or isinstance(value, (Is, Snapshot)))

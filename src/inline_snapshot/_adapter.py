@@ -43,7 +43,7 @@ class SequenceAdapter:
 
     def items(self, value, node):
 
-        assert isinstance(node, self.node_type)
+        assert isinstance(node, self.node_type), (node, self)
         assert len(value) == len(node.elts)
 
         return [Item(value=v, node=n) for v, n in zip(value, node.elts)]
