@@ -2,8 +2,6 @@ import ast
 import copy
 import inspect
 import tokenize
-import warnings
-from collections import defaultdict
 from pathlib import Path
 from typing import Any
 from typing import Dict  # noqa
@@ -13,10 +11,9 @@ from typing import Tuple  # noqa
 from typing import TypeVar
 
 from executing import Source
+from inline_snapshot._context import Context
 
-from ._adapter import get_adapter
-from ._align import add_x
-from ._align import align
+from ._adapter import get_adapter_type
 from ._change import CallArg
 from ._change import Change
 from ._change import Delete
@@ -102,6 +99,10 @@ class GenericValue(Snapshot):
             )
         )
 
+    def get_adapter(self, value):
+        context = Context(self._source)
+        return get_adapter_type(value)(context)
+
     def _format(self, text):
         if self._source is None:
             return text
@@ -121,8 +122,8 @@ class GenericValue(Snapshot):
         def re_eval(old_value, node, value):
             assert type(old_value) is type(value)
 
-            adapter = get_adapter(old_value)
-            if adapter is not None:
+            adapter = self.get_adapter(old_value)
+            if adapter is not None and hasattr(adapter, "items"):
                 old_items = adapter.items(old_value, node)
                 new_items = adapter.items(value, node)
                 assert len(old_items) == len(new_items)
@@ -208,8 +209,8 @@ class UndecidedValue(GenericValue):
 
         def handle(node, obj):
 
-            adapter = get_adapter(obj)
-            if adapter is not None:
+            adapter = self.get_adapter(obj)
+            if adapter is not None and hasattr(adapter, "items"):
                 for item in adapter.items(obj, node):
                     yield from handle(item.node, item.value)
                 return
@@ -279,193 +280,10 @@ class EqValue(GenericValue):
         if self._old_value is undefined:
             _missing_values += 1
 
-        def check(old_value, old_node, new_value):
-
-            if (
-                isinstance(new_value, list)
-                and isinstance(old_value, list)
-                or isinstance(new_value, tuple)
-                and isinstance(old_value, tuple)
-            ):
-
-                if old_node is not None:
-                    assert isinstance(
-                        old_node, ast.List if isinstance(old_value, list) else ast.Tuple
-                    )
-
-                    for e in old_node.elts:
-                        if isinstance(e, ast.Starred):
-                            warnings.warn_explicit(
-                                "star-expressions are not supported inside snapshots",
-                                filename=self._source.filename,
-                                lineno=e.lineno,
-                                category=InlineSnapshotSyntaxWarning,
-                            )
-                            return old_value
-                diff = add_x(align(old_value, new_value))
-                old = zip(
-                    old_value,
-                    old_node.elts if old_node is not None else [None] * len(old_value),
-                )
-                new = iter(new_value)
-                old_position = 0
-                to_insert = defaultdict(list)
-                result = []
-                for c in diff:
-                    if c in "mx":
-                        old_value_element, old_node_element = next(old)
-                        new_value_element = next(new)
-                        v = yield from check(
-                            old_value_element, old_node_element, new_value_element
-                        )
-                        result.append(v)
-                        old_position += 1
-                    elif c == "i":
-                        new_value_element = next(new)
-                        new_code = self._value_to_code(new_value_element)
-                        result.append(new_value_element)
-                        to_insert[old_position].append((new_code, new_value_element))
-                    elif c == "d":
-                        old_value_element, old_node_element = next(old)
-                        yield Delete(
-                            "fix", self._source, old_node_element, old_value_element
-                        )
-                        old_position += 1
-                    else:
-                        assert False
-
-                for position, code_values in to_insert.items():
-                    yield ListInsert(
-                        "fix", self._source, old_node, position, *zip(*code_values)
-                    )
-
-                return type(new_value)(result)
-
-            elif isinstance(new_value, dict) and isinstance(old_value, dict):
-                if old_node is not None:
-                    assert isinstance(old_node, ast.Dict)
-                    assert len(old_value) == len(old_node.keys)
-
-                    for key, value in zip(old_node.keys, old_node.values):
-                        if key is None:
-                            warnings.warn_explicit(
-                                "star-expressions are not supported inside snapshots",
-                                filename=self._source.filename,
-                                lineno=value.lineno,
-                                category=InlineSnapshotSyntaxWarning,
-                            )
-                            return old_value
-
-                    for value, node in zip(old_value.keys(), old_node.keys):
-
-                        try:
-                            # this is just a sanity check, dicts should be ordered
-                            node_value = ast.literal_eval(node)
-                        except:
-                            continue
-                        assert node_value == value
-
-                result = {}
-                for key, node in zip(
-                    old_value.keys(),
-                    (
-                        old_node.values
-                        if old_node is not None
-                        else [None] * len(old_value)
-                    ),
-                ):
-                    if not key in new_value:
-                        # delete entries
-                        yield Delete("fix", self._source, node, old_value[key])
-
-                to_insert = []
-                insert_pos = 0
-                for key, new_value_element in new_value.items():
-                    if key not in old_value:
-                        # add new values
-                        to_insert.append((key, new_value_element))
-                        result[key] = new_value_element
-                    else:
-                        if isinstance(old_node, ast.Dict):
-                            node = old_node.values[list(old_value.keys()).index(key)]
-                        else:
-                            node = None
-                        # check values with same keys
-                        result[key] = yield from check(
-                            old_value[key], node, new_value[key]
-                        )
-
-                        if to_insert:
-                            new_code = [
-                                (self._value_to_code(k), self._value_to_code(v))
-                                for k, v in to_insert
-                            ]
-                            yield DictInsert(
-                                "fix",
-                                self._source,
-                                old_node,
-                                insert_pos,
-                                new_code,
-                                to_insert,
-                            )
-                            to_insert = []
-
-                        insert_pos += 1
-
-                if to_insert:
-                    new_code = [
-                        (self._value_to_code(k), self._value_to_code(v))
-                        for k, v in to_insert
-                    ]
-                    yield DictInsert(
-                        "fix",
-                        self._source,
-                        old_node,
-                        len(old_value),
-                        new_code,
-                        to_insert,
-                    )
-
-                return result
-
-            # generic fallback
-
-            # because IsStr() != IsStr()
-            if type(old_value) is type(new_value) and not update_allowed(new_value):
-                return old_value
-
-            if old_node is None:
-                new_token = []
-            else:
-                new_token = value_to_token(new_value)
-
-            if not old_value == new_value:
-                flag = "fix"
-            elif (
-                self._ast_node is not None
-                and update_allowed(old_value)
-                and self._token_of_node(old_node) != new_token
-            ):
-                flag = "update"
-            else:
-                # equal and equal repr
-                return old_value
-
-            new_code = self._token_to_code(new_token)
-
-            yield Replace(
-                node=old_node,
-                source=self._source,
-                new_code=new_code,
-                flag=flag,
-                old_value=old_value,
-                new_value=new_value,
-            )
-
-            return new_value
+        adapter = self.get_adapter(self._old_value)
 
         if self._new_value is undefined:
-            it = iter(check(self._old_value, self._ast_node, clone(other)))
+            it = iter(adapter.assign(self._old_value, self._ast_node, clone(other)))
             self._changes = []
             while True:
                 try:

@@ -82,6 +82,14 @@ class Example:
 
         self.files = files
 
+        self.dump_files()
+
+    def dump_files(self):
+        for name, content in self.files.items():
+            print(f"file: {name}")
+            print(content)
+            print()
+
     def _write_files(self, dir: Path):
         for name, content in self.files.items():
             (dir / name).write_text(content)
@@ -148,7 +156,6 @@ class Example:
                         for filename in tmp_path.glob("*.py"):
                             globals: dict[str, Any] = {}
                             print("run> pytest", filename)
-                            print(filename.read_text("utf-8"))
                             exec(
                                 compile(filename.read_text("utf-8"), filename, "exec"),
                                 globals,
