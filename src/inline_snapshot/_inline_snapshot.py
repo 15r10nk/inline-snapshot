@@ -651,14 +651,13 @@ class SnapshotReference:
             new_code = self._value._new_code()
 
             yield CallArg(
-                "create",
-                self._value._source,
-                self._expr.node if self._expr is not None else None,
-                0,
-                None,
-                new_code,
-                self._value._old_value,
-                self._value._new_value,
+                flag="create",
+                source=self._value._source,
+                node=self._expr.node if self._expr is not None else None,
+                arg_pos=0,
+                arg_name=None,
+                new_code=new_code,
+                new_value=self._value._new_value,
             )
 
         else:
