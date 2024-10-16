@@ -13,7 +13,10 @@ from ._utils import ignore_tokens
 class Context:
 
     def __init__(self, source):
-        self._source = source
+        if isinstance(source, Context):
+            self._source = source._source
+        else:
+            self._source = source
 
     @property
     def filename(self):
@@ -24,6 +27,9 @@ class Context:
             return text
         else:
             return format_code(text, Path(self._source.filename))
+
+    def asttokens(self):
+        return self._source.asttokens()
 
     def _token_to_code(self, tokens):
         return self._format(tokenize.untokenize(tokens)).strip()

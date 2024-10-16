@@ -6,6 +6,7 @@ from inline_snapshot._change import apply_all
 from inline_snapshot._change import CallArg
 from inline_snapshot._change import Delete
 from inline_snapshot._change import Replace
+from inline_snapshot._context import Context
 from inline_snapshot._inline_snapshot import snapshot
 from inline_snapshot._rewrite_code import ChangeRecorder
 
@@ -25,12 +26,13 @@ def check_change(tmp_path):
 
         source = Source.for_filename(filename)
         module = source.tree
+        context = Context(source)
 
         call = module.body[0].value
         assert isinstance(call, ast.Call)
 
         with ChangeRecorder().activate() as cr:
-            apply_all(changes(source, call))
+            apply_all(changes(context, call))
 
             cr.virtual_write()
 

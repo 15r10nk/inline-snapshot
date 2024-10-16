@@ -13,6 +13,7 @@ from typing import Union
 from asttokens.util import Token
 from executing.executing import EnhancedAST
 from executing.executing import Source
+from inline_snapshot._context import Context
 
 from ._rewrite_code import ChangeRecorder
 from ._rewrite_code import end_of
@@ -22,7 +23,7 @@ from ._rewrite_code import start_of
 @dataclass()
 class Change:
     flag: str
-    source: Source
+    source: Context
 
     @property
     def filename(self):
@@ -117,15 +118,15 @@ class CallArg(Change):
 TokenRange = Tuple[Token, Token]
 
 
-def brace_tokens(source, node) -> Tuple[TokenRange, TokenRange]:
+def brace_tokens(source, node) -> TokenRange:
     first_token, *_, end_token = source.asttokens().get_tokens(node)
     return first_token, end_token
 
 
 def generic_sequence_update(
     source: Source,
-    parent: Union[ast.List, ast.Tuple, ast.Dict],
-    brace_tokens: Tuple[TokenRange, TokenRange],
+    parent: Union[ast.List, ast.Tuple, ast.Dict, ast.Call],
+    brace_tokens: TokenRange,
     parent_elements: List[Union[TokenRange, None]],
     to_insert: Dict[int, List[str]],
 ):
@@ -185,9 +186,9 @@ def generic_sequence_update(
 
 
 def apply_all(all_changes: List[Change]):
-    by_parent: Dict[EnhancedAST, List[Union[Delete, DictInsert, ListInsert]]] = (
-        defaultdict(list)
-    )
+    by_parent: Dict[
+        EnhancedAST, List[Union[Delete, DictInsert, ListInsert, CallArg]]
+    ] = defaultdict(list)
     sources: Dict[EnhancedAST, Source] = {}
 
     for change in all_changes:
@@ -261,6 +262,7 @@ def apply_all(all_changes: List[Change]):
                             f"{change.arg_name} = {change.new_code}"
                         )
                     else:
+                        assert change.arg_pos is not None
                         to_insert[change.arg_pos].append(change.new_code)
 
             generic_sequence_update(

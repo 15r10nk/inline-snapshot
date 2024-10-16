@@ -1,11 +1,10 @@
 import ast
 import copy
 import inspect
-import tokenize
-from pathlib import Path
 from typing import Any
 from typing import Dict  # noqa
 from typing import Iterator
+from typing import List
 from typing import Set
 from typing import Tuple  # noqa
 from typing import TypeVar
@@ -22,16 +21,11 @@ from ._change import ListInsert
 from ._change import Replace
 from ._code_repr import code_repr
 from ._exceptions import UsageError
-from ._format import format_code
 from ._is import Is
 from ._sentinels import undefined
 from ._types import Category
 from ._types import Snapshot
-from ._update_allowed import is_dirty_equal
 from ._update_allowed import update_allowed
-from ._utils import ignore_tokens
-from ._utils import normalize
-from ._utils import simple_token
 from ._utils import value_to_token
 
 
@@ -85,37 +79,10 @@ class GenericValue(Snapshot):
     _old_value: Any
     _current_op = "undefined"
     _ast_node: ast.Expr
-    _source: Source
-
-    def _token_of_node(self, node):
-
-        return list(
-            normalize(
-                [
-                    simple_token(t.type, t.string)
-                    for t in self._source.asttokens().get_tokens(node)
-                    if t.type not in ignore_tokens
-                ]
-            )
-        )
+    _context: Context
 
     def get_adapter(self, value):
-        context = Context(self._source)
-        return get_adapter_type(value)(context)
-
-    def _format(self, text):
-        if self._source is None:
-            return text
-        else:
-            return format_code(text, Path(self._source.filename))
-
-    def _token_to_code(self, tokens):
-        return self._format(tokenize.untokenize(tokens)).strip()
-
-    def _value_to_code(self, value):
-        if is_dirty_equal(value):
-            return "<no repr>"
-        return self._token_to_code(value_to_token(value))
+        return get_adapter_type(value)(self._context)
 
     def _re_eval(self, value):
 
@@ -197,7 +164,7 @@ class UndecidedValue(GenericValue):
         self._old_value = old_value
         self._new_value = undefined
         self._ast_node = ast_node
-        self._source = source
+        self._context = Context(source)
 
     def _change(self, cls):
         self.__class__ = cls
@@ -217,19 +184,19 @@ class UndecidedValue(GenericValue):
 
             if update_allowed(obj):
                 new_token = value_to_token(obj)
-                if self._token_of_node(node) != new_token:
-                    new_code = self._token_to_code(new_token)
+                if self._context._token_of_node(node) != new_token:
+                    new_code = self._context._token_to_code(new_token)
 
                     yield Replace(
                         node=self._ast_node,
-                        source=self._source,
+                        source=self._context,
                         new_code=new_code,
                         flag="update",
                         old_value=self._old_value,
                         new_value=self._old_value,
                     )
 
-        if self._source is not None:
+        if self._context._source is not None:
             yield from handle(self._ast_node, self._old_value)
 
     # functions which determine the type
@@ -274,6 +241,7 @@ Please fix the way your object is copied or your __eq__ implementation.
 
 class EqValue(GenericValue):
     _current_op = "x == snapshot"
+    _changes: List[Change]
 
     def __eq__(self, other):
         global _missing_values
@@ -295,10 +263,10 @@ class EqValue(GenericValue):
         return self._visible_value() == other
 
     def _new_code(self):
-        return self._value_to_code(self._new_value)
+        return self._context._value_to_code(self._new_value)
 
     def _get_changes(self) -> Iterator[Change]:
-        return self._changes
+        return iter(self._changes)
 
 
 class MinMaxValue(GenericValue):
@@ -323,7 +291,7 @@ class MinMaxValue(GenericValue):
         return self.cmp(self._visible_value(), other)
 
     def _new_code(self):
-        return self._value_to_code(self._new_value)
+        return self._context._value_to_code(self._new_value)
 
     def _get_changes(self) -> Iterator[Change]:
         new_token = value_to_token(self._new_value)
@@ -333,17 +301,17 @@ class MinMaxValue(GenericValue):
             flag = "trim"
         elif (
             self._ast_node is not None
-            and self._token_of_node(self._ast_node) != new_token
+            and self._context._token_of_node(self._ast_node) != new_token
         ):
             flag = "update"
         else:
             return
 
-        new_code = self._token_to_code(new_token)
+        new_code = self._context._token_to_code(new_token)
 
         yield Replace(
             node=self._ast_node,
-            source=self._source,
+            source=self._context,
             new_code=new_code,
             flag=flag,
             old_value=self._old_value,
@@ -413,7 +381,7 @@ class CollectionValue(GenericValue):
             return item in self._old_value
 
     def _new_code(self):
-        return self._value_to_code(self._new_value)
+        return self._context._value_to_code(self._new_value)
 
     def _get_changes(self) -> Iterator[Change]:
 
@@ -426,19 +394,25 @@ class CollectionValue(GenericValue):
         for old_value, old_node in zip(self._old_value, elements):
             if old_value not in self._new_value:
                 yield Delete(
-                    flag="trim", source=self._source, node=old_node, old_value=old_value
+                    flag="trim",
+                    source=self._context,
+                    node=old_node,
+                    old_value=old_value,
                 )
                 continue
 
             # check for update
             new_token = value_to_token(old_value)
 
-            if old_node is not None and self._token_of_node(old_node) != new_token:
-                new_code = self._token_to_code(new_token)
+            if (
+                old_node is not None
+                and self._context._token_of_node(old_node) != new_token
+            ):
+                new_code = self._context._token_to_code(new_token)
 
                 yield Replace(
                     node=old_node,
-                    source=self._source,
+                    source=self._context,
                     new_code=new_code,
                     flag="update",
                     old_value=old_value,
@@ -449,10 +423,10 @@ class CollectionValue(GenericValue):
         if new_values:
             yield ListInsert(
                 flag="fix",
-                source=self._source,
+                source=self._context,
                 node=self._ast_node,
                 position=len(self._old_value),
-                new_code=[self._value_to_code(v) for v in new_values],
+                new_code=[self._context._value_to_code(v) for v in new_values],
                 new_values=new_values,
             )
 
@@ -480,7 +454,7 @@ class DictValue(GenericValue):
                     child_node = self._ast_node.values[pos]
 
             self._new_value[index] = UndecidedValue(
-                old_value.get(index, undefined), child_node, self._source
+                old_value.get(index, undefined), child_node, self._context
             )
 
         return self._new_value[index]
@@ -498,7 +472,7 @@ class DictValue(GenericValue):
             "{"
             + ", ".join(
                 [
-                    f"{self._value_to_code(k)}: {v._new_code()}"
+                    f"{self._context._value_to_code(k)}: {v._new_code()}"
                     for k, v in self._new_value.items()
                     if not isinstance(v, UndecidedValue)
                 ]
@@ -522,7 +496,7 @@ class DictValue(GenericValue):
                 yield from self._new_value[key]._get_changes()
             else:
                 # delete entries
-                yield Delete("trim", self._source, node, self._old_value[key])
+                yield Delete("trim", self._context, node, self._old_value[key])
 
         to_insert = []
         for key, new_value_element in self._new_value.items():
@@ -533,10 +507,10 @@ class DictValue(GenericValue):
                 to_insert.append((key, new_value_element._new_code()))
 
         if to_insert:
-            new_code = [(self._value_to_code(k), v) for k, v in to_insert]
+            new_code = [(self._context._value_to_code(k), v) for k, v in to_insert]
             yield DictInsert(
                 "create",
-                self._source,
+                self._context,
                 self._ast_node,
                 len(self._old_value),
                 new_code,
@@ -652,7 +626,7 @@ class SnapshotReference:
 
             yield CallArg(
                 flag="create",
-                source=self._value._source,
+                source=self._value._context,
                 node=self._expr.node if self._expr is not None else None,
                 arg_pos=0,
                 arg_name=None,
