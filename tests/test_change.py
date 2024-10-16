@@ -6,9 +6,9 @@ from inline_snapshot._change import apply_all
 from inline_snapshot._change import CallArg
 from inline_snapshot._change import Delete
 from inline_snapshot._change import Replace
-from inline_snapshot._context import Context
 from inline_snapshot._inline_snapshot import snapshot
 from inline_snapshot._rewrite_code import ChangeRecorder
+from inline_snapshot._source_file import SourceFile
 
 
 @pytest.fixture
@@ -26,7 +26,7 @@ def check_change(tmp_path):
 
         source = Source.for_filename(filename)
         module = source.tree
-        context = Context(source)
+        context = SourceFile(source)
 
         call = module.body[0].value
         assert isinstance(call, ast.Call)
@@ -50,7 +50,7 @@ def test_change_function_args(check_change):
         lambda source, call: [
             Replace(
                 flag="fix",
-                source=source,
+                file=source,
                 node=call.args[0],
                 new_code="22",
                 old_value=0,
@@ -65,7 +65,7 @@ def test_change_function_args(check_change):
         lambda source, call: [
             Delete(
                 flag="fix",
-                source=source,
+                file=source,
                 node=call.args[0],
                 old_value=0,
             )
@@ -78,7 +78,7 @@ def test_change_function_args(check_change):
         lambda source, call: [
             CallArg(
                 flag="fix",
-                source=source,
+                file=source,
                 node=call,
                 arg_pos=0,
                 arg_name=None,

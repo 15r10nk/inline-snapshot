@@ -6,7 +6,7 @@ import warnings
 from collections import defaultdict
 from dataclasses import is_dataclass
 
-from inline_snapshot._context import Context
+from inline_snapshot._source_file import SourceFile
 from inline_snapshot._update_allowed import update_allowed
 from inline_snapshot._utils import value_to_token
 
@@ -40,7 +40,7 @@ class Item(typing.NamedTuple):
 
 
 class Adapter:
-    context: Context
+    context: SourceFile
 
     def __init__(self, context):
         self.context = context
@@ -86,7 +86,7 @@ class ValueAdapter(Adapter):
 
         yield Replace(
             node=old_node,
-            source=self.context._source,
+            file=self.context._source,
             new_code=new_code,
             flag=flag,
             old_value=old_value,

@@ -10,10 +10,10 @@ from inline_snapshot._utils import value_to_token
 from ._utils import ignore_tokens
 
 
-class Context:
+class SourceFile:
 
     def __init__(self, source):
-        if isinstance(source, Context):
+        if isinstance(source, SourceFile):
             self._source = source._source
         else:
             self._source = source

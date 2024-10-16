@@ -13,7 +13,7 @@ from typing import Union
 from asttokens.util import Token
 from executing.executing import EnhancedAST
 from executing.executing import Source
-from inline_snapshot._context import Context
+from inline_snapshot._source_file import SourceFile
 
 from ._rewrite_code import ChangeRecorder
 from ._rewrite_code import end_of
@@ -23,11 +23,11 @@ from ._rewrite_code import start_of
 @dataclass()
 class Change:
     flag: str
-    source: Context
+    file: SourceFile
 
     @property
     def filename(self):
-        return self.source.filename
+        return self.file.filename
 
     def apply(self):
         raise NotImplementedError()
@@ -78,7 +78,7 @@ class Replace(Change):
 
     def apply(self):
         change = ChangeRecorder.current.new_change()
-        range = self.source.asttokens().get_text_positions(self.node, False)
+        range = self.file.asttokens().get_text_positions(self.node, False)
         change.replace(range, self.new_code, filename=self.filename)
 
 
@@ -93,9 +93,9 @@ class CallArg(Change):
 
     def apply(self):
         change = ChangeRecorder.current.new_change()
-        tokens = list(self.source.asttokens().get_tokens(self.node))
+        tokens = list(self.file.asttokens().get_tokens(self.node))
         call = self.node
-        tokens = list(self.source.asttokens().get_tokens(call))
+        tokens = list(self.file.asttokens().get_tokens(call))
 
         assert isinstance(call, ast.Call)
         assert len(call.args) == 0
@@ -197,12 +197,12 @@ def apply_all(all_changes: List[Change]):
             if isinstance(node, ast.keyword):
                 node = node.parent
             by_parent[node].append(change)
-            sources[node] = change.source
+            sources[node] = change.file
 
         elif isinstance(change, (DictInsert, ListInsert, CallArg)):
             node = cast(EnhancedAST, change.node)
             by_parent[node].append(change)
-            sources[node] = change.source
+            sources[node] = change.file
         else:
             change.apply()
 
