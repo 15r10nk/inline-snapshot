@@ -10,6 +10,7 @@ from typing import Tuple  # noqa
 from typing import TypeVar
 
 from executing import Source
+from inline_snapshot._adapter.adapter import Adapter
 from inline_snapshot._source_file import SourceFile
 
 from ._adapter import get_adapter_type
@@ -248,9 +249,8 @@ class EqValue(GenericValue):
         if self._old_value is undefined:
             _missing_values += 1
 
-        adapter = self.get_adapter(self._old_value)
-
         if self._new_value is undefined:
+            adapter = Adapter(self._file).get_adapter(self._old_value, self._new_value)
             it = iter(adapter.assign(self._old_value, self._ast_node, clone(other)))
             self._changes = []
             while True:

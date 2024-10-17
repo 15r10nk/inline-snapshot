@@ -98,11 +98,7 @@ class Change:  # ChangeSet
         self.change_recorder._changes.append(self)
 
         self.change_id = self._next_change_id
-        self._tags = []
         type(self)._next_change_id += 1
-
-    def set_tags(self, *tags):
-        self._tags = tags
 
     def replace(self, node, new_contend, *, filename):
         assert isinstance(new_contend, str)

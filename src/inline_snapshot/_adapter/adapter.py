@@ -44,11 +44,14 @@ class Adapter:
     def __init__(self, context):
         self.context = context
 
-    def get_adapter(self, value) -> Adapter:
-        adapter_type = get_adapter_type(value)
+    def get_adapter(self, old_value, new_value) -> Adapter:
+        # if type(old_value) is not type(new_value):
+        #     from .value_adapter import ValueAdapter
+        #     return ValueAdapter(self.context)
+
+        adapter_type = get_adapter_type(old_value)
         if adapter_type is not None:
             return adapter_type(self.context)
-
         assert False
 
     def assign(self, old_value, old_node, new_value):

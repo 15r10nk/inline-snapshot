@@ -78,9 +78,9 @@ class DictAdapter(Adapter):
                 else:
                     node = None
                 # check values with same keys
-                result[key] = yield from self.get_adapter(old_value[key]).assign(
-                    old_value[key], node, new_value[key]
-                )
+                result[key] = yield from self.get_adapter(
+                    old_value[key], new_value[key]
+                ).assign(old_value[key], node, new_value[key])
 
                 if to_insert:
                     new_code = [

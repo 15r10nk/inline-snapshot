@@ -57,9 +57,9 @@ class SequenceAdapter(Adapter):
                 if c in "mx":
                     old_value_element, old_node_element = next(old)
                     new_value_element = next(new)
-                    v = yield from self.get_adapter(old_value_element).assign(
-                        old_value_element, old_node_element, new_value_element
-                    )
+                    v = yield from self.get_adapter(
+                        old_value_element, new_value_element
+                    ).assign(old_value_element, old_node_element, new_value_element)
                     result.append(v)
                     old_position += 1
                 elif c == "i":

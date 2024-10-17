@@ -67,7 +67,7 @@ class DataclassAdapter(Adapter):
                 warnings.warn_explicit(
                     "star-expressions are not supported inside snapshots",
                     filename=self.context._source.filename,
-                    lineno=kw.lineno,
+                    lineno=kw.value.lineno,
                     category=InlineSnapshotSyntaxWarning,
                 )
                 return old_value
@@ -100,7 +100,7 @@ class DataclassAdapter(Adapter):
                 # check values with same keys
                 old_value_element = self.argument(old_value, key)
                 result_kwargs[key] = yield from self.get_adapter(
-                    old_value_element
+                    old_value_element, new_value_element
                 ).assign(old_value_element, node, new_value_element)
 
                 if to_insert:
@@ -112,8 +112,8 @@ class DataclassAdapter(Adapter):
                             node=old_node,
                             arg_pos=insert_pos,
                             arg_name=key,
-                            new_code=f"{key} = {self.context._value_to_code(value)}",
-                            new_value=(key, value),
+                            new_code=self.context._value_to_code(value),
+                            new_value=value,
                         )
                     to_insert = []
 
@@ -129,8 +129,8 @@ class DataclassAdapter(Adapter):
                     node=old_node,
                     arg_pos=insert_pos,
                     arg_name=key,
-                    new_code=f"{key} = {self.context._value_to_code(value)}",
-                    new_value=(key, value),
+                    new_code=self.context._value_to_code(value),
+                    new_value=value,
                 )
 
         return type(old_value)(**result_kwargs)
