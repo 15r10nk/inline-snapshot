@@ -17,9 +17,7 @@ from .adapter import Item
 class DataclassAdapter(Adapter):
 
     def items(self, value, node):
-
         assert isinstance(node, ast.Call)
-        assert len(value) == len(node.keywords)
         assert not node.args
         assert all(kw.arg for kw in node.keywords)
 
