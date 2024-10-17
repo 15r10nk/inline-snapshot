@@ -18,9 +18,6 @@ class ValueAdapter(Adapter):
         if is_unmanaged(old_value):
             return old_value
 
-        if type(old_value) is type(new_value) and not update_allowed(new_value):
-            return old_value
-
         if old_node is None:
             new_token = []
         else:

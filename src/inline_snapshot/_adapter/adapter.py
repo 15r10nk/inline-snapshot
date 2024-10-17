@@ -45,9 +45,10 @@ class Adapter:
         self.context = context
 
     def get_adapter(self, old_value, new_value) -> Adapter:
-        # if type(old_value) is not type(new_value):
-        #     from .value_adapter import ValueAdapter
-        #     return ValueAdapter(self.context)
+        if type(old_value) is not type(new_value):
+            from .value_adapter import ValueAdapter
+
+            return ValueAdapter(self.context)
 
         adapter_type = get_adapter_type(old_value)
         if adapter_type is not None:

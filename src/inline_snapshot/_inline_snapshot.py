@@ -250,7 +250,7 @@ class EqValue(GenericValue):
             _missing_values += 1
 
         if self._new_value is undefined:
-            adapter = Adapter(self._file).get_adapter(self._old_value, self._new_value)
+            adapter = Adapter(self._file).get_adapter(self._old_value, other)
             it = iter(adapter.assign(self._old_value, self._ast_node, clone(other)))
             self._changes = []
             while True:
