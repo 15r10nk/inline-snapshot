@@ -25,7 +25,7 @@ from ._is import Is
 from ._sentinels import undefined
 from ._types import Category
 from ._types import Snapshot
-from ._update_allowed import update_allowed
+from ._unmanaged import update_allowed
 from ._utils import value_to_token
 
 

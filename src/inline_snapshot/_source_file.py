@@ -2,7 +2,7 @@ import tokenize
 from pathlib import Path
 
 from inline_snapshot._format import format_code
-from inline_snapshot._update_allowed import is_dirty_equal
+from inline_snapshot._unmanaged import is_dirty_equal
 from inline_snapshot._utils import normalize
 from inline_snapshot._utils import simple_token
 from inline_snapshot._utils import value_to_token

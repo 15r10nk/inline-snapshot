@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from inline_snapshot._update_allowed import update_allowed
+from inline_snapshot._unmanaged import is_unmanaged
+from inline_snapshot._unmanaged import update_allowed
 from inline_snapshot._utils import value_to_token
 
 from .._change import Replace
@@ -13,6 +14,10 @@ class ValueAdapter(Adapter):
         # generic fallback
 
         # because IsStr() != IsStr()
+
+        if is_unmanaged(old_value):
+            return old_value
+
         if type(old_value) is type(new_value) and not update_allowed(new_value):
             return old_value
 

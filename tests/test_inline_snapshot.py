@@ -969,37 +969,20 @@ def test_time():
         def equals(self, other):
             return other == now
 
-    assert now == snapshot(Now())
+    assert 5 == snapshot(Now())
 
     now = 6
 
-    assert 5 == snapshot(Now())
+    assert 5 == snapshot(Now()), "different time"
 """
     ).run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "test_something.py": """\
-
-from dirty_equals import DirtyEquals
-from inline_snapshot import snapshot
-
-
-def test_time():
-
-    now = 5
-
-    class Now(DirtyEquals):
-        def equals(self, other):
-            return other == now
-
-    assert now == snapshot(Now())
-
-    now = 6
-
-    assert 5 == snapshot(5)
+        changed_files=snapshot({}),
+        raises=snapshot(
+            """\
+AssertionError:
+different time\
 """
-            }
         ),
     )
 
