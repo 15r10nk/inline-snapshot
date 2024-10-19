@@ -288,7 +288,10 @@ def set_time(time_machine):
             )
 
         def pyproject(self, source):
-            (pytester.path / "pyproject.toml").write_text(source, "utf-8")
+            self.write_file("pyproject.toml", source)
+
+        def write_file(self, filename, content):
+            (pytester.path / filename).write_text(content, "utf-8")
 
         def storage(self):
             dir = pytester.path / ".inline-snapshot" / "external"

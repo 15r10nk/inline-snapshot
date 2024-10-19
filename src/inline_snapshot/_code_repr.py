@@ -62,7 +62,7 @@ def customize_repr(f):
     """Register a funtion which should be used to get the code representation
     of a object.
 
-    ```python
+    ``` python
     @customize_repr
     def _(obj: MyCustomClass):
         return f"MyCustomClass(attr={repr(obj.attr)})"
