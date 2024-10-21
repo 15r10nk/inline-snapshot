@@ -1,6 +1,7 @@
 import tokenize
 from pathlib import Path
 
+from executing import Source
 from inline_snapshot._format import format_code
 from inline_snapshot._unmanaged import is_dirty_equal
 from inline_snapshot._utils import normalize
@@ -11,6 +12,7 @@ from ._utils import ignore_tokens
 
 
 class SourceFile:
+    _source = Source
 
     def __init__(self, source):
         if isinstance(source, SourceFile):

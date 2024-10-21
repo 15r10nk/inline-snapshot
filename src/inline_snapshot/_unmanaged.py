@@ -17,7 +17,7 @@ else:
 
 
 def update_allowed(value):
-    return not (is_dirty_equal(value) or isinstance(value, (Is, Snapshot)))
+    return not (is_dirty_equal(value) or isinstance(value, (Is, Snapshot)))  # type: ignore
 
 
 def is_unmanaged(value):

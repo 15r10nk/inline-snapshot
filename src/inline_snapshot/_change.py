@@ -12,7 +12,6 @@ from typing import Union
 
 from asttokens.util import Token
 from executing.executing import EnhancedAST
-from executing.executing import Source
 from inline_snapshot._source_file import SourceFile
 
 from ._rewrite_code import ChangeRecorder
@@ -101,7 +100,7 @@ def brace_tokens(source, node) -> TokenRange:
 
 
 def generic_sequence_update(
-    source: Source,
+    source: SourceFile,
     parent: Union[ast.List, ast.Tuple, ast.Dict, ast.Call],
     brace_tokens: TokenRange,
     parent_elements: List[Union[TokenRange, None]],
@@ -166,7 +165,7 @@ def apply_all(all_changes: List[Change]):
     by_parent: Dict[
         EnhancedAST, List[Union[Delete, DictInsert, ListInsert, CallArg]]
     ] = defaultdict(list)
-    sources: Dict[EnhancedAST, Source] = {}
+    sources: Dict[EnhancedAST, SourceFile] = {}
 
     for change in all_changes:
         if isinstance(change, Delete):

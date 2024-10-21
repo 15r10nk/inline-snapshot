@@ -20,6 +20,7 @@ from inline_snapshot._change import apply_all
 from inline_snapshot._format import format_code
 from inline_snapshot._inline_snapshot import Flags
 from inline_snapshot._rewrite_code import ChangeRecorder
+from inline_snapshot._types import Category
 from inline_snapshot.testing._example import snapshot_env
 
 pytest_plugins = "pytester"
@@ -53,7 +54,7 @@ def check_update(source):
 
 
 @pytest.fixture()
-def source(tmp_path):
+def source(tmp_path: Path):
     filecount = 1
 
     @dataclass
@@ -64,8 +65,8 @@ def source(tmp_path):
         number_snapshots: int = 0
         number_changes: int = 0
 
-        def run(self, *flags):
-            flags = Flags({*flags})
+        def run(self, *flags_arg: Category):
+            flags = Flags({*flags_arg})
 
             nonlocal filecount
             filename: Path = tmp_path / f"test_{filecount}.py"

@@ -124,7 +124,7 @@ class Change:  # ChangeSet
 
 
 class SourceFile:
-    def __init__(self, filename):
+    def __init__(self, filename: pathlib.Path):
         self.replacements: list[Replacement] = []
         self.filename = filename
         self.source = self.filename.read_text("utf-8")
