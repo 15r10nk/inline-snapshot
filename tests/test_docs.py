@@ -82,7 +82,7 @@ def map_code_blocks(file):
                     )
 
                 new_lines.append(
-                    f"{indent}``` {("python "+new_block.block_options.strip()).strip()}"
+                    f"{indent}``` {('python '+new_block.block_options.strip()).strip()}"
                 )
 
                 new_code = new_block.code.rstrip("\n")
