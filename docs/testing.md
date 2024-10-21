@@ -59,7 +59,7 @@ The following example shows how you can use the `Example` class to test what inl
             report=snapshot(
                 """\
     Error: one snapshot is missing a value (--inline-snapshot=create)
-    You can also use --inline-snapshot=review to approve the changes interactiv\
+    You can also use --inline-snapshot=review to approve the changes interactively\
     """
             ),
         ).run_pytest(  # run with create flag and check the changed files

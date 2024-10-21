@@ -264,7 +264,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
             if sum(snapshot_changes.values()) != 0:
                 console.print(
-                    "\nYou can also use [b]--inline-snapshot=review[/] to approve the changes interactiv",
+                    "\nYou can also use [b]--inline-snapshot=review[/] to approve the changes interactively",
                     highlight=False,
                 )
 

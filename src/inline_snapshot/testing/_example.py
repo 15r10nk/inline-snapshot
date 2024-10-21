@@ -5,6 +5,7 @@ import os
 import platform
 import re
 import subprocess as sp
+import traceback
 from argparse import ArgumentParser
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -82,6 +83,14 @@ class Example:
 
         self.files = files
 
+        self.dump_files()
+
+    def dump_files(self):
+        for name, content in self.files.items():
+            print(f"file: {name}")
+            print(content)
+            print()
+
     def _write_files(self, dir: Path):
         for name, content in self.files.items():
             (dir / name).write_text(content)
@@ -147,6 +156,7 @@ class Example:
                     try:
                         for filename in tmp_path.glob("*.py"):
                             globals: dict[str, Any] = {}
+                            print("run> pytest", filename)
                             exec(
                                 compile(filename.read_text("utf-8"), filename, "exec"),
                                 globals,
@@ -157,6 +167,7 @@ class Example:
                                 if k.startswith("test_") and callable(v):
                                     v()
                     except Exception as e:
+                        print(traceback.format_exc())
                         assert raises == f"{type(e).__name__}:\n" + str(e)
 
                     finally:
