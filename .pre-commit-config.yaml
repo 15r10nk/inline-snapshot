@@ -27,10 +27,6 @@ repos:
   repo: https://github.com/myint/autoflake
   rev: v2.3.1
 
-- repo: https://github.com/asottile/setup-cfg-fmt
-  rev: v2.5.0
-  hooks:
-  - id: setup-cfg-fmt
 
 - repo: https://github.com/asottile/reorder-python-imports
   rev: v3.13.0
