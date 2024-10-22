@@ -139,7 +139,7 @@ extra-dependencies = [
 
   "pytest-xdist",
   "textual",
-    "mutmut @ {root:uri}/../mutmut"
+  "mutmut @ {root:uri}/../mutmut"
 ]
 
 [[tool.hatch.envs.types.matrix]]
