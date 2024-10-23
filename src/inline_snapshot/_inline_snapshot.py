@@ -571,11 +571,13 @@ def snapshot(obj: Any = undefined) -> Any:
     assert frame is not None
     frame = frame.f_back
     while "mutmut" in frame.f_code.co_name:
+        assert frame is not None
         frame = frame.f_back
 
     assert frame is not None
     frame = frame.f_back
     while "mutmut" in frame.f_code.co_name:
+        assert frame is not None
         frame = frame.f_back
     assert frame is not None
 

@@ -1,5 +1,5 @@
 
-.
+-e ./mutants
 dirty-equals>=0.7.0
 hypothesis>=6.75.5
 mypy>=1.2.0
