@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from inline_snapshot.testing._example import init_env
 from rich import box
 from rich.console import Console
 from rich.panel import Panel
@@ -53,6 +54,8 @@ def xdist_running(config):
 
 def pytest_configure(config):
     global flags
+
+    init_env()
 
     _config.config = _config.read_config(config.rootpath / "pyproject.toml")
 
