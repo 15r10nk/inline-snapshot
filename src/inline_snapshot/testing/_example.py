@@ -22,6 +22,17 @@ from .._types import Category
 from .._types import Snapshot
 
 
+def init_env():
+    import inline_snapshot._inline_snapshot as inline_snapshot
+
+    inline_snapshot.snapshots = {}
+    inline_snapshot._update_flags = inline_snapshot.Flags()
+    inline_snapshot._active = True
+    external.storage = None
+    inline_snapshot._files_with_snapshots = set()
+    inline_snapshot._missing_values = 0
+
+
 @contextlib.contextmanager
 def snapshot_env():
     import inline_snapshot._inline_snapshot as inline_snapshot
