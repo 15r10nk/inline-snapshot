@@ -29,3 +29,19 @@ def test_thing():
             }
         ),
     )
+
+
+def test_reeval():
+
+    Example(
+        """\
+from inline_snapshot import snapshot,Is
+
+
+def test_thing():
+    for i in (1,2):
+        assert {1:i} == snapshot({1:Is(i)})
+        assert [i] == [Is(i)]
+        assert (i,) == (Is(i),)
+"""
+    ).run_pytest(["--inline-snapshot=short-report"], report=snapshot(""))

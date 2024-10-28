@@ -12,6 +12,9 @@ from .adapter import Item
 
 class DictAdapter(Adapter):
     def items(self, value, node):
+        if node is None:
+            return [Item(value=value, node=None) for value in value.values()]
+
         assert isinstance(node, ast.Dict)
 
         result = []
@@ -19,14 +22,13 @@ class DictAdapter(Adapter):
         for value_key, node_key, node_value in zip(
             value.keys(), node.keys, node.values
         ):
-            if node_key is not None:
-                try:
-                    # this is just a sanity check, dicts should be ordered
-                    node_key = ast.literal_eval(node_key)
-                except Exception:
-                    pass
-                else:
-                    assert node_key == value_key
+            try:
+                # this is just a sanity check, dicts should be ordered
+                node_key = ast.literal_eval(node_key)
+            except Exception:
+                pass
+            else:
+                assert node_key == value_key
 
             result.append(Item(value=value[value_key], node=node_value))
 
