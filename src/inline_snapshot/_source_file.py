@@ -3,7 +3,6 @@ from pathlib import Path
 
 from executing import Source
 from inline_snapshot._format import format_code
-from inline_snapshot._unmanaged import is_dirty_equal
 from inline_snapshot._utils import normalize
 from inline_snapshot._utils import simple_token
 from inline_snapshot._utils import value_to_token
@@ -37,8 +36,6 @@ class SourceFile:
         return self._format(tokenize.untokenize(tokens)).strip()
 
     def _value_to_code(self, value):
-        if is_dirty_equal(value):
-            return "<no repr>"
         return self._token_to_code(value_to_token(value))
 
     def _token_of_node(self, node):

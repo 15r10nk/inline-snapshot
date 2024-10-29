@@ -9,6 +9,7 @@ from enum import Flag
 from functools import singledispatch
 from unittest import mock
 
+
 real_repr = repr
 
 
@@ -78,6 +79,12 @@ def customize_repr(f):
 
 
 def code_repr(obj):
+    if not type(obj) == type(obj):
+        # dispatch will not work in cases like this
+        return (
+            f"HasRepr({repr(type(obj))}, '< type(obj) can not be compared with == >')"
+        )
+
     with mock.patch("builtins.repr", code_repr):
         result = code_repr_dispatch(obj)
 
