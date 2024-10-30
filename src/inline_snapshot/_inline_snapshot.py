@@ -21,6 +21,7 @@ from ._change import DictInsert
 from ._change import ListInsert
 from ._change import Replace
 from ._code_repr import code_repr
+from ._compare_context import compare_only
 from ._exceptions import UsageError
 from ._is import Is
 from ._sentinels import undefined
@@ -249,7 +250,7 @@ class EqValue(GenericValue):
         if self._old_value is undefined:
             _missing_values += 1
 
-        if self._new_value is undefined:
+        if not compare_only() and self._new_value is undefined:
             adapter = Adapter(self._file).get_adapter(self._old_value, other)
             it = iter(adapter.assign(self._old_value, self._ast_node, clone(other)))
             self._changes = []

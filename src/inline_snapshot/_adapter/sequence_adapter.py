@@ -8,6 +8,7 @@ from .._align import add_x
 from .._align import align
 from .._change import Delete
 from .._change import ListInsert
+from .._compare_context import compare_context
 from ..syntax_warnings import InlineSnapshotSyntaxWarning
 from .adapter import Adapter
 from .adapter import Item
@@ -40,7 +41,8 @@ class SequenceAdapter(Adapter):
                     )
                     return old_value
 
-        diff = add_x(align(old_value, new_value))
+        with compare_context():
+            diff = add_x(align(old_value, new_value))
         old = zip(
             old_value,
             old_node.elts if old_node is not None else [None] * len(old_value),
