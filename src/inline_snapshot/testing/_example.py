@@ -144,6 +144,7 @@ class Example:
 
             self._write_files(tmp_path)
 
+            raised_exception = None
             with snapshot_env():
                 with ChangeRecorder().activate() as recorder:
                     _inline_snapshot._update_flags = Flags({*flags})
@@ -164,7 +165,7 @@ class Example:
                                 if k.startswith("test_") and callable(v):
                                     v()
                     except Exception as e:
-                        assert raises == f"{type(e).__name__}:\n" + str(e)
+                        raised_exception = e
 
                     finally:
                         _inline_snapshot._active = False
@@ -192,6 +193,11 @@ class Example:
 
             if reported_categories is not None:
                 assert sorted(snapshot_flags) == reported_categories
+
+            if raised_exception is not None:
+                assert raises == f"{type(raised_exception).__name__}:\n" + str(
+                    raised_exception
+                )
 
             if changed_files is not None:
                 current_files = {}
