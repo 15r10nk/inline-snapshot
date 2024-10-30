@@ -2,7 +2,7 @@ from inline_snapshot._inline_snapshot import snapshot
 from inline_snapshot.testing._example import Example
 
 
-def test_dirty_equals():
+def test_dirty_equals_repr():
     Example(
         """\
 from inline_snapshot import snapshot
@@ -20,8 +20,8 @@ UsageError:
 inline-snapshot uses `copy.deepcopy` to copy objects,
 but the copied object is not equal to the original one:
 
-original: HasRepr(list, '[<no repr>]')
-copied:   HasRepr(list, '[<no repr>]')
+original: [HasRepr(IsStr, '< type(obj) can not be compared with == >')]
+copied:   [HasRepr(IsStr, '< type(obj) can not be compared with == >')]
 
 Please fix the way your object is copied or your __eq__ implementation.
 """
