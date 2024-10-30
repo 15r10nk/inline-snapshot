@@ -22,3 +22,20 @@ def update_allowed(value):
 
 def is_unmanaged(value):
     return not update_allowed(value)
+
+
+class Unmanaged:
+    def __init__(self, value):
+        self.value = value
+
+    def __eq__(self, other):
+        assert not isinstance(other, Unmanaged)
+
+        return self.value == other
+
+
+def map_unmanaged(value):
+    if is_unmanaged(value):
+        return Unmanaged(value)
+    else:
+        return value

@@ -11,6 +11,7 @@ from typing import TypeVar
 
 from executing import Source
 from inline_snapshot._adapter.adapter import Adapter
+from inline_snapshot._adapter.adapter import adapter_map
 from inline_snapshot._source_file import SourceFile
 
 from ._adapter import get_adapter_type
@@ -23,10 +24,11 @@ from ._change import Replace
 from ._code_repr import code_repr
 from ._compare_context import compare_only
 from ._exceptions import UsageError
-from ._is import Is
 from ._sentinels import undefined
 from ._types import Category
 from ._types import Snapshot
+from ._unmanaged import map_unmanaged
+from ._unmanaged import Unmanaged
 from ._unmanaged import update_allowed
 from ._utils import value_to_token
 
@@ -89,6 +91,10 @@ class GenericValue(Snapshot):
     def _re_eval(self, value):
 
         def re_eval(old_value, node, value):
+            if isinstance(old_value, Unmanaged):
+                old_value.value = value
+                return
+
             assert type(old_value) is type(value)
 
             adapter = self.get_adapter(old_value)
@@ -100,14 +106,14 @@ class GenericValue(Snapshot):
                 for old_item, new_item in zip(old_items, new_items):
                     re_eval(old_item.value, old_item.node, new_item.value)
 
-            elif isinstance(old_value, Is):
-                old_value.value = value.value
-
             else:
                 if update_allowed(old_value):
-                    assert old_value == value
+                    if not old_value == value:
+                        raise UsageError(
+                            "snapshot value should not change. Use Is(...) for dynamic snapshot parts."
+                        )
                 else:
-                    assert not update_allowed(value)
+                    assert False, "old_value should be converted to Unmanaged"
 
         re_eval(self._old_value, self._ast_node, value)
 
@@ -163,6 +169,8 @@ class GenericValue(Snapshot):
 
 class UndecidedValue(GenericValue):
     def __init__(self, old_value, ast_node, source):
+
+        old_value = adapter_map(old_value, map_unmanaged)
         self._old_value = old_value
         self._new_value = undefined
         self._ast_node = ast_node
@@ -184,7 +192,7 @@ class UndecidedValue(GenericValue):
                     yield from handle(item.node, item.value)
                 return
 
-            if update_allowed(obj):
+            if not isinstance(obj, Unmanaged):
                 new_token = value_to_token(obj)
                 if self._file._token_of_node(node) != new_token:
                     new_code = self._file._token_to_code(new_token)

@@ -118,3 +118,35 @@ different time\
 """
         ),
     )
+
+
+def test_dirty_equals_with_changing_args() -> None:
+
+    Example(
+        """\
+from dirty_equals import IsInt
+from inline_snapshot import snapshot
+
+def test_number():
+
+    for i in range(5):
+        assert ["a",i] == snapshot(["e",IsInt(gt=i-1,lt=i+1)])
+
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from dirty_equals import IsInt
+from inline_snapshot import snapshot
+
+def test_number():
+
+    for i in range(5):
+        assert ["a",i] == snapshot(["a",IsInt(gt=i-1,lt=i+1)])
+
+"""
+            }
+        ),
+    )

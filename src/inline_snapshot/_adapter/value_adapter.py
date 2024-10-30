@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from inline_snapshot._unmanaged import is_unmanaged
+from inline_snapshot._unmanaged import Unmanaged
 from inline_snapshot._unmanaged import update_allowed
 from inline_snapshot._utils import value_to_token
 
@@ -10,12 +10,15 @@ from .adapter import Adapter
 
 class ValueAdapter(Adapter):
 
+    @classmethod
+    def map(cls, value, map_function):
+        return map_function(value)
+
     def assign(self, old_value, old_node, new_value):
         # generic fallback
 
         # because IsStr() != IsStr()
-
-        if is_unmanaged(old_value):
+        if isinstance(old_value, Unmanaged):
             return old_value
 
         if old_node is None:

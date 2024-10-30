@@ -11,12 +11,18 @@ from .._change import ListInsert
 from .._compare_context import compare_context
 from ..syntax_warnings import InlineSnapshotSyntaxWarning
 from .adapter import Adapter
+from .adapter import adapter_map
 from .adapter import Item
 
 
 class SequenceAdapter(Adapter):
     node_type: type
     value_type: type
+
+    @classmethod
+    def map(cls, value, map_function):
+        result = [adapter_map(v, map_function) for v in value]
+        return cls.value_type(result)
 
     def items(self, value, node):
 

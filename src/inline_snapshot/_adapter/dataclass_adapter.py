@@ -11,10 +11,19 @@ from .._change import CallArg
 from .._change import Delete
 from ..syntax_warnings import InlineSnapshotSyntaxWarning
 from .adapter import Adapter
+from .adapter import adapter_map
 from .adapter import Item
 
 
 class DataclassAdapter(Adapter):
+
+    @classmethod
+    def map(cls, value, map_function):
+        new_args, new_kwargs = cls.arguments(value)
+        return type(value)(
+            *[adapter_map(arg, map_function) for arg in new_args],
+            **{k: adapter_map(kwarg, map_function) for k, kwarg in new_kwargs.items()},
+        )
 
     def items(self, value, node):
         assert isinstance(node, ast.Call)
@@ -27,7 +36,8 @@ class DataclassAdapter(Adapter):
             if kw.arg
         ]
 
-    def arguments(self, value):
+    @classmethod
+    def arguments(cls, value):
 
         kwargs = {}
 

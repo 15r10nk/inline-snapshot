@@ -7,10 +7,16 @@ from .._change import Delete
 from .._change import DictInsert
 from ..syntax_warnings import InlineSnapshotSyntaxWarning
 from .adapter import Adapter
+from .adapter import adapter_map
 from .adapter import Item
 
 
 class DictAdapter(Adapter):
+
+    @classmethod
+    def map(cls, value, map_function):
+        return {k: adapter_map(v, map_function) for k, v in value.items()}
+
     def items(self, value, node):
         if node is None:
             return [Item(value=value, node=None) for value in value.values()]

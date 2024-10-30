@@ -57,3 +57,11 @@ class Adapter:
 
     def assign(self, old_value, old_node, new_value):
         raise NotImplementedError
+
+    @classmethod
+    def map(cls, value, map_function):
+        raise NotImplementedError(cls)
+
+
+def adapter_map(value, map_function):
+    return get_adapter_type(value).map(value, map_function)
