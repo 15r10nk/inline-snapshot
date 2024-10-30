@@ -209,6 +209,7 @@ class Example:
         env: dict[str, str] = {},
         changed_files: Snapshot[dict[str, str]] | None = None,
         report: Snapshot[str] | None = None,
+        stderr: Snapshot[str] | None = None,
         returncode: Snapshot[int] | None = None,
     ) -> Example:
         """Run pytest with the given args and env variables in an seperate
@@ -254,6 +255,9 @@ class Example:
 
             if returncode is not None:
                 assert result.returncode == returncode
+
+            if stderr is not None:
+                assert result.stderr.decode() == stderr
 
             if report is not None:
 
