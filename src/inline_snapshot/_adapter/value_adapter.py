@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from inline_snapshot._code_repr import value_code_repr
 from inline_snapshot._unmanaged import Unmanaged
 from inline_snapshot._unmanaged import update_allowed
 from inline_snapshot._utils import value_to_token
@@ -9,6 +10,10 @@ from .adapter import Adapter
 
 
 class ValueAdapter(Adapter):
+
+    @classmethod
+    def repr(cls, value):
+        return value_code_repr(value)
 
     @classmethod
     def map(cls, value, map_function):

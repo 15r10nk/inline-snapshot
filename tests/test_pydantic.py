@@ -31,7 +31,7 @@ class M(BaseModel):
     age:int=4
 
 def test_pydantic():
-    assert M(size=5,name="Tom")==snapshot(M(name="Tom", size=5))
+    assert M(size=5,name="Tom")==snapshot(M(size=5, name="Tom"))
 """
             }
         ),

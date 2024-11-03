@@ -18,6 +18,16 @@ from .adapter import Item
 class SequenceAdapter(Adapter):
     node_type: type
     value_type: type
+    braces: str
+    trailing_comma: bool
+
+    @classmethod
+    def repr(cls, value):
+        if len(value) == 1 and cls.trailing_comma:
+            seq = repr(value[0]) + ","
+        else:
+            seq = ", ".join(map(repr, value))
+        return cls.braces[0] + seq + cls.braces[1]
 
     @classmethod
     def map(cls, value, map_function):
@@ -91,8 +101,12 @@ class SequenceAdapter(Adapter):
 class ListAdapter(SequenceAdapter):
     node_type = ast.List
     value_type = list
+    braces = "[]"
+    trailing_comma = False
 
 
 class TupleAdapter(SequenceAdapter):
     node_type = ast.Tuple
     value_type = tuple
+    braces = "()"
+    trailing_comma = True

@@ -2,23 +2,23 @@ from __future__ import annotations
 
 import ast
 import typing
-from dataclasses import is_dataclass
 
 from inline_snapshot._source_file import SourceFile
 
 
 def get_adapter_type(value):
-    if is_dataclass(value):
-        from .dataclass_adapter import DataclassAdapter
+    from inline_snapshot._adapter.dataclass_adapter import get_adapter_for_type
 
-        return DataclassAdapter
+    adapter = get_adapter_for_type(type(value))
+    if adapter is not None:
+        return adapter
 
     if isinstance(value, list):
         from .sequence_adapter import ListAdapter
 
         return ListAdapter
 
-    if isinstance(value, tuple):
+    if type(value) is tuple:
         from .sequence_adapter import TupleAdapter
 
         return TupleAdapter
@@ -56,10 +56,14 @@ class Adapter:
         assert False
 
     def assign(self, old_value, old_node, new_value):
-        raise NotImplementedError
+        raise NotImplementedError(cls)
 
     @classmethod
     def map(cls, value, map_function):
+        raise NotImplementedError(cls)
+
+    @classmethod
+    def repr(cls, value):
         raise NotImplementedError(cls)
 
 

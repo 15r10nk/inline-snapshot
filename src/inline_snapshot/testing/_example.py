@@ -5,6 +5,7 @@ import os
 import platform
 import re
 import subprocess as sp
+import traceback
 from argparse import ArgumentParser
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -167,6 +168,7 @@ class Example:
                                 if k.startswith("test_") and callable(v):
                                     v()
                     except Exception as e:
+                        traceback.print_exc()
                         raised_exception = e
 
                     finally:

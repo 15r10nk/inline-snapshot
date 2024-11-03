@@ -14,6 +14,19 @@ from .adapter import Item
 class DictAdapter(Adapter):
 
     @classmethod
+    def repr(cls, value):
+        result = (
+            "{"
+            + ", ".join(f"{repr(k)}: {repr(value)}" for k, value in value.items())
+            + "}"
+        )
+
+        if type(value) is not dict:
+            result = f"{repr(type(value))}({result})"
+
+        return result
+
+    @classmethod
     def map(cls, value, map_function):
         return {k: adapter_map(v, map_function) for k, v in value.items()}
 
