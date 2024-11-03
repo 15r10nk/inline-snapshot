@@ -69,10 +69,10 @@ repos:
   rev: v3.28.0
 
 
-- repo: https://github.com/PyCQA/docformatter
-  rev: v1.7.5
-  hooks:
-  - id: docformatter
+# - repo: https://github.com/PyCQA/docformatter
+#   rev: v1.7.5
+#   hooks:
+#   - id: docformatter
 
 - repo: https://github.com/abravalheri/validate-pyproject
   rev: v0.18
