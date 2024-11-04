@@ -169,7 +169,7 @@ I would like to thank my sponsors. Without them, I would not be able to invest s
 ### Bronze sponsor 🥉
 
 <p align="center">
-  <a href="https://pydantic.dev/">
+  <a href="https://pydantic.dev/logfire">
     <img src="docs/assets/sponsors/pydantic.png" alt="pydantic" width="300"/>
   </a>
 </p>
