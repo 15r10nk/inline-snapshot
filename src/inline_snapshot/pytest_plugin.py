@@ -41,7 +41,7 @@ def pytest_addoption(parser):
 
 
 categories = {"create", "update", "trim", "fix"}
-flags = {}
+flags = set()
 
 
 def xdist_running(config):
@@ -277,6 +277,9 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         used_changes = []
         for flag in ("create", "fix", "trim", "update"):
             if not changes[flag]:
+                continue
+
+            if not {"review", "report", flag} & flags:
                 continue
 
             console.rule(f"[yellow bold]{flag.capitalize()} snapshots")
