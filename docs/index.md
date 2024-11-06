@@ -55,7 +55,7 @@ Maybe that is correct and you should fix your code, or
 your code is correct and you want to update your test results.
 
 === "changed code"
-    <!-- inline-snapshot: outcome-failed=1 -->
+    <!-- inline-snapshot: outcome-failed=1 outcome-errors=1 -->
     ``` python hl_lines="2"
     def something():
         return (1548 * 18489) // 18

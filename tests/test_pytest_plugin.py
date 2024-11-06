@@ -65,7 +65,7 @@ def test_a():
 
     result = project.run()
 
-    result.assert_outcomes(failed=1)
+    result.assert_outcomes(failed=1, errors=1)
 
     assert result.report == snapshot(
         """\
@@ -199,7 +199,7 @@ def test_a():
 
     result = project.run()
 
-    result.assert_outcomes(failed=1)
+    result.assert_outcomes(failed=1, errors=1)
 
     assert result.report == snapshot(
         """\
@@ -544,12 +544,12 @@ def test_sub_snapshot():
         """\
 ============================================================================ ERRORS ============================================================================
 ____________________________________________________________ ERROR at teardown of test_sub_snapshot ____________________________________________________________
-your snapshot is missing one value run pytest with --inline-snapshot=create to create it
+your snapshot is missing one value.
 ======================================================================= inline snapshot ========================================================================
 Error: one snapshot is missing a value (--inline-snapshot=create)
 You can also use --inline-snapshot=review to approve the changes interactively
 =================================================================== short test summary info ====================================================================
-ERROR test_file.py::test_sub_snapshot - Failed: your snapshot is missing one value run pytest with --inline-snapshot=create to create it
+ERROR test_file.py::test_sub_snapshot - Failed: your snapshot is missing one value.
 ================================================================== 1 passed, 1 error in <time> ==================================================================
 """
     )

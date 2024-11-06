@@ -58,7 +58,7 @@ The result of each comparison is `True` if you change something from this catego
 
 <div class="grid" markdown>
 
-<!-- inline-snapshot: first_block outcome-failed=1 -->
+<!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
 ``` python
 def test_something():
     assert 8 == snapshot(5)

@@ -44,6 +44,14 @@ _active = False
 _files_with_snapshots: Set[str] = set()
 
 _missing_values = 0
+_incorrect_values = 0
+
+
+def _return(result):
+    global _incorrect_values
+    if not result:
+        _incorrect_values += 1
+    return result
 
 
 class InlineSnapshotSyntaxWarning(Warning):
@@ -328,8 +336,11 @@ class EqValue(GenericValue):
 
         if self._new_value is undefined:
             self._new_value = use_valid_old_values(self._old_value, clone(other))
-
-        return self._visible_value() == other
+            if self._old_value is undefined or ignore_old_value():
+                return True
+            return _return(self._old_value == other)
+        else:
+            return _return(self._new_value == other)
 
     def _new_code(self):
         return self._value_to_code(self._new_value)
@@ -514,12 +525,14 @@ class MinMaxValue(GenericValue):
 
         if self._new_value is undefined:
             self._new_value = clone(other)
+            if self._old_value is undefined or ignore_old_value():
+                return True
+            return _return(self.cmp(self._old_value, other))
         else:
-            self._new_value = (
-                self._new_value if self.cmp(self._new_value, other) else clone(other)
-            )
+            if not self.cmp(self._new_value, other):
+                self._new_value = clone(other)
 
-        return self.cmp(self._visible_value(), other)
+        return _return(self.cmp(self._visible_value(), other))
 
     def _new_code(self):
         return self._value_to_code(self._new_value)
@@ -609,7 +622,7 @@ class CollectionValue(GenericValue):
         if ignore_old_value() or self._old_value is undefined:
             return True
         else:
-            return item in self._old_value
+            return _return(item in self._old_value)
 
     def _new_code(self):
         return self._value_to_code(self._new_value)

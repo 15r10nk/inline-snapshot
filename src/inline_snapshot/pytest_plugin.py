@@ -104,17 +104,25 @@ def pytest_configure(config):
 @pytest.fixture(autouse=True)
 def snapshot_check():
     _inline_snapshot._missing_values = 0
+    _inline_snapshot._incorrect_values = 0
     yield
 
     missing_values = _inline_snapshot._missing_values
+    incorrect_values = _inline_snapshot._incorrect_values
 
     if missing_values != 0 and not _inline_snapshot._update_flags.create:
         pytest.fail(
             (
-                f"your snapshot is missing one value run pytest with --inline-snapshot=create to create it"
+                f"your snapshot is missing one value."
                 if missing_values == 1
-                else f"your snapshot is missing {missing_values} values run pytest with --inline-snapshot=create to create them"
+                else f"your snapshot is missing {missing_values} values."
             ),
+            pytrace=False,
+        )
+
+    if incorrect_values != 0 and not _inline_snapshot._update_flags.fix:
+        pytest.fail(
+            "some snapshots in this test have incorrect values.",
             pytrace=False,
         )
 
