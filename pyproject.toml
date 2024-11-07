@@ -126,6 +126,25 @@ extra-dependencies = [
   "pydantic"
 ]
 
+[tool.hatch.envs.release]
+detached=true
+dependencies=[
+    "scriv",
+    "commitizen"
+]
+[tool.hatch.envs.release.scripts]
+create=[
+   "scriv collect",
+    "cz bump"
+]
+publish=[
+    "git push --force-with-lease",
+    "git push --tags",
+    "rm dist/*",
+    "hatch build",
+    "hatch publish"
+]
+
 [[tool.hatch.envs.types.matrix]]
 python = ["3.8", "3.9", "3.10", "3.11", "3.12","3.13"]
 
@@ -142,4 +161,4 @@ venvPath = ".nox"
 
 [tool.scriv]
 format = "md"
-version = "literal: pyproject.toml: project.version"
+version = "command: cz bump --get-next"
