@@ -8,7 +8,7 @@ from typing import List
 if sys.version_info >= (3, 11):
     from tomllib import loads
 else:
-    from toml import loads
+    from tomli import loads
 
 
 @dataclass
