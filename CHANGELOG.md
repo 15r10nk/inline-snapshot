@@ -1,4 +1,11 @@
 
+<a id='changelog-0.13.4'></a>
+# 0.13.4 — 2024-11-07
+
+## Changed
+
+- use tomli instead of toml (#130)
+
 <a id='changelog-0.13.3'></a>
 # 0.13.3 — 2024-09-24
 
