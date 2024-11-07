@@ -21,7 +21,7 @@ from ._inline_snapshot import used_externals
 from ._rewrite_code import ChangeRecorder
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser, pluginmanager):
     group = parser.getgroup("inline-snapshot")
 
     group.addoption(
@@ -38,6 +38,19 @@ def pytest_addoption(parser):
         "trim: changes the snapshot in a way which will make the snapshot more precise.\n"
         "fix: change snapshots which currently break your tests\n",
     )
+
+    config_path = Path("pyproject.toml")
+    if config_path.exists():
+        config = _config.read_config(Path("pyproject.toml"))
+        for name, value in config.shortcuts.items():
+            value = ",".join(value)
+            group.addoption(
+                f"--{name}",
+                action="store_const",
+                const=value,
+                dest="inline_snapshot",
+                help=f'shortcut for "--inline-snapshot={value}"',
+            )
 
 
 categories = {"create", "update", "trim", "fix"}

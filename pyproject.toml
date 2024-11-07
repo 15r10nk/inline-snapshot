@@ -163,3 +163,7 @@ venvPath = ".nox"
 [tool.scriv]
 format = "md"
 version = "command: cz bump --get-next"
+
+[tool.inline-snapshot.shortcuts]
+sfix="create,fix"
+review="create,review"

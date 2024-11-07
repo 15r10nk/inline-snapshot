@@ -41,3 +41,16 @@ def test_config_env():
     Example(file_to_trim).run_pytest(
         env={"INLINE_SNAPSHOT_DEFAULT_FLAGS": "trim"}, changed_files=trimmed_files
     )
+
+
+def test_shortcuts():
+
+    Example(
+        {
+            **file_to_trim,
+            "pyproject.toml": """
+[tool.inline-snapshot.shortcuts]
+strim=["trim"]
+            """,
+        }
+    ).run_pytest(["--strim"], changed_files=trimmed_files)
