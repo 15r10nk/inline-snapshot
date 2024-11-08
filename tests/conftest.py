@@ -268,8 +268,8 @@ import datetime
 import pytest
 
 @pytest.fixture(autouse=True)
-def set_time(time_machine):
-        time_machine.move_to(datetime.datetime(2024, 3, 14, 0, 0, 0, 0),tick=False)
+def set_time(freezer):
+        freezer.move_to(datetime.datetime(2024, 3, 14, 0, 0, 0, 0))
         yield
 """
             )

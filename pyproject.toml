@@ -104,7 +104,7 @@ dependencies=["cogapp","lxml","requests"]
 scripts.update="cog -r docs/**.md"
 
 [[tool.hatch.envs.hatch-test.matrix]]
-python = ["3.13", "3.12", "3.11", "3.10", "3.9", "3.8"]
+python = ["3.13", "3.12", "3.11", "3.10", "3.9", "3.8","pypy3.8","pypy3.9","pypy3.10"]
 
 [tool.hatch.envs.hatch-test]
 extra-dependencies = [
@@ -113,7 +113,7 @@ extra-dependencies = [
   "mypy>=1.2.0",
   "pyright>=1.1.359",
   "pytest-subtests>=0.11.0",
-  "time-machine>=2.10.0",
+  "pytest-freezer>=0.4.8",
   "pydantic"
 ]
 env-vars.TOP = "{root}"
