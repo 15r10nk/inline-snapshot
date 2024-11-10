@@ -762,6 +762,26 @@
   
   
     <li class="md-nav__item">
+      <a href="../limitations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Limitations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../contributing/" class="md-nav__link">
         
   
@@ -835,13 +855,23 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">[tool.inline-snapshot]</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">hash-length</span><span class="o">=</span><span class="mi">15</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">default-flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;short-report&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">[tool.inline-snapshot.shortcuts]</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">review</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;review&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">fix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span><span class="s2">&quot;fix&quot;</span><span class="p">]</span>
 </code></pre></div>
 <ul>
-<li><em>hash-length:</em> specifies the length of the hash used by <code>external()</code> in the code representation.
+<li><strong>hash-length:</strong> specifies the length of the hash used by <code>external()</code> in the code representation.
     This does not affect the hash length used to store the data.
     The hash should be long enough to avoid hash collisions.</li>
-<li><em>default-flags:</em> defines which flags should be used if there are no flags specified with <code>--inline-snapshot=...</code>.
-    You can also use the environment variable <code>INLINE_SNAPSHOT_DEFAULT_FLAGS=...</code> to specify the flags and to override those in the configuration file.</li>
+<li>
+<p><strong>default-flags:</strong> defines which flags should be used if there are no flags specified with <code>--inline-snapshot=...</code>.
+    You can also use the environment variable <code>INLINE_SNAPSHOT_DEFAULT_FLAGS=...</code> to specify the flags and to override those in the configuration file.</p>
+</li>
+<li>
+<p><strong>shortcuts:</strong> allows you to define custom commands to simplify your workflows.
+    <code>--fix</code> and <code>--review</code> are defined by default, but this configuration can be changed to fit your needs.</p>
+</li>
 </ul>
 
 
