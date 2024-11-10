@@ -1,3 +1,4 @@
+import pytest
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
 
@@ -249,6 +250,7 @@ def test_a():
     )
 
 
+@pytest.mark.no_rewriting
 def test_disable_option(project):
     project.setup(
         """\
@@ -474,6 +476,7 @@ E    +  where 1 = snapshot(1)
     )
 
 
+@pytest.mark.no_rewriting
 def test_run_without_pytest(pytester):
     # snapshots are deactivated by default
     pytester.makepyfile(

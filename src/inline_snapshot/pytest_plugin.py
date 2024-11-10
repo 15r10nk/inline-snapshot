@@ -64,6 +64,10 @@ def xdist_running(config):
     )
 
 
+def is_implementation_supported():
+    return sys.implementation.name == "cpython"
+
+
 def pytest_configure(config):
     global flags
 
@@ -84,7 +88,7 @@ def pytest_configure(config):
             f"--inline-snapshot=disable can not be combined with other flags ({', '.join(flags-{'disable'})})"
         )
 
-    if xdist_running(config):
+    if xdist_running(config) or not is_implementation_supported():
         _inline_snapshot._active = False
 
     elif flags & {"review"}:
@@ -183,6 +187,14 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             terminalreporter.section("inline snapshot")
             terminalreporter.write(
                 "INFO: inline-snapshot was disabled because you used xdist\n"
+            )
+        return
+
+    if not is_implementation_supported():
+        if flags != {"disable"}:
+            terminalreporter.section("inline snapshot")
+            terminalreporter.write(
+                f"INFO: inline-snapshot was disabled because {sys.implementation.name} is not supported\n"
             )
         return
 

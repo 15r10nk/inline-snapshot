@@ -271,7 +271,7 @@ class Example:
                 report_str = report_str.replace("\r", "")
                 report_str = report_str.replace(" \n", " ⏎\n")
 
-                assert report_str == report
+                assert report_str == report, repr(report_str)
 
             if changed_files is not None:
                 current_files = {}
