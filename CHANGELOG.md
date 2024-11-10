@@ -1,4 +1,21 @@
 
+<a id='changelog-0.14.0'></a>
+# 0.14.0 — 2024-11-10
+
+## Removed
+
+- removed the `"Programming Language :: Python :: Implementation :: PyPy"` classifier which was incorrect, because inline-snapshot can not fix snapshots on pypy.
+  inline-snapshot now enforces `--inline-snapshot=disable` when used with an implementation other than cpython, which allows it to be used in packages that want to support pypy.
+
+## Added
+
+- command line shortcuts can be defined to simplify your workflows. `--review` and `--fix` are defined by default. See the [documentation](https://15r10nk.github.io/inline-snapshot/configuration/) for details.
+
+## Changed
+
+- `--inline-snapshot=create/fix/trim/update` will no longer show reports for other categories.
+  You can use `--inline-snapshot=create,report` if you want to use the old behaviour.
+
 <a id='changelog-0.13.4'></a>
 # 0.13.4 — 2024-11-07
 
