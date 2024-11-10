@@ -1,17 +1,17 @@
 <!-- -8<- [start:Header] -->
 
 <p align="center">
-  <a href="https://15r10nk.github.io/inline-snapshot/">
+  <a href="https://15r10nk.github.io/inline-snapshot/latest/">
     <img src="docs/assets/logo.svg" width="500" alt="inline-snapshot">
   </a>
 </p>
 
 ![ci](https://github.com/15r10nk/inline-snapshot/actions/workflows/ci.yml/badge.svg?branch=main)
-[![Docs](https://img.shields.io/badge/docs-mkdocs-green)](https://15r10nk.github.io/inline-snapshot/)
+[![Docs](https://img.shields.io/badge/docs-mkdocs-green)](https://15r10nk.github.io/inline-snapshot/latest/)
 [![pypi version](https://img.shields.io/pypi/v/inline-snapshot.svg)](https://pypi.org/project/inline-snapshot/)
 ![Python Versions](https://img.shields.io/pypi/pyversions/inline-snapshot)
 ![PyPI - Downloads](https://img.shields.io/pypi/dw/inline-snapshot)
-[![coverage](https://img.shields.io/badge/coverage-100%25-blue)](https://15r10nk.github.io/inline-snapshot/contributing/#coverage)
+[![coverage](https://img.shields.io/badge/coverage-100%25-blue)](https://15r10nk.github.io/inline-snapshot/latest/contributing/#coverage)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/15r10nk)](https://github.com/sponsors/15r10nk)
 
 <!-- -8<- [end:Header] -->
@@ -28,12 +28,12 @@ pip install inline-snapshot
 
 - **Intuitive Semantics:** `snapshot(x)` mirrors `x` for easy understanding.
 - **Versatile Comparison Support:** Equipped with `x == snapshot(...)`, `x <= snapshot(...)`, `x in snapshot(...)`, and `snapshot(...)[key]`.
-- **Enhanced Control Flags:** Utilize various [flags](https://15r10nk.github.io/inline-snapshot/pytest/) for precise control of which snapshots you want to change.
+- **Enhanced Control Flags:** Utilize various [flags](https://15r10nk.github.io/inline-snapshot/latest/pytest/) for precise control of which snapshots you want to change.
 - **Preserved Black Formatting:** Retains formatting consistency with Black formatting.
 - **External File Storage:** Store snapshots externally using `outsource(data)`.
 - **Seamless Pytest Integration:** Integrated seamlessly with pytest for effortless testing.
-- **Customizable:** code generation can be customized with [@customize_repr](https://15r10nk.github.io/inline-snapshot/customize_repr)
-- **Comprehensive Documentation:** Access detailed [documentation](https://15r10nk.github.io/inline-snapshot/) for complete guidance.
+- **Customizable:** code generation can be customized with [@customize_repr](https://15r10nk.github.io/inline-snapshot/latest/customize_repr)
+- **Comprehensive Documentation:** Access detailed [documentation](https://15r10nk.github.io/inline-snapshot/latest) for complete guidance.
 
 
 ## Usage
@@ -65,7 +65,7 @@ def test_something():
 ```
 
 The following examples show how you can use inline-snapshot in your tests. Take a look at the
-[documentation](https://15r10nk.github.io/inline-snapshot/) if you want to know more.
+[documentation](https://15r10nk.github.io/inline-snapshot/latest) if you want to know more.
 
 <!-- inline-snapshot: create fix trim first_block outcome-passed=1 -->
 ``` python

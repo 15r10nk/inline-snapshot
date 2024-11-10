@@ -9,7 +9,7 @@
 
 ## Added
 
-- command line shortcuts can be defined to simplify your workflows. `--review` and `--fix` are defined by default. See the [documentation](https://15r10nk.github.io/inline-snapshot/configuration/) for details.
+- command line shortcuts can be defined to simplify your workflows. `--review` and `--fix` are defined by default. See the [documentation](https://15r10nk.github.io/inline-snapshot/latest/configuration/) for details.
 
 ## Changed
 

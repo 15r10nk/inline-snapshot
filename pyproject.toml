@@ -43,11 +43,11 @@ version = "0.14.0"
 inline_snapshot = "inline_snapshot.pytest_plugin"
 
 [project.urls]
-Changelog = "https://15r10nk.github.io/inline-snapshot/changelog/"
-Discussions = "https://15r10nk.github.io/inline-snapshot/discussions"
-Documentation = "https://15r10nk.github.io/inline-snapshot"
+Changelog = "https://15r10nk.github.io/inline-snapshot/latest/changelog/"
+Discussions = "https://github.com/15r10nk/inline-snapshots/discussions"
+Documentation = "https://15r10nk.github.io/inline-snapshot/latest"
 Funding = "https://github.com/sponsors/15r10nk"
-Homepage = "https://15r10nk.github.io/inline-snapshot"
+Homepage = "https://15r10nk.github.io/inline-snapshot/latest"
 Issues = "https://github.com/15r10nk/inline-snapshots/issues"
 Repository = "https://github.com/15r10nk/inline-snapshot/"
 
