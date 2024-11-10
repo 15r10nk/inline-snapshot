@@ -6,13 +6,18 @@ on:
 
 jobs:
   build:
-    name: build docs
+    name: Deploy development docs
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-    - uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
-      with:
-        python-version: '3.12'
-        architecture: x64
+    - name: Checkout main
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
     - run: pip install hatch
-    - run: hatch run docs:build
+    - name: publish docs
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config user.name "Frank Hoffmann"
+        git config user.email "15r10nk@users.noreply.github.com"
+        git fetch origin gh-pages --depth=1
+        hatch run docs:mike deploy --push development
