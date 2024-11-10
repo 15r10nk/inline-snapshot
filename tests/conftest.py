@@ -2,6 +2,7 @@ import os
 import platform
 import re
 import shutil
+import sys
 import textwrap
 import traceback
 from dataclasses import dataclass
@@ -28,6 +29,17 @@ pytest_plugins = "pytester"
 pytest.register_assert_rewrite("tests.example")
 
 black.files.find_project_root = black.files.find_project_root.__wrapped__  # type: ignore
+
+
+@pytest.fixture(autouse=True)
+def check_pypy(request):
+    implementation = sys.implementation.name
+    node = request.node
+
+    if implementation != "cpython" and node.get_closest_marker("no_rewriting") is None:
+        pytest.skip(f"{implementation} is not supported")
+
+    yield
 
 
 @pytest.fixture()
@@ -266,10 +278,21 @@ from inline_snapshot import outsource
                 """
 import datetime
 import pytest
+from freezegun.api import FakeDatetime,FakeDate
+from inline_snapshot import customize_repr
+
+@customize_repr
+def _(value:FakeDatetime):
+    return value.__repr__().replace("FakeDatetime","datetime.datetime")
+
+@customize_repr
+def _(value:FakeDate):
+    return value.__repr__().replace("FakeDate","datetime.date")
+
 
 @pytest.fixture(autouse=True)
-def set_time(time_machine):
-        time_machine.move_to(datetime.datetime(2024, 3, 14, 0, 0, 0, 0),tick=False)
+def set_time(freezer):
+        freezer.move_to(datetime.datetime(2024, 3, 14, 0, 0, 0, 0))
         yield
 """
             )

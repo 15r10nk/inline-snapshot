@@ -18,12 +18,14 @@ from inline_snapshot.testing import Example
 from inline_snapshot.testing._example import snapshot_env
 
 
+@pytest.mark.no_rewriting
 def test_snapshot_eq():
     with snapshot_env():
         assert 1 == snapshot(1)
         assert snapshot(1) == 1
 
 
+@pytest.mark.no_rewriting
 def test_disabled():
     with snapshot_env():
         _inline_snapshot._active = False
