@@ -46,6 +46,7 @@ nav:
 - Configuration: configuration.md
 - Code generation: code_generation.md
 - Testing: testing.md
+- Limitations: limitations.md
 - Contributing: contributing.md
 - Changelog: changelog.md
 
