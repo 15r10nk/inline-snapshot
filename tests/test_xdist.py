@@ -49,11 +49,23 @@ def test_a():
 """
     )
 
+    def filter_error_lines(result):
+        lines = result.stderr.lines
+        return [
+            line
+            for line in lines
+            if line
+            not in (
+                'No entry for terminal type "unknown";',
+                "using dumb terminal settings.",
+            )
+        ]
+
     result = project.run("-n=auto", "--inline-snapshot=disable")
 
     assert result.report == snapshot("")
 
-    assert result.stderr.lines == snapshot([])
+    assert filter_error_lines(result) == snapshot([])
 
     assert result.ret == 1
 
@@ -61,7 +73,7 @@ def test_a():
 
     assert result.report == snapshot("")
 
-    assert result.stderr.lines == snapshot(
+    assert filter_error_lines(result) == snapshot(
         ["ERROR: --inline-snapshot=fix can not be combined with xdist", ""]
     )
 
@@ -80,6 +92,6 @@ default-flags = ["fix"]
         "INFO: inline-snapshot was disabled because you used xdist"
     )
 
-    assert result.stderr.lines == snapshot([])
+    assert filter_error_lines(result) == snapshot([])
 
     assert result.ret == 0

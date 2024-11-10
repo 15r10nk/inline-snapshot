@@ -32,6 +32,7 @@ def snapshot_env():
         external.storage,
         inline_snapshot._files_with_snapshots,
         inline_snapshot._missing_values,
+        inline_snapshot._incorrect_values,
     )
 
     inline_snapshot.snapshots = {}
@@ -40,6 +41,7 @@ def snapshot_env():
     external.storage = None
     inline_snapshot._files_with_snapshots = set()
     inline_snapshot._missing_values = 0
+    inline_snapshot._incorrect_values = 0
 
     try:
         yield
@@ -51,6 +53,7 @@ def snapshot_env():
             external.storage,
             inline_snapshot._files_with_snapshots,
             inline_snapshot._missing_values,
+            inline_snapshot._incorrect_values,
         ) = current
 
 

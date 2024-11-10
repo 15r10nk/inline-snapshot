@@ -21,7 +21,7 @@ from ._inline_snapshot import used_externals
 from ._rewrite_code import ChangeRecorder
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser, pluginmanager):
     group = parser.getgroup("inline-snapshot")
 
     group.addoption(
@@ -39,9 +39,22 @@ def pytest_addoption(parser):
         "fix: change snapshots which currently break your tests\n",
     )
 
+    config_path = Path("pyproject.toml")
+    if config_path.exists():
+        config = _config.read_config(Path("pyproject.toml"))
+        for name, value in config.shortcuts.items():
+            value = ",".join(value)
+            group.addoption(
+                f"--{name}",
+                action="store_const",
+                const=value,
+                dest="inline_snapshot",
+                help=f'shortcut for "--inline-snapshot={value}"',
+            )
+
 
 categories = {"create", "update", "trim", "fix"}
-flags = {}
+flags = set()
 
 
 def xdist_running(config):
@@ -104,17 +117,25 @@ def pytest_configure(config):
 @pytest.fixture(autouse=True)
 def snapshot_check():
     _inline_snapshot._missing_values = 0
+    _inline_snapshot._incorrect_values = 0
     yield
 
     missing_values = _inline_snapshot._missing_values
+    incorrect_values = _inline_snapshot._incorrect_values
 
     if missing_values != 0 and not _inline_snapshot._update_flags.create:
         pytest.fail(
             (
-                f"your snapshot is missing one value run pytest with --inline-snapshot=create to create it"
+                f"your snapshot is missing one value."
                 if missing_values == 1
-                else f"your snapshot is missing {missing_values} values run pytest with --inline-snapshot=create to create them"
+                else f"your snapshot is missing {missing_values} values."
             ),
+            pytrace=False,
+        )
+
+    if incorrect_values != 0 and not _inline_snapshot._update_flags.fix:
+        pytest.fail(
+            "some snapshots in this test have incorrect values.",
             pytrace=False,
         )
 
@@ -264,7 +285,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
             if sum(snapshot_changes.values()) != 0:
                 console.print(
-                    "\nYou can also use [b]--inline-snapshot=review[/] to approve the changes interactiv",
+                    "\nYou can also use [b]--inline-snapshot=review[/] to approve the changes interactively",
                     highlight=False,
                 )
 
@@ -277,6 +298,9 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         used_changes = []
         for flag in ("create", "fix", "trim", "update"):
             if not changes[flag]:
+                continue
+
+            if not {"review", "report", flag} & flags:
                 continue
 
             console.rule(f"[yellow bold]{flag.capitalize()} snapshots")

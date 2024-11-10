@@ -21,7 +21,7 @@ Example:
     ```
 
 === "value changed"
-    <!-- inline-snapshot: outcome-failed=1 -->
+    <!-- inline-snapshot: outcome-failed=1 outcome-errors=1 -->
     ``` python hl_lines="2"
     def test_something():
         assert 2 + 40 == snapshot(4)
@@ -111,7 +111,7 @@ Example:
     ```
 
 === "changed payload"
-    <!-- inline-snapshot: outcome-failed=1 -->
+    <!-- inline-snapshot: outcome-failed=1 outcome-errors=1 -->
     ``` python hl_lines="9"
     from inline_snapshot import snapshot
     from dirty_equals import IsDatetime
