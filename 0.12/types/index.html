@@ -402,7 +402,7 @@
             
   
   <span class="md-ellipsis">
-    Core
+    Reference
   </span>
   
 
@@ -412,7 +412,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
-            Core
+            Reference
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -621,48 +621,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Extensions
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3">
-            <span class="md-nav__icon md-icon"></span>
-            Extensions
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
               
                 
   
@@ -674,28 +632,7 @@
         
   
   <span class="md-ellipsis">
-    first-party (extra)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../third_party/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    third-party
+    extensions
   </span>
   
 
@@ -982,7 +919,7 @@ values.</p>
 <p>You can annotate function arguments with <code>Snapshot[T]</code> to declare that a snapshot-value can be passed as function argument.
 <code>Snapshot[T]</code> is a type alias for <code>T</code>, which allows you to pass <code>int</code> values instead of <code>int</code> snapshots.</p>
 <p>Example:</p>
-<!-- inline-snapshot: create fix trim first_block outcome-passed=2 -->
+<!-- inline-snapshot: create fix trim this outcome-passed=2 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">Snapshot</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -1089,8 +1026,8 @@ values.</p>
 <a id="__codelineno-0-27" name="__codelineno-0-27"></a>
 <a id="__codelineno-0-28" name="__codelineno-0-28"></a>
 <a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="sd">    Example:</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">    &lt;!-- inline-snapshot: create fix trim first_block outcome-passed=2 --&gt;</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">    ``` python</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">    &lt;!-- inline-snapshot: create fix trim this outcome-passed=2 --&gt;</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">    ```python</span>
 <a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">    from typing import Optional</span>
 <a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="sd">    from inline_snapshot import snapshot, Snapshot</span>
 <a id="__codelineno-0-34" name="__codelineno-0-34"></a>
