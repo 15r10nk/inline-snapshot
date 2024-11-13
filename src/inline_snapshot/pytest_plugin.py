@@ -83,6 +83,12 @@ def pytest_configure(config):
                 f"--inline-snapshot={','.join(flags)} can not be combined with xdist"
             )
 
+    unknown_flags = flags - categories - {"disable", "review", "report", "short-report"}
+    if unknown_flags:
+        raise pytest.UsageError(
+            f"--inline-snapshot={','.join(sorted(unknown_flags))} is a unknown flag"
+        )
+
     if "disable" in flags and flags != {"disable"}:
         raise pytest.UsageError(
             f"--inline-snapshot=disable can not be combined with other flags ({', '.join(flags-{'disable'})})"

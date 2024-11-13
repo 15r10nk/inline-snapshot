@@ -368,3 +368,37 @@ def test_tuple():
             return "FakeTuple()"
 
     assert code_repr(FakeTuple()) == snapshot("FakeTuple()")
+
+
+def test_invalid_repr(check_update):
+    assert (
+        check_update(
+            """\
+class Thing:
+    def __repr__(self):
+        return "+++"
+
+    def __eq__(self,other):
+        if not isinstance(other,Thing):
+            return NotImplemented
+        return True
+
+assert Thing() == snapshot()
+""",
+            flags="create",
+        )
+        == snapshot(
+            """\
+class Thing:
+    def __repr__(self):
+        return "+++"
+
+    def __eq__(self,other):
+        if not isinstance(other,Thing):
+            return NotImplemented
+        return True
+
+assert Thing() == snapshot(HasRepr(Thing, "+++"))
+"""
+        )
+    )
