@@ -963,15 +963,23 @@ Here are some examples:
 <h2 id="builtin-datatypes">builtin datatypes<a class="headerlink" href="#builtin-datatypes" title="Permanent link">&para;</a></h2>
 <p>inline-snapshot comes with a special implementation for the following types:</p>
 <ul>
+<li><code>builtins.dict</code></li>
 <li><code>builtins.frozenset</code></li>
+<li><code>builtins.list</code></li>
 <li><code>builtins.set</code></li>
+<li><code>builtins.tuple</code></li>
 <li><code>builtins.type</code></li>
+<li><code>collections.defaultdict</code></li>
+<li><code>dataclass</code></li>
 <li><code>enum.Enum</code></li>
 <li><code>enum.Flag</code></li>
+<li><code>namedtuple</code></li>
 </ul>
 <p>Container types like <code>dict</code> or <code>dataclass</code> need a special implementation because it is necessary that the implementation uses <code>repr()</code> for the child elements.</p>
-<p><code>python exec="1" result="python"
-print('--8&lt;-- "src/inline_snapshot/_code_repr.py:list"')</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nd">@customize_repr</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="k">return</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+</code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>using <code class="highlight"><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">obj</span><span class="si">!r}</span><span class="s2">&quot;</span></code> or <code class="highlight"><span class="n">PyObject_Repr</span><span class="p">()</span></code> will not work, because inline-snapshot replaces <code class="highlight"><span class="n">builtins</span><span class="o">.</span><span class="n">repr</span></code> during the code generation.</p>
