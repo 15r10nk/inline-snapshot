@@ -474,11 +474,68 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#unmanaged-snapshot-parts" class="md-nav__link">
+    <span class="md-ellipsis">
+      unmanaged snapshot parts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="unmanaged snapshot parts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#dirty-equals" class="md-nav__link">
     <span class="md-ellipsis">
       dirty-equals
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#is" class="md-nav__link">
+    <span class="md-ellipsis">
+      Is(...)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inner-snapshots" class="md-nav__link">
+    <span class="md-ellipsis">
+      inner snapshots
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="inner snapshots">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#conditional-snapshots" class="md-nav__link">
+    <span class="md-ellipsis">
+      conditional snapshots
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-snapshot-parts" class="md-nav__link">
+    <span class="md-ellipsis">
+      common snapshot parts
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -911,11 +968,68 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#unmanaged-snapshot-parts" class="md-nav__link">
+    <span class="md-ellipsis">
+      unmanaged snapshot parts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="unmanaged snapshot parts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#dirty-equals" class="md-nav__link">
     <span class="md-ellipsis">
       dirty-equals
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#is" class="md-nav__link">
+    <span class="md-ellipsis">
+      Is(...)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inner-snapshots" class="md-nav__link">
+    <span class="md-ellipsis">
+      inner snapshots
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="inner snapshots">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#conditional-snapshots" class="md-nav__link">
+    <span class="md-ellipsis">
+      conditional snapshots
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-snapshot-parts" class="md-nav__link">
+    <span class="md-ellipsis">
+      common snapshot parts
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -981,7 +1095,29 @@ The value can later be changed with <code>--inline-snapshot=fix</code> if the va
 </div>
 </div>
 </div>
-<h2 id="dirty-equals">dirty-equals<a class="headerlink" href="#dirty-equals" title="Permanent link">&para;</a></h2>
+<h2 id="unmanaged-snapshot-parts">unmanaged snapshot parts<a class="headerlink" href="#unmanaged-snapshot-parts" title="Permanent link">&para;</a></h2>
+<p>inline-snapshots manages everything inside <code>snapshot(...)</code>, which means that the developer should not change these parts, but there are cases where it is useful to give the developer a bit more control over the snapshot content.</p>
+<p>Therefor some types will be ignored by inline-snapshot and will <strong>not be updated or fixed</strong>, even if they cause tests to fail.</p>
+<p>These types are:</p>
+<ul>
+<li>dirty-equals expression</li>
+<li>dynamic code inside <code>Is(...)</code></li>
+<li>and snapshots inside snapshots.</li>
+</ul>
+<p>inline-snapshot is able to handle these types inside the following containers:</p>
+<ul>
+<li>list</li>
+<li>tuple</li>
+<li>dict</li>
+<li>namedtuple</li>
+<li>dataclass</li>
+</ul>
+<!--
+* pydantic models
+* attrs
+-->
+
+<h3 id="dirty-equals">dirty-equals<a class="headerlink" href="#dirty-equals" title="Permanent link">&para;</a></h3>
 <p>It might be, that larger snapshots with many lists and dictionaries contain some values which change frequently and are not relevant for the test.
 They might be part of larger data structures and be difficult to normalize.</p>
 <p>Example:</p>
@@ -1027,7 +1163,7 @@ They might be part of larger data structures and be difficult to normalize.</p>
 </div>
 <p>inline-snapshot tries to change only the values that it needs to change in order to pass the equality comparison.
 This allows to replace parts of the snapshot with <a href="https://dirty-equals.helpmanual.io/latest/">dirty-equals</a> expressions.
-This expressions are preserved as long as the <code>==</code> comparison with them is <code>True</code>.</p>
+This expressions are preserved even if the <code>==</code> comparison with them is <code>False</code>.</p>
 <p>Example:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">using IsDatetime()</label><label for="__tabbed_3_2">changed payload</label><label for="__tabbed_3_3">--inline-snapshot=fix</label></div>
 <div class="tabbed-content">
@@ -1102,10 +1238,132 @@ This expressions are preserved as long as the <code>==</code> comparison with th
 </div>
 </div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The current implementation looks only into lists, dictionaries and tuples and not into the representation of other data structures.</p>
+<h3 id="is">Is(...)<a class="headerlink" href="#is" title="Permanent link">&para;</a></h3>
+<p><code>Is()</code> can be used to put runtime values inside snapshots.
+It tells inline-snapshot that the developer wants control over some part of the snapshot.</p>
+<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">Is</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">current_version</span> <span class="o">=</span> <span class="s2">&quot;1.5&quot;</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="k">def</span> <span class="nf">request</span><span class="p">():</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;page data&quot;</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">current_version</span><span class="p">}</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="k">def</span> <span class="nf">test_function</span><span class="p">():</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="k">assert</span> <span class="n">request</span><span class="p">()</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>        <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;page data&quot;</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">Is</span><span class="p">(</span><span class="n">current_version</span><span class="p">)}</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>    <span class="p">)</span>
+</code></pre></div>
+<p>The <code>current_version</code> can now be changed without having to correct the snapshot.</p>
+<p><code>Is()</code> can also be used when the snapshot is evaluated multiple times.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">original code</label><label for="__tabbed_4_2">--inline-snapshot=fix</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p><!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">Is</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="k">def</span> <span class="nf">test_function</span><span class="p">():</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="s2">&quot;abc&quot;</span><span class="p">:</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>        <span class="k">assert</span> <span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="s2">&quot;correct&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">([</span><span class="n">Is</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="s2">&quot;wrong&quot;</span><span class="p">])</span>
+</code></pre></div></p>
 </div>
+<div class="tabbed-block">
+<p><!-- inline-snapshot: fix outcome-passed=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">Is</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="k">def</span> <span class="nf">test_function</span><span class="p">():</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="s2">&quot;abc&quot;</span><span class="p">:</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="hll">        <span class="k">assert</span> <span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="s2">&quot;correct&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">([</span><span class="n">Is</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="s2">&quot;correct&quot;</span><span class="p">])</span>
+</span></code></pre></div></p>
+</div>
+</div>
+</div>
+<h3 id="inner-snapshots">inner snapshots<a class="headerlink" href="#inner-snapshots" title="Permanent link">&para;</a></h3>
+<p>Snapshots can be used inside other snapshots in different use cases.</p>
+<h4 id="conditional-snapshots">conditional snapshots<a class="headerlink" href="#conditional-snapshots" title="Permanent link">&para;</a></h4>
+<p>It is possible to describe version specific parts of snapshots by replacing the specific part with <code class="highlight"><span class="n">snapshot</span><span class="p">()</span> <span class="k">if</span> <span class="n">some_condition</span> <span class="k">else</span> <span class="n">snapshot</span><span class="p">()</span></code>.
+The test has to be executed in each specific condition to fill the snapshots.</p>
+<p>The following example shows how this can be used to run a tests with two different library versions:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">my_lib v1</label><label for="__tabbed_5_2">my_lib v2</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p><!-- inline-snapshot-lib: my_lib.py -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">version</span> <span class="o">=</span> <span class="mi">1</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="k">def</span> <span class="nf">get_schema</span><span class="p">():</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;var_1&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;int&quot;</span><span class="p">}]</span>
+</code></pre></div></p>
+</div>
+<div class="tabbed-block">
+<p><!-- inline-snapshot-lib: my_lib.py -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">version</span> <span class="o">=</span> <span class="mi">2</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="k">def</span> <span class="nf">get_schema</span><span class="p">():</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;var_1&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">}]</span>
+</code></pre></div></p>
+</div>
+</div>
+</div>
+<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">snapshot</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kn">from</span> <span class="nn">my_lib</span> <span class="kn">import</span> <span class="n">version</span><span class="p">,</span> <span class="n">get_schema</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="k">def</span> <span class="nf">test_function</span><span class="p">():</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="k">assert</span> <span class="n">get_schema</span><span class="p">()</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>        <span class="p">[</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>            <span class="p">{</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;var_1&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">snapshot</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">version</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">snapshot</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">),</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>            <span class="p">}</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>        <span class="p">]</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>    <span class="p">)</span>
+</code></pre></div>
+<p>The advantage of this approach is that the test uses always the correct values for each library version.</p>
+<h4 id="common-snapshot-parts">common snapshot parts<a class="headerlink" href="#common-snapshot-parts" title="Permanent link">&para;</a></h4>
+<p>Another usecase is the extraction of common snapshot parts into an extra snapshot:</p>
+<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">snapshot</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="k">def</span> <span class="nf">some_data</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="s2">&quot;really long header</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;your name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">}</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="k">def</span> <span class="nf">test_function</span><span class="p">():</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>    <span class="n">header</span> <span class="o">=</span> <span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;\</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="sd">really long header</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="sd">really long header</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="sd">really long header</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="sd">really long header</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="sd">really long header</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>    <span class="p">)</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>    <span class="k">assert</span> <span class="n">some_data</span><span class="p">(</span><span class="s2">&quot;Tom&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>        <span class="p">{</span>
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>            <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="n">header</span><span class="p">,</span>
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>            <span class="s2">&quot;your name&quot;</span><span class="p">:</span> <span class="s2">&quot;Tom&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>        <span class="p">}</span>
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a>    <span class="p">)</span>
+<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a>
+<a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a>    <span class="k">assert</span> <span class="n">some_data</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a>        <span class="p">{</span>
+<a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a>            <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="n">header</span><span class="p">,</span>
+<a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a>            <span class="s2">&quot;your name&quot;</span><span class="p">:</span> <span class="s2">&quot;Bob&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-31" name="__codelineno-15-31" href="#__codelineno-15-31"></a>        <span class="p">}</span>
+<a id="__codelineno-15-32" name="__codelineno-15-32" href="#__codelineno-15-32"></a>    <span class="p">)</span>
+</code></pre></div>
+<p>This simplifies test data and allows inline-snapshot to update your values if required.
+It makes also sure that the header is the same in both cases.</p>
 <h2 id="pytest-options">pytest options<a class="headerlink" href="#pytest-options" title="Permanent link">&para;</a></h2>
 <p>It interacts with the following <code>--inline-snapshot</code> flags:</p>
 <ul>
