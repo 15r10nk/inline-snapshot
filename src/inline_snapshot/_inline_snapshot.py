@@ -33,10 +33,6 @@ from ._unmanaged import update_allowed
 from ._utils import value_to_token
 
 
-class NotImplementedYet(Exception):
-    pass
-
-
 snapshots = {}  # type: Dict[Tuple[int, int], SnapshotReference]
 
 _active = False
@@ -52,10 +48,6 @@ def _return(result):
     if not result:
         _incorrect_values += 1
     return result
-
-
-class InlineSnapshotSyntaxWarning(Warning):
-    pass
 
 
 class Flags:
@@ -140,10 +132,10 @@ class GenericValue(Snapshot):
             return self._old_value
 
     def _get_changes(self) -> Iterator[Change]:
-        raise NotImplementedYet()
+        raise NotImplementedError()
 
     def _new_code(self):
-        raise NotImplementedYet()
+        raise NotImplementedError()
 
     def __repr__(self):
         return repr(self._visible_value())

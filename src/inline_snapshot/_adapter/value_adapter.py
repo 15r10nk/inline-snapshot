@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import ast
+import warnings
+
 from inline_snapshot._code_repr import value_code_repr
 from inline_snapshot._unmanaged import Unmanaged
 from inline_snapshot._unmanaged import update_allowed
 from inline_snapshot._utils import value_to_token
+from inline_snapshot.syntax_warnings import InlineSnapshotInfo
 
 from .._change import Replace
 from .adapter import Adapter
@@ -30,6 +34,16 @@ class ValueAdapter(Adapter):
             new_token = []
         else:
             new_token = value_to_token(new_value)
+
+        if isinstance(old_node, ast.JoinedStr):
+            if not old_value == new_value:
+                warnings.warn_explicit(
+                    f"inline-snapshot will be able to fix f-strings in the future.\nThe current string value is:\n   {new_value!r}",
+                    filename=self.context._source.filename,
+                    lineno=old_node.lineno,
+                    category=InlineSnapshotInfo,
+                )
+            return old_value
 
         if not old_value == new_value:
             flag = "fix"
