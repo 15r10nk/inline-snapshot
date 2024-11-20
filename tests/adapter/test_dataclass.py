@@ -255,7 +255,7 @@ def test_remove_positional_argument():
         """\
 from inline_snapshot import snapshot
 
-from inline_snapshot._adapter.dataclass_adapter import DataclassAdapter
+from inline_snapshot._adapter.generic_call_adapter import GenericCallAdapter
 
 
 class L:
@@ -267,7 +267,7 @@ class L:
             return NotImplemented
         return other.l==self.l
 
-class LAdapter(DataclassAdapter):
+class LAdapter(GenericCallAdapter):
     @classmethod
     def check_type(cls, typ):
         return issubclass(typ,L)
@@ -294,7 +294,7 @@ def test_L2():
                 "test_something.py": """\
 from inline_snapshot import snapshot
 
-from inline_snapshot._adapter.dataclass_adapter import DataclassAdapter
+from inline_snapshot._adapter.generic_call_adapter import GenericCallAdapter
 
 
 class L:
@@ -306,7 +306,7 @@ class L:
             return NotImplemented
         return other.l==self.l
 
-class LAdapter(DataclassAdapter):
+class LAdapter(GenericCallAdapter):
     @classmethod
     def check_type(cls, typ):
         return issubclass(typ,L)

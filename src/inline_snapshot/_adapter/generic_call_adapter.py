@@ -20,7 +20,7 @@ from .adapter import Item
 
 
 def get_adapter_for_type(typ):
-    subclasses = DataclassAdapter.__subclasses__()
+    subclasses = GenericCallAdapter.__subclasses__()
     options = [cls for cls in subclasses if cls.check_type(typ)]
     # print(typ,options)
     if not options:
@@ -30,7 +30,7 @@ def get_adapter_for_type(typ):
     return options[0]
 
 
-class DataclassAdapter(Adapter):
+class GenericCallAdapter(Adapter):
 
     @classmethod
     def check_type(cls, typ) -> bool:
@@ -122,7 +122,6 @@ class DataclassAdapter(Adapter):
         print(new_args)
         if len(old_node.args) > len(new_args):
             for arg_pos, node in list(enumerate(old_node.args))[len(new_args) :]:
-                print("del", arg_pos)
                 yield Delete(
                     "fix",
                     self.context._source,
@@ -205,7 +204,7 @@ class DataclassAdapter(Adapter):
         return type(old_value)(*result_args, **result_kwargs)
 
 
-class DataclassContainer(DataclassAdapter):
+class DataclassAdapter(GenericCallAdapter):
 
     @classmethod
     def check_type(cls, value):
@@ -244,7 +243,7 @@ except ImportError:  # pragma: no cover
     pass
 else:
 
-    class PydanticContainer(DataclassAdapter):
+    class PydanticContainer(GenericCallAdapter):
 
         @classmethod
         def check_type(cls, value):
@@ -284,7 +283,7 @@ class IsNamedTuple(ABC):
         return all(type(n) == str for n in f)
 
 
-class NamedTupleContainer(DataclassAdapter):
+class NamedTupleAdapter(GenericCallAdapter):
 
     @classmethod
     def check_type(cls, value):
@@ -308,7 +307,7 @@ class NamedTupleContainer(DataclassAdapter):
         return getattr(value, pos_or_name)
 
 
-class DefaultDictContainer(DataclassAdapter):
+class DefaultDictAdapter(GenericCallAdapter):
     @classmethod
     def check_type(cls, value):
         return issubclass(value, defaultdict)

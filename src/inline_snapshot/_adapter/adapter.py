@@ -7,7 +7,7 @@ from inline_snapshot._source_file import SourceFile
 
 
 def get_adapter_type(value):
-    from inline_snapshot._adapter.dataclass_adapter import get_adapter_for_type
+    from inline_snapshot._adapter.generic_call_adapter import get_adapter_for_type
 
     adapter = get_adapter_for_type(type(value))
     if adapter is not None:
