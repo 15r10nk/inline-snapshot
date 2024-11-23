@@ -255,7 +255,7 @@ def test_remove_positional_argument():
         """\
 from inline_snapshot import snapshot
 
-from inline_snapshot._adapter.generic_call_adapter import GenericCallAdapter
+from inline_snapshot._adapter.generic_call_adapter import GenericCallAdapter,Argument
 
 
 class L:
@@ -274,7 +274,7 @@ class LAdapter(GenericCallAdapter):
 
     @classmethod
     def arguments(cls, value):
-        return (value.l,{})
+        return ([Argument(x) for x in value.l],{})
 
     @classmethod
     def argument(cls, value, pos_or_name):
@@ -294,7 +294,7 @@ def test_L2():
                 "test_something.py": """\
 from inline_snapshot import snapshot
 
-from inline_snapshot._adapter.generic_call_adapter import GenericCallAdapter
+from inline_snapshot._adapter.generic_call_adapter import GenericCallAdapter,Argument
 
 
 class L:
@@ -313,7 +313,7 @@ class LAdapter(GenericCallAdapter):
 
     @classmethod
     def arguments(cls, value):
-        return (value.l,{})
+        return ([Argument(x) for x in value.l],{})
 
     @classmethod
     def argument(cls, value, pos_or_name):
