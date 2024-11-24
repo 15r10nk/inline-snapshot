@@ -35,7 +35,7 @@ class ValueAdapter(Adapter):
         else:
             new_token = value_to_token(new_value)
 
-        if isinstance(old_node, ast.JoinedStr):
+        if isinstance(old_node, ast.JoinedStr) and isinstance(new_value, str):
             if not old_value == new_value:
                 warnings.warn_explicit(
                     f"inline-snapshot will be able to fix f-strings in the future.\nThe current string value is:\n   {new_value!r}",
