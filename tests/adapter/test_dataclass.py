@@ -96,11 +96,10 @@ class A:
     c:int=field(default_factory=list)
 
 def test_something():
-    for c in "ab":
-        assert A(a=c) == snapshot(A(a=Is(c),b=2,c=[]))
+    assert A(a=1) == snapshot(A(a=1,b=2,c=[]))
 """
     ).run_inline(
-        ["--inline-snapshot=fix"],
+        ["--inline-snapshot=update"],
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -114,8 +113,7 @@ class A:
     c:int=field(default_factory=list)
 
 def test_something():
-    for c in "ab":
-        assert A(a=c) == snapshot(A(a=Is(c)))
+    assert A(a=1) == snapshot(A(a=1))
 """
             }
         ),

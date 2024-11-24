@@ -156,10 +156,10 @@ class GenericCallAdapter(Adapter):
         # keyword arguments
         result_kwargs = {}
         for kw in old_node.keywords:
-            if not kw.arg in new_kwargs or new_kwargs[kw.arg].is_default:
+            if (missing := not kw.arg in new_kwargs) or new_kwargs[kw.arg].is_default:
                 # delete entries
                 yield Delete(
-                    "fix",
+                    "fix" if missing else "update",
                     self.context._source,
                     kw.value,
                     self.argument(old_value, kw.arg),
