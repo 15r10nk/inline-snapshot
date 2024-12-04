@@ -149,7 +149,7 @@ create=[
 publish=[
     "git push --force-with-lease",
     "git push --tags",
-    "rm dist/*",
+    "- rm dist/*",
     "hatch build",
     "hatch publish"
 ]
