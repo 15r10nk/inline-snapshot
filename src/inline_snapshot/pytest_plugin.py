@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from inline_snapshot._problems import report_problems
 from rich import box
 from rich.console import Console
 from rich.panel import Panel
@@ -340,6 +341,8 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
                 if apply_changes(flag):
                     used_changes += changes[flag]
+
+        report_problems(console)
 
         if used_changes:
             with ChangeRecorder().activate() as cr:
