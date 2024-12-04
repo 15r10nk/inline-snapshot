@@ -8,4 +8,4 @@ from ._types import Snapshot
 
 __all__ = ["snapshot", "external", "outsource", "customize_repr", "HasRepr"]
 
-__version__ = "0.14.0"
+__version__ = "0.14.1"

@@ -1,4 +1,15 @@
 
+<a id='changelog-0.14.1'></a>
+# 0.14.1 — 2024-12-04
+
+## Fixed
+
+- Don't crash for snapshots like `snapshot(f"")` (#139)
+  It first appeared with pytest-8.3.4, but already existed before for cpython-3.11.
+  f-strings in snapshots are currently not official supported, but they should not lead to crashes.
+
+- skip formatting if black returns an error (#138)
+
 <a id='changelog-0.14.0'></a>
 # 0.14.0 — 2024-11-10
 
