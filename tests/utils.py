@@ -1,4 +1,5 @@
 import contextlib
+import sys
 from contextlib import contextmanager
 
 import inline_snapshot._config as _config
@@ -7,7 +8,10 @@ import pytest
 from inline_snapshot._rewrite_code import ChangeRecorder
 from inline_snapshot.testing._example import snapshot_env
 
+
 __all__ = ("snapshot_env",)
+
+pytest_compatible = sys.version_info >= (3, 11) and pytest.version_tuple >= (8, 3, 4)
 
 
 @contextlib.contextmanager

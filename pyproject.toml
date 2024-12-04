@@ -105,7 +105,15 @@ dependencies=["cogapp","lxml","requests"]
 scripts.update="cog -r docs/**.md"
 
 [[tool.hatch.envs.hatch-test.matrix]]
-python = ["3.13", "3.12", "3.11", "3.10", "3.9", "3.8","pypy3.8","pypy3.9","pypy3.10"]
+python = ["3.13", "3.12", "3.11", "3.10", "3.9", "3.8","pypy3.9","pypy3.10"]
+pytest=["8.3.3","8.3.4"]
+
+[tool.hatch.envs.hatch-test.overrides]
+matrix.pytest.dependencies = [
+  { value = "pytest==8.3.3", if = ["8.3.3"] },
+  { value = "pytest>=8.3.4", if = ["8.3.4"] },
+]
+
 
 [tool.hatch.envs.hatch-test]
 extra-dependencies = [
