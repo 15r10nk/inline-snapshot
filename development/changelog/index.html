@@ -104,7 +104,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#0140-2024-11-10" class="md-skip">
+        <a href="#0141-2024-12-04" class="md-skip">
           Skip to content
         </a>
       
@@ -843,27 +843,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#removed" class="md-nav__link">
+  <a href="#fixed" class="md-nav__link">
     <span class="md-ellipsis">
-      Removed
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
-    <span class="md-ellipsis">
-      Added
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
-    <span class="md-ellipsis">
-      Changed
+      Fixed
     </span>
   </a>
   
@@ -904,27 +886,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#removed" class="md-nav__link">
+  <a href="#fixed" class="md-nav__link">
     <span class="md-ellipsis">
-      Removed
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
-    <span class="md-ellipsis">
-      Added
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
-    <span class="md-ellipsis">
-      Changed
+      Fixed
     </span>
   </a>
   
@@ -948,6 +912,19 @@
   
 
 
+<p><a id='changelog-0.14.1'></a></p>
+<h1 id="0141-2024-12-04">0.14.1 — 2024-12-04<a class="headerlink" href="#0141-2024-12-04" title="Permanent link">&para;</a></h1>
+<h2 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Don't crash for snapshots like <code>snapshot(f"")</code> (#139)
+  It first appeared with pytest-8.3.4, but already existed before for cpython-3.11.
+  f-strings in snapshots are currently not official supported, but they should not lead to crashes.</p>
+</li>
+<li>
+<p>skip formatting if black returns an error (#138)</p>
+</li>
+</ul>
 <p><a id='changelog-0.14.0'></a></p>
 <h1 id="0140-2024-11-10">0.14.0 — 2024-11-10<a class="headerlink" href="#0140-2024-11-10" title="Permanent link">&para;</a></h1>
 <h2 id="removed">Removed<a class="headerlink" href="#removed" title="Permanent link">&para;</a></h2>
@@ -972,7 +949,7 @@
 </ul>
 <p><a id='changelog-0.13.3'></a></p>
 <h1 id="0133-2024-09-24">0.13.3 — 2024-09-24<a class="headerlink" href="#0133-2024-09-24" title="Permanent link">&para;</a></h1>
-<h2 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h2>
+<h2 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h2>
 <ul>
 <li>removed non-optional dirty-equals dependency (#118)</li>
 </ul>
@@ -985,7 +962,7 @@
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    assert [5,2]==snapshot([5,*other])
 </code></pre></div></li>
 </ul>
-<h2 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h2>
+<h2 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p>A snapshot which contains an dirty-equals expression can now be compared multiple times.</p>
