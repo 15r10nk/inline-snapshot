@@ -112,6 +112,9 @@ class simple_token(namedtuple("simple_token", "type,string")):
 
     def __eq__(self, other):
         if self.type == other.type == 3:
+            if self.string[0] == "f" or other.string[0] == "f":
+                return False
+
             return ast.literal_eval(self.string) == ast.literal_eval(
                 other.string
             ) and self.string.replace("'", '"') == other.string.replace("'", '"')
