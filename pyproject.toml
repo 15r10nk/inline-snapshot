@@ -173,5 +173,8 @@ format = "md"
 version = "command: cz bump --get-next"
 
 [tool.inline-snapshot.shortcuts]
-sfix="create,fix"
-review="create,review"
+fix=["create","fix"]
+review=["create","review"]
+
+[tool.pytest.ini_options]
+markers=["no_rewriting: marks tests which need no code rewriting and can be used with pypy"]

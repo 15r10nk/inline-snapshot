@@ -6,12 +6,15 @@ import platform
 import re
 import subprocess as sp
 from argparse import ArgumentParser
+from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
 import inline_snapshot._external
 import inline_snapshot._external as external
+from inline_snapshot._problems import report_problems
+from rich.console import Console
 
 from .. import _inline_snapshot
 from .._change import apply_all
@@ -98,6 +101,7 @@ class Example:
         *,
         reported_categories: Snapshot[list[Category]] | None = None,
         changed_files: Snapshot[dict[str, str]] | None = None,
+        report: Snapshot[str] | None = None,
         raises: Snapshot[str] | None = None,
     ) -> Example:
         """Execute the example files in process and run every `test_*`
@@ -178,11 +182,16 @@ class Example:
                             if change.flag in _inline_snapshot._update_flags.to_set()
                         ]
                     )
+                recorder.fix_all()
+
+                report_output = StringIO()
+                console = Console(file=report_output)
+
+                # TODO: add all the report output here
+                report_problems(console)
 
             if reported_categories is not None:
                 assert sorted(snapshot_flags) == reported_categories
-
-            recorder.fix_all()
 
             if changed_files is not None:
                 current_files = {}
@@ -191,6 +200,9 @@ class Example:
                     if name not in self.files or self.files[name] != content:
                         current_files[name] = content
                 assert changed_files == current_files
+
+            if report is not None:
+                assert report == report_output.getvalue()
 
             return Example(self._read_files(tmp_path))
 
