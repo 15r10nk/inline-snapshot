@@ -39,3 +39,21 @@ black could not format your code, which might be caused by this issue:
 """
         ),
     )
+
+
+def test_fstring_139():
+    Example(
+        """
+from inline_snapshot import snapshot
+snapshot(f'')
+snapshot(rf'')
+snapshot(Rf'')
+snapshot(F'')
+snapshot(rF'')
+snapshot(RF'')
+
+
+def test_a():
+    return None
+    """
+    ).run_pytest(returncode=0)
