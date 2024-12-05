@@ -112,7 +112,11 @@ class simple_token(namedtuple("simple_token", "type,string")):
 
     def __eq__(self, other):
         if self.type == other.type == 3:
-            if self.string[0] == "f" or other.string[0] == "f":
+            if any(
+                s.startswith(suffix)
+                for s in (self.string, other.string)
+                for suffix in ("f", "rf", "Rf", "F", "rF", "RF")
+            ):
                 return False
 
             return ast.literal_eval(self.string) == ast.literal_eval(
