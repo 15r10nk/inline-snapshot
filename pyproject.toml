@@ -123,7 +123,8 @@ extra-dependencies = [
   "pyright>=1.1.359",
   "pytest-subtests>=0.11.0",
   "pytest-freezer>=0.4.8",
-  "pydantic"
+  "pydantic",
+  "pytest-mock>=3.14.0"
 ]
 env-vars.TOP = "{root}"
 
