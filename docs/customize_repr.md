@@ -3,6 +3,7 @@
 
 `repr()` can be used to convert a python object into a source code representation of the object, but this does not work for every type.
 Here are some examples:
+
 ```pycon
 >>> repr(int)
 "<class 'int'>"
@@ -58,16 +59,14 @@ for name, obj in sorted(
         print(f"- `{name}`")
 ```
 
-Container types like `dict` or `dataclass` need a special implementation because it is necessary that the implementation uses `repr()` for the child elements.
-
-``` python exec="1" result="python"
-print('--8<-- "src/inline_snapshot/_code_repr.py:list"')
-```
-
 !!! note
-    using `#!python f"{obj!r}"` or `#!c PyObject_Repr()` will not work, because inline-snapshot replaces `#!python builtins.repr` during the code generation.
+    Container types like `dict`, `list`, `tuple` or `dataclass` are handled in a different way, because inline-snapshot also needs to inspect these types to implement [unmanaged](/eq_snapshot.md#unmanaged-snapshot-values) snapshot values.
 
-## customize
+
+
+
+
+## customize recursive repr
 
 You can also use `repr()` inside `__repr__()`, if you want to make your own type compatible with inline-snapshot.
 
@@ -101,6 +100,13 @@ def test_enum():
     # to convert every Enum to the correct representation
     assert Pair(E.a, [E.b]) == snapshot(Pair(E.a, [E.b]))
 ```
+
+!!! note
+    using `#!python f"{obj!r}"` or `#!c PyObject_Repr()` will not work, because inline-snapshot replaces `#!python builtins.repr` during the code generation. The only way to use the custom repr implementation is to use the `repr()` function.
+
+!!! note
+    This implementation allows inline-snapshot to use the custom `repr()` recursively, but it does not allow you to use [unmanaged](/eq_snapshot.md#unmanaged-snapshot-parts) snapshot values like `#!python Pair(Is(some_var),5)`
+
 
 you can also customize the representation of datatypes in other libraries:
 
