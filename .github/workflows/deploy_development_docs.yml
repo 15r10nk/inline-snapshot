@@ -1,0 +1,22 @@
+name: deploy development docs
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    name: Deploy development docs
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout main
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - run: pip install hatch
+    - name: publish docs
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config user.name "Frank Hoffmann"
+        git config user.email "15r10nk@users.noreply.github.com"
+        git fetch origin gh-pages --depth=1
+        hatch run docs:mike deploy --push development

@@ -1,4 +1,3 @@
-import ast
 import contextlib
 import itertools
 import warnings
@@ -8,12 +7,9 @@ from dataclasses import dataclass
 from typing import Union
 
 import pytest
-from hypothesis import given
-from hypothesis.strategies import text
 from inline_snapshot import _inline_snapshot
 from inline_snapshot import snapshot
 from inline_snapshot._inline_snapshot import Flags
-from inline_snapshot._utils import triple_quote
 from inline_snapshot.testing import Example
 from inline_snapshot.testing._example import snapshot_env
 
@@ -584,194 +580,6 @@ def test_plain(check_update, executing_used):
     assert check_update("s = snapshot()", flags="") == snapshot("s = snapshot()")
 
 
-def test_string_update(check_update):
-    # black --preview wraps strings to keep the line length.
-    # string concatenation should produce updates.
-    assert (
-        check_update(
-            'assert "ab" == snapshot("a" "b")', reported_flags="", flags="update"
-        )
-        == 'assert "ab" == snapshot("a" "b")'
-    )
-
-    assert (
-        check_update(
-            'assert "ab" == snapshot("a"\n "b")', reported_flags="", flags="update"
-        )
-        == 'assert "ab" == snapshot("a"\n "b")'
-    )
-
-    assert check_update(
-        'assert "ab\\nc" == snapshot("a"\n "b\\nc")', flags="update"
-    ) == snapshot(
-        '''\
-assert "ab\\nc" == snapshot("""\\
-ab
-c\\
-""")\
-'''
-    )
-
-    assert (
-        check_update(
-            'assert b"ab" == snapshot(b"a"\n b"b")', reported_flags="", flags="update"
-        )
-        == 'assert b"ab" == snapshot(b"a"\n b"b")'
-    )
-
-
-def test_string_newline(check_update):
-    assert check_update('s = snapshot("a\\nb")', flags="update") == snapshot(
-        '''\
-s = snapshot("""\\
-a
-b\\
-""")\
-'''
-    )
-
-    assert check_update('s = snapshot("a\\"\\"\\"\\nb")', flags="update") == snapshot(
-        """\
-s = snapshot('''\\
-a\"\"\"
-b\\
-''')\
-"""
-    )
-
-    assert check_update(
-        's = snapshot("a\\"\\"\\"\\n\\\'\\\'\\\'b")', flags="update"
-    ) == snapshot(
-        '''\
-s = snapshot("""\\
-a\\"\\"\\"
-\'\'\'b\\
-""")\
-'''
-    )
-
-    assert check_update('s = snapshot(b"a\\nb")') == snapshot('s = snapshot(b"a\\nb")')
-
-    assert check_update('s = snapshot("\\n\\\'")', flags="update") == snapshot(
-        '''\
-s = snapshot("""\\
-
-'\\
-""")\
-'''
-    )
-
-    assert check_update('s = snapshot("\\n\\"")', flags="update") == snapshot(
-        '''\
-s = snapshot("""\\
-
-"\\
-""")\
-'''
-    )
-
-    assert check_update("s = snapshot(\"'''\\n\\\"\")", flags="update") == snapshot(
-        '''\
-s = snapshot("""\\
-\'\'\'
-\\"\\
-""")\
-'''
-    )
-
-    assert check_update('s = snapshot("\\n\b")', flags="update") == snapshot(
-        '''\
-s = snapshot("""\\
-
-\\x08\\
-""")\
-'''
-    )
-
-
-def test_string_quote_choice(check_update):
-    assert check_update(
-        "s = snapshot(\" \\'\\'\\' \\'\\'\\' \\\"\\\"\\\"\\nother_line\")",
-        flags="update",
-    ) == snapshot(
-        '''\
-s = snapshot("""\\
- \'\'\' \'\'\' \\"\\"\\"
-other_line\\
-""")\
-'''
-    )
-
-    assert check_update(
-        's = snapshot(" \\\'\\\'\\\' \\"\\"\\" \\"\\"\\"\\nother_line")', flags="update"
-    ) == snapshot(
-        """\
-s = snapshot('''\\
- \\'\\'\\' \"\"\" \"\"\"
-other_line\\
-''')\
-"""
-    )
-
-    assert check_update('s = snapshot("\\n\\"")', flags="update") == snapshot(
-        '''\
-s = snapshot("""\\
-
-"\\
-""")\
-'''
-    )
-
-    assert check_update(
-        "s=snapshot('\\n')", flags="update", reported_flags=""
-    ) == snapshot("s=snapshot('\\n')")
-    assert check_update(
-        "s=snapshot('abc\\n')", flags="update", reported_flags=""
-    ) == snapshot("s=snapshot('abc\\n')")
-    assert check_update("s=snapshot('abc\\nabc')", flags="update") == snapshot(
-        '''\
-s=snapshot("""\\
-abc
-abc\\
-""")\
-'''
-    )
-    assert check_update("s=snapshot('\\nabc')", flags="update") == snapshot(
-        '''\
-s=snapshot("""\\
-
-abc\\
-""")\
-'''
-    )
-    assert check_update("s=snapshot('a\\na\\n')", flags="update") == snapshot(
-        '''\
-s=snapshot("""\\
-a
-a
-""")\
-'''
-    )
-
-    assert (
-        check_update(
-            '''\
-s=snapshot("""\\
-a
-""")\
-''',
-            flags="update",
-        )
-        == snapshot('s=snapshot("a\\n")')
-    )
-
-
-@given(s=text())
-def test_string_convert(s):
-    print(s)
-    assert ast.literal_eval(triple_quote(s)) == s
-
-
 def test_flags_repr():
     assert repr(Flags({"update"})) == "Flags({'update'})"
 
@@ -832,40 +640,6 @@ assert {test2}
             assert "This snapshot cannot be use with" in str(error.value)
         else:
             assert test1 == test2
-
-
-def test_invalid_repr(check_update):
-    assert (
-        check_update(
-            """\
-class Thing:
-    def __repr__(self):
-        return "+++"
-
-    def __eq__(self,other):
-        if not isinstance(other,Thing):
-            return NotImplemented
-        return True
-
-assert Thing() == snapshot()
-""",
-            flags="create",
-        )
-        == snapshot(
-            """\
-class Thing:
-    def __repr__(self):
-        return "+++"
-
-    def __eq__(self,other):
-        if not isinstance(other,Thing):
-            return NotImplemented
-        return True
-
-assert Thing() == snapshot(HasRepr(Thing, "+++"))
-"""
-        )
-    )
 
 
 def test_sub_snapshot_create(check_update):
@@ -1058,62 +832,6 @@ These changes will be applied, because you used --inline-snapshot=create
     assert result.report == snapshot("")
 
 
-def test_compare_dirty_equals_twice() -> None:
-
-    Example(
-        """
-from dirty_equals import IsStr
-from inline_snapshot import snapshot
-
-for x in 'ab':
-    assert x == snapshot(IsStr())
-    assert [x,5] == snapshot([IsStr(),3])
-    assert {'a':x,'b':5} == snapshot({'a':IsStr(),'b':3})
-
-"""
-    ).run_inline(
-        ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "test_something.py": """\
-
-from dirty_equals import IsStr
-from inline_snapshot import snapshot
-
-for x in 'ab':
-    assert x == snapshot(IsStr())
-    assert [x,5] == snapshot([IsStr(),5])
-    assert {'a':x,'b':5} == snapshot({'a':IsStr(),'b':5})
-
-"""
-            }
-        ),
-    )
-
-
-def test_dirty_equals_in_unused_snapshot() -> None:
-
-    Example(
-        """
-from dirty_equals import IsStr
-from inline_snapshot import snapshot
-
-snapshot([IsStr(),3])
-snapshot((IsStr(),3))
-snapshot({1:IsStr(),2:3})
-snapshot({1+1:2})
-
-t=(1,2)
-d={1:2}
-l=[1,2]
-snapshot([t,d,l])
-"""
-    ).run_inline(
-        ["--inline-snapshot=fix"],
-        changed_files=snapshot({}),
-    )
-
-
 @dataclass
 class Warning:
     message: str
@@ -1154,7 +872,7 @@ def test_starred_warns_list():
             """
 from inline_snapshot import snapshot
 
-assert [5] == snapshot([*[4]])
+assert [5] == snapshot([*[5]])
 """
         ).run_inline(["--inline-snapshot=fix"])
 
@@ -1175,57 +893,49 @@ def test_starred_warns_dict():
             """
 from inline_snapshot import snapshot
 
-assert {1:3} == snapshot({**{1:2}})
+assert {1:3} == snapshot({**{1:3}})
 """
         ).run_inline(["--inline-snapshot=fix"])
 
 
-def test_now_like_dirty_equals():
-    # test for cases like https://github.com/15r10nk/inline-snapshot/issues/116
+def test_is():
 
     Example(
         """
-from dirty_equals import DirtyEquals
-from inline_snapshot import snapshot
+from inline_snapshot import snapshot,Is
 
-
-def test_time():
-
-    now = 5
-
-    class Now(DirtyEquals):
-        def equals(self, other):
-            return other == now
-
-    assert now == snapshot(Now())
-
-    now = 6
-
-    assert 5 == snapshot(Now())
+def test_Is():
+    for i in range(3):
+        assert ["hello",i] == snapshot(["hi",Is(i)])
+        assert ["hello",i] == snapshot({1:["hi",Is(i)]})[i]
 """
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+
+from inline_snapshot import snapshot,Is
+
+def test_Is():
+    for i in range(3):
+        assert ["hello",i] == snapshot(["hi",Is(i)])
+        assert ["hello",i] == snapshot({1:["hi",Is(i)], 0: ["hello", 0], 2: ["hello", 2]})[i]
+"""
+            }
+        ),
     ).run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
                 "test_something.py": """\
 
-from dirty_equals import DirtyEquals
-from inline_snapshot import snapshot
+from inline_snapshot import snapshot,Is
 
-
-def test_time():
-
-    now = 5
-
-    class Now(DirtyEquals):
-        def equals(self, other):
-            return other == now
-
-    assert now == snapshot(Now())
-
-    now = 6
-
-    assert 5 == snapshot(5)
+def test_Is():
+    for i in range(3):
+        assert ["hello",i] == snapshot(["hello",Is(i)])
+        assert ["hello",i] == snapshot({1:["hello",Is(i)], 0: ["hello", 0], 2: ["hello", 2]})[i]
 """
             }
         ),

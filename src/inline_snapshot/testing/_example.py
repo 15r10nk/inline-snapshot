@@ -5,6 +5,7 @@ import os
 import platform
 import re
 import subprocess as sp
+import traceback
 from argparse import ArgumentParser
 from io import StringIO
 from pathlib import Path
@@ -88,6 +89,14 @@ class Example:
 
         self.files = files
 
+        self.dump_files()
+
+    def dump_files(self):
+        for name, content in self.files.items():
+            print(f"file: {name}")
+            print(content)
+            print()
+
     def _write_files(self, dir: Path):
         for name, content in self.files.items():
             (dir / name).write_text(content)
@@ -144,6 +153,7 @@ class Example:
 
             self._write_files(tmp_path)
 
+            raised_exception = None
             with snapshot_env():
                 with ChangeRecorder().activate() as recorder:
                     _inline_snapshot._update_flags = Flags({*flags})
@@ -154,6 +164,7 @@ class Example:
                     try:
                         for filename in tmp_path.glob("*.py"):
                             globals: dict[str, Any] = {}
+                            print("run> pytest", filename)
                             exec(
                                 compile(filename.read_text("utf-8"), filename, "exec"),
                                 globals,
@@ -164,7 +175,8 @@ class Example:
                                 if k.startswith("test_") and callable(v):
                                     v()
                     except Exception as e:
-                        assert raises == f"{type(e).__name__}:\n" + str(e)
+                        traceback.print_exc()
+                        raised_exception = e
 
                     finally:
                         _inline_snapshot._active = False
@@ -193,6 +205,11 @@ class Example:
             if reported_categories is not None:
                 assert sorted(snapshot_flags) == reported_categories
 
+            if raised_exception is not None:
+                assert raises == f"{type(raised_exception).__name__}:\n" + str(
+                    raised_exception
+                )
+
             if changed_files is not None:
                 current_files = {}
 
@@ -213,6 +230,7 @@ class Example:
         env: dict[str, str] = {},
         changed_files: Snapshot[dict[str, str]] | None = None,
         report: Snapshot[str] | None = None,
+        stderr: Snapshot[str] | None = None,
         returncode: Snapshot[int] | None = None,
     ) -> Example:
         """Run pytest with the given args and env variables in an seperate
@@ -225,6 +243,7 @@ class Example:
             env: dict of environment variables
             changed_files: snapshot of files which are changed by this run.
             report: snapshot of the report at the end of the pytest run.
+            stderr: pytest stderr output
             returncode: snapshot of the pytest returncode.
 
         Returns:
@@ -258,6 +277,9 @@ class Example:
 
             if returncode is not None:
                 assert result.returncode == returncode
+
+            if stderr is not None:
+                assert result.stderr.decode() == stderr
 
             if report is not None:
 

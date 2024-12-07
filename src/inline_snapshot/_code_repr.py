@@ -1,13 +1,9 @@
 import ast
-from abc import ABC
-from collections import defaultdict
-from dataclasses import fields
-from dataclasses import is_dataclass
-from dataclasses import MISSING
 from enum import Enum
 from enum import Flag
 from functools import singledispatch
 from unittest import mock
+
 
 real_repr = repr
 
@@ -62,7 +58,7 @@ def customize_repr(f):
     """Register a funtion which should be used to get the code representation
     of a object.
 
-    ```python
+    ``` python
     @customize_repr
     def _(obj: MyCustomClass):
         return f"MyCustomClass(attr={repr(obj.attr)})"
@@ -78,8 +74,27 @@ def customize_repr(f):
 
 
 def code_repr(obj):
-    with mock.patch("builtins.repr", code_repr):
-        result = code_repr_dispatch(obj)
+
+    with mock.patch("builtins.repr", mocked_code_repr):
+        return mocked_code_repr(obj)
+
+
+def mocked_code_repr(obj):
+    from inline_snapshot._adapter.adapter import get_adapter_type
+
+    adapter = get_adapter_type(obj)
+    assert adapter is not None
+    return adapter.repr(obj)
+
+
+def value_code_repr(obj):
+    if not type(obj) == type(obj):
+        # dispatch will not work in cases like this
+        return (
+            f"HasRepr({repr(type(obj))}, '< type(obj) can not be compared with == >')"
+        )
+
+    result = code_repr_dispatch(obj)
 
     try:
         ast.parse(result)
@@ -104,59 +119,6 @@ def _(value: Flag):
     return " | ".join(f"{name}.{flag.name}" for flag in type(value) if flag in value)
 
 
-# -8<- [start:list]
-@customize_repr
-def _(value: list):
-    return "[" + ", ".join(map(repr, value)) + "]"
-
-
-# -8<- [end:list]
-
-
-class OnlyTuple(ABC):
-    _inline_snapshot_name = "builtins.tuple"
-
-    @classmethod
-    def __subclasshook__(cls, t):
-        return t is tuple
-
-
-@customize_repr
-def _(value: OnlyTuple):
-    assert isinstance(value, tuple)
-    if len(value) == 1:
-        return f"({repr(value[0])},)"
-    return "(" + ", ".join(map(repr, value)) + ")"
-
-
-class IsNamedTuple(ABC):
-    _inline_snapshot_name = "namedtuple"
-
-    _fields: tuple
-    _field_defaults: dict
-
-    @classmethod
-    def __subclasshook__(cls, t):
-        b = t.__bases__
-        if len(b) != 1 or b[0] != tuple:
-            return False
-        f = getattr(t, "_fields", None)
-        if not isinstance(f, tuple):
-            return False
-        return all(type(n) == str for n in f)
-
-
-@customize_repr
-def _(value: IsNamedTuple):
-    params = ", ".join(
-        f"{field}={repr(getattr(value,field))}"
-        for field in value._fields
-        if field not in value._field_defaults
-        or getattr(value, field) != value._field_defaults[field]
-    )
-    return f"{repr(type(value))}({params})"
-
-
 @customize_repr
 def _(value: set):
     if len(value) == 0:
@@ -174,70 +136,5 @@ def _(value: frozenset):
 
 
 @customize_repr
-def _(value: dict):
-    result = (
-        "{" + ", ".join(f"{repr(k)}: {repr(value)}" for k, value in value.items()) + "}"
-    )
-
-    if type(value) is not dict:
-        result = f"{repr(type(value))}({result})"
-
-    return result
-
-
-@customize_repr
-def _(value: defaultdict):
-    return f"defaultdict({repr(value.default_factory)}, {repr(dict(value))})"
-
-
-@customize_repr
 def _(value: type):
     return value.__qualname__
-
-
-class IsDataclass(ABC):
-    _inline_snapshot_name = "dataclass"
-
-    @classmethod
-    def __subclasshook__(cls, subclass):
-        return is_dataclass(subclass)
-
-
-@customize_repr
-def _(value: IsDataclass):
-    attrs = []
-    for field in fields(value):  # type: ignore
-        if field.repr:
-            field_value = getattr(value, field.name)
-
-            if field.default != MISSING and field.default == field_value:
-                continue
-
-            if (
-                field.default_factory != MISSING
-                and field.default_factory() == field_value
-            ):
-                continue
-
-            attrs.append(f"{field.name}={repr(field_value)}")
-
-    return f"{repr(type(value))}({', '.join(attrs)})"
-
-
-try:
-    from pydantic import BaseModel
-except ImportError:  # pragma: no cover
-    pass
-else:
-
-    @customize_repr
-    def _(model: BaseModel):
-        return (
-            type(model).__qualname__
-            + "("
-            + ", ".join(
-                e + "=" + repr(getattr(model, e))
-                for e in sorted(model.__pydantic_fields_set__)
-            )
-            + ")"
-        )
