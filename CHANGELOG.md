@@ -1,4 +1,13 @@
 
+<a id='changelog-0.14.2'></a>
+# 0.14.2 — 2024-12-07
+
+## Fixed
+
+- do not crash when handling raw f-strings (`rf""`,`RF""`,...) (#143)
+
+-->
+
 <a id='changelog-0.14.1'></a>
 # 0.14.1 — 2024-12-04
 
