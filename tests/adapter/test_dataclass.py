@@ -83,7 +83,44 @@ def test_something():
     )
 
 
-def test_default_value():
+def test_pydantic_default_value():
+    Example(
+        """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+from pydantic import BaseModel,Field
+
+class A(BaseModel):
+    a:int
+    b:int=2
+    c:list=Field(default_factory=list)
+
+def test_something():
+    assert A(a=1) == snapshot(A(a=1,b=2,c=[]))
+"""
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+from pydantic import BaseModel,Field
+
+class A(BaseModel):
+    a:int
+    b:int=2
+    c:list=Field(default_factory=list)
+
+def test_something():
+    assert A(a=1) == snapshot(A(a=1))
+"""
+            }
+        ),
+    )
+
+
+def test_dataclass_default_value():
     Example(
         """\
 from inline_snapshot import snapshot,Is
@@ -93,7 +130,7 @@ from dataclasses import dataclass,field
 class A:
     a:int
     b:int=2
-    c:int=field(default_factory=list)
+    c:list=field(default_factory=list)
 
 def test_something():
     assert A(a=1) == snapshot(A(a=1,b=2,c=[]))
@@ -110,7 +147,7 @@ from dataclasses import dataclass,field
 class A:
     a:int
     b:int=2
-    c:int=field(default_factory=list)
+    c:list=field(default_factory=list)
 
 def test_something():
     assert A(a=1) == snapshot(A(a=1))
@@ -387,3 +424,69 @@ def test_tuple():
             }
         ),
     )
+
+
+def test_dataclass_field_repr():
+
+    Example(
+        """\
+from inline_snapshot import snapshot
+from dataclasses import dataclass,field
+
+@dataclass
+class container:
+    a: int
+    b: int = field(default=5,repr=False)
+
+assert container(a=1,b=5) == snapshot()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot
+from dataclasses import dataclass,field
+
+@dataclass
+class container:
+    a: int
+    b: int = field(default=5,repr=False)
+
+assert container(a=1,b=5) == snapshot(container(a=1))
+"""
+            }
+        ),
+    ).run_inline()
+
+
+def test_pydantic_field_repr():
+
+    Example(
+        """\
+from inline_snapshot import snapshot
+from pydantic import BaseModel,Field
+
+class container(BaseModel):
+    a: int
+    b: int = Field(default=5,repr=False)
+
+assert container(a=1,b=5) == snapshot()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot
+from pydantic import BaseModel,Field
+
+class container(BaseModel):
+    a: int
+    b: int = Field(default=5,repr=False)
+
+assert container(a=1,b=5) == snapshot(container(a=1))
+"""
+            }
+        ),
+    ).run_inline()

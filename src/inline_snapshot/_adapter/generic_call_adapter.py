@@ -257,6 +257,7 @@ try:
 except ImportError:  # pragma: no cover
     pass
 else:
+    from pydantic_core import PydanticUndefined
 
     class PydanticContainer(GenericCallAdapter):
 
@@ -267,14 +268,28 @@ else:
         @classmethod
         def arguments(cls, value):
 
-            return (
-                [],
-                {
-                    name: Argument(value=getattr(value, name))
-                    for name, info in value.model_fields.items()
-                    if getattr(value, name) != info.default
-                },
-            )
+            kwargs = {}
+
+            for name, field in value.model_fields.items():  # type: ignore
+                if field.repr:
+                    field_value = getattr(value, name)
+                    is_default = False
+
+                    if (
+                        field.default is not PydanticUndefined
+                        and field.default == field_value
+                    ):
+                        is_default = True
+
+                    if (
+                        field.default_factory is not None
+                        and field.default_factory() == field_value
+                    ):
+                        is_default = True
+
+                    kwargs[name] = Argument(value=field_value, is_default=is_default)
+
+            return ([], kwargs)
 
         @classmethod
         def argument(cls, value, pos_or_name):
