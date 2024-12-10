@@ -209,6 +209,8 @@ class Example:
                 assert raises == f"{type(raised_exception).__name__}:\n" + str(
                     raised_exception
                 )
+            else:
+                assert raises == None
 
             if changed_files is not None:
                 current_files = {}

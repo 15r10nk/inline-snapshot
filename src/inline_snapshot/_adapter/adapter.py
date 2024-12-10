@@ -58,6 +58,13 @@ class Adapter:
     def assign(self, old_value, old_node, new_value):
         raise NotImplementedError(cls)
 
+    def value_assign(self, old_value, old_node, new_value):
+        from .value_adapter import ValueAdapter
+
+        adapter = ValueAdapter(self.context)
+        result = yield from adapter.assign(old_value, old_node, new_value)
+        return result
+
     @classmethod
     def map(cls, value, map_function):
         raise NotImplementedError(cls)
