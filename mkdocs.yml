@@ -22,6 +22,11 @@ theme:
     media: '(prefers-color-scheme: dark)'
     primary: teal
 
+validation:
+  links:
+    absolute_links: relative_to_docs
+
+
 watch:
 - CONTRIBUTING.md
 - CHANGELOG.md
