@@ -1,4 +1,45 @@
 
+<a id='changelog-0.15.0'></a>
+# 0.15.0 — 2024-12-10
+
+## Added
+
+- snapshots [inside snapshots](https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#inner-snapshots) are now supported.
+
+    ``` python
+    assert get_schema() == snapshot(
+        [
+            {
+                "name": "var_1",
+                "type": snapshot("int") if version < 2 else snapshot("string"),
+            }
+        ]
+    )
+    ```
+
+- [runtime values](https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#is) can now be part of snapshots.
+
+    ``` python
+    from inline_snapshot import snapshot, Is
+
+    current_version = "1.5"
+    assert request() == snapshot(
+        {"data": "page data", "version": Is(current_version)}
+    )
+    ```
+
+- [f-strings](https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#f-strings) can now also be used within snapshots, but are currently not *fixed* by inline-snapshot.
+
+## Changed
+
+- *dirty-equals* expressions are now treated like *runtime values* or *snapshots* within snapshots and are not modified by inline-snapshot.
+
+## Fixed
+
+- inline-snapshot checks now if the given command line flags (`--inline-snapshot=...`) are valid
+
+- `Example(...).run_pytest(raise=snapshot(...))` uses now the flags from the current run and not the flags from the Example.
+
 <a id='changelog-0.14.2'></a>
 # 0.14.2 — 2024-12-07
 
