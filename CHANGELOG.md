@@ -1,4 +1,11 @@
 
+<a id='changelog-0.15.1'></a>
+# 0.15.1 — 2024-12-10
+
+## Fixed
+
+- solved a bug caused by a variable inside a snapshot (#148)
+
 <a id='changelog-0.15.0'></a>
 # 0.15.0 — 2024-12-10
 
