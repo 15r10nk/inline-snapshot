@@ -1010,7 +1010,7 @@ Here are some examples:</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This implementation allows inline-snapshot to use the custom <code>repr()</code> recursively, but it does not allow you to use <a href="../eq_snapshot/#unmanaged-snapshot-parts">unmanaged</a> snapshot values like <code class="highlight"><span class="n">Pair</span><span class="p">(</span><span class="n">Is</span><span class="p">(</span><span class="n">some_var</span><span class="p">),</span><span class="mi">5</span><span class="p">)</span></code></p>
+<p>This implementation allows inline-snapshot to use the custom <code>repr()</code> recursively, but it does not allow you to use <a href="../eq_snapshot/#unmanaged-snapshot-values">unmanaged</a> snapshot values like <code class="highlight"><span class="n">Pair</span><span class="p">(</span><span class="n">Is</span><span class="p">(</span><span class="n">some_var</span><span class="p">),</span><span class="mi">5</span><span class="p">)</span></code></p>
 </div>
 <p>you can also customize the representation of datatypes in other libraries:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">customize_repr</span>
