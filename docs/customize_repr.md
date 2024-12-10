@@ -105,7 +105,7 @@ def test_enum():
     using `#!python f"{obj!r}"` or `#!c PyObject_Repr()` will not work, because inline-snapshot replaces `#!python builtins.repr` during the code generation. The only way to use the custom repr implementation is to use the `repr()` function.
 
 !!! note
-    This implementation allows inline-snapshot to use the custom `repr()` recursively, but it does not allow you to use [unmanaged](/eq_snapshot.md#unmanaged-snapshot-parts) snapshot values like `#!python Pair(Is(some_var),5)`
+    This implementation allows inline-snapshot to use the custom `repr()` recursively, but it does not allow you to use [unmanaged](/eq_snapshot.md#unmanaged-snapshot-values) snapshot values like `#!python Pair(Is(some_var),5)`
 
 
 you can also customize the representation of datatypes in other libraries:
