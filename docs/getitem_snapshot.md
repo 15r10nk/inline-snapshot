@@ -8,6 +8,9 @@ Example:
 === "original code"
     <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
     ``` python
+    from inline_snapshot import snapshot
+
+
     def test_something():
         s = snapshot()
 
@@ -17,7 +20,10 @@ Example:
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ``` python hl_lines="2"
+    ``` python hl_lines="5"
+    from inline_snapshot import snapshot
+
+
     def test_something():
         s = snapshot({"a": 4, "b": 5})
 

@@ -14,7 +14,7 @@ from inline_snapshot._adapter.adapter import Adapter
 from inline_snapshot._adapter.adapter import adapter_map
 from inline_snapshot._source_file import SourceFile
 
-from ._adapter import get_adapter_type
+from ._adapter.adapter import get_adapter_type
 from ._change import CallArg
 from ._change import Change
 from ._change import Delete

@@ -18,13 +18,18 @@ Example:
 === "original code"
     <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
     ``` python
+    from inline_snapshot import snapshot, outsource
+
+
     def test_something():
         assert outsource("long text\n" * 1000) == snapshot()
     ```
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ``` python hl_lines="1 2 3 5 6 7"
+    ``` python hl_lines="2 3 7 8 9"
+    from inline_snapshot import snapshot, outsource
+
     from inline_snapshot import external
 
 
@@ -39,6 +44,9 @@ The `external` object can be used inside other data structures.
 === "original code"
     <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
     ``` python
+    from inline_snapshot import snapshot, outsource
+
+
     def test_something():
         assert [
             outsource("long text\n" * times) for times in [50, 100, 1000]
@@ -47,7 +55,9 @@ The `external` object can be used inside other data structures.
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ``` python hl_lines="1 2 3 7 8 9 10 11 12 13"
+    ``` python hl_lines="2 3 9 10 11 12 13 14 15"
+    from inline_snapshot import snapshot, outsource
+
     from inline_snapshot import external
 
 

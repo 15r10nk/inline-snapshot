@@ -9,6 +9,9 @@ Example:
 === "original code"
     <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
     ``` python
+    from inline_snapshot import snapshot
+
+
     def gcd(x, y):
         iterations = 0
         if x > y:
@@ -32,7 +35,10 @@ Example:
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ``` python hl_lines="18 19"
+    ``` python hl_lines="21 22"
+    from inline_snapshot import snapshot
+
+
     def gcd(x, y):
         iterations = 0
         if x > y:
@@ -56,7 +62,10 @@ Example:
 
 === "optimized code "
     <!-- inline-snapshot: outcome-passed=1 -->
-    ``` python hl_lines="2 4 6 7"
+    ``` python hl_lines="5 7 9 10"
+    from inline_snapshot import snapshot
+
+
     def gcd(x, y):
         # use Euclidean Algorithm
         iterations = 0
@@ -75,7 +84,10 @@ Example:
 
 === "--inline-snapshot=trim"
     <!-- inline-snapshot: trim outcome-passed=1 -->
-    ``` python hl_lines="14"
+    ``` python hl_lines="17"
+    from inline_snapshot import snapshot
+
+
     def gcd(x, y):
         # use Euclidean Algorithm
         iterations = 0
@@ -100,6 +112,9 @@ The same snapshot value can also be used in multiple assertions.
 === "original code"
     <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
     ``` python
+    from inline_snapshot import snapshot
+
+
     def test_something():
         value = snapshot()
 
@@ -108,7 +123,10 @@ The same snapshot value can also be used in multiple assertions.
     ```
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ``` python hl_lines="2"
+    ``` python hl_lines="5"
+    from inline_snapshot import snapshot
+
+
     def test_something():
         value = snapshot(6)
 

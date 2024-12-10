@@ -9,27 +9,39 @@ Example:
 === "original code"
     <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
     ``` python
+    from inline_snapshot import snapshot
+
+
     def test_something():
         assert 2 + 4 == snapshot()
     ```
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ``` python hl_lines="2"
+    ``` python hl_lines="5"
+    from inline_snapshot import snapshot
+
+
     def test_something():
         assert 2 + 4 == snapshot(6)
     ```
 
 === "value changed"
     <!-- inline-snapshot: outcome-failed=1 outcome-errors=1 -->
-    ``` python hl_lines="2"
+    ``` python hl_lines="5"
+    from inline_snapshot import snapshot
+
+
     def test_something():
         assert 2 + 40 == snapshot(4)
     ```
 
 === "--inline-snapshot=fix"
     <!-- inline-snapshot: fix outcome-passed=1 -->
-    ``` python hl_lines="2"
+    ``` python hl_lines="5"
+    from inline_snapshot import snapshot
+
+
     def test_something():
         assert 2 + 40 == snapshot(42)
     ```

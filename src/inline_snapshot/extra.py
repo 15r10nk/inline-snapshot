@@ -7,9 +7,11 @@ not depend on other libraries.
 
 ...  # prevent lint error with black and reorder-python-imports
 import contextlib
+from typing import List, Tuple, Union
 from inline_snapshot._types import Snapshot
 from contextlib import redirect_stdout, redirect_stderr
 import io
+import warnings
 
 
 @contextlib.contextmanager
@@ -126,3 +128,76 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
 
     assert stderr_io.getvalue() == stderr
     assert stdout_io.getvalue() == stdout
+
+
+Warning = Union[str, Tuple[int, str], Tuple[str, str], Tuple[str, int, str]]
+
+
+@contextlib.contextmanager
+def warns(
+    expected_warnings: Snapshot[List[Warning]],
+    /,
+    include_line: bool = False,
+    include_file: bool = False,
+):
+    """
+    Captures warnings with `warnings.catch_warnings` and compares them against expected warnings.
+
+    Parameters:
+        expected_warnings: Snapshot containing a list of expected warnings.
+        include_line: If `True`, each expected warning is a tuple `(linenumber, message)`.
+        include_file: If `True`, each expected warning is a tuple `(filename, message)`.
+
+    The format of the expected warning:
+
+    - `(filename, linenumber, message)` if both `include_line` and `include_file` are `True`.
+    - `(linenumber, message)` if only `include_line` is `True`.
+    - `(filename, message)` if only `include_file` is `True`.
+    - A string `message` if both are `False`.
+
+    === "original"
+
+        <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+        ``` python
+        from inline_snapshot import snapshot
+        from inline_snapshot.extra import warns
+        from warnings import warn
+
+
+        def test_warns():
+            with warns(snapshot(), include_line=True):
+                warn("some problem")
+        ```
+
+    === "--inline-snapshot=create"
+
+        <!-- inline-snapshot: create fix outcome-passed=1 -->
+        ``` python hl_lines="7"
+        from inline_snapshot import snapshot
+        from inline_snapshot.extra import warns
+        from warnings import warn
+
+
+        def test_warns():
+            with warns(snapshot([(8, "UserWarning: some problem")]), include_line=True):
+                warn("some problem")
+        ```
+    """
+    with warnings.catch_warnings(record=True) as result:
+        warnings.simplefilter("always")
+        yield
+
+    def make_warning(w):
+        message = f"{w.category.__name__}: {w.message}"
+        if not include_line and not include_file:
+            return message
+        message = (message,)
+
+        if include_line:
+            message = (w.lineno, *message)
+        if include_file:
+            message = (w.filename, *message)
+
+        return message
+
+    assert [make_warning(w) for w in result] == expected_warnings

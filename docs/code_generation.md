@@ -71,6 +71,9 @@ The code is generated in the following way:
         === "original code"
             <!-- inline-snapshot: first_block outcome-passed=1 -->
             ``` python
+            from inline_snapshot import snapshot
+
+
             def test_something():
                 assert "first line\nsecond line" == snapshot(
                     """first line
@@ -80,7 +83,10 @@ The code is generated in the following way:
 
         === "--inline-snapshot=update"
             <!-- inline-snapshot: update outcome-passed=1 -->
-            ``` python hl_lines="3 4 5 6"
+            ``` python hl_lines="6 7 8 9"
+            from inline_snapshot import snapshot
+
+
             def test_something():
                 assert "first line\nsecond line" == snapshot(
                     """\

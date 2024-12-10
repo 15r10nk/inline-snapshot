@@ -250,22 +250,26 @@ def project(pytester):
         def __init__(self):
             self.term_columns = 80
 
-        def setup(self, source: str):
-            self.header = """\
+        def setup(self, source: str, add_header=True):
+            if add_header:
+                self.header = """\
 # äöß 🐍
 from inline_snapshot import snapshot
 from inline_snapshot import outsource
 """
-            if "# no imports" in source:
-                self.header = """\
+                if "# no imports" in source:
+                    self.header = """\
 # äöß 🐍
+"""
+                else:
+                    self.header = """\
+# äöß 🐍
+from inline_snapshot import snapshot
+from inline_snapshot import outsource
 """
             else:
-                self.header = """\
-# äöß 🐍
-from inline_snapshot import snapshot
-from inline_snapshot import outsource
-"""
+                self.header = ""
+
             header = self.header
             if not source.startswith(("import ", "from ")):
                 header += "\n\n"

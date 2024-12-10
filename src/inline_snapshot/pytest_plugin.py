@@ -21,6 +21,9 @@ from ._find_external import ensure_import
 from ._inline_snapshot import used_externals
 from ._rewrite_code import ChangeRecorder
 
+pytest.register_assert_rewrite("inline_snapshot.extra")
+pytest.register_assert_rewrite("inline_snapshot.testing._example")
+
 
 def pytest_addoption(parser, pluginmanager):
     group = parser.getgroup("inline-snapshot")
