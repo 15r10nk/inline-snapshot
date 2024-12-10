@@ -45,9 +45,11 @@ class SequenceAdapter(Adapter):
 
     def assign(self, old_value, old_node, new_value):
         if old_node is not None:
-            assert isinstance(
+            if not isinstance(
                 old_node, ast.List if isinstance(old_value, list) else ast.Tuple
-            )
+            ):
+                result = yield from self.value_assign(old_value, old_node, new_value)
+                return result
 
             for e in old_node.elts:
                 if isinstance(e, ast.Starred):

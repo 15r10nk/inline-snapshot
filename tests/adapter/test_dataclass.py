@@ -250,12 +250,7 @@ def test_something():
 """
             }
         ),
-        raises=snapshot(
-            """\
-AssertionError:
-not equal\
-"""
-        ),
+        raises=snapshot(None),
     )
 
 
@@ -490,3 +485,39 @@ assert container(a=1,b=5) == snapshot(container(a=1))
             }
         ),
     ).run_inline()
+
+
+def test_dataclass_var():
+
+    Example(
+        """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+
+@dataclass
+class container:
+    a: int
+
+def test_list():
+    l=container(5)
+    assert l == snapshot(l), "not equal"
+"""
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+
+@dataclass
+class container:
+    a: int
+
+def test_list():
+    l=container(5)
+    assert l == snapshot(container(a=5)), "not equal"
+"""
+            }
+        ),
+    )

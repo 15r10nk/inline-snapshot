@@ -9,8 +9,6 @@ from dataclasses import is_dataclass
 from dataclasses import MISSING
 from typing import Any
 
-from inline_snapshot._adapter.value_adapter import ValueAdapter
-
 from .._change import CallArg
 from .._change import Delete
 from ..syntax_warnings import InlineSnapshotSyntaxWarning
@@ -89,13 +87,9 @@ class GenericCallAdapter(Adapter):
         ]
 
     def assign(self, old_value, old_node, new_value):
-        if old_node is None:
-            value = yield from ValueAdapter(self.context).assign(
-                old_value, old_node, new_value
-            )
-            return value
-
-        assert isinstance(old_node, ast.Call)
+        if old_node is None or not isinstance(old_node, ast.Call):
+            result = yield from self.value_assign(old_value, old_node, new_value)
+            return result
 
         # positional arguments
         for pos_arg in old_node.args:

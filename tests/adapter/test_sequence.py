@@ -28,12 +28,7 @@ def test_list():
 """
             }
         ),
-        raises=snapshot(
-            """\
-AssertionError:
-not equal\
-"""
-        ),
+        raises=snapshot(None),
     )
 
 
@@ -62,12 +57,7 @@ def test_list():
 """
             }
         ),
-        raises=snapshot(
-            """\
-AssertionError:
-not equal\
-"""
-        ),
+        raises=snapshot(None),
     )
 
 
@@ -85,10 +75,31 @@ def test_list():
 """
     ).run_inline(
         changed_files=snapshot({}),
-        raises=snapshot(
-            """\
-AssertionError:
-not equal\
+        raises=snapshot(None),
+    )
+
+
+def test_list_var():
+
+    Example(
+        """\
+from inline_snapshot import snapshot,Is
+
+def test_list():
+    l=[1]
+    assert l == snapshot(l), "not equal"
 """
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot,Is
+
+def test_list():
+    l=[1]
+    assert l == snapshot([1]), "not equal"
+"""
+            }
         ),
     )

@@ -55,8 +55,11 @@ class DictAdapter(Adapter):
 
     def assign(self, old_value, old_node, new_value):
         if old_node is not None:
-            assert isinstance(old_node, ast.Dict)
-            assert len(old_value) == len(old_node.keys)
+            if not (
+                isinstance(old_node, ast.Dict) and len(old_value) == len(old_node.keys)
+            ):
+                result = yield from self.value_assign(old_value, old_node, new_value)
+                return result
 
             for key, value in zip(old_node.keys, old_node.values):
                 if key is None:
