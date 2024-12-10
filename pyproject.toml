@@ -75,13 +75,6 @@ omit = [
 parallel = true
 source_pkgs = ["inline_snapshot", "tests"]
 
-[tool.hatch.envs.coverage]
-dependencies = [
-  "coverage"
-]
-env-vars.TOP = "{root}"
-scripts.report = "coverage html"
-
 [tool.hatch.envs.docs]
 dependencies = [
   "markdown-exec[ansi]>=1.8.0",
@@ -128,6 +121,12 @@ extra-dependencies = [
 ]
 env-vars.TOP = "{root}"
 
+[tool.hatch.envs.hatch-test.scripts]
+run = "pytest{env:HATCH_TEST_ARGS:} {args}"
+run-cov = "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}"
+cov-combine = "coverage combine"
+cov-report=["coverage report","coverage html"]
+
 [tool.hatch.envs.types]
 extra-dependencies = [
   "mypy>=1.0.0",
@@ -172,10 +171,6 @@ venvPath = ".nox"
 [tool.scriv]
 format = "md"
 version = "command: cz bump --get-next"
-
-[tool.inline-snapshot.shortcuts]
-fix=["create","fix"]
-review=["create","review"]
 
 [tool.pytest.ini_options]
 markers=["no_rewriting: marks tests which need no code rewriting and can be used with pypy"]

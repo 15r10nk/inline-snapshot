@@ -144,40 +144,6 @@ assert container(bg=color.red,fg=color.red) == snapshot(container(fg=color.red))
     )
 
 
-def test_dataclass_field_repr(check_update):
-
-    Example(
-        """\
-from inline_snapshot import snapshot
-from dataclasses import dataclass,field
-
-@dataclass
-class container:
-    a: int
-    b: int = field(default=5,repr=False)
-
-assert container(a=1,b=5) == snapshot()
-"""
-    ).run_inline(
-        ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "test_something.py": """\
-from inline_snapshot import snapshot
-from dataclasses import dataclass,field
-
-@dataclass
-class container:
-    a: int
-    b: int = field(default=5,repr=False)
-
-assert container(a=1,b=5) == snapshot(container(a=1))
-"""
-            }
-        ),
-    ).run_inline()
-
-
 def test_flag(check_update):
 
     assert (
@@ -368,3 +334,37 @@ def test_tuple():
             return "FakeTuple()"
 
     assert code_repr(FakeTuple()) == snapshot("FakeTuple()")
+
+
+def test_invalid_repr(check_update):
+    assert (
+        check_update(
+            """\
+class Thing:
+    def __repr__(self):
+        return "+++"
+
+    def __eq__(self,other):
+        if not isinstance(other,Thing):
+            return NotImplemented
+        return True
+
+assert Thing() == snapshot()
+""",
+            flags="create",
+        )
+        == snapshot(
+            """\
+class Thing:
+    def __repr__(self):
+        return "+++"
+
+    def __eq__(self,other):
+        if not isinstance(other,Thing):
+            return NotImplemented
+        return True
+
+assert Thing() == snapshot(HasRepr(Thing, "+++"))
+"""
+        )
+    )

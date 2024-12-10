@@ -27,12 +27,19 @@ pip install inline-snapshot
 ## Key Features
 
 - **Intuitive Semantics:** `snapshot(x)` mirrors `x` for easy understanding.
-- **Versatile Comparison Support:** Equipped with `x == snapshot(...)`, `x <= snapshot(...)`, `x in snapshot(...)`, and `snapshot(...)[key]`.
+- **Versatile Comparison Support:** Equipped with
+    [`x == snapshot(...)`](https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/),
+    [`x <= snapshot(...)`](https://15r10nk.github.io/inline-snapshot/latest/cmp_snapshot/),
+    [`x in snapshot(...)`](https://15r10nk.github.io/inline-snapshot/latest/in_snapshot/), and
+    [`snapshot(...)[key]`](https://15r10nk.github.io/inline-snapshot/latest/getitem_snapshot/).
 - **Enhanced Control Flags:** Utilize various [flags](https://15r10nk.github.io/inline-snapshot/latest/pytest/) for precise control of which snapshots you want to change.
 - **Preserved Black Formatting:** Retains formatting consistency with Black formatting.
 - **External File Storage:** Store snapshots externally using `outsource(data)`.
 - **Seamless Pytest Integration:** Integrated seamlessly with pytest for effortless testing.
 - **Customizable:** code generation can be customized with [@customize_repr](https://15r10nk.github.io/inline-snapshot/latest/customize_repr)
+- **Nested Snapshot Support:** snapshots can contain [other snapshots](https://15r10nk.github.io/inline-snapshot/eq_snapshot/#inner-snapshots)
+- **Fuzzy Matching:** Incorporate [dirty-equals](https://15r10nk.github.io/inline-snapshot/eq_snapshot/#dirty-equals) for flexible comparisons within snapshots.
+- **Dynamic Snapshot Content:** snashots can contain [non-constant values](https://15r10nk.github.io/inline-snapshot/eq_snapshot/#is)
 - **Comprehensive Documentation:** Access detailed [documentation](https://15r10nk.github.io/inline-snapshot/latest) for complete guidance.
 
 

@@ -3,6 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
 from typing import cast
+from typing import DefaultDict
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -11,7 +12,7 @@ from typing import Union
 
 from asttokens.util import Token
 from executing.executing import EnhancedAST
-from executing.executing import Source
+from inline_snapshot._source_file import SourceFile
 
 from ._rewrite_code import ChangeRecorder
 from ._rewrite_code import end_of
@@ -21,11 +22,11 @@ from ._rewrite_code import start_of
 @dataclass()
 class Change:
     flag: str
-    source: Source
+    file: SourceFile
 
     @property
     def filename(self):
-        return self.source.filename
+        return self.file.filename
 
     def apply(self):
         raise NotImplementedError()
@@ -76,7 +77,7 @@ class Replace(Change):
 
     def apply(self):
         change = ChangeRecorder.current.new_change()
-        range = self.source.asttokens().get_text_positions(self.node, False)
+        range = self.file.asttokens().get_text_positions(self.node, False)
         change.replace(range, self.new_code, filename=self.filename)
 
 
@@ -87,40 +88,21 @@ class CallArg(Change):
     arg_name: Optional[str]
 
     new_code: str
-    old_value: Any
     new_value: Any
-
-    def apply(self):
-        change = ChangeRecorder.current.new_change()
-        tokens = list(self.source.asttokens().get_tokens(self.node))
-
-        call = self.node
-        tokens = list(self.source.asttokens().get_tokens(call))
-
-        assert isinstance(call, ast.Call)
-        assert len(call.args) == 0
-        assert len(call.keywords) == 0
-        assert tokens[-2].string == "("
-        assert tokens[-1].string == ")"
-
-        assert self.arg_pos == 0
-        assert self.arg_name == None
-
-        change = ChangeRecorder.current.new_change()
-        change.set_tags("inline_snapshot")
-        change.replace(
-            (end_of(tokens[-2]), start_of(tokens[-1])),
-            self.new_code,
-            filename=self.filename,
-        )
 
 
 TokenRange = Tuple[Token, Token]
 
 
+def brace_tokens(source, node) -> TokenRange:
+    first_token, *_, end_token = source.asttokens().get_tokens(node)
+    return first_token, end_token
+
+
 def generic_sequence_update(
-    source: Source,
-    parent: Union[ast.List, ast.Tuple, ast.Dict],
+    source: SourceFile,
+    parent: Union[ast.List, ast.Tuple, ast.Dict, ast.Call],
+    brace_tokens: TokenRange,
     parent_elements: List[Union[TokenRange, None]],
     to_insert: Dict[int, List[str]],
 ):
@@ -128,7 +110,7 @@ def generic_sequence_update(
 
     new_code = []
     deleted = False
-    last_token, *_, end_token = source.asttokens().get_tokens(parent)
+    last_token, end_token = brace_tokens
     is_start = True
     elements = 0
 
@@ -169,7 +151,7 @@ def generic_sequence_update(
             code = ", " + code
 
         if elements == 1 and isinstance(parent, ast.Tuple):
-            # trailing comma for tuples (1,)i
+            # trailing comma for tuples (1,)
             code += ","
 
         rec.replace(
@@ -180,21 +162,23 @@ def generic_sequence_update(
 
 
 def apply_all(all_changes: List[Change]):
-    by_parent: Dict[EnhancedAST, List[Union[Delete, DictInsert, ListInsert]]] = (
-        defaultdict(list)
-    )
-    sources: Dict[EnhancedAST, Source] = {}
+    by_parent: Dict[
+        EnhancedAST, List[Union[Delete, DictInsert, ListInsert, CallArg]]
+    ] = defaultdict(list)
+    sources: Dict[EnhancedAST, SourceFile] = {}
 
     for change in all_changes:
         if isinstance(change, Delete):
             node = cast(EnhancedAST, change.node).parent
+            if isinstance(node, ast.keyword):
+                node = node.parent
             by_parent[node].append(change)
-            sources[node] = change.source
+            sources[node] = change.file
 
-        elif isinstance(change, (DictInsert, ListInsert)):
+        elif isinstance(change, (DictInsert, ListInsert, CallArg)):
             node = cast(EnhancedAST, change.node)
             by_parent[node].append(change)
-            sources[node] = change.source
+            sources[node] = change.file
         else:
             change.apply()
 
@@ -218,11 +202,57 @@ def apply_all(all_changes: List[Change]):
             generic_sequence_update(
                 source,
                 parent,
+                brace_tokens(source, parent),
                 [None if e in to_delete else list_token_range(e) for e in parent.elts],
                 to_insert,
             )
 
-        elif isinstance(parent, (ast.Dict)):
+        elif isinstance(parent, ast.Call):
+            to_delete = {
+                change.node for change in changes if isinstance(change, Delete)
+            }
+            atok = source.asttokens()
+
+            def arg_token_range(node):
+                if isinstance(node.parent, ast.keyword):
+                    node = node.parent
+                r = list(atok.get_tokens(node))
+                return r[0], r[-1]
+
+            braces_left = atok.next_token(list(atok.get_tokens(parent.func))[-1])
+            assert braces_left.string == "("
+            braces_right = list(atok.get_tokens(parent))[-1]
+            assert braces_right.string == ")"
+
+            to_insert = DefaultDict(list)
+
+            for change in changes:
+                if isinstance(change, CallArg):
+                    if change.arg_name is not None:
+                        position = (
+                            change.arg_pos
+                            if change.arg_pos is not None
+                            else len(parent.args) + len(parent.keywords)
+                        )
+                        to_insert[position].append(
+                            f"{change.arg_name} = {change.new_code}"
+                        )
+                    else:
+                        assert change.arg_pos is not None
+                        to_insert[change.arg_pos].append(change.new_code)
+
+            generic_sequence_update(
+                source,
+                parent,
+                (braces_left, braces_right),
+                [
+                    None if e in to_delete else arg_token_range(e)
+                    for e in parent.args + [kw.value for kw in parent.keywords]
+                ],
+                to_insert,
+            )
+
+        elif isinstance(parent, ast.Dict):
             to_delete = {
                 change.node for change in changes if isinstance(change, Delete)
             }
@@ -241,6 +271,7 @@ def apply_all(all_changes: List[Change]):
             generic_sequence_update(
                 source,
                 parent,
+                brace_tokens(source, parent),
                 [
                     None if value in to_delete else dict_token_range(key, value)
                     for key, value in zip(parent.keys, parent.values)
