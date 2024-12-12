@@ -104,7 +104,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#0151-2024-12-10" class="md-skip">
+        <a href="#0160-2024-12-12" class="md-skip">
           Skip to content
         </a>
       
@@ -843,9 +843,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#added" class="md-nav__link">
     <span class="md-ellipsis">
-      Fixed
+      Added
     </span>
   </a>
   
@@ -886,9 +886,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#added" class="md-nav__link">
     <span class="md-ellipsis">
-      Fixed
+      Added
     </span>
   </a>
   
@@ -912,6 +912,16 @@
   
 
 
+<p><a id='changelog-0.16.0'></a></p>
+<h1 id="0160-2024-12-12">0.16.0 — 2024-12-12<a class="headerlink" href="#0160-2024-12-12" title="Permanent link">&para;</a></h1>
+<h2 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://15r10nk.github.io/inline-snapshot/latest/extra/#inline_snapshot.extra.warns"><code>inline_snapshot.extra.warns</code></a> to captures warnings and compares them against expected warnings.
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span> <span class="nf">test_warns</span><span class="p">():</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">with</span> <span class="n">warns</span><span class="p">(</span><span class="n">snapshot</span><span class="p">([(</span><span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;UserWarning: some problem&quot;</span><span class="p">)]),</span> <span class="n">include_line</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;some problem&quot;</span><span class="p">)</span>
+</code></pre></div></li>
+</ul>
 <p><a id='changelog-0.15.1'></a></p>
 <h1 id="0151-2024-12-10">0.15.1 — 2024-12-10<a class="headerlink" href="#0151-2024-12-10" title="Permanent link">&para;</a></h1>
 <h2 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h2>
@@ -920,28 +930,28 @@
 </ul>
 <p><a id='changelog-0.15.0'></a></p>
 <h1 id="0150-2024-12-10">0.15.0 — 2024-12-10<a class="headerlink" href="#0150-2024-12-10" title="Permanent link">&para;</a></h1>
-<h2 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h2>
+<h2 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p>snapshots <a href="https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#inner-snapshots">inside snapshots</a> are now supported.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">assert</span> <span class="n">get_schema</span><span class="p">()</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="p">[</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="p">{</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;var_1&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">snapshot</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">version</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">snapshot</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">),</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="p">}</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="p">]</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">assert</span> <span class="n">get_schema</span><span class="p">()</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="p">[</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="p">{</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;var_1&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">snapshot</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">version</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">snapshot</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">),</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="p">}</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="p">]</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">)</span>
 </code></pre></div>
 </li>
 <li>
 <p><a href="https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#is">runtime values</a> can now be part of snapshots.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">Is</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">current_version</span> <span class="o">=</span> <span class="s2">&quot;1.5&quot;</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">assert</span> <span class="n">request</span><span class="p">()</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;page data&quot;</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">Is</span><span class="p">(</span><span class="n">current_version</span><span class="p">)}</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">inline_snapshot</span> <span class="kn">import</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">Is</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">current_version</span> <span class="o">=</span> <span class="s2">&quot;1.5&quot;</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">assert</span> <span class="n">request</span><span class="p">()</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;page data&quot;</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">Is</span><span class="p">(</span><span class="n">current_version</span><span class="p">)}</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">)</span>
 </code></pre></div>
 </li>
 <li>
@@ -987,7 +997,7 @@
 <li>removed the <code>"Programming Language :: Python :: Implementation :: PyPy"</code> classifier which was incorrect, because inline-snapshot can not fix snapshots on pypy.
   inline-snapshot now enforces <code>--inline-snapshot=disable</code> when used with an implementation other than cpython, which allows it to be used in packages that want to support pypy.</li>
 </ul>
-<h2 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h2>
+<h2 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>command line shortcuts can be defined to simplify your workflows. <code>--review</code> and <code>--fix</code> are defined by default. See the <a href="https://15r10nk.github.io/inline-snapshot/latest/configuration/">documentation</a> for details.</li>
 </ul>
@@ -1013,18 +1023,18 @@
 <h2 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li>star-expressions in list or dicts where never valid and cause a warning now.
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    other=[2]
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    assert [5,2]==snapshot([5,*other])
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>    other=[2]
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    assert [5,2]==snapshot([5,*other])
 </code></pre></div></li>
 </ul>
 <h2 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p>A snapshot which contains an dirty-equals expression can now be compared multiple times.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span> <span class="nf">test_something</span><span class="p">():</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">greeting</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;alex&quot;</span><span class="p">,</span> <span class="s2">&quot;bob&quot;</span><span class="p">]:</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>        <span class="k">assert</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">greeting</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">((</span><span class="n">IsString</span><span class="p">(),</span> <span class="s2">&quot;hello&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span> <span class="nf">test_something</span><span class="p">():</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">greeting</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;alex&quot;</span><span class="p">,</span> <span class="s2">&quot;bob&quot;</span><span class="p">]:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        <span class="k">assert</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">greeting</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">((</span><span class="n">IsString</span><span class="p">(),</span> <span class="s2">&quot;hello&quot;</span><span class="p">))</span>
 </code></pre></div>
 <h2 id="v0131-2024-09-18">v0.13.1 (2024-09-18)<a class="headerlink" href="#v0131-2024-09-18" title="Permanent link">&para;</a></h2>
 </li>
@@ -1192,10 +1202,10 @@
 <h3 id="fix_15">Fix<a class="headerlink" href="#fix_15" title="Permanent link">&para;</a></h3>
 <ul>
 <li>snapshot the current value of mutable objects
-  <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">assert</span> <span class="n">l</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># old behaviour: snapshot([1, 2])</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">assert</span> <span class="n">l</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+  <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">assert</span> <span class="n">l</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># old behaviour: snapshot([1, 2])</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">assert</span> <span class="n">l</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 </code></pre></div></li>
 </ul>
 <h2 id="v021-2023-07-09">v0.2.1 (2023-07-09)<a class="headerlink" href="#v021-2023-07-09" title="Permanent link">&para;</a></h2>
@@ -1213,11 +1223,11 @@
 </li>
 <li>
 <p>convert strings with newlines to triple quoted strings
-  <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">assert</span> <span class="s2">&quot;a</span><span class="se">\n</span><span class="s2">b</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;a</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="sd">b</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">)</span>
+  <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">assert</span> <span class="s2">&quot;a</span><span class="se">\n</span><span class="s2">b</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;a</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="sd">b</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">)</span>
 </code></pre></div></p>
 </li>
 <li>preserve black formatting</li>
