@@ -1,4 +1,16 @@
 
+<a id='changelog-0.16.0'></a>
+# 0.16.0 — 2024-12-12
+
+## Added
+
+- [`inline_snapshot.extra.warns`](https://15r10nk.github.io/inline-snapshot/latest/extra/#inline_snapshot.extra.warns) to captures warnings and compares them against expected warnings.
+    ``` python
+    def test_warns():
+        with warns(snapshot([(8, "UserWarning: some problem")]), include_line=True):
+            warn("some problem")
+    ```
+
 <a id='changelog-0.15.1'></a>
 # 0.15.1 — 2024-12-10
 
