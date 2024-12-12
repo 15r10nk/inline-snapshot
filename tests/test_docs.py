@@ -293,9 +293,9 @@ line-length=80
             args = ["--inline-snapshot", ",".join(flags)] if flags else []
 
             if flags and "first_block" not in options:
-                project.setup(last_code)
+                project.setup(last_code, add_header=False)
             else:
-                project.setup(code)
+                project.setup(code, add_header=False)
 
             if extra_files:
                 all_files = [

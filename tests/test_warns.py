@@ -1,8 +1,7 @@
 import warnings
 
 from inline_snapshot import snapshot
-
-from tests.warns import warns
+from inline_snapshot.extra import warns
 
 
 def test_warns():

@@ -25,6 +25,9 @@ Example:
 
 <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
 ``` python
+from inline_snapshot import snapshot
+
+
 def test_something():
     assert 5 == snapshot()
 
@@ -37,7 +40,10 @@ def test_something():
 ```
 
 <!-- inline-snapshot: create outcome-passed=1 -->
-``` python hl_lines="2 4 6 8"
+``` python hl_lines="5 7 9 11"
+from inline_snapshot import snapshot
+
+
 def test_something():
     assert 5 == snapshot(5)
 
@@ -60,6 +66,9 @@ The result of each comparison is `True` if you change something from this catego
 
 <!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
 ``` python
+from inline_snapshot import snapshot
+
+
 def test_something():
     assert 8 == snapshot(5)
 
@@ -72,7 +81,10 @@ def test_something():
 ```
 
 <!-- inline-snapshot: fix outcome-passed=1 -->
-``` python hl_lines="2 4 6 8"
+``` python hl_lines="5 7 9 11"
+from inline_snapshot import snapshot
+
+
 def test_something():
     assert 8 == snapshot(8)
 
@@ -102,6 +114,9 @@ These changes are made when parts of the snapshots are removed which are no long
 
 <!-- inline-snapshot: first_block outcome-passed=1 -->
 ``` python
+from inline_snapshot import snapshot
+
+
 def test_something():
     assert 2 <= snapshot(8)
 
@@ -112,7 +127,10 @@ def test_something():
 ```
 
 <!-- inline-snapshot: trim outcome-passed=1 -->
-``` python hl_lines="2 4 6"
+``` python hl_lines="5 7 9"
+from inline_snapshot import snapshot
+
+
 def test_something():
     assert 2 <= snapshot(2)
 
@@ -130,6 +148,8 @@ There might be problems in cases where you use the same snapshot in different te
 
 <!-- todo-inline-snapshot: first_block outcome-passed=2 -->
 ``` python
+from inline_snapshot import snapshot
+
 s = snapshot(5)
 
 
@@ -143,6 +163,8 @@ def test_b():
 
 <!-- todo-inline-snapshot: trim outcome-passed=2 -->
 ``` python hl_lines="1"
+from inline_snapshot import snapshot
+
 s = snapshot(2)
 
 
@@ -167,6 +189,9 @@ Changes in the update category do not change the value in the code, just the rep
 === "original"
     <!-- inline-snapshot: first_block outcome-passed=1 -->
     ``` python
+    from inline_snapshot import snapshot
+
+
     class Vector:
         def __init__(self, x, y):
             self.x = x
@@ -193,7 +218,10 @@ Changes in the update category do not change the value in the code, just the rep
 === "--inline-snapshot=update"
 
     <!-- inline-snapshot: update outcome-passed=1 -->
-    ``` python hl_lines="17 18 19 20 21 22 23 25 27"
+    ``` python hl_lines="20 21 22 23 24 25 26 28 30"
+    from inline_snapshot import snapshot
+
+
     class Vector:
         def __init__(self, x, y):
             self.x = x

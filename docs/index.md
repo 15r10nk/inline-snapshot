@@ -56,7 +56,10 @@ your code is correct and you want to update your test results.
 
 === "changed code"
     <!-- inline-snapshot: outcome-failed=1 outcome-errors=1 -->
-    ``` python hl_lines="2"
+    ``` python hl_lines="5"
+    from inline_snapshot import snapshot
+
+
     def something():
         return (1548 * 18489) // 18
 
@@ -68,7 +71,10 @@ your code is correct and you want to update your test results.
 
 === "--inline-snapshot=fix"
     <!-- inline-snapshot: fix outcome-passed=1 -->
-    ``` python hl_lines="6"
+    ``` python hl_lines="9"
+    from inline_snapshot import snapshot
+
+
     def something():
         return (1548 * 18489) // 18
 
@@ -95,6 +101,9 @@ You can use `snapshot(x)` like you can use `x` in your assertion with a limited 
     The following code will not work:
     <!-- inline-snapshot: first_block show_error outcome-failed=1 -->
     ``` python
+    from inline_snapshot import snapshot
+
+
     def test_something():
         s = snapshot(5)
         assert 5 <= s
@@ -115,6 +124,9 @@ It is possible to place `snapshot()` anywhere in the tests and reuse it multiple
 
     <!-- inline-snapshot: first_block outcome-passed=2 outcome-errors=2 -->
     ``` python
+    from inline_snapshot import snapshot
+
+
     def something():
         return 21 * 2
 
@@ -135,7 +147,10 @@ It is possible to place `snapshot()` anywhere in the tests and reuse it multiple
 === "--inline-snapshot=create"
 
     <!-- inline-snapshot: create outcome-passed=2 -->
-    ``` python hl_lines="5"
+    ``` python hl_lines="8"
+    from inline_snapshot import snapshot
+
+
     def something():
         return 21 * 2
 
@@ -158,13 +173,19 @@ It is possible to place `snapshot()` anywhere in the tests and reuse it multiple
 === "original code"
     <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
     ``` python
+    from inline_snapshot import snapshot
+
+
     def test_loop():
         for name in ["Mia", "Eva", "Leo"]:
             assert len(name) == snapshot()
     ```
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ``` python hl_lines="3"
+    ``` python hl_lines="6"
+    from inline_snapshot import snapshot
+
+
     def test_loop():
         for name in ["Mia", "Eva", "Leo"]:
             assert len(name) == snapshot(3)
@@ -176,6 +197,9 @@ or passed as an argument to a function:
 === "original code"
     <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
     ``` python
+    from inline_snapshot import snapshot
+
+
     def check_string_len(string, snapshot_value):
         assert len(string) == snapshot_value
 
@@ -188,7 +212,10 @@ or passed as an argument to a function:
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ``` python hl_lines="6 7 8"
+    ``` python hl_lines="9 10 11"
+    from inline_snapshot import snapshot
+
+
     def check_string_len(string, snapshot_value):
         assert len(string) == snapshot_value
 

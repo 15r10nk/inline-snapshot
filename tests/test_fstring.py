@@ -1,7 +1,6 @@
 from inline_snapshot import snapshot
+from inline_snapshot.extra import warns
 from inline_snapshot.testing import Example
-
-from .warns import warns
 
 
 def test_fstring():
