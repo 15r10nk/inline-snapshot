@@ -156,6 +156,134 @@ def test_something():
     )
 
 
+def test_attrs_default_value():
+    Example(
+        """\
+from inline_snapshot import snapshot,Is
+import attrs
+
+@attrs.define
+class A:
+    a:int
+    b:int=2
+    c:list=attrs.field(factory=list)
+    d:int=attrs.field(default=attrs.Factory(lambda self:self.a+10,takes_self=True))
+
+def test_something():
+    assert A(a=1) == snapshot(A(a=1,b=2,c=[],d=11))
+    assert A(a=2,b=3) == snapshot(A(a=1,b=2,c=[],d=11))
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot,Is
+import attrs
+
+@attrs.define
+class A:
+    a:int
+    b:int=2
+    c:list=attrs.field(factory=list)
+    d:int=attrs.field(default=attrs.Factory(lambda self:self.a+10,takes_self=True))
+
+def test_something():
+    assert A(a=1) == snapshot(A(a=1,b=2,c=[],d=11))
+    assert A(a=2,b=3) == snapshot(A(a=2,b=3,c=[],d=11))
+"""
+            }
+        ),
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot,Is
+import attrs
+
+@attrs.define
+class A:
+    a:int
+    b:int=2
+    c:list=attrs.field(factory=list)
+    d:int=attrs.field(default=attrs.Factory(lambda self:self.a+10,takes_self=True))
+
+def test_something():
+    assert A(a=1) == snapshot(A(a=1))
+    assert A(a=2,b=3) == snapshot(A(a=2,b=3))
+"""
+            }
+        ),
+    )
+
+
+def test_attrs_field_repr():
+
+    Example(
+        """\
+from inline_snapshot import snapshot
+from pydantic import BaseModel,Field
+import attrs
+
+@attrs.define
+class container:
+    a: int
+    b: int = attrs.field(default=5,repr=False)
+
+assert container(a=1,b=5) == snapshot()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot
+from pydantic import BaseModel,Field
+import attrs
+
+@attrs.define
+class container:
+    a: int
+    b: int = attrs.field(default=5,repr=False)
+
+assert container(a=1,b=5) == snapshot(container(a=1))
+"""
+            }
+        ),
+    ).run_inline()
+
+
+def test_attrs_unmanaged():
+    Example(
+        """\
+import datetime as dt
+import uuid
+
+import attrs
+
+from dirty_equals import IsDatetime
+from inline_snapshot import Is, snapshot
+
+
+@attrs.define
+class Attrs:
+    ts: dt.datetime
+    id: uuid.UUID
+
+def test():
+    id = uuid.uuid4()
+
+    assert snapshot(Attrs(ts=IsDatetime(), id=Is(id))) == Attrs(
+        dt.datetime.now(), id
+    )
+"""
+    ).run_inline(
+        ["--inline-snapshot=create,fix"],
+        changed_files=snapshot({}),
+    ).run_inline()
+
+
 def test_disabled(executing_used):
     Example(
         """\
