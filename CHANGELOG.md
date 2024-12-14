@@ -1,4 +1,33 @@
 
+<a id='changelog-0.17.0'></a>
+# 0.17.0 — 2024-12-14
+
+## Added
+
+- [attrs](https://www.attrs.org/en/stable/index.html) can now contain unmanaged values
+
+    ``` python
+    import datetime as dt
+    import uuid
+    import attrs
+    from dirty_equals import IsDatetime
+    from inline_snapshot import Is, snapshot
+
+
+    @attrs.define
+    class Attrs:
+        ts: dt.datetime
+        id: uuid.UUID
+
+
+    def test():
+        id = uuid.uuid4()
+
+        assert Attrs(dt.datetime.now(), id) == snapshot(
+            Attrs(ts=IsDatetime(), id=Is(id))
+        )
+    ```
+
 <a id='changelog-0.16.0'></a>
 # 0.16.0 — 2024-12-12
 
