@@ -63,8 +63,9 @@ inline-snapshot is able to handle these types within the following containers:
 * list
 * tuple
 * dict
-* namedtuple
-* dataclass
+* [namedtuple](https://docs.python.org/3/library/collections.html#collections.namedtuple)
+* [dataclass](https://docs.python.org/3/library/dataclasses.html)
+* [attrs](https://www.attrs.org/en/stable/index.html)
 <!--
 * pydantic models
 * attrs

@@ -247,6 +247,55 @@ class DataclassAdapter(GenericCallAdapter):
 
 
 try:
+    import attrs
+except ImportError:  # pragma: no cover
+    pass
+else:
+
+    class AttrAdapter(GenericCallAdapter):
+
+        @classmethod
+        def check_type(cls, value):
+            return attrs.has(value)
+
+        @classmethod
+        def arguments(cls, value):
+
+            kwargs = {}
+
+            for field in attrs.fields(type(value)):
+                if field.repr:
+                    field_value = getattr(value, field.name)
+                    is_default = False
+
+                    if field.default is not attrs.NOTHING:
+
+                        default_value = (
+                            field.default
+                            if not isinstance(field.default, attrs.Factory)
+                            else (
+                                field.default.factory()
+                                if not field.default.takes_self
+                                else field.default.factory(value)
+                            )
+                        )
+
+                        if default_value == field_value:
+
+                            is_default = True
+
+                    kwargs[field.name] = Argument(
+                        value=field_value, is_default=is_default
+                    )
+
+            return ([], kwargs)
+
+        def argument(self, value, pos_or_name):
+            assert isinstance(pos_or_name, str)
+            return getattr(value, pos_or_name)
+
+
+try:
     from pydantic import BaseModel
 except ImportError:  # pragma: no cover
     pass
