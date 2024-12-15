@@ -258,6 +258,7 @@ class Example:
                 term_columns + 1 if platform.system() == "Windows" else term_columns
             )
             command_env.pop("CI", None)
+            command_env.pop("GITHUB_ACTIONS", None)
 
             if stdin:
                 # makes Console.is_terminal == True
