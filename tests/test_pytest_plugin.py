@@ -674,6 +674,7 @@ These changes will be applied, because you used create
 These changes will be applied, because you used fix\
 """
         ),
+        returncode=1,
     )
 
 
@@ -809,7 +810,7 @@ def test_outsource():
     )
 
 
-def test_find_pyproject_in_parent_directories(tmp_path):
+def test_find_pyproject_in_parent_directories():
 
     Example(
         {
@@ -837,6 +838,7 @@ def test_something():
 """
             }
         ),
+        returncode=1,
     )
 
 

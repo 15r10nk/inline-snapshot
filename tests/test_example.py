@@ -19,6 +19,7 @@ def test_a():
 
     e.run_pytest(
         ["--inline-snapshot=create,fix"],
+        returncode=1,
     )
 
     e.run_inline(

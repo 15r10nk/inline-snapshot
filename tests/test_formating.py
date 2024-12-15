@@ -102,6 +102,7 @@ def test_a():
 """
             }
         ),
+        returncode=1,
     )
 
 
@@ -174,6 +175,7 @@ some problem\
 """
             )
         ),
+        returncode=1,
     )
 
 
@@ -250,4 +252,5 @@ def test_a():
 """
             }
         ),
+        returncode=1,
     )
