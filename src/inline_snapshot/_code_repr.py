@@ -119,12 +119,27 @@ def _(value: Flag):
     return " | ".join(f"{name}.{flag.name}" for flag in type(value) if flag in value)
 
 
+def sort_set_values(set_values):
+    is_sorted = False
+    try:
+        set_values = sorted(set_values)
+        is_sorted = True
+    except TypeError:
+        pass
+
+    set_values = list(map(repr, set_values))
+    if not is_sorted:
+        set_values = sorted(set_values)
+
+    return set_values
+
+
 @customize_repr
 def _(value: set):
     if len(value) == 0:
         return "set()"
 
-    return "{" + ", ".join(map(repr, value)) + "}"
+    return "{" + ", ".join(sort_set_values(value)) + "}"
 
 
 @customize_repr
@@ -132,7 +147,7 @@ def _(value: frozenset):
     if len(value) == 0:
         return "frozenset()"
 
-    return "frozenset({" + ", ".join(map(repr, value)) + "})"
+    return "frozenset({" + ", ".join(sort_set_values(value)) + "})"
 
 
 @customize_repr

@@ -310,6 +310,16 @@ def test_datatypes(d):
     assert d == eval(code)
 
 
+def test_set():
+    assert code_repr({1, 2, 3, "a", True, "b"}) == snapshot("{'a', 'b', 1, 2, 3}")
+    assert code_repr({1j, 2j, 3j, "a", True, "b"}) == snapshot(
+        "{'a', 'b', 1j, 2j, 3j, True}"
+    )
+    assert code_repr({1, 2, 3, 10, 11, 20, 200}) == snapshot(
+        "{1, 2, 3, 10, 11, 20, 200}"
+    )
+
+
 def test_datatypes_explicit():
     assert code_repr(C(a=1, c=2)) == snapshot("C(a=1, c=2)")
     assert code_repr(B(b=5)) == snapshot("B(b=5)")
