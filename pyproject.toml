@@ -152,9 +152,14 @@ create=[
 publish=[
     "git push --force-with-lease",
     "git push --tags",
+]
+
+# only as an backup now
+publish-package=[
     "- rm dist/*",
     "hatch build",
-    "hatch publish"
+    "hatch publish",
+    "scriv github-release"
 ]
 
 [[tool.hatch.envs.types.matrix]]
