@@ -80,3 +80,8 @@ repos:
   - id: validate-pyproject
     # Optional extra validations from SchemaStore:
     additional_dependencies: ['validate-pyproject-schema-store[all]']
+
+- repo: https://github.com/rhysd/actionlint
+  rev: v1.7.4
+  hooks:
+  - id: actionlint
