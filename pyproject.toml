@@ -88,7 +88,7 @@ dependencies = [
 ]
 
 [tool.hatch.envs.docs.scripts]
-build = "mkdocs build"
+build = "mkdocs build --strict"
 deploy = "mkdocs gh-deploy"
 export-deps = "pip freeze"
 serve = "mkdocs serve"
