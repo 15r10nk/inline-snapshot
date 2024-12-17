@@ -1,4 +1,15 @@
 
+<a id='changelog-0.17.1'></a>
+# 0.17.1 — 2024-12-17
+
+## Fixed
+
+- Code generation for sets is now deterministic.
+  ``` python
+  def test():
+      assert {1j, 2j, 1, 2, 3} == snapshot({1, 1j, 2, 2j, 3})
+  ```
+
 <a id='changelog-0.17.0'></a>
 # 0.17.0 — 2024-12-14
 
