@@ -102,6 +102,8 @@ jobs:
     permissions:
       # IMPORTANT: this permission is mandatory for Trusted Publishing
       id-token: write
+      # this permission is mandatory to create github releases
+      contents: write
 
     steps:
     - name: Checkout main
