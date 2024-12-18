@@ -485,6 +485,7 @@ def test_L2():
 """
             }
         ),
+        returncode=snapshot(1),
     )
 
 
