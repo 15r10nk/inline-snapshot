@@ -18,3 +18,7 @@ fix=["create","fix"]
 
 * **shortcuts:** allows you to define custom commands to simplify your workflows.
     `--fix` and `--review` are defined by default, but this configuration can be changed to fit your needs.
+
+* **snapshot-dir:** allows you to define the directory where external files will be stored.
+    By default, it will be `<pytest_config_dir>/.inline-snapshot/external`,
+    where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
