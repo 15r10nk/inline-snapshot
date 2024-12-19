@@ -2,7 +2,7 @@ from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
 
 
-def test_pydantic_repr():
+def test_pydantic_create_snapshot(pydantic_version):
 
     Example(
         """
@@ -15,11 +15,14 @@ class M(BaseModel):
     age:int=4
 
 def test_pydantic():
-    assert M(size=5,name="Tom")==snapshot()
+    m=M(size=5,name="Tom")
+    assert m==snapshot()
+    assert m.dict()==snapshot()
 
     """
-    ).run_inline(
+    ).run_pytest(
         ["--inline-snapshot=create"],
+        extra_dependencies=[pydantic_version],
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -33,10 +36,87 @@ class M(BaseModel):
     age:int=4
 
 def test_pydantic():
-    assert M(size=5,name="Tom")==snapshot(M(size=5, name="Tom"))
+    m=M(size=5,name="Tom")
+    assert m==snapshot(M(size=5, name="Tom"))
+    assert m.dict()==snapshot({"size": 5, "name": "Tom", "age": 4})
 
     \
 """
             }
         ),
-    ).run_inline()
+    ).run_pytest(
+        ["--inline-snapshot=disable"]
+    )
+
+
+def test_pydantic_field_repr(pydantic_version):
+
+    Example(
+        """\
+from inline_snapshot import snapshot
+from pydantic import BaseModel,Field
+
+class container(BaseModel):
+    a: int
+    b: int = Field(default=5,repr=False)
+
+assert container(a=1,b=5) == snapshot()
+"""
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        extra_dependencies=[pydantic_version],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot
+from pydantic import BaseModel,Field
+
+class container(BaseModel):
+    a: int
+    b: int = Field(default=5,repr=False)
+
+assert container(a=1,b=5) == snapshot(container(a=1))
+"""
+            }
+        ),
+    ).run_pytest(
+        ["--inline-snapshot=disable"]
+    )
+
+
+def test_pydantic_default_value(pydantic_version):
+    Example(
+        """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+from pydantic import BaseModel,Field
+
+class A(BaseModel):
+    a:int
+    b:int=2
+    c:list=Field(default_factory=list)
+
+def test_something():
+    assert A(a=1) == snapshot(A(a=1,b=2,c=[]))
+"""
+    ).run_pytest(
+        ["--inline-snapshot=update"],
+        extra_dependencies=[pydantic_version],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+from pydantic import BaseModel,Field
+
+class A(BaseModel):
+    a:int
+    b:int=2
+    c:list=Field(default_factory=list)
+
+def test_something():
+    assert A(a=1) == snapshot(A(a=1))
+"""
+            }
+        ),
+    )

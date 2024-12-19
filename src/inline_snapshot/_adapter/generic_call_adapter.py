@@ -296,11 +296,26 @@ else:
 
 
 try:
-    from pydantic import BaseModel
+    import pydantic
 except ImportError:  # pragma: no cover
     pass
 else:
-    from pydantic_core import PydanticUndefined
+    # import pydantic
+    if pydantic.version.VERSION.startswith("1."):
+        # pydantic v1
+        from pydantic.fields import Undefined as PydanticUndefined  # type: ignore[attr-defined,no-redef]
+
+        def get_fields(value):
+            return value.__fields__
+
+    else:
+        # pydantic v2
+        from pydantic_core import PydanticUndefined
+
+        def get_fields(value):
+            return value.model_fields
+
+    from pydantic import BaseModel
 
     class PydanticContainer(GenericCallAdapter):
 
@@ -313,8 +328,8 @@ else:
 
             kwargs = {}
 
-            for name, field in value.model_fields.items():  # type: ignore
-                if field.repr:
+            for name, field in get_fields(value).items():  # type: ignore
+                if getattr(field, "repr", True):
                     field_value = getattr(value, name)
                     is_default = False
 
