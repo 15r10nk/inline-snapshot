@@ -77,6 +77,8 @@ def pytest_configure(config):
 
     directory = config.rootpath
     while not (pyproject := directory / "pyproject.toml").exists():
+        if directory == directory.parent:
+            break
         directory = directory.parent
     _config.config = _config.read_config(pyproject)
 
