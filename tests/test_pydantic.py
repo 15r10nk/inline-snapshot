@@ -2,7 +2,7 @@ from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
 
 
-def test_pydantic_repr():
+def test_pydantic_repr(pydantic_version):
 
     Example(
         """
@@ -18,8 +18,9 @@ def test_pydantic():
     assert M(size=5,name="Tom")==snapshot()
 
     """
-    ).run_inline(
+    ).run_pytest(
         ["--inline-snapshot=create"],
+        extra_dependencies=[pydantic_version],
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -39,4 +40,4 @@ def test_pydantic():
 """
             }
         ),
-    ).run_inline()
+    ).run_pytest()

@@ -82,7 +82,7 @@ def test_something():
     )
 
 
-def test_pydantic_default_value():
+def test_pydantic_default_value(pydantic_version):
     Example(
         """\
 from inline_snapshot import snapshot,Is
@@ -97,8 +97,9 @@ class A(BaseModel):
 def test_something():
     assert A(a=1) == snapshot(A(a=1,b=2,c=[]))
 """
-    ).run_inline(
+    ).run_pytest(
         ["--inline-snapshot=update"],
+        extra_dependencies=[pydantic_version],
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -173,8 +174,9 @@ def test_something():
     assert A(a=1) == snapshot(A(a=1,b=2,c=[],d=11))
     assert A(a=2,b=3) == snapshot(A(a=1,b=2,c=[],d=11))
 """
-    ).run_inline(
+    ).run_pytest(
         ["--inline-snapshot=fix"],
+        extra_dependencies=["attrs"],
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -194,8 +196,9 @@ def test_something():
 """
             }
         ),
-    ).run_inline(
+    ).run_pytest(
         ["--inline-snapshot=update"],
+        extra_dependencies=["attrs"],
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -223,7 +226,6 @@ def test_attrs_field_repr():
     Example(
         """\
 from inline_snapshot import snapshot
-from pydantic import BaseModel,Field
 import attrs
 
 @attrs.define
@@ -233,13 +235,13 @@ class container:
 
 assert container(a=1,b=5) == snapshot()
 """
-    ).run_inline(
+    ).run_pytest(
         ["--inline-snapshot=create"],
+        extra_dependencies=["attrs"],
         changed_files=snapshot(
             {
                 "test_something.py": """\
 from inline_snapshot import snapshot
-from pydantic import BaseModel,Field
 import attrs
 
 @attrs.define
@@ -251,7 +253,9 @@ assert container(a=1,b=5) == snapshot(container(a=1))
 """
             }
         ),
-    ).run_inline()
+    ).run_pytest(
+        extra_dependencies=["attrs"],
+    )
 
 
 def test_attrs_unmanaged():
@@ -278,10 +282,13 @@ def test():
         dt.datetime.now(), id
     )
 """
-    ).run_inline(
+    ).run_pytest(
         ["--inline-snapshot=create,fix"],
+        extra_dependencies=["attrs"],
         changed_files=snapshot({}),
-    ).run_inline()
+    ).run_pytest(
+        extra_dependencies=["attrs"],
+    )
 
 
 def test_disabled(executing_used):
@@ -582,7 +589,7 @@ assert container(a=1,b=5) == snapshot(container(a=1))
     ).run_inline()
 
 
-def test_pydantic_field_repr():
+def test_pydantic_field_repr(pydantic_version):
 
     Example(
         """\
@@ -595,8 +602,9 @@ class container(BaseModel):
 
 assert container(a=1,b=5) == snapshot()
 """
-    ).run_inline(
+    ).run_pytest(
         ["--inline-snapshot=create"],
+        extra_dependencies=[pydantic_version],
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -611,7 +619,7 @@ assert container(a=1,b=5) == snapshot(container(a=1))
 """
             }
         ),
-    ).run_inline()
+    ).run_pytest()
 
 
 def test_dataclass_var():
