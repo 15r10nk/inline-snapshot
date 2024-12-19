@@ -43,6 +43,11 @@ def check_pypy(request):
     yield
 
 
+@pytest.fixture(params=["pydantic>=2.0.0", "pydantic<2.0.0"])
+def pydantic_version(request):
+    yield request.param
+
+
 @pytest.fixture()
 def check_update(source):
     def w(source_code, *, flags="", reported_flags=None, number=1):
