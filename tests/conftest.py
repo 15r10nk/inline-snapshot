@@ -321,8 +321,8 @@ def set_time(freezer):
         def write_file(self, filename, content):
             (pytester.path / filename).write_text(content, "utf-8")
 
-        def storage(self):
-            dir = pytester.path / ".inline-snapshot" / "external"
+        def storage(self, snapshot_dir=".inline-snapshot/external"):
+            dir = pytester.path / snapshot_dir
 
             if not dir.exists():
                 return []
