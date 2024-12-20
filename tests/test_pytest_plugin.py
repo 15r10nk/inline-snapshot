@@ -727,7 +727,6 @@ ERROR: --inline-snapshot=creaigflen is a unknown flag
     )
 
 
-
 def test_snapshot_dir_config(project):
     project.pyproject(
         """
@@ -747,14 +746,16 @@ def test_outsource():
 
     result = project.run("--inline-snapshot=create")
     assert result.ret == 0
-    assert project.source == snapshot("""\
+    assert project.source == snapshot(
+        """\
 from inline_snapshot import outsource, snapshot
 
 from inline_snapshot import external
 
 def test_outsource():
     assert outsource("hello", suffix=".html") == snapshot(external("2cf24dba5fb0*.html"))
-""")
+"""
+    )
 
     project.run("--inline-snapshot=fix")
     assert result.ret == 0
