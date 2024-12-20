@@ -80,7 +80,7 @@ class external:
 
         The external data is by default stored inside `<pytest_config_dir>/.inline-snapshot/external`,
         where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
-        To store the data in a different location, set the `snapshot-dir` option in pyproject.toml.
+        To store data in a different location, set the `storage-dir` option in pyproject.toml.
         Data which is outsourced but not referenced in the source code jet has a '-new' suffix in the filename.
 
         Parameters:

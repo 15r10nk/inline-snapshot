@@ -22,4 +22,4 @@ fix=["create","fix"]
 * **storage-dir:** allows you to define the directory where inline-snapshot stores data files such as external snapshots.
     By default, it will be `<pytest_config_dir>/.inline-snapshot`,
     where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
-    External snapshots will be stored in the `external` subfolder.
+    External snapshots will be stored in the `external` subfolder of the storage directory.
