@@ -113,11 +113,11 @@ def pytest_configure(config):
 
         _inline_snapshot._update_flags = _inline_snapshot.Flags(flags & categories)
 
-    snapshot_path = (
-        _config.config.snapshot_dir or config.rootpath / ".inline-snapshot/external"
-    )
+    external_storage = (
+        _config.config.storage_dir or config.rootpath / ".inline-snapshot"
+    ) / "external"
 
-    _external.storage = _external.DiscStorage(snapshot_path)
+    _external.storage = _external.DiscStorage(external_storage)
 
     if flags - {"short-report", "disable"}:
 

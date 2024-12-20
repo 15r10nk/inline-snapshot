@@ -12,7 +12,7 @@ Uncomment the section that is right (remove the HTML comment wrapper).
 -->
 ### Added
 
-- Support for a new `snapshot-dir` configuration option, to tell inline-snapshot where to save external files.
+- Support for a new `storage-dir` configuration option, to tell inline-snapshot where to store data files such as external snapshots.
 
 <!--
 ### Changed

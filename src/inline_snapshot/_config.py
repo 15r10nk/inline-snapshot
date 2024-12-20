@@ -19,7 +19,7 @@ class Config:
     hash_length: int = 12
     default_flags: List[str] = field(default_factory=lambda: ["short-report"])
     shortcuts: Dict[str, List[str]] = field(default_factory=dict)
-    snapshot_dir: Optional[Path] = None
+    storage_dir: Optional[Path] = None
 
 
 config = Config()
@@ -50,12 +50,12 @@ def read_config(path: Path) -> Config:
                 "shortcuts", {"fix": ["create", "fix"], "review": ["review"]}
             )
 
-            if snapshot_dir := config.get("snapshot-dir"):
-                snapshot_dir = Path(snapshot_dir)
-                if not snapshot_dir.is_absolute():
+            if storage_dir := config.get("storage-dir"):
+                storage_dir = Path(storage_dir)
+                if not storage_dir.is_absolute():
                     # Make it relative to pyproject.toml, and absolute.
-                    snapshot_dir = path.parent.joinpath(snapshot_dir).absolute()
-                result.snapshot_dir = snapshot_dir
+                    storage_dir = path.parent.joinpath(storage_dir).absolute()
+                result.storage_dir = storage_dir
 
     env_var = "INLINE_SNAPSHOT_DEFAULT_FLAGS"
     if env_var in os.environ:
