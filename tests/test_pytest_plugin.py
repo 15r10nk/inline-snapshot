@@ -777,16 +777,7 @@ def test_find_pyproject_in_parent_directories(tmp_path, monkeypatch):
     from inline_snapshot.pytest_plugin import pytest_configure
     from inline_snapshot import _config
 
-    config_dir = tmp_path / "config"
-    config_dir.mkdir()
-    pyproject_upper = tmp_path / "pyproject.toml"
-    pyproject_upper.touch()
-    pyproject_lower = config_dir / "pyproject.toml"
-    pyproject_lower.touch()
-
-    config = MagicMock()
-    config.rootpath = tmp_path / "config"
-
+    # Prepare our "record and explode" monkeypatch.
     class EarlyBubble(Exception):
         def __init__(self, value):
             self.value = value
@@ -796,14 +787,38 @@ def test_find_pyproject_in_parent_directories(tmp_path, monkeypatch):
 
     monkeypatch.setattr(_config, "read_config", read_config)
 
+    # Prepare our file layout.
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+
+    pyproject_upper = tmp_path / "pyproject.toml"
+    pyproject_upper.touch()
+    pyproject_lower = config_dir / "pyproject.toml"
+    pyproject_lower.touch()
+    pyproject_root = tmp_path.parents[-1] / "pyproject.toml"
+
+    # Prepare a config object.
+    config = MagicMock()
+    config.rootpath = tmp_path / "config"
+
+    # Assert we find the closest pyproject.toml.
     try:
         pytest_configure(config)
     except EarlyBubble as bubble:
         assert bubble.value == pyproject_lower
 
+    # Unlink it and assert we find the upper one.
     pyproject_lower.unlink()
 
     try:
         pytest_configure(config)
     except EarlyBubble as bubble:
         assert bubble.value == pyproject_upper
+
+    # Unlink it again and assert we use the root one, whether it exists or not.
+    pyproject_upper.unlink()
+
+    try:
+        pytest_configure(config)
+    except EarlyBubble as bubble:
+        assert bubble.value == pyproject_root
