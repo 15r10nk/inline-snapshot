@@ -872,6 +872,12 @@
 <p><strong>shortcuts:</strong> allows you to define custom commands to simplify your workflows.
     <code>--fix</code> and <code>--review</code> are defined by default, but this configuration can be changed to fit your needs.</p>
 </li>
+<li>
+<p><strong>storage-dir:</strong> allows you to define the directory where inline-snapshot stores data files such as external snapshots.
+    By default, it will be <code>&lt;pytest_config_dir&gt;/.inline-snapshot</code>,
+    where <code>&lt;pytest_config_dir&gt;</code> is replaced by the directory containing the Pytest configuration file, if any.
+    External snapshots will be stored in the <code>external</code> subfolder of the storage directory.</p>
+</li>
 </ul>
 
 
