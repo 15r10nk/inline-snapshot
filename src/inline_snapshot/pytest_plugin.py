@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from inline_snapshot._problems import report_problems
+from inline_snapshot.pydantic_fix import pydantic_fix
 from rich import box
 from rich.console import Console
 from rich.panel import Panel
@@ -126,6 +127,8 @@ def pytest_configure(config):
         sys.meta_path = [
             e for e in sys.meta_path if type(e).__name__ != "AssertionRewritingHook"
         ]
+
+    pydantic_fix()
 
     _external.storage.prune_new_files()
 

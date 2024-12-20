@@ -109,6 +109,11 @@ matrix.pytest.dependencies = [
 
 
 [tool.hatch.envs.hatch-test]
+# Info for everyone who packages this library:
+# The following dependencies are installed with uv during the pytest run
+# and used for specific tests in specific versions:
+#  - pydantic v1 & v2
+#  - attrs
 extra-dependencies = [
   "dirty-equals>=0.7.0",
   "hypothesis>=6.75.5",
@@ -116,8 +121,6 @@ extra-dependencies = [
   "pyright>=1.1.359",
   "pytest-subtests>=0.11.0",
   "pytest-freezer>=0.4.8",
-  "pydantic",
-  "attrs",
   "pytest-mock>=3.14.0"
 ]
 env-vars.TOP = "{root}"
