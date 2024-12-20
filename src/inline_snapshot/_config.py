@@ -5,6 +5,7 @@ from dataclasses import field
 from pathlib import Path
 from typing import Dict
 from typing import List
+from typing import Optional
 
 
 if sys.version_info >= (3, 11):
@@ -18,7 +19,7 @@ class Config:
     hash_length: int = 12
     default_flags: List[str] = field(default_factory=lambda: ["short-report"])
     shortcuts: Dict[str, List[str]] = field(default_factory=dict)
-    snapshot_dir: Path | None = None
+    snapshot_dir: Optional[Path] = None
 
 
 config = Config()
