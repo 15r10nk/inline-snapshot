@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from inline_snapshot._problems import report_problems
+from inline_snapshot.pydantic_fix import pydantic_fix
 from rich import box
 from rich.console import Console
 from rich.panel import Panel
@@ -118,9 +119,11 @@ def pytest_configure(config):
 
         _inline_snapshot._update_flags = _inline_snapshot.Flags(flags & categories)
 
-    snapshot_path = Path(config.rootpath) / ".inline-snapshot/external"
+    external_storage = (
+        _config.config.storage_dir or config.rootpath / ".inline-snapshot"
+    ) / "external"
 
-    _external.storage = _external.DiscStorage(snapshot_path)
+    _external.storage = _external.DiscStorage(external_storage)
 
     if flags - {"short-report", "disable"}:
 
@@ -129,6 +132,8 @@ def pytest_configure(config):
         sys.meta_path = [
             e for e in sys.meta_path if type(e).__name__ != "AssertionRewritingHook"
         ]
+
+    pydantic_fix()
 
     _external.storage.prune_new_files()
 

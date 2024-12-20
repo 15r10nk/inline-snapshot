@@ -43,6 +43,11 @@ def check_pypy(request):
     yield
 
 
+@pytest.fixture(params=["pydantic>=2.0.0", "pydantic<2.0.0"])
+def pydantic_version(request):
+    yield request.param
+
+
 @pytest.fixture()
 def check_update(source):
     def w(source_code, *, flags="", reported_flags=None, number=1):
@@ -321,8 +326,12 @@ def set_time(freezer):
         def write_file(self, filename, content):
             (pytester.path / filename).write_text(content, "utf-8")
 
-        def storage(self):
-            dir = pytester.path / ".inline-snapshot" / "external"
+        def storage(self, storage_dir=".inline-snapshot"):
+            if os.path.isabs(storage_dir):
+                dir = Path(storage_dir)
+            else:
+                dir = pytester.path / storage_dir
+            dir /= "external"
 
             if not dir.exists():
                 return []
