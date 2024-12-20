@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import MagicMock
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
 
@@ -725,3 +726,39 @@ ERROR: --inline-snapshot=creaigflen is a unknown flag
 """
         ),
     )
+
+
+def test_find_pyproject_in_parent_directories(tmp_path, monkeypatch):
+    from inline_snapshot.pytest_plugin import pytest_configure
+    from inline_snapshot import _config
+
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    pyproject_upper = tmp_path / "pyproject.toml"
+    pyproject_upper.touch()
+    pyproject_lower = config_dir / "pyproject.toml"
+    pyproject_lower.touch()
+
+    config = MagicMock()
+    config.rootpath = tmp_path / "config"
+
+    class EarlyBubble(Exception):
+        def __init__(self, value):
+            self.value = value
+
+    def read_config(path):
+        raise EarlyBubble(path)
+
+    monkeypatch.setattr(_config, "read_config", read_config)
+
+    try:
+        pytest_configure(config)
+    except EarlyBubble as bubble:
+        assert bubble.value == pyproject_lower
+
+    pyproject_lower.unlink()
+
+    try:
+        pytest_configure(config)
+    except EarlyBubble as bubble:
+        assert bubble.value == pyproject_upper
