@@ -727,11 +727,15 @@ ERROR: --inline-snapshot=creaigflen is a unknown flag
     )
 
 
-def test_snapshot_dir_config(project):
+@pytest.mark.parametrize("snapshot_dir", ["tests/snapshots", None])
+def test_snapshot_dir_config(project, tmp_path, snapshot_dir):
+    if not snapshot_dir:
+        snapshot_dir = tmp_path / "snapshots"
+
     project.pyproject(
-        """
+        f"""
 [tool.inline-snapshot]
-snapshot-dir = "tests/snapshots"
+snapshot-dir = "{snapshot_dir}"
 """
     )
 
@@ -760,4 +764,4 @@ def test_outsource():
     project.run("--inline-snapshot=fix")
     assert result.ret == 0
 
-    assert project.storage("tests/snapshots")
+    assert project.storage(snapshot_dir)
