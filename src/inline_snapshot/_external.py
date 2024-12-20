@@ -78,8 +78,9 @@ class external:
         """External objects are used as a representation for outsourced data.
         You should not create them directly.
 
-        The external data is stored inside `<pytest_config_dir>/.inline_snapshot/external`,
+        The external data is by default stored inside `<pytest_config_dir>/.inline-snapshot/external`,
         where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
+        To store data in a different location, set the `storage-dir` option in pyproject.toml.
         Data which is outsourced but not referenced in the source code jet has a '-new' suffix in the filename.
 
         Parameters:

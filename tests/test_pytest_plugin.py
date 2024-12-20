@@ -725,3 +725,47 @@ ERROR: --inline-snapshot=creaigflen is a unknown flag
 """
         ),
     )
+
+
+@pytest.mark.parametrize("storage_dir", ["tests/snapshots", None])
+def test_storage_dir_config(project, tmp_path, storage_dir):
+    # Relative path case: `tests/snapshots` (parametrized).
+    # Absolute path case: `tmp_path / "snapshots"` (parametrized as `None`).
+    if not storage_dir:
+        storage_dir = tmp_path / "snapshots"
+
+    project.pyproject(
+        f"""
+[tool.inline-snapshot]
+storage-dir = "{storage_dir}"
+"""
+    )
+
+    project.setup(
+        """
+from inline_snapshot import outsource, snapshot
+
+def test_outsource():
+    assert outsource("hello", suffix=".html") == snapshot()
+"""
+    )
+
+    result = project.run("--inline-snapshot=create")
+    assert result.ret == 0
+    assert project.source == snapshot(
+        """\
+from inline_snapshot import outsource, snapshot
+
+from inline_snapshot import external
+
+def test_outsource():
+    assert outsource("hello", suffix=".html") == snapshot(external("2cf24dba5fb0*.html"))
+"""
+    )
+
+    project.run("--inline-snapshot=fix")
+    assert result.ret == 0
+
+    assert project.storage(storage_dir) == snapshot(
+        ["2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824.html"]
+    )
