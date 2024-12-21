@@ -769,3 +769,34 @@ def test_outsource():
     assert project.storage(storage_dir) == snapshot(
         ["2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824.html"]
     )
+
+
+def test_find_pyproject_in_parent_directories(tmp_path):
+
+    Example(
+        {
+            "pyproject.toml": """\
+[tool.inline-snapshot]
+hash-length=2
+""",
+            "project/pytest.ini": "",
+            "project/test_something.py": """\
+from inline_snapshot import outsource,snapshot,external
+
+def test_something():
+    assert outsource("test") == snapshot()
+""",
+        }
+    ).run_pytest(
+        ["--rootdir", "./project", "--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "project/test_something.py": """\
+from inline_snapshot import outsource,snapshot,external
+
+def test_something():
+    assert outsource("test") == snapshot(external("9f*.txt"))
+"""
+            }
+        ),
+    )

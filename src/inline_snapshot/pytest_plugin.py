@@ -76,7 +76,12 @@ def is_implementation_supported():
 def pytest_configure(config):
     global flags
 
-    _config.config = _config.read_config(config.rootpath / "pyproject.toml")
+    directory = config.rootpath
+    while not (pyproject := directory / "pyproject.toml").exists():
+        if directory == directory.parent:
+            break
+        directory = directory.parent
+    _config.config = _config.read_config(pyproject)
 
     if config.option.inline_snapshot is None:
         flags = set(_config.config.default_flags)
