@@ -99,10 +99,16 @@ class Example:
 
     def _write_files(self, dir: Path):
         for name, content in self.files.items():
-            (dir / name).write_text(content)
+            filename = dir / name
+            filename.parent.mkdir(exist_ok=True, parents=True)
+            filename.write_text(content)
 
     def _read_files(self, dir: Path):
-        return {p.name: p.read_text() for p in dir.iterdir() if p.is_file()}
+        return {
+            str(p.relative_to(dir)): p.read_text()
+            for p in [*dir.iterdir(), *dir.rglob("*.py")]
+            if p.is_file()
+        }
 
     def run_inline(
         self,

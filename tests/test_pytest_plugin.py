@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 import pytest
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
@@ -773,52 +771,32 @@ def test_outsource():
     )
 
 
-def test_find_pyproject_in_parent_directories(tmp_path, monkeypatch):
-    from inline_snapshot.pytest_plugin import pytest_configure
-    from inline_snapshot import _config
+def test_find_pyproject_in_parent_directories(tmp_path):
 
-    # Prepare our "record and explode" monkeypatch.
-    class EarlyBubble(Exception):
-        def __init__(self, value):
-            self.value = value
+    Example(
+        {
+            "pyproject.toml": """\
+[tool.inline-snapshot]
+hash-length=2
+""",
+            "project/pytest.ini": "",
+            "project/test_something.py": """\
+from inline_snapshot import outsource,snapshot,external
 
-    def read_config(path):
-        raise EarlyBubble(path)
+def test_something():
+    assert outsource("test") == snapshot()
+""",
+        }
+    ).run_pytest(
+        ["--rootdir", "./project", "--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "project/test_something.py": """\
+from inline_snapshot import outsource,snapshot,external
 
-    monkeypatch.setattr(_config, "read_config", read_config)
-
-    # Prepare our file layout.
-    config_dir = tmp_path / "config"
-    config_dir.mkdir()
-
-    pyproject_upper = tmp_path / "pyproject.toml"
-    pyproject_upper.touch()
-    pyproject_lower = config_dir / "pyproject.toml"
-    pyproject_lower.touch()
-    pyproject_root = tmp_path.parents[-1] / "pyproject.toml"
-
-    # Prepare a config object.
-    config = MagicMock()
-    config.rootpath = tmp_path / "config"
-
-    # Assert we find the closest pyproject.toml.
-    try:
-        pytest_configure(config)
-    except EarlyBubble as bubble:
-        assert bubble.value == pyproject_lower
-
-    # Unlink it and assert we find the upper one.
-    pyproject_lower.unlink()
-
-    try:
-        pytest_configure(config)
-    except EarlyBubble as bubble:
-        assert bubble.value == pyproject_upper
-
-    # Unlink it again and assert we use the root one, whether it exists or not.
-    pyproject_upper.unlink()
-
-    try:
-        pytest_configure(config)
-    except EarlyBubble as bubble:
-        assert bubble.value == pyproject_root
+def test_something():
+    assert outsource("test") == snapshot(external("9f*.txt"))
+"""
+            }
+        ),
+    )
