@@ -1,4 +1,28 @@
 
+<a id='changelog-0.18.0'></a>
+# 0.18.0 — 2024-12-21
+
+## Added
+
+- Support for a new `storage-dir` configuration option, to tell inline-snapshot where to store data files such as external snapshots.
+
+## Fixed
+
+- pydantic v1 is supported again. pydantic v1 & v2 create now the same snapshots. You can use `.dict()` to get the same snapshots like in inline-snapshot-0.15.0 for pydantic v1.
+
+    ``` python
+    class M(BaseModel):
+        name: str
+
+
+    def test_pydantic():
+        m = M(name="Tom")
+        assert m == snapshot(M(name="Tom"))
+        assert m.dict() == snapshot({"name": "Tom"})
+    ```
+
+- Find `pyproject.toml` file in parent directories, not just next to the Pytest configuration file.
+
 <a id='changelog-0.17.1'></a>
 # 0.17.1 — 2024-12-17
 
