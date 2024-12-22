@@ -1,4 +1,12 @@
 
+<a id='changelog-0.18.1'></a>
+# 0.18.1 — 2024-12-22
+
+## Fixed
+
+- uv is now only used during test time if you run the inline-snapshot tests with `pytest --use-uv`
+  This solves a problem if you want to package inline-snapshot in distributions (#165)
+
 <a id='changelog-0.18.0'></a>
 # 0.18.0 — 2024-12-21
 
