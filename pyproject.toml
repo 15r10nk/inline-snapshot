@@ -110,10 +110,12 @@ matrix.pytest.dependencies = [
 
 [tool.hatch.envs.hatch-test]
 # Info for everyone who packages this library:
-# The following dependencies are installed with uv during the pytest run
+# The following dependencies are installed with uv if you run `pytest --use-uv`
 # and used for specific tests in specific versions:
 #  - pydantic v1 & v2
 #  - attrs
+# But you dont have to use uv to test this library.
+# You can also just install the dependencies and use `pytest` normally
 extra-dependencies = [
   "dirty-equals>=0.7.0",
   "hypothesis>=6.75.5",
@@ -126,8 +128,8 @@ extra-dependencies = [
 env-vars.TOP = "{root}"
 
 [tool.hatch.envs.hatch-test.scripts]
-run = "pytest{env:HATCH_TEST_ARGS:} {args}"
-run-cov = "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}"
+run = "pytest{env:HATCH_TEST_ARGS:} --use-uv {args}"
+run-cov = "coverage run -m pytest{env:HATCH_TEST_ARGS:} --use-uv {args}"
 cov-combine = "coverage combine"
 cov-report=["coverage report","coverage html"]
 

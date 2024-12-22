@@ -22,7 +22,7 @@ def test_pydantic():
     """
     ).run_pytest(
         ["--inline-snapshot=create"],
-        extra_dependencies=[pydantic_version],
+        extra_dependencies=pydantic_version,
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -64,7 +64,7 @@ assert container(a=1,b=5) == snapshot()
 """
     ).run_pytest(
         ["--inline-snapshot=create"],
-        extra_dependencies=[pydantic_version],
+        extra_dependencies=pydantic_version,
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -101,7 +101,7 @@ def test_something():
 """
     ).run_pytest(
         ["--inline-snapshot=update"],
-        extra_dependencies=[pydantic_version],
+        extra_dependencies=pydantic_version,
         changed_files=snapshot(
             {
                 "test_something.py": """\
