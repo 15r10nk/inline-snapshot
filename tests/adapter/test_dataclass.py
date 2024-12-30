@@ -1,4 +1,3 @@
-import pytest
 from inline_snapshot import snapshot
 from inline_snapshot.extra import warns
 from inline_snapshot.testing._example import Example
@@ -120,12 +119,7 @@ def test_something():
     )
 
 
-@pytest.fixture
-def attrs_deps(use_uv):
-    yield (["attrs"] if use_uv else [])
-
-
-def test_attrs_default_value(attrs_deps):
+def test_attrs_default_value():
     Example(
         """\
 from inline_snapshot import snapshot,Is
@@ -144,7 +138,6 @@ def test_something():
 """
     ).run_pytest(
         ["--inline-snapshot=fix"],
-        extra_dependencies=attrs_deps,
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -166,7 +159,6 @@ def test_something():
         ),
     ).run_pytest(
         ["--inline-snapshot=update"],
-        extra_dependencies=attrs_deps,
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -189,7 +181,7 @@ def test_something():
     )
 
 
-def test_attrs_field_repr(attrs_deps):
+def test_attrs_field_repr():
 
     Example(
         """\
@@ -205,7 +197,6 @@ assert container(a=1,b=5) == snapshot()
 """
     ).run_pytest(
         ["--inline-snapshot=create"],
-        extra_dependencies=attrs_deps,
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -221,12 +212,10 @@ assert container(a=1,b=5) == snapshot(container(a=1))
 """
             }
         ),
-    ).run_pytest(
-        extra_dependencies=attrs_deps,
-    )
+    ).run_pytest()
 
 
-def test_attrs_unmanaged(attrs_deps):
+def test_attrs_unmanaged():
     Example(
         """\
 import datetime as dt
@@ -252,11 +241,8 @@ def test():
 """
     ).run_pytest(
         ["--inline-snapshot=create,fix"],
-        extra_dependencies=attrs_deps,
         changed_files=snapshot({}),
-    ).run_pytest(
-        extra_dependencies=attrs_deps,
-    )
+    ).run_pytest()
 
 
 def test_disabled(executing_used):

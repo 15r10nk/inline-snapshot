@@ -2,7 +2,7 @@ from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
 
 
-def test_pydantic_create_snapshot(pydantic_version):
+def test_pydantic_create_snapshot():
 
     Example(
         """
@@ -22,7 +22,6 @@ def test_pydantic():
     """
     ).run_pytest(
         ["--inline-snapshot=create"],
-        extra_dependencies=pydantic_version,
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -49,7 +48,7 @@ def test_pydantic():
     )
 
 
-def test_pydantic_field_repr(pydantic_version):
+def test_pydantic_field_repr():
 
     Example(
         """\
@@ -64,7 +63,6 @@ assert container(a=1,b=5) == snapshot()
 """
     ).run_pytest(
         ["--inline-snapshot=create"],
-        extra_dependencies=pydantic_version,
         changed_files=snapshot(
             {
                 "test_something.py": """\
@@ -84,7 +82,7 @@ assert container(a=1,b=5) == snapshot(container(a=1))
     )
 
 
-def test_pydantic_default_value(pydantic_version):
+def test_pydantic_default_value():
     Example(
         """\
 from inline_snapshot import snapshot,Is
@@ -101,7 +99,6 @@ def test_something():
 """
     ).run_pytest(
         ["--inline-snapshot=update"],
-        extra_dependencies=pydantic_version,
         changed_files=snapshot(
             {
                 "test_something.py": """\

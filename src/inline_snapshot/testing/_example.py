@@ -235,7 +235,6 @@ class Example:
         self,
         args: list[str] = [],
         *,
-        extra_dependencies: list[str] = [],
         env: dict[str, str] = {},
         changed_files: Snapshot[dict[str, str]] | None = None,
         report: Snapshot[str] | None = None,
@@ -275,13 +274,6 @@ class Example:
             command_env.pop("CI", None)
 
             command_env.update(env)
-
-            if extra_dependencies:
-                uv_cmd = ["uv", "run"]
-                for dependency in extra_dependencies:
-                    uv_cmd.append(f"--with={dependency}")
-
-                cmd = uv_cmd + cmd
 
             result = sp.run(cmd, cwd=tmp_path, capture_output=True, env=command_env)
 
