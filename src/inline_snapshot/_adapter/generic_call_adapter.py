@@ -313,7 +313,7 @@ else:
         from pydantic_core import PydanticUndefined
 
         def get_fields(value):
-            return value.model_fields
+            return type(value).model_fields
 
     from pydantic import BaseModel
 
