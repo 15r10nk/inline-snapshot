@@ -862,13 +862,16 @@
 <p>Contributions are welcome.
 Please create an issue before writing a pull request so we can discuss what needs to be changed.</p>
 <h1 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h1>
-<p>The code can be tested with <a href="https://nox.thea.codes/en/stable/">nox</a></p>
+<p>The code can be tested with <a href="https://hatch.pypa.io/latest/tutorials/testing/overview/">hatch</a></p>
 <ul>
-<li><code>nox</code> can be used to test all supported python versions and to check for coverage.</li>
-<li><code>nox -e test-3.10 -- --sw</code> runs pytest for python 3.10 with the <code>--sw</code> argument.</li>
+<li><code>hatch test</code> can be used to test all supported python versions and to check for coverage.</li>
+<li><code>hatch test -py 3.10 -- --sw</code> runs pytest for python 3.10 with the <code>--sw</code> argument.</li>
 </ul>
+<p>The preferred way to test inline-snapshot is by using <a href="https://15r10nk.github.io/inline-snapshot/latest/testing/"><code>inline-snapshot.texting.Example</code></a>.
+You will see some other fixtures which are used inside the tests, but these are old ways to write the tests and I try to use the new <code>Example</code> class to write new tests.</p>
 <h1 id="coverage">Coverage<a class="headerlink" href="#coverage" title="Permanent link">&para;</a></h1>
-<p>This project has a hard coverage requirement of 100%.
+<p>This project has a hard coverage requirement of 100% (which is checked in CI).
+You can also check the coverage locally with <code>hatch test -acp</code>.
 The goal here is to find different edge cases which might have bugs.</p>
 <p>However, it is possible to exclude some code from the coverage.</p>
 <p>Code can be marked with <code>pragma: no cover</code>, if it can not be tested for some reason.
