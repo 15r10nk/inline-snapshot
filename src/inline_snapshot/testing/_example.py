@@ -5,6 +5,7 @@ import os
 import platform
 import re
 import subprocess as sp
+import sys
 import traceback
 from argparse import ArgumentParser
 from io import StringIO
@@ -262,7 +263,7 @@ class Example:
             tmp_path = Path(dir)
             self._write_files(tmp_path)
 
-            cmd = ["python", "-m", "pytest", *args]
+            cmd = [sys.executable, "-m", "pytest", *args]
 
             term_columns = 80
 
