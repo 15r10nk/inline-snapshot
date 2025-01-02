@@ -11,7 +11,7 @@ def pydantic_fix():
 
     try:
         from pydantic import BaseModel
-    except ImportError:
+    except ImportError:  # pragma: no cover
         return
 
     import pydantic

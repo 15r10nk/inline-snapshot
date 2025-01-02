@@ -39,6 +39,23 @@ readme = "README.md"
 requires-python = ">=3.8"
 version = "0.18.1"
 
+[dependency-groups]
+dev = [
+    "hypothesis>=6.75.5",
+    "mypy>=1.2.0",
+    "pyright>=1.1.359",
+    "pytest-subtests>=0.11.0",
+    "pytest-freezer>=0.4.8",
+    "pytest-mock>=3.14.0",
+    "pytest-xdist>=3.6.1",
+    "coverage[toml]>=7.6.1",
+    "coverage-enable-subprocess>=1.0",
+    "pytest>=8",
+    "dirty-equals>=0.7.0",
+    "attrs>=24.3.0",
+    "pydantic>=1",
+]
+
 [project.entry-points.pytest11]
 inline_snapshot = "inline_snapshot.pytest_plugin"
 
@@ -86,6 +103,8 @@ dependencies = [
   "pytest",
   "black"
 ]
+[tool.hatch.envs.default]
+installer="uv"
 
 [tool.hatch.envs.docs.scripts]
 build = "mkdocs build --strict"
@@ -99,23 +118,17 @@ scripts.update="cog -r docs/**.md"
 
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ["3.13", "3.12", "3.11", "3.10", "3.9", "3.8","pypy3.9","pypy3.10"]
-pytest=["8.3.3","8.3.4"]
+extra-deps=["low","hight"]
 
 [tool.hatch.envs.hatch-test.overrides]
-matrix.pytest.dependencies = [
-  { value = "pytest==8.3.3", if = ["8.3.3"] },
-  { value = "pytest>=8.3.4", if = ["8.3.4"] },
+matrix.extra-deps.dependencies = [
+  { value = "pytest==8.3.3", if = ["low"] },
+  { value = "pytest>=8.3.4", if = ["hight"] },
+  { value = "pydantic<2", if = ["low"] },
+  { value = "pydantic>=2", if = ["hight"] },
 ]
 
-
 [tool.hatch.envs.hatch-test]
-# Info for everyone who packages this library:
-# The following dependencies are installed with uv if you run `pytest --use-uv`
-# and used for specific tests in specific versions:
-#  - pydantic v1 & v2
-#  - attrs
-# But you dont have to use uv to test this library.
-# You can also just install the dependencies and use `pytest` normally
 extra-dependencies = [
   "dirty-equals>=0.7.0",
   "hypothesis>=6.75.5",
@@ -142,18 +155,34 @@ extra-dependencies = [
   "attrs"
 ]
 
+[[tool.hatch.envs.types.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12","3.13"]
+
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/inline_snapshot tests}"
+
+[tool.mypy]
+exclude = "tests/.*_samples"
+
+[tool.pyright]
+venv = "test-3-12"
+venvPath = ".nox"
+
+
 [tool.hatch.envs.release]
 detached=true
 dependencies=[
     "scriv",
     "commitizen"
 ]
+
 [tool.hatch.envs.release.scripts]
 create=[
    "scriv collect",
     "- pre-commit run -a",
     "cz bump"
 ]
+
 publish=[
     "git push --force-with-lease",
     "git push --tags",
@@ -167,18 +196,6 @@ publish-package=[
     "scriv github-release"
 ]
 
-[[tool.hatch.envs.types.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12","3.13"]
-
-[tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/inline_snapshot tests}"
-
-[tool.mypy]
-exclude = "tests/.*_samples"
-
-[tool.pyright]
-venv = "test-3-12"
-venvPath = ".nox"
 
 
 [tool.scriv]

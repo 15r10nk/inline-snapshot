@@ -52,23 +52,6 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture
-def use_uv(request):
-    yield request.config.getoption("--use-uv")
-
-
-@pytest.fixture(params=["pydantic>=2.0.0", "pydantic<2.0.0"])
-def pydantic_version(request):
-    use_uv = request.config.getoption("--use-uv")
-
-    if use_uv:
-        yield [request.param]
-    else:  # pragma: no cover
-        if request.param == "pydantic<2.0.0":
-            pytest.skip()
-        yield []
-
-
 @pytest.fixture()
 def check_update(source):
     def w(source_code, *, flags="", reported_flags=None, number=1):
