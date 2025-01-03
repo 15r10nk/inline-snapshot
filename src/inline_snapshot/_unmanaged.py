@@ -17,11 +17,21 @@ else:
 
 
 def update_allowed(value):
-    return not (is_dirty_equal(value) or isinstance(value, (Is, Snapshot)))  # type: ignore
+    global unmanaged_types
+    return not (is_dirty_equal(value) or isinstance(value, tuple(unmanaged_types)))  # type: ignore
+
+
+unmanaged_types = [Is, Snapshot]
 
 
 def is_unmanaged(value):
     return not update_allowed(value)
+
+
+def declare_unmanaged(typ):
+    global unmanaged_types
+    unmanaged_types.append(typ)
+    return typ
 
 
 class Unmanaged:

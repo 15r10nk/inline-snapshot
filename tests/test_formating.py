@@ -1,8 +1,12 @@
+import re
+import sys
 from types import SimpleNamespace
 
 from click.testing import CliRunner
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
+
+from tests._is_normalized import normalization
 
 
 def test_black_formatting_error(mocker):
@@ -33,7 +37,7 @@ def test_something():
         ),
         report=snapshot(
             """\
-─────────────────────────────────── Problems ───────────────────────────────────
+----------------------------------- Problems -----------------------------------
 black could not format your code, which might be caused by this issue:
     https://github.com/15r10nk/inline-snapshot/issues/138
 """
@@ -57,3 +61,138 @@ def test_a():
     return None
     """
     ).run_pytest(returncode=0)
+
+
+def test_format_command():
+    Example(
+        {
+            "fmt_cmd.py": """
+from ast import parse,unparse
+from sys import stdin
+
+text=stdin.read().encode("utf-8")
+print(unparse(parse(text)))
+""",
+            "pyproject.toml": f"""\
+[tool.inline-snapshot]
+format-command="{sys.executable} fmt_cmd.py {{filename}}"
+""",
+            "test_a.py": """
+from inline_snapshot import snapshot
+
+def test_a():
+    assert "5" ==            snapshot('''3''')
+""",
+        }
+    ).run_pytest(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "test_a.py": """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert '5' == snapshot('5')
+"""
+            }
+        ),
+    )
+
+
+def test_format_command_fail():
+
+    @normalization
+    def NoPaths(text):
+        return re.sub("/[^ ]*/", "/.../", text, flags=re.MULTILINE)
+
+    Example(
+        {
+            "fmt_cmd.py": """
+import sys
+print("some problem")
+sys.exit(1)
+""",
+            "pyproject.toml": f"""\
+[tool.inline-snapshot]
+format-command="{sys.executable} fmt_cmd.py {{filename}}"
+""",
+            "test_a.py": """
+from inline_snapshot import snapshot
+
+def test_a():
+    assert "5" ==            snapshot('''3''')
+""",
+        }
+    ).run_pytest(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "test_a.py": """\
+
+from inline_snapshot import snapshot
+
+def test_a():
+    assert "5" ==            snapshot('5')
+"""
+            }
+        ),
+        report=NoPaths(
+            snapshot(
+                """\
+-------------------------------- Fix snapshots ---------------------------------
++--------------------------------- test_a.py ----------------------------------+
+| @@ -2,4 +2,4 @@                                                              |
+|                                                                              |
+|  from inline_snapshot import snapshot                                        |
+|                                                                              |
+|  def test_a():                                                               |
+| -    assert "5" ==            snapshot('''3''')                              |
+| +    assert "5" ==            snapshot('5')                                  |
++------------------------------------------------------------------------------+
+These changes will be applied, because you used --inline-snapshot=fix
+----------------------------------- Problems -----------------------------------
+The format_command
+'/.../python3 fmt_cmd.py /.../test_a.py' caused the
+following error:
+some problem\
+"""
+            )
+        ),
+    )
+
+
+def test_no_black(mocker):
+
+    mocker.patch.dict(sys.modules, {"black": None})
+
+    Example(
+        {
+            "test_a.py": """
+from inline_snapshot import snapshot
+
+def test_a():
+    assert "5" ==            snapshot('''3''')
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "test_a.py": """\
+
+from inline_snapshot import snapshot
+
+def test_a():
+    assert "5" ==            snapshot('5')
+"""
+            }
+        ),
+        report=snapshot(
+            """\
+----------------------------------- Problems -----------------------------------
+You did not specify a format-command in you config and you did not installed ⏎
+inline-snapshot[black] for black support.
+
+"""
+        ),
+    )

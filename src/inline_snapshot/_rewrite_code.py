@@ -13,7 +13,9 @@ from itertools import islice
 import asttokens.util
 from asttokens import LineNumbers
 
+from ._format import enforce_formatting
 from ._format import format_code
+
 
 if sys.version_info >= (3, 10):
     from itertools import pairwise
@@ -158,9 +160,11 @@ class SourceFile:
 
         code = self.filename.read_text("utf-8")
 
-        is_formatted = code == format_code(code, self.filename)
+        format_whole_file = enforce_formatting() or code == format_code(
+            code, self.filename
+        )
 
-        if not is_formatted:
+        if not format_whole_file:
             logging.info(f"file is not formatted with black: {self.filename}")
             import black
 
@@ -180,7 +184,7 @@ class SourceFile:
             ],
         )
 
-        if is_formatted:
+        if format_whole_file:
             new_code = format_code(new_code, self.filename)
 
         return new_code
