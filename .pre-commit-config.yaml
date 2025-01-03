@@ -27,6 +27,14 @@ repos:
   repo: https://github.com/myint/autoflake
   rev: v2.3.1
 
+- repo: local
+  hooks:
+  - id: replace-words
+    name: Replace Words
+    entry: python3 scripts/replace_words.py
+    language: system
+    files: \.(md|py)$
+
 - repo: https://github.com/asottile/setup-cfg-fmt
   rev: v2.5.0
   hooks:

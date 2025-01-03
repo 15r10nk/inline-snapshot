@@ -19,6 +19,7 @@ class Config:
     hash_length: int = 12
     default_flags: List[str] = field(default_factory=lambda: ["short-report"])
     shortcuts: Dict[str, List[str]] = field(default_factory=dict)
+    format_command: Optional[str] = None
     storage_dir: Optional[Path] = None
 
 
@@ -56,6 +57,8 @@ def read_config(path: Path) -> Config:
             # Make it relative to pyproject.toml, and absolute.
             storage_dir = path.parent.joinpath(storage_dir).absolute()
         result.storage_dir = storage_dir
+
+    result.format_command = config.get("format-command", None)
 
     env_var = "INLINE_SNAPSHOT_DEFAULT_FLAGS"
     if env_var in os.environ:

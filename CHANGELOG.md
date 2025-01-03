@@ -8,7 +8,7 @@
 
 ## Fixed
 
-- use '.model_fields' on pydantic model class and not instance. This fixes a deprecation warning in the upcomming pydantic v2.11 (#169)
+- use '.model_fields' on pydantic model class and not instance. This fixes a deprecation warning in the upcoming pydantic v2.11 (#169)
 
 <a id='changelog-0.18.1'></a>
 # 0.18.1 — 2024-12-22
@@ -346,7 +346,7 @@
 
 ### Fix
 
-- remove upper bound from dependencies in pyproject.toml
+- remove upper bound from dependency in pyproject.toml
 
 ## v0.5.1 (2023-10-20)
 

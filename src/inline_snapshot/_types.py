@@ -7,9 +7,9 @@ from typing import Literal
 from typing import TYPE_CHECKING
 from typing import TypeVar
 
-from typing_extensions import TypeAlias
-
 if TYPE_CHECKING:
+
+    from typing_extensions import TypeAlias
 
     T = TypeVar("T")
 

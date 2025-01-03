@@ -36,7 +36,7 @@ jobs:
         python-version: ${{matrix.python-version}}
 
     - run: |
-        uv run ${{matrix.extra_deps}} -m ${{ matrix.os == 'ubuntu-latest' && 'coverage run -m' || '' }} pytest -n=auto
+        uv run ${{matrix.extra_deps}} --extra black -m ${{ matrix.os == 'ubuntu-latest' && 'coverage run -m' || '' }} pytest -n=auto -vv
     - run: |
         uv run -m coverage combine
         mv .coverage .coverage.${{ matrix.python-version }}-${{matrix.os}}-${{strategy.job-index}}
