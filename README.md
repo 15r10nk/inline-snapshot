@@ -37,9 +37,9 @@ pip install inline-snapshot
 - **External File Storage:** Store snapshots externally using `outsource(data)`.
 - **Seamless Pytest Integration:** Integrated seamlessly with pytest for effortless testing.
 - **Customizable:** code generation can be customized with [@customize_repr](https://15r10nk.github.io/inline-snapshot/latest/customize_repr)
-- **Nested Snapshot Support:** snapshots can contain [other snapshots](https://15r10nk.github.io/inline-snapshot/eq_snapshot/#inner-snapshots)
-- **Fuzzy Matching:** Incorporate [dirty-equals](https://15r10nk.github.io/inline-snapshot/eq_snapshot/#dirty-equals) for flexible comparisons within snapshots.
-- **Dynamic Snapshot Content:** snashots can contain [non-constant values](https://15r10nk.github.io/inline-snapshot/eq_snapshot/#is)
+- **Nested Snapshot Support:** snapshots can contain [other snapshots](https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#inner-snapshots)
+- **Fuzzy Matching:** Incorporate [dirty-equals](https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#dirty-equals) for flexible comparisons within snapshots.
+- **Dynamic Snapshot Content:** snashots can contain [non-constant values](https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#is)
 - **Comprehensive Documentation:** Access detailed [documentation](https://15r10nk.github.io/inline-snapshot/latest) for complete guidance.
 
 
