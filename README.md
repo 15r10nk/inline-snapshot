@@ -177,7 +177,7 @@ I would like to thank my sponsors. Without them, I would not be able to invest s
 
 <p align="center">
   <a href="https://pydantic.dev/logfire">
-    <img src="docs/assets/sponsors/pydantic.png" alt="pydantic" width="300"/>
+    <img src="https://pydantic.dev/assets/for-external/pydantic_logfire_logo_endorsed_lithium_rgb.svg" alt="pydantic logfire" width="300"/>
   </a>
 </p>
 
