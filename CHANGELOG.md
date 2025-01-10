@@ -1,4 +1,20 @@
 
+<a id='changelog-0.19.0'></a>
+# 0.19.0 — 2025-01-10
+
+## Added
+
+- You can now specify which tool you want to use to format your code by setting a `format-command` in your [configuration](https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command).
+
+## Changed
+
+- **BREAKING-CHANGE** you have to install `inline-snapshot[black]` now if you want to format your code like in the previous versions. This option is not required if you use a `format-command`.
+
+## Fixed
+
+- Load default config values even if `[tool.inline-snapshot]` is missing.
+  This makes the documented default shortcuts `--review` and `--fix` work.
+
 <a id='changelog-0.18.2'></a>
 # 0.18.2 — 2025-01-02
 
