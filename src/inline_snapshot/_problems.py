@@ -14,6 +14,7 @@ def report_problems(console: Console):
         return
     console.rule("[red]Problems")
     for problem in all_problems:
-        console.print(f"[b]{problem}")
+        console.print(f"{problem}")
+        console.print()
 
     all_problems = set()

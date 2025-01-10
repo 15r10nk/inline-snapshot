@@ -46,7 +46,7 @@ def pytest_addoption(parser, pluginmanager):
 
     config_path = Path("pyproject.toml")
     if config_path.exists():
-        config = _config.read_config(Path("pyproject.toml"))
+        config = _config.read_config(config_path)
         for name, value in config.shortcuts.items():
             value = ",".join(value)
             group.addoption(

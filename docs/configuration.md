@@ -4,6 +4,7 @@ Default configuration:
 [tool.inline-snapshot]
 hash-length=15
 default-flags=["short-report"]
+format-command=""
 
 [tool.inline-snapshot.shortcuts]
 review=["review"]
@@ -23,3 +24,12 @@ fix=["create","fix"]
     By default, it will be `<pytest_config_dir>/.inline-snapshot`,
     where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
     External snapshots will be stored in the `external` subfolder of the storage directory.
+* **format-command:[](){#format-command}** allows you to specify a custom command which is used to format the python code after code is changed.
+   ``` toml
+   [tool.inline-snapshot]
+   format-command="ruff format --stdin-filename {filename}"
+   ```
+   The placeholder `{filename}` can be used to specify the filename if it is needed to find the correct formatting options for this file.
+
+    !!! important
+        The command should **not** format the file on disk. The current file content (with the new code changes) is passed to *stdin* and the formatted content should be written to *stdout*.

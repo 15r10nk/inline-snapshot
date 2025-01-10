@@ -97,15 +97,25 @@ The code is generated in the following way:
             ```
 
 
-4. The code is formatted with black.
-
-
-5. The whole file is formatted with black if it was formatted before.
+4. The new code fragments are formatted with black if it is installed.
 
     !!! note
-        The black formatting of the whole file could not work for the following reasons:
+        Black is an optional dependency since inline-snapshot v0.19.0.
+        You can install it with:
+        ``` sh
+        pip install inline-snapshot[black]
+        ```
 
-        1. black is configured with cli arguments and not in a configuration file.<br>
-           **Solution:** configure black in a [configuration file](https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file)
-        2. inline-snapshot uses a different black version.<br>
-           **Solution:** specify which black version inline-snapshot should use by adding black with a specific version to your dependencies.
+5. The whole file is formatted
+    * with black if it was formatted with black before.
+
+        !!! note
+            The black formatting of the whole file could not work for the following reasons:
+
+            1. black is configured with cli arguments and not in a configuration file.<br>
+               **Solution:** configure black in a [configuration file](https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file)
+            2. inline-snapshot uses a different black version.<br>
+               **Solution:** specify which black version inline-snapshot should use by adding black with a specific version to your dependencies.
+            3. black is not installed. Black is an optional dependency since inline-snapshot v0.19.0
+
+    * or with the [format-command][format-command] if you defined one.

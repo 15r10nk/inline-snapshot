@@ -54,3 +54,27 @@ strim=["trim"]
             """,
         }
     ).run_pytest(["--strim"], changed_files=trimmed_files)
+
+
+def test_default_shortcuts():
+
+    Example(
+        {
+            **file_to_trim,
+            "pyproject.toml": """
+            """,
+        }
+    ).run_pytest(
+        ["--fix"],
+        changed_files=snapshot(
+            {
+                "test_a.py": """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 1 <= snapshot(5)
+    assert 1 == snapshot(1)
+"""
+            }
+        ),
+    )

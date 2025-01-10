@@ -2,6 +2,7 @@ import tokenize
 from pathlib import Path
 
 from executing import Source
+from inline_snapshot._format import enforce_formatting
 from inline_snapshot._format import format_code
 from inline_snapshot._utils import normalize
 from inline_snapshot._utils import simple_token
@@ -24,7 +25,7 @@ class SourceFile:
         return self._source.filename
 
     def _format(self, text):
-        if self._source is None:
+        if self._source is None or enforce_formatting():
             return text
         else:
             return format_code(text, Path(self._source.filename))

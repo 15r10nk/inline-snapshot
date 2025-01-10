@@ -25,12 +25,9 @@ classifiers = [
 ]
 dependencies = [
   "asttokens>=2.0.5",
-  "black>=23.3.0",
-  "click>=8.1.4",
   "executing>=2.1.0",
   "rich>=13.7.1",
-  "tomli>=2.0.0; python_version < '3.11'",
-  "typing-extensions"
+  "tomli>=2.0.0; python_version < '3.11'"
 ]
 description = "golden master/snapshot/approval testing library which puts the values right into your source code"
 keywords = []
@@ -38,6 +35,12 @@ name = "inline-snapshot"
 readme = "README.md"
 requires-python = ">=3.8"
 version = "0.18.2"
+
+[project.optional-dependencies]
+black = [
+  "black>=23.3.0",
+  "click>=8.1.4"
+]
 
 [dependency-groups]
 dev = [
@@ -99,6 +102,7 @@ dependencies = [
   "mkdocs-material[imaging]>=9.5.17",
   "mike",
   "mkdocstrings[python]>=0.19.0",
+  "mkdocs-autorefs",
   "replace-url @ {root:uri}/docs/plugins",
   "pytest",
   "black"
@@ -130,6 +134,7 @@ matrix.extra-deps.dependencies = [
 
 [tool.hatch.envs.hatch-test]
 extra-dependencies = [
+  "inline-snapshot[black]",
   "dirty-equals>=0.7.0",
   "hypothesis>=6.75.5",
   "mypy>=1.2.0",
@@ -141,18 +146,20 @@ extra-dependencies = [
 env-vars.TOP = "{root}"
 
 [tool.hatch.envs.hatch-test.scripts]
-run = "pytest{env:HATCH_TEST_ARGS:} --use-uv {args}"
-run-cov = "coverage run -m pytest{env:HATCH_TEST_ARGS:} --use-uv {args}"
+run = "pytest{env:HATCH_TEST_ARGS:} {args}"
+run-cov = "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}"
 cov-combine = "coverage combine"
 cov-report=["coverage report","coverage html"]
 
 [tool.hatch.envs.types]
 extra-dependencies = [
+  "inline-snapshot[black]",
   "mypy>=1.0.0",
   "pytest",
   "hypothesis>=6.75.5",
   "pydantic",
-  "attrs"
+  "attrs",
+  "typing-extensions"
 ]
 
 [[tool.hatch.envs.types.matrix]]

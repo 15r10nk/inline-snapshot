@@ -43,15 +43,6 @@ def check_pypy(request):
     yield
 
 
-def pytest_addoption(parser):
-    parser.addoption(
-        "--use-uv",
-        action="store_true",
-        default=False,
-        help="install different package versions at test time",
-    )
-
-
 @pytest.fixture()
 def check_update(source):
     def w(source_code, *, flags="", reported_flags=None, number=1):

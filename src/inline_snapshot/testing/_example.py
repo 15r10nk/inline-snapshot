@@ -78,6 +78,16 @@ ansi_escape = re.compile(
 )
 
 
+def normalize(text):
+    text = ansi_escape.sub("", text)
+
+    # fix windows problems
+    text = text.replace("\u2500", "-")
+    text = text.replace("\r", "")
+    text = text.replace(" \n", " ⏎\n")
+    return text
+
+
 class Example:
     def __init__(self, files: str | dict[str, str]):
         """
@@ -228,7 +238,7 @@ class Example:
                 assert changed_files == current_files
 
             if report is not None:
-                assert report == report_output.getvalue()
+                assert report == normalize(report_output.getvalue())
 
             return Example(self._read_files(tmp_path))
 
@@ -236,6 +246,7 @@ class Example:
         self,
         args: list[str] = [],
         *,
+        term_columns=80,
         env: dict[str, str] = {},
         changed_files: Snapshot[dict[str, str]] | None = None,
         report: Snapshot[str] | None = None,
@@ -264,8 +275,6 @@ class Example:
             self._write_files(tmp_path)
 
             cmd = [sys.executable, "-m", "pytest", *args]
-
-            term_columns = 80
 
             command_env = dict(os.environ)
             command_env["TERM"] = "unknown"
@@ -307,14 +316,7 @@ class Example:
 
                 report_str = "\n".join(report_list)
 
-                report_str = ansi_escape.sub("", report_str)
-
-                # fix windows problems
-                report_str = report_str.replace("\u2500", "-")
-                report_str = report_str.replace("\r", "")
-                report_str = report_str.replace(" \n", " ⏎\n")
-
-                assert report_str == report, repr(report_str)
+                assert normalize(report_str) == report, repr(report_str)
 
             if changed_files is not None:
                 current_files = {}
