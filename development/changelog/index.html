@@ -104,7 +104,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#exec-1--upcomming-changes" class="md-skip">
+        <a href="#0190-2025-01-10" class="md-skip">
           Skip to content
         </a>
       
@@ -843,16 +843,7 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#exec-1--fixed" class="md-nav__link">
-    <span class="md-ellipsis">
-      Fixed
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#exec-1--added" class="md-nav__link">
+  <a href="#added" class="md-nav__link">
     <span class="md-ellipsis">
       Added
     </span>
@@ -861,9 +852,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#exec-1--changed" class="md-nav__link">
+  <a href="#changed" class="md-nav__link">
     <span class="md-ellipsis">
       Changed
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fixed
     </span>
   </a>
   
@@ -904,16 +904,7 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#exec-1--fixed" class="md-nav__link">
-    <span class="md-ellipsis">
-      Fixed
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#exec-1--added" class="md-nav__link">
+  <a href="#added" class="md-nav__link">
     <span class="md-ellipsis">
       Added
     </span>
@@ -922,9 +913,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#exec-1--changed" class="md-nav__link">
+  <a href="#changed" class="md-nav__link">
     <span class="md-ellipsis">
       Changed
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fixed
     </span>
   </a>
   
@@ -948,45 +948,46 @@
   
 
 
-<p><h1 id="exec-1--upcomming-changes">upcomming changes<a class="headerlink" href="#exec-1--upcomming-changes" title="Permanent link">&para;</a></h1>
-<h2 id="exec-1--fixed">Fixed<a class="headerlink" href="#exec-1--fixed" title="Permanent link">&para;</a></h2>
+<p></p>
+<p><a id='changelog-0.19.0'></a></p>
+<h1 id="0190-2025-01-10">0.19.0 — 2025-01-10<a class="headerlink" href="#0190-2025-01-10" title="Permanent link">&para;</a></h1>
+<h2 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h2>
+<ul>
+<li>You can now specify which tool you want to use to format your code by setting a <code>format-command</code> in your <a href="https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command">configuration</a>.</li>
+</ul>
+<h2 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>BREAKING-CHANGE</strong> you have to install <code>inline-snapshot[black]</code> now if you want to format your code like in the previous versions. This option is not required if you use a <code>format-command</code>.</li>
+</ul>
+<h2 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Load default config values even if <code>[tool.inline-snapshot]</code> is missing.
   This makes the documented default shortcuts <code>--review</code> and <code>--fix</code> work.</li>
 </ul>
-<h2 id="exec-1--added">Added<a class="headerlink" href="#exec-1--added" title="Permanent link">&para;</a></h2>
-<ul>
-<li>You can now specify which tool you want to use to format your code by setting a <code>format-command</code> in your <a href="https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command">configuration</a>.</li>
-</ul>
-<h2 id="exec-1--changed">Changed<a class="headerlink" href="#exec-1--changed" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>BREAKING-CHANGE</strong> you have to install <code>inline-snapshot[black]</code> now if you want to format your code like in the previous versions. This option is not required if you use a <code>format-command</code>.</li>
-</ul>
-</p>
 <p><a id='changelog-0.18.2'></a></p>
 <h1 id="0182-2025-01-02">0.18.2 — 2025-01-02<a class="headerlink" href="#0182-2025-01-02" title="Permanent link">&para;</a></h1>
-<h2 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h2>
+<h2 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h2>
 <ul>
 <li>added <code>[dependency-groups]</code> to <em>pyproject.toml</em> and use uv and pytest to run tests in CI.</li>
 </ul>
-<h2 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h2>
+<h2 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h2>
 <ul>
 <li>use '.model_fields' on pydantic model class and not instance. This fixes a deprecation warning in the upcoming pydantic v2.11 (#169)</li>
 </ul>
 <p><a id='changelog-0.18.1'></a></p>
 <h1 id="0181-2024-12-22">0.18.1 — 2024-12-22<a class="headerlink" href="#0181-2024-12-22" title="Permanent link">&para;</a></h1>
-<h2 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h2>
+<h2 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>uv is now only used during test time if you run the inline-snapshot tests with <code>pytest --use-uv</code>
   This solves a problem if you want to package inline-snapshot in distributions (#165)</li>
 </ul>
 <p><a id='changelog-0.18.0'></a></p>
 <h1 id="0180-2024-12-21">0.18.0 — 2024-12-21<a class="headerlink" href="#0180-2024-12-21" title="Permanent link">&para;</a></h1>
-<h2 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h2>
+<h2 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Support for a new <code>storage-dir</code> configuration option, to tell inline-snapshot where to store data files such as external snapshots.</li>
 </ul>
-<h2 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h2>
+<h2 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p>pydantic v1 is supported again. pydantic v1 &amp; v2 create now the same snapshots. You can use <code>.dict()</code> to get the same snapshots like in inline-snapshot-0.15.0 for pydantic v1.</p>
@@ -1006,7 +1007,7 @@
 </ul>
 <p><a id='changelog-0.17.1'></a></p>
 <h1 id="0171-2024-12-17">0.17.1 — 2024-12-17<a class="headerlink" href="#0171-2024-12-17" title="Permanent link">&para;</a></h1>
-<h2 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h2>
+<h2 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Code generation for sets is now deterministic.
   <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">test</span><span class="p">():</span>
@@ -1015,7 +1016,7 @@
 </ul>
 <p><a id='changelog-0.17.0'></a></p>
 <h1 id="0170-2024-12-14">0.17.0 — 2024-12-14<a class="headerlink" href="#0170-2024-12-14" title="Permanent link">&para;</a></h1>
-<h2 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h2>
+<h2 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p><a href="https://www.attrs.org/en/stable/index.html">attrs</a> can now contain unmanaged values</p>
@@ -1043,7 +1044,7 @@
 </ul>
 <p><a id='changelog-0.16.0'></a></p>
 <h1 id="0160-2024-12-12">0.16.0 — 2024-12-12<a class="headerlink" href="#0160-2024-12-12" title="Permanent link">&para;</a></h1>
-<h2 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h2>
+<h2 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="https://15r10nk.github.io/inline-snapshot/latest/extra/#inline_snapshot.extra.warns"><code>inline_snapshot.extra.warns</code></a> to captures warnings and compares them against expected warnings.
     <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_warns</span><span class="p">():</span>
@@ -1053,13 +1054,13 @@
 </ul>
 <p><a id='changelog-0.15.1'></a></p>
 <h1 id="0151-2024-12-10">0.15.1 — 2024-12-10<a class="headerlink" href="#0151-2024-12-10" title="Permanent link">&para;</a></h1>
-<h2 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h2>
+<h2 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h2>
 <ul>
 <li>solved a bug caused by a variable inside a snapshot (#148)</li>
 </ul>
 <p><a id='changelog-0.15.0'></a></p>
 <h1 id="0150-2024-12-10">0.15.0 — 2024-12-10<a class="headerlink" href="#0150-2024-12-10" title="Permanent link">&para;</a></h1>
-<h2 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h2>
+<h2 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p>snapshots <a href="https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#inner-snapshots">inside snapshots</a> are now supported.</p>
@@ -1087,11 +1088,11 @@
 <p><a href="https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#f-strings">f-strings</a> can now also be used within snapshots, but are currently not <em>fixed</em> by inline-snapshot.</p>
 </li>
 </ul>
-<h2 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h2>
+<h2 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li><em>dirty-equals</em> expressions are now treated like <em>runtime values</em> or <em>snapshots</em> within snapshots and are not modified by inline-snapshot.</li>
 </ul>
-<h2 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h2>
+<h2 id="fixed_6">Fixed<a class="headerlink" href="#fixed_6" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p>inline-snapshot checks now if the given command line flags (<code>--inline-snapshot=...</code>) are valid</p>
@@ -1102,13 +1103,13 @@
 </ul>
 <p><a id='changelog-0.14.2'></a></p>
 <h1 id="0142-2024-12-07">0.14.2 — 2024-12-07<a class="headerlink" href="#0142-2024-12-07" title="Permanent link">&para;</a></h1>
-<h2 id="fixed_6">Fixed<a class="headerlink" href="#fixed_6" title="Permanent link">&para;</a></h2>
+<h2 id="fixed_7">Fixed<a class="headerlink" href="#fixed_7" title="Permanent link">&para;</a></h2>
 <ul>
 <li>do not crash when handling raw f-strings (<code>rf""</code>,<code>RF""</code>,...) (#143)</li>
 </ul>
 <p><a id='changelog-0.14.1'></a></p>
 <h1 id="0141-2024-12-04">0.14.1 — 2024-12-04<a class="headerlink" href="#0141-2024-12-04" title="Permanent link">&para;</a></h1>
-<h2 id="fixed_7">Fixed<a class="headerlink" href="#fixed_7" title="Permanent link">&para;</a></h2>
+<h2 id="fixed_8">Fixed<a class="headerlink" href="#fixed_8" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p>Don't crash for snapshots like <code>snapshot(f"")</code> (#139)
@@ -1126,37 +1127,37 @@
 <li>removed the <code>"Programming Language :: Python :: Implementation :: PyPy"</code> classifier which was incorrect, because inline-snapshot can not fix snapshots on pypy.
   inline-snapshot now enforces <code>--inline-snapshot=disable</code> when used with an implementation other than cpython, which allows it to be used in packages that want to support pypy.</li>
 </ul>
-<h2 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h2>
+<h2 id="added_5">Added<a class="headerlink" href="#added_5" title="Permanent link">&para;</a></h2>
 <ul>
 <li>command line shortcuts can be defined to simplify your workflows. <code>--review</code> and <code>--fix</code> are defined by default. See the <a href="https://15r10nk.github.io/inline-snapshot/latest/configuration/">documentation</a> for details.</li>
 </ul>
-<h2 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h2>
+<h2 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>--inline-snapshot=create/fix/trim/update</code> will no longer show reports for other categories.
   You can use <code>--inline-snapshot=create,report</code> if you want to use the old behaviour.</li>
 </ul>
 <p><a id='changelog-0.13.4'></a></p>
 <h1 id="0134-2024-11-07">0.13.4 — 2024-11-07<a class="headerlink" href="#0134-2024-11-07" title="Permanent link">&para;</a></h1>
-<h2 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h2>
+<h2 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h2>
 <ul>
 <li>use tomli instead of toml (#130)</li>
 </ul>
 <p><a id='changelog-0.13.3'></a></p>
 <h1 id="0133-2024-09-24">0.13.3 — 2024-09-24<a class="headerlink" href="#0133-2024-09-24" title="Permanent link">&para;</a></h1>
-<h2 id="fixed_8">Fixed<a class="headerlink" href="#fixed_8" title="Permanent link">&para;</a></h2>
+<h2 id="fixed_9">Fixed<a class="headerlink" href="#fixed_9" title="Permanent link">&para;</a></h2>
 <ul>
 <li>removed non-optional dirty-equals dependency (#118)</li>
 </ul>
 <p><a id='changelog-0.13.2'></a></p>
 <h1 id="0132-2024-09-24">0.13.2 — 2024-09-24<a class="headerlink" href="#0132-2024-09-24" title="Permanent link">&para;</a></h1>
-<h2 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h2>
+<h2 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h2>
 <ul>
 <li>star-expressions in list or dicts where never valid and cause a warning now.
     <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>    other=[2]
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    assert [5,2]==snapshot([5,*other])
 </code></pre></div></li>
 </ul>
-<h2 id="fixed_9">Fixed<a class="headerlink" href="#fixed_9" title="Permanent link">&para;</a></h2>
+<h2 id="fixed_10">Fixed<a class="headerlink" href="#fixed_10" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p>A snapshot which contains an dirty-equals expression can now be compared multiple times.</p>
