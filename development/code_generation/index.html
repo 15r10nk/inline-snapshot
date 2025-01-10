@@ -954,10 +954,20 @@ It might be necessary to import the right modules to match the <code>repr()</cod
 </div>
 </li>
 <li>
-<p>The code is formatted with black.</p>
+<p>The new code fragments are formatted with black if it is installed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Black is an optional dependency since inline-snapshot v0.19.0.
+You can install it with:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span>inline-snapshot<span class="o">[</span>black<span class="o">]</span>
+</code></pre></div></p>
+</div>
 </li>
 <li>
-<p>The whole file is formatted with black if it was formatted before.</p>
+<p>The whole file is formatted</p>
+<ul>
+<li>
+<p>with black if it was formatted with black before.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The black formatting of the whole file could not work for the following reasons:</p>
@@ -966,8 +976,14 @@ It might be necessary to import the right modules to match the <code>repr()</cod
    <strong>Solution:</strong> configure black in a <a href="https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file">configuration file</a></li>
 <li>inline-snapshot uses a different black version.<br>
    <strong>Solution:</strong> specify which black version inline-snapshot should use by adding black with a specific version to your dependencies.</li>
+<li>black is not installed. Black is an optional dependency since inline-snapshot v0.19.0</li>
 </ol>
 </div>
+</li>
+<li>
+<p>or with the <a class="autorefs autorefs-internal" href="../configuration/#format-command">format-command</a> if you defined one.</p>
+</li>
+</ul>
 </li>
 </ol>
 

@@ -104,7 +104,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#0182-2025-01-02" class="md-skip">
+        <a href="#exec-1--upcomming-changes" class="md-skip">
           Skip to content
         </a>
       
@@ -843,18 +843,27 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
+  <a href="#exec-1--fixed" class="md-nav__link">
     <span class="md-ellipsis">
-      Changed
+      Fixed
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#exec-1--added" class="md-nav__link">
     <span class="md-ellipsis">
-      Fixed
+      Added
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exec-1--changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changed
     </span>
   </a>
   
@@ -895,18 +904,27 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
+  <a href="#exec-1--fixed" class="md-nav__link">
     <span class="md-ellipsis">
-      Changed
+      Fixed
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#exec-1--added" class="md-nav__link">
     <span class="md-ellipsis">
-      Fixed
+      Added
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exec-1--changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changed
     </span>
   </a>
   
@@ -930,6 +948,21 @@
   
 
 
+<p><h1 id="exec-1--upcomming-changes">upcomming changes<a class="headerlink" href="#exec-1--upcomming-changes" title="Permanent link">&para;</a></h1>
+<h2 id="exec-1--fixed">Fixed<a class="headerlink" href="#exec-1--fixed" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Load default config values even if <code>[tool.inline-snapshot]</code> is missing.
+  This makes the documented default shortcuts <code>--review</code> and <code>--fix</code> work.</li>
+</ul>
+<h2 id="exec-1--added">Added<a class="headerlink" href="#exec-1--added" title="Permanent link">&para;</a></h2>
+<ul>
+<li>You can now specify which tool you want to use to format your code by setting a <code>format-command</code> in your <a href="https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command">configuration</a>.</li>
+</ul>
+<h2 id="exec-1--changed">Changed<a class="headerlink" href="#exec-1--changed" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>BREAKING-CHANGE</strong> you have to install <code>inline-snapshot[black]</code> now if you want to format your code like in the previous versions. This option is not required if you use a <code>format-command</code>.</li>
+</ul>
+</p>
 <p><a id='changelog-0.18.2'></a></p>
 <h1 id="0182-2025-01-02">0.18.2 — 2025-01-02<a class="headerlink" href="#0182-2025-01-02" title="Permanent link">&para;</a></h1>
 <h2 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h2>
@@ -938,7 +971,7 @@
 </ul>
 <h2 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h2>
 <ul>
-<li>use '.model_fields' on pydantic model class and not instance. This fixes a deprecation warning in the upcomming pydantic v2.11 (#169)</li>
+<li>use '.model_fields' on pydantic model class and not instance. This fixes a deprecation warning in the upcoming pydantic v2.11 (#169)</li>
 </ul>
 <p><a id='changelog-0.18.1'></a></p>
 <h1 id="0181-2024-12-22">0.18.1 — 2024-12-22<a class="headerlink" href="#0181-2024-12-22" title="Permanent link">&para;</a></h1>
@@ -1252,7 +1285,7 @@
 <h2 id="v052-2023-11-13">v0.5.2 (2023-11-13)<a class="headerlink" href="#v052-2023-11-13" title="Permanent link">&para;</a></h2>
 <h3 id="fix_9">Fix<a class="headerlink" href="#fix_9" title="Permanent link">&para;</a></h3>
 <ul>
-<li>remove upper bound from dependencies in pyproject.toml</li>
+<li>remove upper bound from dependency in pyproject.toml</li>
 </ul>
 <h2 id="v051-2023-10-20">v0.5.1 (2023-10-20)<a class="headerlink" href="#v051-2023-10-20" title="Permanent link">&para;</a></h2>
 <h3 id="fix_10">Fix<a class="headerlink" href="#fix_10" title="Permanent link">&para;</a></h3>
