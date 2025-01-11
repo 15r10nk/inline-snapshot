@@ -1,6 +1,18 @@
-class Is:
-    def __init__(self, value):
-        self.value = value
+import typing
+from typing import TYPE_CHECKING
 
-    def __eq__(self, other):
-        return self.value == other
+if TYPE_CHECKING:
+
+    T = typing.TypeVar("T")
+
+    def Is(v: T) -> T:
+        return v
+
+else:
+
+    class Is:
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            return self.value == other
