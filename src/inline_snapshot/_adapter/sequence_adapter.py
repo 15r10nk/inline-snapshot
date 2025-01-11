@@ -34,11 +34,12 @@ class SequenceAdapter(Adapter):
         result = [adapter_map(v, map_function) for v in value]
         return cls.value_type(result)
 
-    def items(self, value, node):
+    @classmethod
+    def items(cls, value, node):
         if node is None:
             return [Item(value=v, node=None) for v in value]
 
-        assert isinstance(node, self.node_type), (node, self)
+        assert isinstance(node, cls.node_type), (node, cls)
         assert len(value) == len(node.elts)
 
         return [Item(value=v, node=n) for v, n in zip(value, node.elts)]

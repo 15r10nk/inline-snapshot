@@ -75,8 +75,9 @@ class GenericCallAdapter(Adapter):
             },
         )
 
-    def items(self, value, node):
-        new_args, new_kwargs = self.arguments(value)
+    @classmethod
+    def items(cls, value, node):
+        new_args, new_kwargs = cls.arguments(value)
 
         if node is not None:
             assert isinstance(node, ast.Call)
@@ -98,6 +99,12 @@ class GenericCallAdapter(Adapter):
 
     def assign(self, old_value, old_node, new_value):
         if old_node is None or not isinstance(old_node, ast.Call):
+            result = yield from self.value_assign(old_value, old_node, new_value)
+            return result
+
+        call_type = self.adapter_context.eval(old_node.func)
+
+        if not (isinstance(call_type, type) and self.check_type(call_type)):
             result = yield from self.value_assign(old_value, old_node, new_value)
             return result
 

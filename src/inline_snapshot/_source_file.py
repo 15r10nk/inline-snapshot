@@ -12,13 +12,10 @@ from ._utils import ignore_tokens
 
 
 class SourceFile:
-    _source = Source
+    _source: Source
 
-    def __init__(self, source):
-        if isinstance(source, SourceFile):
-            self._source = source._source
-        else:
-            self._source = source
+    def __init__(self, source: Source):
+        self._source = source
 
     @property
     def filename(self):

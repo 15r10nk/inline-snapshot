@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import typing
+from dataclasses import dataclass
 
 from inline_snapshot._source_file import SourceFile
 
@@ -38,21 +39,46 @@ class Item(typing.NamedTuple):
     node: ast.expr
 
 
+@dataclass
+class FrameContext:
+    globals: dict
+    locals: dict
+
+
+@dataclass
+class AdapterContext:
+    file: SourceFile
+    frame: FrameContext | None
+
+    def eval(self, node):
+        assert self.frame is not None
+
+        return eval(
+            compile(ast.Expression(node), self.file.filename, "eval"),
+            self.frame.globals,
+            self.frame.locals,
+        )
+
+
 class Adapter:
+    # TODO remove context
     context: SourceFile
 
-    def __init__(self, context):
-        self.context = context
+    adapter_context: AdapterContext
+
+    def __init__(self, context: AdapterContext):
+        self.adapter_context = context
+        self.context = context.file
 
     def get_adapter(self, old_value, new_value) -> Adapter:
         if type(old_value) is not type(new_value):
             from .value_adapter import ValueAdapter
 
-            return ValueAdapter(self.context)
+            return ValueAdapter(self.adapter_context)
 
         adapter_type = get_adapter_type(old_value)
         if adapter_type is not None:
-            return adapter_type(self.context)
+            return adapter_type(self.adapter_context)
         assert False
 
     def assign(self, old_value, old_node, new_value):
@@ -61,7 +87,7 @@ class Adapter:
     def value_assign(self, old_value, old_node, new_value):
         from .value_adapter import ValueAdapter
 
-        adapter = ValueAdapter(self.context)
+        adapter = ValueAdapter(self.adapter_context)
         result = yield from adapter.assign(old_value, old_node, new_value)
         return result
 
