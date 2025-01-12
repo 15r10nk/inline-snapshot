@@ -1,4 +1,25 @@
 
+<a id='changelog-0.19.1'></a>
+# 0.19.1 — 2025-01-12
+
+## Added
+
+- added the optional `inline-snapshot[dirty-equals]` dependency to depend on the dirty-equals version which works in combination with inline-snapshot.
+
+## Fixed
+
+- snapshots with pydantic models can now be compared multiple times
+
+    ``` python
+    class A(BaseModel):
+        a: int
+
+
+    def test_something():
+        for _ in [1, 2]:
+            assert A(a=1) == snapshot(A(a=1))
+    ```
+
 <a id='changelog-0.19.0'></a>
 # 0.19.0 — 2025-01-10
 
