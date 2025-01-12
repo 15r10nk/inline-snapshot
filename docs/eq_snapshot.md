@@ -120,6 +120,7 @@ Example:
 
 The date can be replaced with the [dirty-equals](https://dirty-equals.helpmanual.io/latest/) expression `IsDatetime()`.
 
+
 Example:
 
 === "using IsDatetime()"
@@ -193,6 +194,12 @@ Example:
                 "payload": "data changed for some good reason",
             }
         )
+    ```
+
+!!! note
+    Use the optional *dirty-equals* dependency to install the version that works best in combination with inline-snapshot.
+    ``` sh
+    pip install inline-snapshot[dirty-equals]
     ```
 
 ### Is(...)

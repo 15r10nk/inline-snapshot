@@ -88,7 +88,8 @@ def mocked_code_repr(obj):
 
 
 def value_code_repr(obj):
-    if not type(obj) == type(obj):
+    if not type(obj) == type(obj):  # pragma: no cover
+        # this was caused by https://github.com/samuelcolvin/dirty-equals/issues/104
         # dispatch will not work in cases like this
         return (
             f"HasRepr({repr(type(obj))}, '< type(obj) can not be compared with == >')"
