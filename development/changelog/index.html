@@ -104,7 +104,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#0190-2025-01-10" class="md-skip">
+        <a href="#exec-1--upcomming-changes" class="md-skip">
           Skip to content
         </a>
       
@@ -843,27 +843,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
-    <span class="md-ellipsis">
-      Added
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
-    <span class="md-ellipsis">
-      Changed
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#exec-1--fixed" class="md-nav__link">
     <span class="md-ellipsis">
       Fixed
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exec-1--added" class="md-nav__link">
+    <span class="md-ellipsis">
+      Added
     </span>
   </a>
   
@@ -904,27 +895,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
-    <span class="md-ellipsis">
-      Added
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
-    <span class="md-ellipsis">
-      Changed
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#exec-1--fixed" class="md-nav__link">
     <span class="md-ellipsis">
       Fixed
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exec-1--added" class="md-nav__link">
+    <span class="md-ellipsis">
+      Added
     </span>
   </a>
   
@@ -948,7 +930,26 @@
   
 
 
-<p></p>
+<p><h1 id="exec-1--upcomming-changes">upcomming changes<a class="headerlink" href="#exec-1--upcomming-changes" title="Permanent link">&para;</a></h1>
+<h2 id="exec-1--fixed">Fixed<a class="headerlink" href="#exec-1--fixed" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>snapshots with pydantic models can now be compared multiple times</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">A</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">a</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="k">assert</span> <span class="n">A</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="n">A</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+</code></pre></div>
+</li>
+</ul>
+<h2 id="exec-1--added">Added<a class="headerlink" href="#exec-1--added" title="Permanent link">&para;</a></h2>
+<ul>
+<li>added the optional <code>inline-snapshot[dirty-equals]</code> dependency to depend on the dirty-equals version which works in combination with inline-snapshot.</li>
+</ul>
+</p>
 <p><a id='changelog-0.19.0'></a></p>
 <h1 id="0190-2025-01-10">0.19.0 — 2025-01-10<a class="headerlink" href="#0190-2025-01-10" title="Permanent link">&para;</a></h1>
 <h2 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h2>
