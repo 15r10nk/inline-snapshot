@@ -3,6 +3,32 @@ from itertools import groupby
 
 def align(seq_a, seq_b) -> str:
 
+    start = 0
+
+    for a, b in zip(seq_a, seq_b):
+        if a == b:
+            start += 1
+        else:
+            break
+
+    if start == len(seq_a) == len(seq_b):
+        return "m" * start
+
+    end = 0
+
+    for a, b in zip(reversed(seq_a[start:]), reversed(seq_b[start:])):
+        if a == b:
+            end += 1
+        else:
+            break
+
+    diff = nw_align(seq_a[start : len(seq_a) - end], seq_b[start : len(seq_b) - end])
+
+    return "m" * start + diff + "m" * end
+
+
+def nw_align(seq_a, seq_b) -> str:
+
     matrix: list = [[(0, "e")] + [(0, "i")] * len(seq_b)]
 
     for a in seq_a:

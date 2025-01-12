@@ -43,6 +43,9 @@ class Unmanaged:
 
         return self.value == other
 
+    def __repr__(self):
+        return repr(self.value)
+
 
 def map_unmanaged(value):
     if is_unmanaged(value):

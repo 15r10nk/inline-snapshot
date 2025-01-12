@@ -41,6 +41,9 @@ black = [
   "black>=23.3.0",
   "click>=8.1.4"
 ]
+dirty-equals =[
+    "dirty-equals>=0.9.0",
+]
 
 [dependency-groups]
 dev = [
@@ -54,7 +57,6 @@ dev = [
     "coverage[toml]>=7.6.1",
     "coverage-enable-subprocess>=1.0",
     "pytest>=8",
-    "dirty-equals>=0.7.0",
     "attrs>=24.3.0",
     "pydantic>=1",
 ]
@@ -134,8 +136,8 @@ matrix.extra-deps.dependencies = [
 
 [tool.hatch.envs.hatch-test]
 extra-dependencies = [
-  "inline-snapshot[black]",
-  "dirty-equals>=0.7.0",
+  "inline-snapshot[black,dirty-equals]",
+  "dirty-equals>=0.9.0",
   "hypothesis>=6.75.5",
   "mypy>=1.2.0",
   "pyright>=1.1.359",
@@ -153,7 +155,7 @@ cov-report=["coverage report","coverage html"]
 
 [tool.hatch.envs.types]
 extra-dependencies = [
-  "inline-snapshot[black]",
+  "inline-snapshot[black,dirty-equals]",
   "mypy>=1.0.0",
   "pytest",
   "hypothesis>=6.75.5",

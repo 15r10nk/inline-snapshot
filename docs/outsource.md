@@ -27,7 +27,7 @@ Example:
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ``` python hl_lines="2 3 7 8 9"
+    ``` python hl_lines="3 4 7 8 9"
     from inline_snapshot import snapshot, outsource
 
     from inline_snapshot import external
@@ -55,7 +55,7 @@ The `external` object can be used inside other data structures.
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 -->
-    ``` python hl_lines="2 3 9 10 11 12 13 14 15"
+    ``` python hl_lines="3 4 9 10 11 12 13 14 15"
     from inline_snapshot import snapshot, outsource
 
     from inline_snapshot import external

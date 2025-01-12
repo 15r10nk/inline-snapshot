@@ -76,14 +76,24 @@ class GenericCallAdapter(Adapter):
         )
 
     def items(self, value, node):
-        assert isinstance(node, ast.Call)
-        assert not node.args
-        assert all(kw.arg for kw in node.keywords)
+        new_args, new_kwargs = self.arguments(value)
+
+        if node is not None:
+            assert isinstance(node, ast.Call)
+            assert not node.args
+            assert all(kw.arg for kw in node.keywords)
+            kw_arg_node = {kw.arg: kw.value for kw in node.keywords if kw.arg}.get
+            pos_arg_node = lambda pos: node.args[pos]
+        else:
+            kw_arg_node = lambda _: None
+            pos_arg_node = lambda _: None
 
         return [
-            Item(value=self.argument(value, kw.arg), node=kw.value)
-            for kw in node.keywords
-            if kw.arg
+            Item(value=arg.value, node=pos_arg_node(i))
+            for i, arg in enumerate(new_args)
+        ] + [
+            Item(value=kw.value, node=kw_arg_node(name))
+            for name, kw in new_kwargs.items()
         ]
 
     def assign(self, old_value, old_node, new_value):
