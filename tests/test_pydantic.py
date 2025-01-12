@@ -117,3 +117,21 @@ def test_something():
             }
         ),
     )
+
+
+def test_pydantic_evaluate_twice():
+    Example(
+        """\
+from inline_snapshot import snapshot
+from pydantic import BaseModel
+
+class A(BaseModel):
+    a:int
+
+def test_something():
+    for _ in [1,2]:
+        assert A(a=1) == snapshot(A(a=1))
+"""
+    ).run_pytest(
+        changed_files=snapshot({}),
+    )
