@@ -34,7 +34,7 @@ keywords = []
 name = "inline-snapshot"
 readme = "README.md"
 requires-python = ">=3.8"
-version = "0.19.2"
+version = "0.19.3"
 
 [project.optional-dependencies]
 black = [

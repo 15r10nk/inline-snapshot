@@ -1,4 +1,11 @@
 
+<a id='changelog-0.19.3'></a>
+# 0.19.3 — 2025-01-15
+
+## Fixed
+
+- raise no assertion for positional arguments inside constructor methods.
+
 <a id='changelog-0.19.2'></a>
 # 0.19.2 — 2025-01-15
 
