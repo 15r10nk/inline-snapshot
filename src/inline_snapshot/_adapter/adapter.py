@@ -61,24 +61,20 @@ class AdapterContext:
 
 
 class Adapter:
-    # TODO remove context
-    context: SourceFile
-
-    adapter_context: AdapterContext
+    context: AdapterContext
 
     def __init__(self, context: AdapterContext):
-        self.adapter_context = context
-        self.context = context.file
+        self.context = context
 
     def get_adapter(self, old_value, new_value) -> Adapter:
         if type(old_value) is not type(new_value):
             from .value_adapter import ValueAdapter
 
-            return ValueAdapter(self.adapter_context)
+            return ValueAdapter(self.context)
 
         adapter_type = get_adapter_type(old_value)
         if adapter_type is not None:
-            return adapter_type(self.adapter_context)
+            return adapter_type(self.context)
         assert False
 
     def assign(self, old_value, old_node, new_value):
@@ -87,7 +83,7 @@ class Adapter:
     def value_assign(self, old_value, old_node, new_value):
         from .value_adapter import ValueAdapter
 
-        adapter = ValueAdapter(self.adapter_context)
+        adapter = ValueAdapter(self.context)
         result = yield from adapter.assign(old_value, old_node, new_value)
         return result
 

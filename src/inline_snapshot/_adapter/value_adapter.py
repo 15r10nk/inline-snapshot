@@ -39,7 +39,7 @@ class ValueAdapter(Adapter):
             if not old_value == new_value:
                 warnings.warn_explicit(
                     f"inline-snapshot will be able to fix f-strings in the future.\nThe current string value is:\n   {new_value!r}",
-                    filename=self.context._source.filename,
+                    filename=self.context.file._source.filename,
                     lineno=old_node.lineno,
                     category=InlineSnapshotInfo,
                 )
@@ -50,18 +50,18 @@ class ValueAdapter(Adapter):
         elif (
             old_node is not None
             and update_allowed(old_value)
-            and self.context._token_of_node(old_node) != new_token
+            and self.context.file._token_of_node(old_node) != new_token
         ):
             flag = "update"
         else:
             # equal and equal repr
             return old_value
 
-        new_code = self.context._token_to_code(new_token)
+        new_code = self.context.file._token_to_code(new_token)
 
         yield Replace(
             node=old_node,
-            file=self.context._source,
+            file=self.context.file._source,
             new_code=new_code,
             flag=flag,
             old_value=old_value,

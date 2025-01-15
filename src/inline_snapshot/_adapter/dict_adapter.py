@@ -66,7 +66,7 @@ class DictAdapter(Adapter):
                 if key is None:
                     warnings.warn_explicit(
                         "star-expressions are not supported inside snapshots",
-                        filename=self.context._source.filename,
+                        filename=self.context.file._source.filename,
                         lineno=value.lineno,
                         category=InlineSnapshotSyntaxWarning,
                     )
@@ -88,7 +88,7 @@ class DictAdapter(Adapter):
         ):
             if not key in new_value:
                 # delete entries
-                yield Delete("fix", self.context._source, node, old_value[key])
+                yield Delete("fix", self.context.file._source, node, old_value[key])
 
         to_insert = []
         insert_pos = 0
@@ -109,12 +109,15 @@ class DictAdapter(Adapter):
 
                 if to_insert:
                     new_code = [
-                        (self.context._value_to_code(k), self.context._value_to_code(v))
+                        (
+                            self.context.file._value_to_code(k),
+                            self.context.file._value_to_code(v),
+                        )
                         for k, v in to_insert
                     ]
                     yield DictInsert(
                         "fix",
-                        self.context._source,
+                        self.context.file._source,
                         old_node,
                         insert_pos,
                         new_code,
@@ -126,12 +129,15 @@ class DictAdapter(Adapter):
 
         if to_insert:
             new_code = [
-                (self.context._value_to_code(k), self.context._value_to_code(v))
+                (
+                    self.context.file._value_to_code(k),
+                    self.context.file._value_to_code(v),
+                )
                 for k, v in to_insert
             ]
             yield DictInsert(
                 "fix",
-                self.context._source,
+                self.context.file._source,
                 old_node,
                 len(old_value),
                 new_code,

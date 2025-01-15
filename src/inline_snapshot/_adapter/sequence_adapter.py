@@ -56,7 +56,7 @@ class SequenceAdapter(Adapter):
                 if isinstance(e, ast.Starred):
                     warnings.warn_explicit(
                         "star-expressions are not supported inside snapshots",
-                        filename=self.context.filename,
+                        filename=self.context.file.filename,
                         lineno=e.lineno,
                         category=InlineSnapshotSyntaxWarning,
                     )
@@ -83,13 +83,16 @@ class SequenceAdapter(Adapter):
                 old_position += 1
             elif c == "i":
                 new_value_element = next(new)
-                new_code = self.context._value_to_code(new_value_element)
+                new_code = self.context.file._value_to_code(new_value_element)
                 result.append(new_value_element)
                 to_insert[old_position].append((new_code, new_value_element))
             elif c == "d":
                 old_value_element, old_node_element = next(old)
                 yield Delete(
-                    "fix", self.context._source, old_node_element, old_value_element
+                    "fix",
+                    self.context.file._source,
+                    old_node_element,
+                    old_value_element,
                 )
                 old_position += 1
             else:
@@ -97,7 +100,7 @@ class SequenceAdapter(Adapter):
 
         for position, code_values in to_insert.items():
             yield ListInsert(
-                "fix", self.context._source, old_node, position, *zip(*code_values)
+                "fix", self.context.file._source, old_node, position, *zip(*code_values)
             )
 
         return self.value_type(result)

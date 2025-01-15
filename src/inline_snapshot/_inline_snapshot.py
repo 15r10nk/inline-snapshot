@@ -267,11 +267,6 @@ class EqValue(GenericValue):
             _missing_values += 1
 
         if not compare_only() and self._new_value is undefined:
-            frame = inspect.currentframe()
-            assert frame is not None
-            frame = frame.f_back
-            assert frame is not None
-
             adapter = Adapter(self._context).get_adapter(self._old_value, other)
             it = iter(adapter.assign(self._old_value, self._ast_node, clone(other)))
             self._changes = []
