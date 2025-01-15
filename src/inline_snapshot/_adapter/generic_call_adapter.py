@@ -81,7 +81,6 @@ class GenericCallAdapter(Adapter):
 
         if node is not None:
             assert isinstance(node, ast.Call)
-            assert not node.args
             assert all(kw.arg for kw in node.keywords)
             kw_arg_node = {kw.arg: kw.value for kw in node.keywords if kw.arg}.get
             pos_arg_node = lambda pos: node.args[pos]

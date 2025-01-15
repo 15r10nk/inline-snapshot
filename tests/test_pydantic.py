@@ -151,7 +151,8 @@ class A(BaseModel):
         return cls(a=int(s))
 
 def test_something():
-    assert A(a=2) == snapshot(A.from_str("1"))
+    for a in [1,2]:
+        assert A(a=2) == snapshot(A.from_str("1"))
 """
     ).run_pytest(
         ["--inline-snapshot=fix"],
@@ -169,7 +170,8 @@ class A(BaseModel):
         return cls(a=int(s))
 
 def test_something():
-    assert A(a=2) == snapshot(A(a=2))
+    for a in [1,2]:
+        assert A(a=2) == snapshot(A(a=2))
 """
             }
         ),
