@@ -112,6 +112,13 @@ dependencies = [
 [tool.hatch.envs.default]
 installer="uv"
 
+[tool.hatch.envs.cov.scripts]
+gh=[
+    "- rm htmlcov/*",
+    "gh run download -n html-report -D htmlcov",
+    "xdg-open htmlcov/index.html",
+]
+
 [tool.hatch.envs.docs.scripts]
 build = "mkdocs build --strict"
 deploy = "mkdocs gh-deploy"

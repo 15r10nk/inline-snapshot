@@ -75,8 +75,9 @@ class GenericCallAdapter(Adapter):
             },
         )
 
-    def items(self, value, node):
-        new_args, new_kwargs = self.arguments(value)
+    @classmethod
+    def items(cls, value, node):
+        new_args, new_kwargs = cls.arguments(value)
 
         if node is not None:
             assert isinstance(node, ast.Call)
@@ -101,12 +102,18 @@ class GenericCallAdapter(Adapter):
             result = yield from self.value_assign(old_value, old_node, new_value)
             return result
 
+        call_type = self.context.eval(old_node.func)
+
+        if not (isinstance(call_type, type) and self.check_type(call_type)):
+            result = yield from self.value_assign(old_value, old_node, new_value)
+            return result
+
         # positional arguments
         for pos_arg in old_node.args:
             if isinstance(pos_arg, ast.Starred):
                 warnings.warn_explicit(
                     "star-expressions are not supported inside snapshots",
-                    filename=self.context._source.filename,
+                    filename=self.context.file._source.filename,
                     lineno=pos_arg.lineno,
                     category=InlineSnapshotSyntaxWarning,
                 )
@@ -117,7 +124,7 @@ class GenericCallAdapter(Adapter):
             if kw.arg is None:
                 warnings.warn_explicit(
                     "star-expressions are not supported inside snapshots",
-                    filename=self.context._source.filename,
+                    filename=self.context.file._source.filename,
                     lineno=kw.value.lineno,
                     category=InlineSnapshotSyntaxWarning,
                 )
@@ -140,7 +147,7 @@ class GenericCallAdapter(Adapter):
             for arg_pos, node in list(enumerate(old_node.args))[len(new_args) :]:
                 yield Delete(
                     "fix",
-                    self.context._source,
+                    self.context.file._source,
                     node,
                     self.argument(old_value, arg_pos),
                 )
@@ -149,11 +156,11 @@ class GenericCallAdapter(Adapter):
             for insert_pos, value in list(enumerate(new_args))[len(old_node.args) :]:
                 yield CallArg(
                     flag="fix",
-                    file=self.context._source,
+                    file=self.context.file._source,
                     node=old_node,
                     arg_pos=insert_pos,
                     arg_name=None,
-                    new_code=self.context._value_to_code(value.value),
+                    new_code=self.context.file._value_to_code(value.value),
                     new_value=value.value,
                 )
 
@@ -164,7 +171,7 @@ class GenericCallAdapter(Adapter):
                 # delete entries
                 yield Delete(
                     "fix" if missing else "update",
-                    self.context._source,
+                    self.context.file._source,
                     kw.value,
                     self.argument(old_value, kw.arg),
                 )
@@ -194,11 +201,11 @@ class GenericCallAdapter(Adapter):
 
                         yield CallArg(
                             flag="fix",
-                            file=self.context._source,
+                            file=self.context.file._source,
                             node=old_node,
                             arg_pos=insert_pos,
                             arg_name=key,
-                            new_code=self.context._value_to_code(value),
+                            new_code=self.context.file._value_to_code(value),
                             new_value=value,
                         )
                     to_insert = []
@@ -211,11 +218,11 @@ class GenericCallAdapter(Adapter):
 
                 yield CallArg(
                     flag="fix",
-                    file=self.context._source,
+                    file=self.context.file._source,
                     node=old_node,
                     arg_pos=insert_pos,
                     arg_name=key,
-                    new_code=self.context._value_to_code(value),
+                    new_code=self.context.file._value_to_code(value),
                     new_value=value,
                 )
 

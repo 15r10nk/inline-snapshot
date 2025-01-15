@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import typing
+from dataclasses import dataclass
 
 from inline_snapshot._source_file import SourceFile
 
@@ -38,10 +39,31 @@ class Item(typing.NamedTuple):
     node: ast.expr
 
 
-class Adapter:
-    context: SourceFile
+@dataclass
+class FrameContext:
+    globals: dict
+    locals: dict
 
-    def __init__(self, context):
+
+@dataclass
+class AdapterContext:
+    file: SourceFile
+    frame: FrameContext | None
+
+    def eval(self, node):
+        assert self.frame is not None
+
+        return eval(
+            compile(ast.Expression(node), self.file.filename, "eval"),
+            self.frame.globals,
+            self.frame.locals,
+        )
+
+
+class Adapter:
+    context: AdapterContext
+
+    def __init__(self, context: AdapterContext):
         self.context = context
 
     def get_adapter(self, old_value, new_value) -> Adapter:

@@ -135,3 +135,42 @@ def test_something():
     ).run_pytest(
         changed_files=snapshot({}),
     )
+
+
+def test_pydantic_factory_method():
+    Example(
+        """\
+from inline_snapshot import snapshot
+from pydantic import BaseModel
+
+class A(BaseModel):
+    a:int
+
+    @classmethod
+    def from_str(cls,s):
+        return cls(a=int(s))
+
+def test_something():
+    assert A(a=2) == snapshot(A.from_str("1"))
+"""
+    ).run_pytest(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot
+from pydantic import BaseModel
+
+class A(BaseModel):
+    a:int
+
+    @classmethod
+    def from_str(cls,s):
+        return cls(a=int(s))
+
+def test_something():
+    assert A(a=2) == snapshot(A(a=2))
+"""
+            }
+        ),
+    )

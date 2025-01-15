@@ -2,6 +2,7 @@ import ast
 import copy
 import inspect
 from typing import Any
+from typing import cast
 from typing import Dict  # noqa
 from typing import Iterator
 from typing import List
@@ -14,6 +15,8 @@ from inline_snapshot._adapter.adapter import Adapter
 from inline_snapshot._adapter.adapter import adapter_map
 from inline_snapshot._source_file import SourceFile
 
+from ._adapter.adapter import AdapterContext
+from ._adapter.adapter import FrameContext
 from ._adapter.adapter import get_adapter_type
 from ._change import CallArg
 from ._change import Change
@@ -83,12 +86,17 @@ class GenericValue(Snapshot):
     _old_value: Any
     _current_op = "undefined"
     _ast_node: ast.Expr
-    _file: SourceFile
+    _context: AdapterContext
+
+    @property
+    def _file(self):
+        return self._context.file
 
     def get_adapter(self, value):
-        return get_adapter_type(value)(self._file)
+        return get_adapter_type(value)(self._context)
 
-    def _re_eval(self, value):
+    def _re_eval(self, value, context: AdapterContext):
+        self._context = context
 
         def re_eval(old_value, node, value):
             if isinstance(old_value, Unmanaged):
@@ -168,13 +176,13 @@ class GenericValue(Snapshot):
 
 
 class UndecidedValue(GenericValue):
-    def __init__(self, old_value, ast_node, source):
+    def __init__(self, old_value, ast_node, context: AdapterContext):
 
         old_value = adapter_map(old_value, map_unmanaged)
         self._old_value = old_value
         self._new_value = undefined
         self._ast_node = ast_node
-        self._file = SourceFile(source)
+        self._context = context
 
     def _change(self, cls):
         self.__class__ = cls
@@ -186,13 +194,13 @@ class UndecidedValue(GenericValue):
 
         def handle(node, obj):
 
-            adapter = self.get_adapter(obj)
+            adapter = get_adapter_type(obj)
             if adapter is not None and hasattr(adapter, "items"):
                 for item in adapter.items(obj, node):
                     yield from handle(item.node, item.value)
                 return
 
-            if not isinstance(obj, Unmanaged):
+            if not isinstance(obj, Unmanaged) and node is not None:
                 new_token = value_to_token(obj)
                 if self._file._token_of_node(node) != new_token:
                     new_code = self._file._token_to_code(new_token)
@@ -259,7 +267,7 @@ class EqValue(GenericValue):
             _missing_values += 1
 
         if not compare_only() and self._new_value is undefined:
-            adapter = Adapter(self._file).get_adapter(self._old_value, other)
+            adapter = Adapter(self._context).get_adapter(self._old_value, other)
             it = iter(adapter.assign(self._old_value, self._ast_node, clone(other)))
             self._changes = []
             while True:
@@ -473,18 +481,18 @@ class DictValue(GenericValue):
                     child_node = self._ast_node.values[pos]
 
             self._new_value[index] = UndecidedValue(
-                old_value.get(index, undefined), child_node, self._file
+                old_value.get(index, undefined), child_node, self._context
             )
 
         return self._new_value[index]
 
-    def _re_eval(self, value):
-        super()._re_eval(value)
+    def _re_eval(self, value, context: AdapterContext):
+        super()._re_eval(value, context)
 
         if self._new_value is not undefined and self._old_value is not undefined:
             for key, s in self._new_value.items():
                 if key in self._old_value:
-                    s._re_eval(self._old_value[key])
+                    s._re_eval(self._old_value[key], context)
 
     def _new_code(self):
         return (
@@ -594,6 +602,12 @@ def snapshot(obj: Any = undefined) -> Any:
 
     expr = Source.executing(frame)
 
+    source = cast(Source, getattr(expr, "source", None) if expr is not None else None)
+    context = AdapterContext(
+        file=SourceFile(source),
+        frame=FrameContext(globals=frame.f_globals, locals=frame.f_locals),
+    )
+
     module = inspect.getmodule(frame)
     if module is not None and module.__file__ is not None:
         _files_with_snapshots.add(module.__file__)
@@ -604,12 +618,12 @@ def snapshot(obj: Any = undefined) -> Any:
         node = expr.node
         if node is None:
             # we can run without knowing of the calling expression but we will not be able to fix code
-            snapshots[key] = SnapshotReference(obj, None)
+            snapshots[key] = SnapshotReference(obj, None, context)
         else:
             assert isinstance(node, ast.Call)
-            snapshots[key] = SnapshotReference(obj, expr)
+            snapshots[key] = SnapshotReference(obj, expr, context)
     else:
-        snapshots[key]._re_eval(obj)
+        snapshots[key]._re_eval(obj, context)
 
     return snapshots[key]._value
 
@@ -627,12 +641,11 @@ def used_externals(tree):
 
 
 class SnapshotReference:
-    def __init__(self, value, expr):
+    def __init__(self, value, expr, context: AdapterContext):
         self._expr = expr
         node = expr.node.args[0] if expr is not None and expr.node.args else None
         source = expr.source if expr is not None else None
-        self._value = UndecidedValue(value, node, source)
-        self._uses_externals = []
+        self._value = UndecidedValue(value, node, context)
 
     def _changes(self):
 
@@ -657,5 +670,5 @@ class SnapshotReference:
 
             yield from self._value._get_changes()
 
-    def _re_eval(self, obj):
-        self._value._re_eval(obj)
+    def _re_eval(self, obj, context: AdapterContext):
+        self._value._re_eval(obj, context)
