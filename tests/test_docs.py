@@ -8,10 +8,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-import inline_snapshot._inline_snapshot
 import pytest
 from inline_snapshot import snapshot
 from inline_snapshot.extra import raises
+from inline_snapshot.global_state import state
 
 
 @dataclass
@@ -365,6 +365,4 @@ line-length=80
             last_code = code
         return block
 
-    map_code_blocks(
-        file, test_block, inline_snapshot._inline_snapshot._update_flags.fix
-    )
+    map_code_blocks(file, test_block, state()._update_flags.fix)

@@ -6,7 +6,6 @@ from typing import cast
 from typing import Dict  # noqa
 from typing import Iterator
 from typing import List
-from typing import Set
 from typing import Tuple  # noqa
 from typing import TypeVar
 
@@ -28,57 +27,22 @@ from ._code_repr import code_repr
 from ._compare_context import compare_only
 from ._exceptions import UsageError
 from ._sentinels import undefined
-from ._types import Category
 from ._types import Snapshot
 from ._unmanaged import map_unmanaged
 from ._unmanaged import Unmanaged
 from ._unmanaged import update_allowed
 from ._utils import value_to_token
-
-
-snapshots = {}  # type: Dict[Tuple[int, int], SnapshotReference]
-
-_active = False
-
-_files_with_snapshots: Set[str] = set()
-
-_missing_values = 0
-_incorrect_values = 0
+from .global_state import state
 
 
 def _return(result):
-    global _incorrect_values
     if not result:
-        _incorrect_values += 1
+        state()._incorrect_values += 1
     return result
 
 
-class Flags:
-    """
-    fix: the value needs to be changed to pass the tests
-    update: the value should be updated because the token-stream has changed
-    create: the snapshot is empty `snapshot()`
-    trim: the snapshot contains more values than neccessary. 1 could be trimmed in `5 in snapshot([1,5])`.
-    """
-
-    def __init__(self, flags: Set[Category] = set()):
-        self.fix = "fix" in flags
-        self.update = "update" in flags
-        self.create = "create" in flags
-        self.trim = "trim" in flags
-
-    def to_set(self):
-        return {k for k, v in self.__dict__.items() if v}
-
-    def __repr__(self):
-        return f"Flags({self.to_set()})"
-
-
-_update_flags = Flags()
-
-
 def ignore_old_value():
-    return _update_flags.fix or _update_flags.update
+    return state()._update_flags.fix or state()._update_flags.update
 
 
 class GenericValue(Snapshot):
@@ -127,9 +91,9 @@ class GenericValue(Snapshot):
 
     def _ignore_old(self):
         return (
-            _update_flags.fix
-            or _update_flags.update
-            or _update_flags.create
+            state()._update_flags.fix
+            or state()._update_flags.update
+            or state()._update_flags.create
             or self._old_value is undefined
         )
 
@@ -262,9 +226,8 @@ class EqValue(GenericValue):
     _changes: List[Change]
 
     def __eq__(self, other):
-        global _missing_values
         if self._old_value is undefined:
-            _missing_values += 1
+            state()._missing_values += 1
 
         if not compare_only() and self._new_value is undefined:
             adapter = Adapter(self._context).get_adapter(self._old_value, other)
@@ -302,9 +265,8 @@ class MinMaxValue(GenericValue):
         raise NotImplemented
 
     def _generic_cmp(self, other):
-        global _missing_values
         if self._old_value is undefined:
-            _missing_values += 1
+            state()._missing_values += 1
 
         if self._new_value is undefined:
             self._new_value = clone(other)
@@ -392,9 +354,8 @@ class CollectionValue(GenericValue):
     _current_op = "x in snapshot"
 
     def __contains__(self, item):
-        global _missing_values
         if self._old_value is undefined:
-            _missing_values += 1
+            state()._missing_values += 1
 
         if self._new_value is undefined:
             self._new_value = [clone(item)]
@@ -462,7 +423,6 @@ class DictValue(GenericValue):
     _current_op = "snapshot[key]"
 
     def __getitem__(self, index):
-        global _missing_values
 
         if self._new_value is undefined:
             self._new_value = {}
@@ -470,7 +430,7 @@ class DictValue(GenericValue):
         if index not in self._new_value:
             old_value = self._old_value
             if old_value is undefined:
-                _missing_values += 1
+                state()._missing_values += 1
                 old_value = {}
 
             child_node = None
@@ -585,7 +545,7 @@ def snapshot(obj: Any = undefined) -> Any:
 
     `snapshot(value)` has general the semantic of an noop which returns `value`.
     """
-    if not _active:
+    if not state()._active:
         if obj is undefined:
             raise AssertionError(
                 "your snapshot is missing a value run pytest with --inline-snapshot=create"
@@ -610,22 +570,22 @@ def snapshot(obj: Any = undefined) -> Any:
 
     module = inspect.getmodule(frame)
     if module is not None and module.__file__ is not None:
-        _files_with_snapshots.add(module.__file__)
+        state()._files_with_snapshots.add(module.__file__)
 
     key = id(frame.f_code), frame.f_lasti
 
-    if key not in snapshots:
+    if key not in state().snapshots:
         node = expr.node
         if node is None:
             # we can run without knowing of the calling expression but we will not be able to fix code
-            snapshots[key] = SnapshotReference(obj, None, context)
+            state().snapshots[key] = SnapshotReference(obj, None, context)
         else:
             assert isinstance(node, ast.Call)
-            snapshots[key] = SnapshotReference(obj, expr, context)
+            state().snapshots[key] = SnapshotReference(obj, expr, context)
     else:
-        snapshots[key]._re_eval(obj, context)
+        state().snapshots[key]._re_eval(obj, context)
 
-    return snapshots[key]._value
+    return state().snapshots[key]._value
 
 
 def used_externals(tree):

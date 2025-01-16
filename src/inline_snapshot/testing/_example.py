@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 import os
 import platform
 import re
@@ -14,52 +13,16 @@ from tempfile import TemporaryDirectory
 from typing import Any
 
 import inline_snapshot._external
-import inline_snapshot._external as external
 from inline_snapshot._problems import report_problems
 from rich.console import Console
 
-from .. import _inline_snapshot
 from .._change import apply_all
-from .._inline_snapshot import Flags
+from .._flags import Flags
 from .._rewrite_code import ChangeRecorder
 from .._types import Category
 from .._types import Snapshot
-
-
-@contextlib.contextmanager
-def snapshot_env():
-    import inline_snapshot._inline_snapshot as inline_snapshot
-
-    current = (
-        inline_snapshot.snapshots,
-        inline_snapshot._update_flags,
-        inline_snapshot._active,
-        external.storage,
-        inline_snapshot._files_with_snapshots,
-        inline_snapshot._missing_values,
-        inline_snapshot._incorrect_values,
-    )
-
-    inline_snapshot.snapshots = {}
-    inline_snapshot._update_flags = inline_snapshot.Flags()
-    inline_snapshot._active = True
-    external.storage = None
-    inline_snapshot._files_with_snapshots = set()
-    inline_snapshot._missing_values = 0
-    inline_snapshot._incorrect_values = 0
-
-    try:
-        yield
-    finally:
-        (
-            inline_snapshot.snapshots,
-            inline_snapshot._update_flags,
-            inline_snapshot._active,
-            external.storage,
-            inline_snapshot._files_with_snapshots,
-            inline_snapshot._missing_values,
-            inline_snapshot._incorrect_values,
-        ) = current
+from ..global_state import snapshot_env
+from ..global_state import state
 
 
 ansi_escape = re.compile(
@@ -173,7 +136,7 @@ class Example:
             raised_exception = None
             with snapshot_env():
                 with ChangeRecorder().activate() as recorder:
-                    _inline_snapshot._update_flags = Flags({*flags})
+                    state()._update_flags = Flags({*flags})
                     inline_snapshot._external.storage = (
                         inline_snapshot._external.DiscStorage(tmp_path / ".storage")
                     )
@@ -196,10 +159,10 @@ class Example:
                         raised_exception = e
 
                     finally:
-                        _inline_snapshot._active = False
+                        state()._active = False
 
                     changes = []
-                    for snapshot in _inline_snapshot.snapshots.values():
+                    for snapshot in state().snapshots.values():
                         changes += snapshot._changes()
 
                     snapshot_flags = {change.flag for change in changes}
@@ -208,7 +171,7 @@ class Example:
                         [
                             change
                             for change in changes
-                            if change.flag in _inline_snapshot._update_flags.to_set()
+                            if change.flag in state()._update_flags.to_set()
                         ]
                     )
                 recorder.fix_all()
