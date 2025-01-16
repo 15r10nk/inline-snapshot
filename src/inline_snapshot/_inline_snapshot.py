@@ -3,14 +3,10 @@ import copy
 import inspect
 from typing import Any
 from typing import cast
-from typing import Dict  # noqa
 from typing import Iterator
-from typing import List
-from typing import Tuple  # noqa
 from typing import TypeVar
 
 from executing import Source
-from inline_snapshot._adapter.adapter import Adapter
 from inline_snapshot._adapter.adapter import adapter_map
 from inline_snapshot._source_file import SourceFile
 
@@ -21,7 +17,6 @@ from ._change import CallArg
 from ._change import Change
 from ._change import Replace
 from ._code_repr import code_repr
-from ._compare_context import compare_only
 from ._exceptions import UsageError
 from ._sentinels import undefined
 from ._types import Snapshot
@@ -181,6 +176,8 @@ class UndecidedValue(GenericValue):
     # functions which determine the type
 
     def __eq__(self, other):
+        from ._snapshot.eq_value import EqValue
+
         self._change(EqValue)
         return self == other
 
@@ -224,42 +221,6 @@ Please fix the way your object is copied or your __eq__ implementation.
 """
         )
     return new
-
-
-class EqValue(GenericValue):
-    _current_op = "x == snapshot"
-    _changes: List[Change]
-
-    def __eq__(self, other):
-        if self._old_value is undefined:
-            state()._missing_values += 1
-
-        if not compare_only() and self._new_value is undefined:
-            adapter = Adapter(self._context).get_adapter(self._old_value, other)
-            it = iter(adapter.assign(self._old_value, self._ast_node, clone(other)))
-            self._changes = []
-            while True:
-                try:
-                    self._changes.append(next(it))
-                except StopIteration as ex:
-                    self._new_value = ex.value
-                    break
-
-        return _return(self._visible_value() == other)
-
-        # if self._new_value is undefined:
-        #     self._new_value = use_valid_old_values(self._old_value, clone(other))
-        #     if self._old_value is undefined or ignore_old_value():
-        #         return True
-        #     return _return(self._old_value == other)
-        # else:
-        #     return _return(self._new_value == other)
-
-    def _new_code(self):
-        return self._file._value_to_code(self._new_value)
-
-    def _get_changes(self) -> Iterator[Change]:
-        return iter(self._changes)
 
 
 T = TypeVar("T")
