@@ -113,7 +113,7 @@ dependencies = [
 installer="uv"
 
 [tool.hatch.envs.cov.scripts]
-gh=[
+github=[
     "- rm htmlcov/*",
     "gh run download -n html-report -D htmlcov",
     "xdg-open htmlcov/index.html",

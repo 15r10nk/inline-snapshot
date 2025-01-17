@@ -265,8 +265,11 @@ class DataclassAdapter(GenericCallAdapter):
         return ([], kwargs)
 
     def argument(self, value, pos_or_name):
-        assert isinstance(pos_or_name, str)
-        return getattr(value, pos_or_name)
+        if isinstance(pos_or_name, str):
+            return getattr(value, pos_or_name)
+        else:
+            args = [field for field in fields(value) if field.init]
+            return args[pos_or_name]
 
 
 try:

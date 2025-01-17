@@ -95,7 +95,8 @@ class A:
     c:list=field(default_factory=list)
 
 def test_something():
-    assert A(a=1) == snapshot(A(a=1,b=2,c=[]))
+    for _ in [1,2]:
+        assert A(a=1) == snapshot(A(a=1,b=2,c=[]))
 """
     ).run_inline(
         ["--inline-snapshot=update"],
@@ -112,7 +113,47 @@ class A:
     c:list=field(default_factory=list)
 
 def test_something():
-    assert A(a=1) == snapshot(A(a=1))
+    for _ in [1,2]:
+        assert A(a=1) == snapshot(A(a=1))
+"""
+            }
+        ),
+    )
+
+
+def test_dataclass_positional_arguments():
+    Example(
+        """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+
+@dataclass
+class A:
+    a:int
+    b:int=2
+    c:list=field(default_factory=list)
+
+def test_something():
+    for _ in [1,2]:
+        assert A(a=1) == snapshot(A(1,2,c=[]))
+"""
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+
+@dataclass
+class A:
+    a:int
+    b:int=2
+    c:list=field(default_factory=list)
+
+def test_something():
+    for _ in [1,2]:
+        assert A(a=1) == snapshot(A(1,2))
 """
             }
         ),
@@ -400,12 +441,18 @@ class LAdapter(GenericCallAdapter):
         return value.l[pos_or_name]
 
 def test_L1():
-    assert L(1,2) == snapshot(L(1)), "not equal"
+    for _ in [1,2]:
+        assert L(1,2) == snapshot(L(1)), "not equal"
 
 def test_L2():
-    assert L(1,2) == snapshot(L(1, 2, 3)), "not equal"
+    for _ in [1,2]:
+        assert L(1,2) == snapshot(L(1, 2, 3)), "not equal"
+
+def test_L3():
+    for _ in [1,2]:
+        assert L(1,2) == snapshot(L(1, 2)), "not equal"
 """
-    ).run_pytest(
+    ).run_pytest().run_pytest(
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
@@ -439,10 +486,16 @@ class LAdapter(GenericCallAdapter):
         return value.l[pos_or_name]
 
 def test_L1():
-    assert L(1,2) == snapshot(L(1, 2)), "not equal"
+    for _ in [1,2]:
+        assert L(1,2) == snapshot(L(1, 2)), "not equal"
 
 def test_L2():
-    assert L(1,2) == snapshot(L(1, 2)), "not equal"
+    for _ in [1,2]:
+        assert L(1,2) == snapshot(L(1, 2)), "not equal"
+
+def test_L3():
+    for _ in [1,2]:
+        assert L(1,2) == snapshot(L(1, 2)), "not equal"
 """
             }
         ),
