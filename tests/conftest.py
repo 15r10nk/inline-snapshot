@@ -19,7 +19,6 @@ import pytest
 from inline_snapshot._change import apply_all
 from inline_snapshot._flags import Flags
 from inline_snapshot._format import format_code
-from inline_snapshot._global_state import state
 from inline_snapshot._rewrite_code import ChangeRecorder
 from inline_snapshot._types import Category
 from inline_snapshot.testing._example import snapshot_env
@@ -101,9 +100,9 @@ from inline_snapshot import outsource
             print("input:")
             print(textwrap.indent(source, " |", lambda line: True).rstrip())
 
-            with snapshot_env():
+            with snapshot_env() as state:
                 with ChangeRecorder().activate() as recorder:
-                    state().update_flags = flags
+                    state.update_flags = flags
                     inline_snapshot._external.storage = (
                         inline_snapshot._external.DiscStorage(tmp_path / ".storage")
                     )
@@ -116,12 +115,12 @@ from inline_snapshot import outsource
                         traceback.print_exc()
                         error = True
                     finally:
-                        state().active = False
+                        state.active = False
 
-                    number_snapshots = len(state().snapshots)
+                    number_snapshots = len(state.snapshots)
 
                     changes = []
-                    for snapshot in state().snapshots.values():
+                    for snapshot in state.snapshots.values():
                         changes += snapshot._changes()
 
                     snapshot_flags = {change.flag for change in changes}
@@ -130,7 +129,7 @@ from inline_snapshot import outsource
                         [
                             change
                             for change in changes
-                            if change.flag in state().update_flags.to_set()
+                            if change.flag in state.update_flags.to_set()
                         ]
                     )
 

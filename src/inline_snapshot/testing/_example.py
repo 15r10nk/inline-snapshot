@@ -19,7 +19,6 @@ from rich.console import Console
 from .._change import apply_all
 from .._flags import Flags
 from .._global_state import snapshot_env
-from .._global_state import state
 from .._rewrite_code import ChangeRecorder
 from .._types import Category
 from .._types import Snapshot
@@ -134,9 +133,9 @@ class Example:
             self._write_files(tmp_path)
 
             raised_exception = None
-            with snapshot_env():
+            with snapshot_env() as state:
                 with ChangeRecorder().activate() as recorder:
-                    state().update_flags = Flags({*flags})
+                    state.update_flags = Flags({*flags})
                     inline_snapshot._external.storage = (
                         inline_snapshot._external.DiscStorage(tmp_path / ".storage")
                     )
@@ -159,10 +158,10 @@ class Example:
                         raised_exception = e
 
                     finally:
-                        state().active = False
+                        state.active = False
 
                     changes = []
-                    for snapshot in state().snapshots.values():
+                    for snapshot in state.snapshots.values():
                         changes += snapshot._changes()
 
                     snapshot_flags = {change.flag for change in changes}
@@ -171,7 +170,7 @@ class Example:
                         [
                             change
                             for change in changes
-                            if change.flag in state().update_flags.to_set()
+                            if change.flag in state.update_flags.to_set()
                         ]
                     )
                 recorder.fix_all()
