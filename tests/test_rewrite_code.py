@@ -1,9 +1,10 @@
 import pytest
+
 from inline_snapshot._rewrite_code import ChangeRecorder
-from inline_snapshot._rewrite_code import end_of
-from inline_snapshot._rewrite_code import range_of
 from inline_snapshot._rewrite_code import SourcePosition
 from inline_snapshot._rewrite_code import SourceRange
+from inline_snapshot._rewrite_code import end_of
+from inline_snapshot._rewrite_code import range_of
 from inline_snapshot._rewrite_code import start_of
 
 

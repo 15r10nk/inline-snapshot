@@ -7,8 +7,8 @@ from .._change import Change
 from .._compare_context import compare_only
 from .._global_state import state
 from .._sentinels import undefined
-from .generic_value import clone
 from .generic_value import GenericValue
+from .generic_value import clone
 
 
 class EqValue(GenericValue):

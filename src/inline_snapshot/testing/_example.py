@@ -12,9 +12,10 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
+from rich.console import Console
+
 import inline_snapshot._external
 from inline_snapshot._problems import report_problems
-from rich.console import Console
 
 from .._change import apply_all
 from .._flags import Flags
@@ -22,7 +23,6 @@ from .._global_state import snapshot_env
 from .._rewrite_code import ChangeRecorder
 from .._types import Category
 from .._types import Snapshot
-
 
 ansi_escape = re.compile(
     r"""

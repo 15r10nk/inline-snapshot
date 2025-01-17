@@ -11,8 +11,8 @@ from .._change import ListInsert
 from .._compare_context import compare_context
 from ..syntax_warnings import InlineSnapshotSyntaxWarning
 from .adapter import Adapter
-from .adapter import adapter_map
 from .adapter import Item
+from .adapter import adapter_map
 
 
 class SequenceAdapter(Adapter):

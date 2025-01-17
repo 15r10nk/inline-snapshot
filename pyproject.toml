@@ -220,3 +220,7 @@ version = "command: cz bump --get-next"
 
 [tool.pytest.ini_options]
 markers=["no_rewriting: marks tests which need no code rewriting and can be used with pypy"]
+
+[tool.isort]
+profile="black"
+force_single_line=true

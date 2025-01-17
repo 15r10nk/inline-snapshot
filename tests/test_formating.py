@@ -3,9 +3,9 @@ import sys
 from types import SimpleNamespace
 
 from click.testing import CliRunner
+
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
-
 from tests._is_normalized import normalization
 
 

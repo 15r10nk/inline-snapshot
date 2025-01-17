@@ -2,10 +2,11 @@ import ast
 
 import pytest
 from executing import Source
-from inline_snapshot._change import apply_all
+
 from inline_snapshot._change import CallArg
 from inline_snapshot._change import Delete
 from inline_snapshot._change import Replace
+from inline_snapshot._change import apply_all
 from inline_snapshot._inline_snapshot import snapshot
 from inline_snapshot._rewrite_code import ChangeRecorder
 from inline_snapshot._source_file import SourceFile

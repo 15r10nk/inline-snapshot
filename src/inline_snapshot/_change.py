@@ -2,16 +2,17 @@ import ast
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
-from typing import cast
 from typing import DefaultDict
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
+from typing import cast
 
 from asttokens.util import Token
 from executing.executing import EnhancedAST
+
 from inline_snapshot._source_file import SourceFile
 
 from ._rewrite_code import ChangeRecorder

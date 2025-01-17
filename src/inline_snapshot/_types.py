@@ -1,10 +1,8 @@
 """The following types are for type checking only."""
 
-...  # prevent lint error with black and reorder-python-imports
-
+from typing import TYPE_CHECKING
 from typing import Generic
 from typing import Literal
-from typing import TYPE_CHECKING
 from typing import TypeVar
 
 if TYPE_CHECKING:

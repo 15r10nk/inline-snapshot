@@ -78,7 +78,7 @@ class Adapter:
         assert False
 
     def assign(self, old_value, old_node, new_value):
-        raise NotImplementedError(cls)
+        raise NotImplementedError(self)
 
     def value_assign(self, old_value, old_node, new_value):
         from .value_adapter import ValueAdapter

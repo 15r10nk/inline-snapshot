@@ -7,7 +7,6 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
-
 if sys.version_info >= (3, 11):
     from tomllib import loads
 else:

@@ -14,8 +14,9 @@ from unittest import mock
 
 import black
 import executing
-import inline_snapshot._external
 import pytest
+
+import inline_snapshot._external
 from inline_snapshot._change import apply_all
 from inline_snapshot._flags import Flags
 from inline_snapshot._format import format_code

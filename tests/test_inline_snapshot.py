@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Union
 
 import pytest
+
 from inline_snapshot import snapshot
 from inline_snapshot._flags import Flags
 from inline_snapshot.testing import Example

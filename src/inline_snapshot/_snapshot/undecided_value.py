@@ -7,8 +7,8 @@ from .._adapter.adapter import get_adapter_type
 from .._change import Change
 from .._change import Replace
 from .._sentinels import undefined
-from .._unmanaged import map_unmanaged
 from .._unmanaged import Unmanaged
+from .._unmanaged import map_unmanaged
 from .._utils import value_to_token
 from .generic_value import GenericValue
 

@@ -1,10 +1,11 @@
 import ast
 import inspect
 from typing import Any
-from typing import cast
 from typing import TypeVar
+from typing import cast
 
 from executing import Source
+
 from inline_snapshot._source_file import SourceFile
 
 from ._adapter.adapter import AdapterContext

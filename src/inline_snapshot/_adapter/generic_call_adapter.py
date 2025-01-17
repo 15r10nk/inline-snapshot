@@ -4,17 +4,17 @@ import ast
 import warnings
 from abc import ABC
 from collections import defaultdict
+from dataclasses import MISSING
 from dataclasses import fields
 from dataclasses import is_dataclass
-from dataclasses import MISSING
 from typing import Any
 
 from .._change import CallArg
 from .._change import Delete
 from ..syntax_warnings import InlineSnapshotSyntaxWarning
 from .adapter import Adapter
-from .adapter import adapter_map
 from .adapter import Item
+from .adapter import adapter_map
 
 
 def get_adapter_for_type(typ):

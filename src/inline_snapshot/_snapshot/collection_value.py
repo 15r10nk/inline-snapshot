@@ -8,8 +8,8 @@ from .._change import Replace
 from .._global_state import state
 from .._sentinels import undefined
 from .._utils import value_to_token
-from .generic_value import clone
 from .generic_value import GenericValue
+from .generic_value import clone
 from .generic_value import ignore_old_value
 
 

@@ -4,7 +4,6 @@ from enum import Flag
 from functools import singledispatch
 from unittest import mock
 
-
 real_repr = repr
 
 

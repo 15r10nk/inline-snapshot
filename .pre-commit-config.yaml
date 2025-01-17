@@ -40,12 +40,12 @@ repos:
   hooks:
   - id: setup-cfg-fmt
 
-- repo: https://github.com/asottile/reorder-python-imports
-  rev: v3.13.0
+- repo: https://github.com/pycqa/isort
+  rev: 5.13.2
   hooks:
-  - args:
-    - --py38-plus
-    id: reorder-python-imports
+  - id: isort
+    name: isort (python)
+
 - hooks:
   - args:
     - --py38-plus

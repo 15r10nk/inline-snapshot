@@ -1,11 +1,14 @@
 import ast
 
+from inline_snapshot import _inline_snapshot
 from inline_snapshot import external
 from inline_snapshot import outsource
 from inline_snapshot import snapshot
+from inline_snapshot._find_external import ensure_import
 from inline_snapshot.extra import raises
-
 from tests.utils import config
+
+from .utils import apply_changes
 
 
 def test_basic(check_update):
@@ -314,9 +317,6 @@ def test_errors():
     assert external("123*.txt") != external("123*.bin")
 
 
-from inline_snapshot import _inline_snapshot
-
-
 def test_uses_external():
     assert _inline_snapshot.used_externals(ast.parse("[external('111*.txt')]"))
     assert not _inline_snapshot.used_externals(ast.parse("[external()]"))
@@ -352,11 +352,6 @@ test_something()
     \
 """
     )
-
-
-from inline_snapshot._find_external import ensure_import
-
-from .utils import apply_changes
 
 
 def test_ensure_imports(tmp_path):

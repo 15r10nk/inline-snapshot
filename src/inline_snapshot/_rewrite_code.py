@@ -16,7 +16,6 @@ from asttokens import LineNumbers
 from ._format import enforce_formatting
 from ._format import format_code
 
-
 if sys.version_info >= (3, 10):
     from itertools import pairwise
 else:

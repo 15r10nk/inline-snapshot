@@ -4,13 +4,14 @@ import sys
 from pathlib import Path
 
 import pytest
-from inline_snapshot._problems import report_problems
-from inline_snapshot.pydantic_fix import pydantic_fix
 from rich import box
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
+
+from inline_snapshot._problems import report_problems
+from inline_snapshot.pydantic_fix import pydantic_fix
 
 from . import _config
 from . import _external

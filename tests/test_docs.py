@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Optional
 
 import pytest
+
 from inline_snapshot import snapshot
 from inline_snapshot._global_state import state
 from inline_snapshot.extra import raises

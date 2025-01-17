@@ -7,8 +7,8 @@ from .._change import Delete
 from .._change import DictInsert
 from ..syntax_warnings import InlineSnapshotSyntaxWarning
 from .adapter import Adapter
-from .adapter import adapter_map
 from .adapter import Item
+from .adapter import adapter_map
 
 
 class DictAdapter(Adapter):
