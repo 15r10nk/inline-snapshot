@@ -1,16 +1,39 @@
 import ast
+import copy
 from typing import Any
 from typing import Iterator
 
 from .._adapter.adapter import AdapterContext
 from .._adapter.adapter import get_adapter_type
 from .._change import Change
+from .._code_repr import code_repr
 from .._exceptions import UsageError
 from .._sentinels import undefined
 from .._types import Snapshot
 from .._unmanaged import Unmanaged
 from .._unmanaged import update_allowed
 from ..global_state import state
+
+
+def clone(obj):
+    new = copy.deepcopy(obj)
+    if not obj == new:
+        raise UsageError(
+            f"""\
+inline-snapshot uses `copy.deepcopy` to copy objects,
+but the copied object is not equal to the original one:
+
+original: {code_repr(obj)}
+copied:   {code_repr(new)}
+
+Please fix the way your object is copied or your __eq__ implementation.
+"""
+        )
+    return new
+
+
+def ignore_old_value():
+    return state()._update_flags.fix or state()._update_flags.update
 
 
 class GenericValue(Snapshot):

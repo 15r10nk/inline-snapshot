@@ -5,10 +5,10 @@ from inline_snapshot._adapter.adapter import Adapter
 
 from .._change import Change
 from .._compare_context import compare_only
-from .._inline_snapshot import clone
-from .._inline_snapshot import GenericValue
 from .._sentinels import undefined
 from ..global_state import state
+from .generic_value import clone
+from .generic_value import GenericValue
 
 
 class EqValue(GenericValue):

@@ -5,12 +5,12 @@ from .._change import Change
 from .._change import Delete
 from .._change import ListInsert
 from .._change import Replace
-from .._inline_snapshot import clone
-from .._inline_snapshot import GenericValue
-from .._inline_snapshot import ignore_old_value
 from .._sentinels import undefined
 from .._utils import value_to_token
 from ..global_state import state
+from .generic_value import clone
+from .generic_value import GenericValue
+from .generic_value import ignore_old_value
 
 
 class CollectionValue(GenericValue):

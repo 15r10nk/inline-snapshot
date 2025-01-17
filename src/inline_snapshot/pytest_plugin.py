@@ -15,13 +15,13 @@ from rich.syntax import Syntax
 from . import _config
 from . import _external
 from . import _find_external
-from . import _inline_snapshot
 from ._change import apply_all
 from ._code_repr import used_hasrepr
 from ._find_external import ensure_import
 from ._flags import Flags
 from ._inline_snapshot import used_externals
 from ._rewrite_code import ChangeRecorder
+from ._snapshot.generic_value import GenericValue
 from .global_state import state
 
 pytest.register_assert_rewrite("inline_snapshot.extra")
@@ -166,12 +166,12 @@ def snapshot_check():
 
 def pytest_assertrepr_compare(config, op, left, right):
     results = []
-    if isinstance(left, _inline_snapshot.GenericValue):
+    if isinstance(left, GenericValue):
         results = config.hook.pytest_assertrepr_compare(
             config=config, op=op, left=left._visible_value(), right=right
         )
 
-    if isinstance(right, _inline_snapshot.GenericValue):
+    if isinstance(right, GenericValue):
         results = config.hook.pytest_assertrepr_compare(
             config=config, op=op, left=left, right=right._visible_value()
         )

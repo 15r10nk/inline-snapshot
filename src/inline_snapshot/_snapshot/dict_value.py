@@ -5,10 +5,10 @@ from .._adapter.adapter import AdapterContext
 from .._change import Change
 from .._change import Delete
 from .._change import DictInsert
-from .._inline_snapshot import GenericValue
 from .._inline_snapshot import UndecidedValue
 from .._sentinels import undefined
 from ..global_state import state
+from .generic_value import GenericValue
 
 
 class DictValue(GenericValue):
