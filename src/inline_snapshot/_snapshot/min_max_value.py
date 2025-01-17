@@ -15,7 +15,7 @@ class MinMaxValue(GenericValue):
 
     @staticmethod
     def cmp(a, b):
-        raise NotImplemented
+        raise NotImplementedError
 
     def _generic_cmp(self, other):
         if self._old_value is undefined:

@@ -111,7 +111,6 @@ class SnapshotReference:
     def __init__(self, value, expr, context: AdapterContext):
         self._expr = expr
         node = expr.node.args[0] if expr is not None and expr.node.args else None
-        source = expr.source if expr is not None else None
         self._value = UndecidedValue(value, node, context)
 
     def _changes(self):

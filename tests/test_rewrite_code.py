@@ -18,7 +18,7 @@ def test_range():
     assert range_of(r) == r
 
     with pytest.raises(ValueError):
-        rr = SourceRange(b, a)
+        SourceRange(b, a)
 
 
 def test_rewrite(tmp_path):

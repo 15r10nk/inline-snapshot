@@ -32,7 +32,6 @@ def map_code_blocks(file, func, fix=False):
     current_code = file.read_text("utf-8")
     new_lines = []
     block_lines = []
-    options = set()
     is_block = False
     code = None
     indent = ""
@@ -156,7 +155,7 @@ def test_map_code_blocks(tmp_path):
         if recorded_markdown_code != markdown_code:
             assert new_markdown_code == recorded_markdown_code
         else:
-            assert new_markdown_code == None
+            assert new_markdown_code is None
 
     test_doc(
         """

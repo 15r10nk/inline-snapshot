@@ -138,7 +138,7 @@ from inline_snapshot import outsource
             source = filename.read_text("utf-8")[len(prefix) :]
             print("reported_flags:", snapshot_flags)
             print(
-                f"run: pytest" + f' --inline-snapshot={",".join(flags.to_set())}'
+                f'run: pytest --inline-snapshot={",".join(flags.to_set())}'
                 if flags
                 else ""
             )

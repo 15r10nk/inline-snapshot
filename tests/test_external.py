@@ -170,7 +170,7 @@ def test_a():
 """
     )
 
-    result = project.run("--inline-snapshot=create")
+    project.run("--inline-snapshot=create")
 
     assert project.source == snapshot(
         """\

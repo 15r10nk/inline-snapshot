@@ -150,7 +150,7 @@ def snapshot_check():
     if missing_values != 0 and not state().update_flags.create:
         pytest.fail(
             (
-                f"your snapshot is missing one value."
+                "your snapshot is missing one value."
                 if missing_values == 1
                 else f"your snapshot is missing {missing_values} values."
             ),
@@ -243,7 +243,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             console.print()
             return result
         else:
-            console.print(f"These changes are not applied.")
+            console.print("These changes are not applied.")
             console.print(
                 f"Use [b]--inline-snapshot={flag}[/] to apply them, or use the interactive mode with [b]--inline-snapshot=review[/]",
                 highlight=False,

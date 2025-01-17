@@ -86,7 +86,7 @@ class DictAdapter(Adapter):
             old_value.keys(),
             (old_node.values if old_node is not None else [None] * len(old_value)),
         ):
-            if not key in new_value:
+            if key not in new_value:
                 # delete entries
                 yield Delete("fix", self.context.file._source, node, old_value[key])
 
