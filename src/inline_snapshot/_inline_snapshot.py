@@ -10,9 +10,9 @@ from inline_snapshot._source_file import SourceFile
 from ._adapter.adapter import AdapterContext
 from ._adapter.adapter import FrameContext
 from ._change import CallArg
+from ._global_state import state
 from ._sentinels import undefined
 from ._snapshot.undecided_value import UndecidedValue
-from .global_state import state
 
 
 class ReprWrapper:
@@ -52,7 +52,7 @@ def snapshot(obj: Any = undefined) -> Any:
 
     `snapshot(value)` has general the semantic of an noop which returns `value`.
     """
-    if not state()._active:
+    if not state().active:
         if obj is undefined:
             raise AssertionError(
                 "your snapshot is missing a value run pytest with --inline-snapshot=create"
@@ -77,7 +77,7 @@ def snapshot(obj: Any = undefined) -> Any:
 
     module = inspect.getmodule(frame)
     if module is not None and module.__file__ is not None:
-        state()._files_with_snapshots.add(module.__file__)
+        state().files_with_snapshots.add(module.__file__)
 
     key = id(frame.f_code), frame.f_lasti
 

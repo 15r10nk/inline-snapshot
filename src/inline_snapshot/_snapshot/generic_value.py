@@ -8,11 +8,11 @@ from .._adapter.adapter import get_adapter_type
 from .._change import Change
 from .._code_repr import code_repr
 from .._exceptions import UsageError
+from .._global_state import state
 from .._sentinels import undefined
 from .._types import Snapshot
 from .._unmanaged import Unmanaged
 from .._unmanaged import update_allowed
-from ..global_state import state
 
 
 def clone(obj):
@@ -33,7 +33,7 @@ Please fix the way your object is copied or your __eq__ implementation.
 
 
 def ignore_old_value():
-    return state()._update_flags.fix or state()._update_flags.update
+    return state().update_flags.fix or state().update_flags.update
 
 
 class GenericValue(Snapshot):
@@ -46,7 +46,7 @@ class GenericValue(Snapshot):
     @staticmethod
     def _return(result):
         if not result:
-            state()._incorrect_values += 1
+            state().incorrect_values += 1
         return result
 
     @property
@@ -88,9 +88,9 @@ class GenericValue(Snapshot):
 
     def _ignore_old(self):
         return (
-            state()._update_flags.fix
-            or state()._update_flags.update
-            or state()._update_flags.create
+            state().update_flags.fix
+            or state().update_flags.update
+            or state().update_flags.create
             or self._old_value is undefined
         )
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 from dataclasses import dataclass
 from dataclasses import field
+from typing import Generator
 
 from ._flags import Flags
 
@@ -10,35 +11,35 @@ from ._flags import Flags
 @dataclass
 class State:
     # snapshot
-    _missing_values: int = 0
-    _incorrect_values: int = 0
+    missing_values: int = 0
+    incorrect_values: int = 0
 
     snapshots: dict = field(default_factory=dict)
-    _update_flags: Flags = field(default_factory=Flags)
-    _active: bool = True
-    _files_with_snapshots: set[str] = field(default_factory=set)
+    update_flags: Flags = field(default_factory=Flags)
+    active: bool = True
+    files_with_snapshots: set[str] = field(default_factory=set)
 
     # external
     storage = None
 
 
 _current = State()
-_current._active = False
+_current.active = False
 
 
-def state():
+def state() -> State:
     global _current
     return _current
 
 
 @contextlib.contextmanager
-def snapshot_env():
+def snapshot_env() -> Generator[State]:
 
     global _current
     old = _current
     _current = State()
 
     try:
-        yield
+        yield _current
     finally:
         _current = old

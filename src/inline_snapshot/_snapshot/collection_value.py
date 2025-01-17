@@ -5,9 +5,9 @@ from .._change import Change
 from .._change import Delete
 from .._change import ListInsert
 from .._change import Replace
+from .._global_state import state
 from .._sentinels import undefined
 from .._utils import value_to_token
-from ..global_state import state
 from .generic_value import clone
 from .generic_value import GenericValue
 from .generic_value import ignore_old_value
@@ -18,7 +18,7 @@ class CollectionValue(GenericValue):
 
     def __contains__(self, item):
         if self._old_value is undefined:
-            state()._missing_values += 1
+            state().missing_values += 1
 
         if self._new_value is undefined:
             self._new_value = [clone(item)]

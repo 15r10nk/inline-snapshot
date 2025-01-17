@@ -18,11 +18,11 @@ from rich.console import Console
 
 from .._change import apply_all
 from .._flags import Flags
+from .._global_state import snapshot_env
+from .._global_state import state
 from .._rewrite_code import ChangeRecorder
 from .._types import Category
 from .._types import Snapshot
-from ..global_state import snapshot_env
-from ..global_state import state
 
 
 ansi_escape = re.compile(
@@ -136,7 +136,7 @@ class Example:
             raised_exception = None
             with snapshot_env():
                 with ChangeRecorder().activate() as recorder:
-                    state()._update_flags = Flags({*flags})
+                    state().update_flags = Flags({*flags})
                     inline_snapshot._external.storage = (
                         inline_snapshot._external.DiscStorage(tmp_path / ".storage")
                     )
@@ -159,7 +159,7 @@ class Example:
                         raised_exception = e
 
                     finally:
-                        state()._active = False
+                        state().active = False
 
                     changes = []
                     for snapshot in state().snapshots.values():
@@ -171,7 +171,7 @@ class Example:
                         [
                             change
                             for change in changes
-                            if change.flag in state()._update_flags.to_set()
+                            if change.flag in state().update_flags.to_set()
                         ]
                     )
                 recorder.fix_all()

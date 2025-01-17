@@ -5,8 +5,8 @@ from inline_snapshot._adapter.adapter import Adapter
 
 from .._change import Change
 from .._compare_context import compare_only
+from .._global_state import state
 from .._sentinels import undefined
-from ..global_state import state
 from .generic_value import clone
 from .generic_value import GenericValue
 
@@ -17,7 +17,7 @@ class EqValue(GenericValue):
 
     def __eq__(self, other):
         if self._old_value is undefined:
-            state()._missing_values += 1
+            state().missing_values += 1
 
         if not compare_only() and self._new_value is undefined:
             adapter = Adapter(self._context).get_adapter(self._old_value, other)

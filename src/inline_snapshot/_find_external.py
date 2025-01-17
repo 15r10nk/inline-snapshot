@@ -5,10 +5,10 @@ from typing import Set
 from executing import Source
 
 from . import _external
+from ._global_state import state
 from ._rewrite_code import ChangeRecorder
 from ._rewrite_code import end_of
 from ._rewrite_code import start_of
-from .global_state import state
 
 
 def contains_import(tree, module, name):
@@ -47,7 +47,7 @@ def used_externals_in(source) -> Set[str]:
 
 def used_externals() -> Set[str]:
     result = set()
-    for filename in state()._files_with_snapshots:
+    for filename in state().files_with_snapshots:
         result |= used_externals_in(pathlib.Path(filename).read_text("utf-8"))
 
     return result

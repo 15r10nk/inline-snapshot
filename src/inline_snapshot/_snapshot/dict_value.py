@@ -5,9 +5,9 @@ from .._adapter.adapter import AdapterContext
 from .._change import Change
 from .._change import Delete
 from .._change import DictInsert
+from .._global_state import state
 from .._inline_snapshot import UndecidedValue
 from .._sentinels import undefined
-from ..global_state import state
 from .generic_value import GenericValue
 
 
@@ -22,7 +22,7 @@ class DictValue(GenericValue):
         if index not in self._new_value:
             old_value = self._old_value
             if old_value is undefined:
-                state()._missing_values += 1
+                state().missing_values += 1
                 old_value = {}
 
             child_node = None
