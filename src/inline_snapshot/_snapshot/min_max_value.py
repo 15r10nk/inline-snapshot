@@ -2,7 +2,6 @@ from typing import Iterator
 
 from .._change import Change
 from .._change import Replace
-from .._inline_snapshot import _return
 from .._inline_snapshot import clone
 from .._inline_snapshot import GenericValue
 from .._inline_snapshot import ignore_old_value
@@ -26,12 +25,12 @@ class MinMaxValue(GenericValue):
             self._new_value = clone(other)
             if self._old_value is undefined or ignore_old_value():
                 return True
-            return _return(self.cmp(self._old_value, other))
+            return self._return(self.cmp(self._old_value, other))
         else:
             if not self.cmp(self._new_value, other):
                 self._new_value = clone(other)
 
-        return _return(self.cmp(self._visible_value(), other))
+        return self._return(self.cmp(self._visible_value(), other))
 
     def _new_code(self):
         return self._file._value_to_code(self._new_value)

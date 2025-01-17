@@ -5,7 +5,6 @@ from inline_snapshot._adapter.adapter import Adapter
 
 from .._change import Change
 from .._compare_context import compare_only
-from .._inline_snapshot import _return
 from .._inline_snapshot import clone
 from .._inline_snapshot import GenericValue
 from .._sentinels import undefined
@@ -31,7 +30,7 @@ class EqValue(GenericValue):
                     self._new_value = ex.value
                     break
 
-        return _return(self._visible_value() == other)
+        return self._return(self._visible_value() == other)
 
     def _new_code(self):
         return self._file._value_to_code(self._new_value)
