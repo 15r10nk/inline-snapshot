@@ -2,6 +2,7 @@ import tokenize
 from pathlib import Path
 
 from executing import Source
+
 from inline_snapshot._format import enforce_formatting
 from inline_snapshot._format import format_code
 from inline_snapshot._utils import normalize

@@ -1,4 +1,5 @@
 import pytest
+
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
 

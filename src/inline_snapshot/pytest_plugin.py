@@ -4,23 +4,26 @@ import sys
 from pathlib import Path
 
 import pytest
-from inline_snapshot._problems import report_problems
-from inline_snapshot.pydantic_fix import pydantic_fix
 from rich import box
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
 
+from inline_snapshot._problems import report_problems
+from inline_snapshot.pydantic_fix import pydantic_fix
+
 from . import _config
 from . import _external
 from . import _find_external
-from . import _inline_snapshot
 from ._change import apply_all
 from ._code_repr import used_hasrepr
 from ._find_external import ensure_import
+from ._flags import Flags
+from ._global_state import state
 from ._inline_snapshot import used_externals
 from ._rewrite_code import ChangeRecorder
+from ._snapshot.generic_value import GenericValue
 
 pytest.register_assert_rewrite("inline_snapshot.extra")
 pytest.register_assert_rewrite("inline_snapshot.testing._example")
@@ -105,19 +108,17 @@ def pytest_configure(config):
         )
 
     if xdist_running(config) or not is_implementation_supported():
-        _inline_snapshot._active = False
+        state().active = False
 
     elif flags & {"review"}:
-        _inline_snapshot._active = True
+        state().active = True
 
-        _inline_snapshot._update_flags = _inline_snapshot.Flags(
-            {"fix", "create", "update", "trim"}
-        )
+        state().update_flags = Flags({"fix", "create", "update", "trim"})
     else:
 
-        _inline_snapshot._active = "disable" not in flags
+        state().active = "disable" not in flags
 
-        _inline_snapshot._update_flags = _inline_snapshot.Flags(flags & categories)
+        state().update_flags = Flags(flags & categories)
 
     external_storage = (
         _config.config.storage_dir or config.rootpath / ".inline-snapshot"
@@ -140,24 +141,24 @@ def pytest_configure(config):
 
 @pytest.fixture(autouse=True)
 def snapshot_check():
-    _inline_snapshot._missing_values = 0
-    _inline_snapshot._incorrect_values = 0
+    state().missing_values = 0
+    state().incorrect_values = 0
     yield
 
-    missing_values = _inline_snapshot._missing_values
-    incorrect_values = _inline_snapshot._incorrect_values
+    missing_values = state().missing_values
+    incorrect_values = state().incorrect_values
 
-    if missing_values != 0 and not _inline_snapshot._update_flags.create:
+    if missing_values != 0 and not state().update_flags.create:
         pytest.fail(
             (
-                f"your snapshot is missing one value."
+                "your snapshot is missing one value."
                 if missing_values == 1
                 else f"your snapshot is missing {missing_values} values."
             ),
             pytrace=False,
         )
 
-    if incorrect_values != 0 and not _inline_snapshot._update_flags.fix:
+    if incorrect_values != 0 and not state().update_flags.fix:
         pytest.fail(
             "some snapshots in this test have incorrect values.",
             pytrace=False,
@@ -166,12 +167,12 @@ def snapshot_check():
 
 def pytest_assertrepr_compare(config, op, left, right):
     results = []
-    if isinstance(left, _inline_snapshot.GenericValue):
+    if isinstance(left, GenericValue):
         results = config.hook.pytest_assertrepr_compare(
             config=config, op=op, left=left._visible_value(), right=right
         )
 
-    if isinstance(right, _inline_snapshot.GenericValue):
+    if isinstance(right, GenericValue):
         results = config.hook.pytest_assertrepr_compare(
             config=config, op=op, left=left, right=right._visible_value()
         )
@@ -218,7 +219,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             )
         return
 
-    if not _inline_snapshot._active:
+    if not state().active:
         return
 
     terminalreporter.section("inline snapshot")
@@ -243,7 +244,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             console.print()
             return result
         else:
-            console.print(f"These changes are not applied.")
+            console.print("These changes are not applied.")
             console.print(
                 f"Use [b]--inline-snapshot={flag}[/] to apply them, or use the interactive mode with [b]--inline-snapshot=review[/]",
                 highlight=False,
@@ -266,7 +267,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         "create": 0,
     }
 
-    for snapshot in _inline_snapshot.snapshots.values():
+    for snapshot in state().snapshots.values():
         all_categories = set()
         for change in snapshot._changes():
             changes[change.flag].append(change)
@@ -285,7 +286,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             def report(flag, message, message_n):
                 num = snapshot_changes[flag]
 
-                if num and not getattr(_inline_snapshot._update_flags, flag):
+                if num and not getattr(state().update_flags, flag):
                     console.print(
                         message if num == 1 else message.format(num=num),
                         highlight=False,
@@ -391,7 +392,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
         unused_externals = _find_external.unused_externals()
 
-        if unused_externals and _inline_snapshot._update_flags.trim:
+        if unused_externals and state().update_flags.trim:
             for name in unused_externals:
                 assert _external.storage
                 _external.storage.remove(name)

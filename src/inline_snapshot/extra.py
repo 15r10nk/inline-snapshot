@@ -5,13 +5,16 @@ They are part of inline-snapshot because they are general useful and do
 not depend on other libraries.
 """
 
-...  # prevent lint error with black and reorder-python-imports
 import contextlib
-from typing import List, Tuple, Union
-from inline_snapshot._types import Snapshot
-from contextlib import redirect_stdout, redirect_stderr
 import io
 import warnings
+from contextlib import redirect_stderr
+from contextlib import redirect_stdout
+from typing import List
+from typing import Tuple
+from typing import Union
+
+from inline_snapshot._types import Snapshot
 
 
 @contextlib.contextmanager

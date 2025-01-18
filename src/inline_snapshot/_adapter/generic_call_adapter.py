@@ -4,17 +4,17 @@ import ast
 import warnings
 from abc import ABC
 from collections import defaultdict
+from dataclasses import MISSING
 from dataclasses import fields
 from dataclasses import is_dataclass
-from dataclasses import MISSING
 from typing import Any
 
 from .._change import CallArg
 from .._change import Delete
 from ..syntax_warnings import InlineSnapshotSyntaxWarning
 from .adapter import Adapter
-from .adapter import adapter_map
 from .adapter import Item
+from .adapter import adapter_map
 
 
 def get_adapter_for_type(typ):
@@ -83,10 +83,17 @@ class GenericCallAdapter(Adapter):
             assert isinstance(node, ast.Call)
             assert all(kw.arg for kw in node.keywords)
             kw_arg_node = {kw.arg: kw.value for kw in node.keywords if kw.arg}.get
-            pos_arg_node = lambda pos: node.args[pos]
+
+            def pos_arg_node(pos):
+                return node.args[pos]
+
         else:
-            kw_arg_node = lambda _: None
-            pos_arg_node = lambda _: None
+
+            def kw_arg_node(_):
+                return None
+
+            def pos_arg_node(_):
+                return None
 
         return [
             Item(value=arg.value, node=pos_arg_node(i))
@@ -166,7 +173,7 @@ class GenericCallAdapter(Adapter):
         # keyword arguments
         result_kwargs = {}
         for kw in old_node.keywords:
-            if (missing := not kw.arg in new_kwargs) or new_kwargs[kw.arg].is_default:
+            if (missing := kw.arg not in new_kwargs) or new_kwargs[kw.arg].is_default:
                 # delete entries
                 yield Delete(
                     "fix" if missing else "update",
@@ -258,8 +265,11 @@ class DataclassAdapter(GenericCallAdapter):
         return ([], kwargs)
 
     def argument(self, value, pos_or_name):
-        assert isinstance(pos_or_name, str)
-        return getattr(value, pos_or_name)
+        if isinstance(pos_or_name, str):
+            return getattr(value, pos_or_name)
+        else:
+            args = [field for field in fields(value) if field.init]
+            return args[pos_or_name]
 
 
 try:

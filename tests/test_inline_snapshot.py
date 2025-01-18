@@ -7,9 +7,9 @@ from dataclasses import dataclass
 from typing import Union
 
 import pytest
-from inline_snapshot import _inline_snapshot
+
 from inline_snapshot import snapshot
-from inline_snapshot._inline_snapshot import Flags
+from inline_snapshot._flags import Flags
 from inline_snapshot.testing import Example
 from inline_snapshot.testing._example import snapshot_env
 
@@ -23,8 +23,8 @@ def test_snapshot_eq():
 
 @pytest.mark.no_rewriting
 def test_disabled():
-    with snapshot_env():
-        _inline_snapshot._active = False
+    with snapshot_env() as state:
+        state.active = False
         with pytest.raises(AssertionError) as excinfo:
             assert 2 == snapshot()
 

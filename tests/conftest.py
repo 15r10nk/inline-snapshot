@@ -14,12 +14,12 @@ from unittest import mock
 
 import black
 import executing
-import inline_snapshot._external
 import pytest
-from inline_snapshot import _inline_snapshot
+
+import inline_snapshot._external
 from inline_snapshot._change import apply_all
+from inline_snapshot._flags import Flags
 from inline_snapshot._format import format_code
-from inline_snapshot._inline_snapshot import Flags
 from inline_snapshot._rewrite_code import ChangeRecorder
 from inline_snapshot._types import Category
 from inline_snapshot.testing._example import snapshot_env
@@ -101,9 +101,9 @@ from inline_snapshot import outsource
             print("input:")
             print(textwrap.indent(source, " |", lambda line: True).rstrip())
 
-            with snapshot_env():
+            with snapshot_env() as state:
                 with ChangeRecorder().activate() as recorder:
-                    _inline_snapshot._update_flags = flags
+                    state.update_flags = flags
                     inline_snapshot._external.storage = (
                         inline_snapshot._external.DiscStorage(tmp_path / ".storage")
                     )
@@ -116,12 +116,12 @@ from inline_snapshot import outsource
                         traceback.print_exc()
                         error = True
                     finally:
-                        _inline_snapshot._active = False
+                        state.active = False
 
-                    number_snapshots = len(_inline_snapshot.snapshots)
+                    number_snapshots = len(state.snapshots)
 
                     changes = []
-                    for snapshot in _inline_snapshot.snapshots.values():
+                    for snapshot in state.snapshots.values():
                         changes += snapshot._changes()
 
                     snapshot_flags = {change.flag for change in changes}
@@ -130,7 +130,7 @@ from inline_snapshot import outsource
                         [
                             change
                             for change in changes
-                            if change.flag in _inline_snapshot._update_flags.to_set()
+                            if change.flag in state.update_flags.to_set()
                         ]
                     )
 
@@ -139,7 +139,7 @@ from inline_snapshot import outsource
             source = filename.read_text("utf-8")[len(prefix) :]
             print("reported_flags:", snapshot_flags)
             print(
-                f"run: pytest" + f' --inline-snapshot={",".join(flags.to_set())}'
+                f'run: pytest --inline-snapshot={",".join(flags.to_set())}'
                 if flags
                 else ""
             )

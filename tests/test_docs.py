@@ -8,9 +8,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-import inline_snapshot._inline_snapshot
 import pytest
+
 from inline_snapshot import snapshot
+from inline_snapshot._global_state import state
 from inline_snapshot.extra import raises
 
 
@@ -32,7 +33,6 @@ def map_code_blocks(file, func, fix=False):
     current_code = file.read_text("utf-8")
     new_lines = []
     block_lines = []
-    options = set()
     is_block = False
     code = None
     indent = ""
@@ -156,7 +156,7 @@ def test_map_code_blocks(tmp_path):
         if recorded_markdown_code != markdown_code:
             assert new_markdown_code == recorded_markdown_code
         else:
-            assert new_markdown_code == None
+            assert new_markdown_code is None
 
     test_doc(
         """
@@ -365,6 +365,4 @@ line-length=80
             last_code = code
         return block
 
-    map_code_blocks(
-        file, test_block, inline_snapshot._inline_snapshot._update_flags.fix
-    )
+    map_code_blocks(file, test_block, state().update_flags.fix)

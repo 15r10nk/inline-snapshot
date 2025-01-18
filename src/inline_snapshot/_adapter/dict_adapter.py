@@ -7,8 +7,8 @@ from .._change import Delete
 from .._change import DictInsert
 from ..syntax_warnings import InlineSnapshotSyntaxWarning
 from .adapter import Adapter
-from .adapter import adapter_map
 from .adapter import Item
+from .adapter import adapter_map
 
 
 class DictAdapter(Adapter):
@@ -86,7 +86,7 @@ class DictAdapter(Adapter):
             old_value.keys(),
             (old_node.values if old_node is not None else [None] * len(old_value)),
         ):
-            if not key in new_value:
+            if key not in new_value:
                 # delete entries
                 yield Delete("fix", self.context.file._source, node, old_value[key])
 

@@ -1,7 +1,15 @@
 import dataclasses
+from collections import Counter
+from collections import OrderedDict
+from collections import UserDict
+from collections import UserList
+from collections import defaultdict
+from collections import namedtuple
 from dataclasses import dataclass
+from typing import NamedTuple
 
 import pytest
+
 from inline_snapshot import HasRepr
 from inline_snapshot import snapshot
 from inline_snapshot._code_repr import code_repr
@@ -239,16 +247,6 @@ assert Namespace.Color.red == snapshot(Namespace.Color.red)
         ),
     ).run_inline()
 
-
-from collections import (
-    Counter,
-    OrderedDict,
-    UserDict,
-    UserList,
-    defaultdict,
-    namedtuple,
-)
-from typing import NamedTuple
 
 A = namedtuple("A", "a,b", defaults=[0])
 B = namedtuple("B", "a,b", defaults=[0, 0])

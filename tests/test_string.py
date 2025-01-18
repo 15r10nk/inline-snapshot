@@ -2,6 +2,7 @@ import ast
 
 from hypothesis import given
 from hypothesis.strategies import text
+
 from inline_snapshot import snapshot
 from inline_snapshot._utils import triple_quote
 
