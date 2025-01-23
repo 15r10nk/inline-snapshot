@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from executing import is_pytest_compatible
 from rich import box
 from rich.console import Console
 from rich.panel import Panel
@@ -126,7 +127,7 @@ def pytest_configure(config):
 
     _external.storage = _external.DiscStorage(external_storage)
 
-    if flags - {"short-report", "disable"}:
+    if flags - {"short-report", "disable"} and not is_pytest_compatible():
 
         # hack to disable the assertion rewriting
         # I found no other way because the hook gets installed early
@@ -324,9 +325,10 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
             return
 
-        assert not any(
-            type(e).__name__ == "AssertionRewritingHook" for e in sys.meta_path
-        )
+        if not is_pytest_compatible():
+            assert not any(
+                type(e).__name__ == "AssertionRewritingHook" for e in sys.meta_path
+            )
 
         used_changes = []
         for flag in ("create", "fix", "trim", "update"):
