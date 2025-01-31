@@ -29,6 +29,10 @@ from ._snapshot.generic_value import GenericValue
 pytest.register_assert_rewrite("inline_snapshot.extra")
 pytest.register_assert_rewrite("inline_snapshot.testing._example")
 
+if sys.version_info >= (3, 13):
+    # fixes #186
+    import readline  # noqa
+
 
 def pytest_addoption(parser, pluginmanager):
     group = parser.getgroup("inline-snapshot")
