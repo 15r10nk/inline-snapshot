@@ -718,12 +718,7 @@ def test_a():
         ["--inline-snapshot=creaigflen"],
         report=snapshot(""),
         returncode=snapshot(4),
-        stderr=snapshot(
-            """\
-ERROR: --inline-snapshot=creaigflen is a unknown flag
-
-"""
-        ),
+        stderr=snapshot("ERROR: --inline-snapshot=creaigflen is a unknown flag\n"),
     )
 
 

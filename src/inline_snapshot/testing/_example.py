@@ -258,7 +258,21 @@ class Example:
                 assert result.returncode == returncode
 
             if stderr is not None:
-                assert result.stderr.decode() == stderr
+
+                original = result.stderr.decode().splitlines()
+                lines = [
+                    line
+                    for line in original
+                    if not any(
+                        s in line
+                        for s in [
+                            'No entry for terminal type "unknown"',
+                            "using dumb terminal settings.",
+                        ]
+                    )
+                ]
+
+                assert "\n".join(lines) == stderr
 
             if report is not None:
 

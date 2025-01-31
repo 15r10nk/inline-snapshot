@@ -235,6 +235,22 @@ class RunResult:
         result = re.sub(r"\d+\.\d+s", "<time>", result)
         return result
 
+    @property
+    def stderr(self):
+        original = self._result.stderr.lines
+        lines = [
+            line
+            for line in original
+            if not any(
+                s in line
+                for s in [
+                    'No entry for terminal type "unknown"',
+                    "using dumb terminal settings.",
+                ]
+            )
+        ]
+        return pytest.LineMatcher(lines)
+
     def errorLines(self):
         result = self._join_lines(
             [line for line in self.stdout.lines if line and line[:2] in ("> ", "E ")]
