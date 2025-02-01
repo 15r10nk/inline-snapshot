@@ -1,9 +1,8 @@
 import pytest
+from executing import is_pytest_compatible
 
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
-
-from .utils import pytest_compatible
 
 
 def test_help_message(testdir):
@@ -125,7 +124,7 @@ Info: one snapshot changed its representation (--inline-snapshot=update)
 You can also use --inline-snapshot=review to approve the changes interactively
 """
         )
-        if pytest_compatible
+        if is_pytest_compatible()
         else snapshot("")
     )
 
@@ -223,7 +222,7 @@ Info: one snapshot changed its representation (--inline-snapshot=update)
 You can also use --inline-snapshot=review to approve the changes interactively
 """
         )
-        if pytest_compatible
+        if is_pytest_compatible()
         else snapshot(
             """\
 Error: one snapshot has incorrect values (--inline-snapshot=fix)
@@ -719,12 +718,7 @@ def test_a():
         ["--inline-snapshot=creaigflen"],
         report=snapshot(""),
         returncode=snapshot(4),
-        stderr=snapshot(
-            """\
-ERROR: --inline-snapshot=creaigflen is a unknown flag
-
-"""
-        ),
+        stderr=snapshot("ERROR: --inline-snapshot=creaigflen is a unknown flag\n"),
     )
 
 

@@ -62,7 +62,10 @@ It might be necessary to import the right modules to match the `repr()` output.
 The code is generated in the following way:
 
 1. The value is copied with `value = copy.deepcopy(value)` and it is checked if the copied value is equal to the original value.
-2. The code is generated with `repr(value)` (which can be [customized](customize_repr.md))
+2. The code is generated with:
+    * `repr(value)` (which can be [customized](customize_repr.md))
+    * or a special internal implementation for container types to support [unmanaged snapshot values](eq_snapshot.md#unmanaged-snapshot-values).
+      This can currently not be customized.
 3. Strings which contain newlines are converted to triple quoted strings.
 
     !!! note
