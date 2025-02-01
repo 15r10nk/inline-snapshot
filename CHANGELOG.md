@@ -1,4 +1,21 @@
 
+<a id='changelog-0.20.0'></a>
+# 0.20.0 — 2025-02-01
+
+## Changed
+
+- pytest assert rewriting works now together with inline-snapshot if you use `cpython>=3.11`
+
+- `...` is now a special value to *create* snapshot values.
+   The value change in `assert [5,4] == snapshot([5,...])` is now a *create* (previously it was a *fix*)
+
+## Fixed
+
+- fixed some issues with dataclass arguments
+
+- fixed an issue where --inline-snapshot=review discarded the user input and never formatted
+  the code if you used cpython 3.13.
+
 <a id='changelog-0.19.3'></a>
 # 0.19.3 — 2025-01-15
 
