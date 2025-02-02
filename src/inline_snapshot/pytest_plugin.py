@@ -11,9 +11,6 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
 
-from inline_snapshot._problems import report_problems
-from inline_snapshot.pydantic_fix import pydantic_fix
-
 from . import _config
 from . import _external
 from . import _find_external
@@ -24,8 +21,10 @@ from ._flags import Flags
 from ._global_state import snapshot_env
 from ._global_state import state
 from ._inline_snapshot import used_externals
+from ._problems import report_problems
 from ._rewrite_code import ChangeRecorder
 from ._snapshot.generic_value import GenericValue
+from .pydantic_fix import pydantic_fix
 
 pytest.register_assert_rewrite("inline_snapshot.extra")
 pytest.register_assert_rewrite("inline_snapshot.testing._example")
@@ -94,7 +93,16 @@ def pytest_configure(config):
         if directory == directory.parent:
             break
         directory = directory.parent
-    _config.config = _config.read_config(pyproject)
+    _config.config = _config.Config()
+
+    if is_pytest_compatible():
+        console = Console()
+        if console.is_terminal:
+            _config.config.default_flags = ["review"]
+        else:
+            _config.config.default_flags = ["report"]
+
+    _config.read_config(pyproject, _config.config)
 
     if config.option.inline_snapshot is None:
         flags = set(_config.config.default_flags)
