@@ -227,6 +227,7 @@ class Example:
         report: Snapshot[str] | None = None,
         stderr: Snapshot[str] | None = None,
         returncode: Snapshot[int] | None = None,
+        stdin: bytes = b"",
     ) -> Example:
         """Run pytest with the given args and env variables in an seperate
         process.
@@ -258,22 +259,32 @@ class Example:
             )
             command_env.pop("CI", None)
 
+            if stdin:
+                # makes Console.is_terminal == True
+                command_env["FORCE_COLOR"] = "true"
+
             command_env.update(env)
 
-            result = sp.run(cmd, cwd=tmp_path, capture_output=True, env=command_env)
+            result = sp.run(
+                cmd, cwd=tmp_path, capture_output=True, env=command_env, input=stdin
+            )
+
+            result_stdout = result.stdout.decode()
+            result_stderr = result.stderr.decode()
+            result_returncode = result.returncode
 
             print("run>", *cmd)
             print("stdout:")
-            print(result.stdout.decode())
+            print(result_stdout)
             print("stderr:")
-            print(result.stderr.decode())
+            print(result_stderr)
 
             if returncode is not None:
-                assert result.returncode == returncode
+                assert result_returncode == returncode
 
             if stderr is not None:
 
-                original = result.stderr.decode().splitlines()
+                original = result_stderr.splitlines()
                 lines = [
                     line
                     for line in original
@@ -292,8 +303,8 @@ class Example:
 
                 report_list = []
                 record = False
-                for line in result.stdout.decode().splitlines():
-                    line = line.strip()
+                for line in result_stdout.splitlines():
+                    line = normalize(line.strip())
                     if line.startswith("===="):
                         record = False
 
@@ -308,7 +319,7 @@ class Example:
 
                 report_str = "\n".join(report_list)
 
-                assert normalize(report_str) == report, repr(report_str)
+                assert report_str == report, repr(report_str)
 
             if changed_files is not None:
                 current_files = {}

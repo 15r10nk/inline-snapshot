@@ -3,6 +3,7 @@
 ``` python exec="1"
 from pathlib import Path
 from subprocess import run
+import re
 
 new_changes = list(Path.cwd().glob("changelog.d/*.md"))
 next_version = (
@@ -12,11 +13,14 @@ next_version = (
 )
 
 if new_changes:
-    print(f"# upcomming version ({next_version})")
+    print(f"## upcomming version ({next_version})")
 
 for file in new_changes:
-    print(file.read_text().replace("###", "##"))
+    print(file.read_text())
+
+full_changelog = Path("CHANGELOG.md").read_text()
+
+full_changelog = re.sub("^#", "##", full_changelog, flags=re.M)
+
+print(full_changelog)
 ```
-
-
---8<-- "CHANGELOG.md"

@@ -1,7 +1,7 @@
 
 ## pytest assert rewriting is disabled
 
-inline-snapshot must disable pytest assert-rewriting if you use report/review/create/fix/trim/update flags.
+inline-snapshot must disable pytest assert-rewriting if you use *report/review/create/fix/trim/update* flags and *cpython<3.11*.
 
 ## xdist is not supported
 

@@ -19,7 +19,7 @@ def test_a():
 """
     )
 
-    result = project.run()
+    result = project.run("--inline-snapshot=short-report")
 
     result.assert_outcomes(errors=1, passed=1)
 
@@ -66,7 +66,7 @@ def test_a():
 """
     )
 
-    result = project.run()
+    result = project.run("--inline-snapshot=short-report")
 
     result.assert_outcomes(failed=1, errors=1)
 
@@ -113,7 +113,7 @@ def test_a():
 """
     )
 
-    result = project.run()
+    result = project.run("--inline-snapshot=short-report")
 
     result.assert_outcomes(passed=1)
 
@@ -162,7 +162,7 @@ def test_a():
 """
     )
 
-    result = project.run()
+    result = project.run("--inline-snapshot=short-report")
 
     result.assert_outcomes(passed=1)
 
@@ -209,7 +209,7 @@ def test_a():
 """
     )
 
-    result = project.run()
+    result = project.run("--inline-snapshot=short-report")
 
     result.assert_outcomes(failed=1, errors=1)
 
@@ -561,7 +561,7 @@ def test_sub_snapshot():
 
     project.term_columns = 160
 
-    result = project.run()
+    result = project.run("--inline-snapshot=short-report")
 
     assert result.ret == 1
 
@@ -837,4 +837,87 @@ def test_something():
 """
             }
         ),
+    )
+
+
+@pytest.mark.xfail(
+    not is_pytest_compatible(), reason="this works only for cpython >=3.11"
+)
+def test_default_report():
+
+    Example(
+        """\
+import pytest
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 1==snapshot(5)
+"""
+    ).run_pytest(
+        report=snapshot(
+            """\
+-------------------------------- Fix snapshots ---------------------------------
++----------------------------- test_something.py ------------------------------+
+| @@ -2,4 +2,4 @@                                                              |
+|                                                                              |
+|  from inline_snapshot import snapshot                                        |
+|                                                                              |
+|  def test_a():                                                               |
+| -    assert 1==snapshot(5)                                                   |
+| +    assert 1==snapshot(1)                                                   |
++------------------------------------------------------------------------------+
+These changes are not applied.
+Use --inline-snapshot=fix to apply them, or use the interactive mode with
+--inline-snapshot=review\
+"""
+        ),
+        returncode=snapshot(1),
+        stderr=snapshot(""),
+        changed_files=snapshot({}),
+    )
+
+
+@pytest.mark.xfail(
+    not is_pytest_compatible(), reason="this works only for cpython >=3.11"
+)
+def test_default_review():
+
+    Example(
+        """\
+import pytest
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 1==snapshot(5)
+"""
+    ).run_pytest(
+        report=snapshot(
+            """\
+-------------------------------- Fix snapshots ---------------------------------
++----------------------------- test_something.py ------------------------------+
+| @@ -2,4 +2,4 @@                                                              |
+|                                                                              |
+|  from inline_snapshot import snapshot                                        |
+|                                                                              |
+|  def test_a():                                                               |
+| -    assert 1==snapshot(5)                                                   |
+| +    assert 1==snapshot(1)                                                   |
++------------------------------------------------------------------------------+
+do you want to fix these snapshots? [y/n] (n):\
+"""
+        ),
+        returncode=snapshot(1),
+        stderr=snapshot(""),
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+import pytest
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 1==snapshot(1)
+"""
+            }
+        ),
+        stdin=b"y\n",
     )
