@@ -19,7 +19,7 @@ def test_a():
 """
     )
 
-    result = project.run()
+    result = project.run("--inline-snapshot=short-report")
 
     result.assert_outcomes(errors=1, passed=1)
 
@@ -66,7 +66,7 @@ def test_a():
 """
     )
 
-    result = project.run()
+    result = project.run("--inline-snapshot=short-report")
 
     result.assert_outcomes(failed=1, errors=1)
 
@@ -113,7 +113,7 @@ def test_a():
 """
     )
 
-    result = project.run()
+    result = project.run("--inline-snapshot=short-report")
 
     result.assert_outcomes(passed=1)
 
@@ -162,7 +162,7 @@ def test_a():
 """
     )
 
-    result = project.run()
+    result = project.run("--inline-snapshot=short-report")
 
     result.assert_outcomes(passed=1)
 
@@ -209,7 +209,7 @@ def test_a():
 """
     )
 
-    result = project.run()
+    result = project.run("--inline-snapshot=short-report")
 
     result.assert_outcomes(failed=1, errors=1)
 
@@ -561,7 +561,7 @@ def test_sub_snapshot():
 
     project.term_columns = 160
 
-    result = project.run()
+    result = project.run("--inline-snapshot=short-report")
 
     assert result.ret == 1
 
