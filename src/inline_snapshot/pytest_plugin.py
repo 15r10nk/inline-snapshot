@@ -21,6 +21,7 @@ from ._change import apply_all
 from ._code_repr import used_hasrepr
 from ._find_external import ensure_import
 from ._flags import Flags
+from ._global_state import snapshot_env
 from ._global_state import state
 from ._inline_snapshot import used_externals
 from ._rewrite_code import ChangeRecorder
@@ -149,10 +150,17 @@ def pytest_configure(config):
 
 
 @pytest.fixture(autouse=True)
-def snapshot_check():
+def snapshot_check(request):
     state().missing_values = 0
     state().incorrect_values = 0
-    yield
+
+    if "xfail" in request.keywords:
+        with snapshot_env() as local_state:
+            local_state.active = False
+            yield
+        return
+    else:
+        yield
 
     missing_values = state().missing_values
     incorrect_values = state().incorrect_values
