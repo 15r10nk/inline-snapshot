@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import platform
+import pty
 import re
 import subprocess as sp
 import sys
@@ -213,6 +214,7 @@ class Example:
         report: Snapshot[str] | None = None,
         stderr: Snapshot[str] | None = None,
         returncode: Snapshot[int] | None = None,
+        stdin: bytes = b"",
     ) -> Example:
         """Run pytest with the given args and env variables in an seperate
         process.
@@ -246,20 +248,61 @@ class Example:
 
             command_env.update(env)
 
-            result = sp.run(cmd, cwd=tmp_path, capture_output=True, env=command_env)
+            if stdin:
+                sp_stdin = sp.PIPE
+                master, sp_stdin = pty.openpty()
+                proc = sp.Popen(
+                    cmd,
+                    stdin=sp.PIPE,
+                    stdout=sp_stdin,
+                    stderr=sp.PIPE,
+                    cwd=tmp_path,
+                    env=command_env,
+                )
+
+                if proc.stdin:
+                    proc.stdin.write(stdin)
+                    proc.stdin.flush()
+
+                stdout_bin = b""
+                if proc.stdout:
+                    while data := os.read(master, 1024):
+                        stdout_bin += data
+                result_stdout = stdout_bin.decode()
+
+                stderr_bin = b""
+                if proc.stderr:
+                    while data := proc.stderr.read(1024):
+                        stderr_bin += data
+                result_stderr = stderr_bin.decode()
+
+                if proc.stdin:
+                    proc.stdin.close()
+                os.close(master)
+                os.close(sp_stdin)
+
+                result_returncode = proc.wait()
+
+            else:
+
+                result = sp.run(cmd, cwd=tmp_path, capture_output=True, env=command_env)
+
+                result_stdout = result.stdout.decode()
+                result_stderr = result.stderr.decode()
+                result_returncode = result.returncode
 
             print("run>", *cmd)
             print("stdout:")
-            print(result.stdout.decode())
+            print(result_stdout)
             print("stderr:")
-            print(result.stderr.decode())
+            print(result_stderr)
 
             if returncode is not None:
-                assert result.returncode == returncode
+                assert result_returncode == returncode
 
             if stderr is not None:
 
-                original = result.stderr.decode().splitlines()
+                original = result_stderr.splitlines()
                 lines = [
                     line
                     for line in original
@@ -278,7 +321,7 @@ class Example:
 
                 report_list = []
                 record = False
-                for line in result.stdout.decode().splitlines():
+                for line in result_stdout.splitlines():
                     line = line.strip()
                     if line.startswith("===="):
                         record = False

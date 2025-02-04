@@ -802,6 +802,7 @@ def test_xfail():
     Example(
         """\
 import pytest
+from inline_snapshot import snapshot
 
 @pytest.mark.xfail
 def test_a():
@@ -813,4 +814,67 @@ def test_a():
         returncode=snapshot(0),
         stderr=snapshot(""),
         changed_files=snapshot({}),
+    )
+
+
+def test_default_report():
+
+    Example(
+        """\
+import pytest
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 1==snapshot(5)
+"""
+    ).run_pytest(
+        report=snapshot(
+            """\
+-------------------------------- Fix snapshots ---------------------------------
++----------------------------- test_something.py ------------------------------+
+| @@ -2,4 +2,4 @@                                                              |
+|                                                                              |
+|  from inline_snapshot import snapshot                                        |
+|                                                                              |
+|  def test_a():                                                               |
+| -    assert 1==snapshot(5)                                                   |
+| +    assert 1==snapshot(1)                                                   |
++------------------------------------------------------------------------------+
+These changes are not applied.
+Use --inline-snapshot=fix to apply them, or use the interactive mode with
+--inline-snapshot=review\
+"""
+        ),
+        returncode=snapshot(1),
+        stderr=snapshot(""),
+        changed_files=snapshot({}),
+    )
+
+
+def test_default_review():
+
+    Example(
+        """\
+import pytest
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 1==snapshot(5)
+"""
+    ).run_pytest(
+        report=snapshot(""""""),
+        returncode=snapshot(0),
+        stderr=snapshot(""),
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+import pytest
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 1==snapshot(1)
+"""
+            }
+        ),
+        stdin=b"y\n",
     )
