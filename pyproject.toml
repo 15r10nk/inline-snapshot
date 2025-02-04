@@ -27,7 +27,8 @@ dependencies = [
   "asttokens>=2.0.5",
   "executing>=2.2.0",
   "rich>=13.7.1",
-  "tomli>=2.0.0; python_version < '3.11'"
+  "tomli>=2.0.0; python_version < '3.11'",
+  "pytest>=3.8.4",
 ]
 description = "golden master/snapshot/approval testing library which puts the values right into your source code"
 keywords = []
@@ -56,7 +57,6 @@ dev = [
     "pytest-xdist>=3.6.1",
     "coverage[toml]>=7.6.1",
     "coverage-enable-subprocess>=1.0",
-    "pytest>=8",
     "attrs>=24.3.0",
     "pydantic>=1",
 ]
@@ -106,7 +106,6 @@ dependencies = [
   "mkdocstrings[python]>=0.19.0",
   "mkdocs-autorefs",
   "replace-url @ {root:uri}/docs/plugins",
-  "pytest",
   "black"
 ]
 [tool.hatch.envs.default]
@@ -135,8 +134,6 @@ extra-deps=["low","hight"]
 
 [tool.hatch.envs.hatch-test.overrides]
 matrix.extra-deps.dependencies = [
-  { value = "pytest==8.3.3", if = ["low"] },
-  { value = "pytest>=8.3.4", if = ["hight"] },
   { value = "pydantic<2", if = ["low"] },
   { value = "pydantic>=2", if = ["hight"] },
 ]
