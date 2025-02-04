@@ -31,7 +31,11 @@ pytest.register_assert_rewrite("inline_snapshot.testing._example")
 
 if sys.version_info >= (3, 13):
     # fixes #186
-    import readline  # noqa
+    try:
+        import readline  # noqa
+    except ModuleNotFoundError:  # pragma: no cover
+        # should fix #189
+        pass
 
 
 def pytest_addoption(parser, pluginmanager):
