@@ -1,4 +1,11 @@
 
+<a id='changelog-0.20.1'></a>
+# 0.20.1 — 2025-02-04
+
+## Fixed
+
+- Fixed a windows bug with the readline module (#189)
+
 <a id='changelog-0.20.0'></a>
 # 0.20.0 — 2025-02-01
 
