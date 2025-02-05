@@ -141,6 +141,7 @@ class Example:
                         inline_snapshot._external.DiscStorage(tmp_path / ".storage")
                     )
                     try:
+                        tests_found = False
                         for filename in tmp_path.glob("*.py"):
                             globals: dict[str, Any] = {}
                             print("run> pytest", filename)
@@ -150,13 +151,21 @@ class Example:
                             )
 
                             # run all test_* functions
-                            for k, v in globals.items():
-                                if k.startswith("test_") and callable(v):
-                                    try:
-                                        v()
-                                    except Exception as e:
-                                        traceback.print_exc()
-                                        raised_exception.append(e)
+                            tests = [
+                                v
+                                for k, v in globals.items()
+                                if (k.startswith("test_") or k == "test")
+                                and callable(v)
+                            ]
+                            tests_found |= len(tests) != 0
+
+                            for v in tests:
+                                try:
+                                    v()
+                                except Exception as e:
+                                    traceback.print_exc()
+                                    raised_exception.append(e)
+                        assert tests_found, "no test_*() functions in the example"
                     finally:
                         state.active = False
 

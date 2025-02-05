@@ -862,7 +862,7 @@ def test_starred_warns_list():
             [
                 Warning(
                     message="InlineSnapshotSyntaxWarning: star-expressions are not supported inside snapshots",
-                    line=4,
+                    line=5,
                 )
             ]
         ),
@@ -872,7 +872,8 @@ def test_starred_warns_list():
             """
 from inline_snapshot import snapshot
 
-assert [5] == snapshot([*[5]])
+def test():
+    assert [5] == snapshot([*[5]])
 """
         ).run_inline(["--inline-snapshot=fix"])
 
@@ -883,7 +884,7 @@ def test_starred_warns_dict():
             [
                 Warning(
                     message="InlineSnapshotSyntaxWarning: star-expressions are not supported inside snapshots",
-                    line=4,
+                    line=5,
                 )
             ]
         ),
@@ -893,7 +894,8 @@ def test_starred_warns_dict():
             """
 from inline_snapshot import snapshot
 
-assert {1:3} == snapshot({**{1:3}})
+def test():
+    assert {1:3} == snapshot({**{1:3}})
 """
         ).run_inline(["--inline-snapshot=fix"])
 

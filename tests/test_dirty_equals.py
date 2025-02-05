@@ -39,10 +39,11 @@ def test_compare_dirty_equals_twice() -> None:
 from dirty_equals import IsStr
 from inline_snapshot import snapshot
 
-for x in 'ab':
-    assert x == snapshot(IsStr())
-    assert [x,5] == snapshot([IsStr(),3])
-    assert {'a':x,'b':5} == snapshot({'a':IsStr(),'b':3})
+def test():
+    for x in 'ab':
+        assert x == snapshot(IsStr())
+        assert [x,5] == snapshot([IsStr(),3])
+        assert {'a':x,'b':5} == snapshot({'a':IsStr(),'b':3})
 
 """
     ).run_inline(
@@ -54,10 +55,11 @@ for x in 'ab':
 from dirty_equals import IsStr
 from inline_snapshot import snapshot
 
-for x in 'ab':
-    assert x == snapshot(IsStr())
-    assert [x,5] == snapshot([IsStr(),5])
-    assert {'a':x,'b':5} == snapshot({'a':IsStr(),'b':5})
+def test():
+    for x in 'ab':
+        assert x == snapshot(IsStr())
+        assert [x,5] == snapshot([IsStr(),5])
+        assert {'a':x,'b':5} == snapshot({'a':IsStr(),'b':5})
 
 """
             }
@@ -81,6 +83,10 @@ t=(1,2)
 d={1:2}
 l=[1,2]
 snapshot([Is(t),Is(d),Is(l)])
+
+def test():
+    pass
+
 """
     ).run_inline(
         ["--inline-snapshot=fix"],

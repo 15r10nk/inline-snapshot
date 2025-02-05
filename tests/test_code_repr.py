@@ -223,7 +223,8 @@ class Namespace:
     class Color(Enum):
         red="red"
 
-assert Namespace.Color.red == snapshot()
+def test():
+    assert Namespace.Color.red == snapshot()
 
     """
     ).run_inline(
@@ -239,7 +240,8 @@ class Namespace:
     class Color(Enum):
         red="red"
 
-assert Namespace.Color.red == snapshot(Namespace.Color.red)
+def test():
+    assert Namespace.Color.red == snapshot(Namespace.Color.red)
 
     \
 """
