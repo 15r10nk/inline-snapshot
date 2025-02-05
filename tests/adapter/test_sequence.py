@@ -104,3 +104,17 @@ def test_list():
             }
         ),
     )
+
+
+def test_tuple_constructor():
+    Example(
+        """\
+from inline_snapshot import snapshot
+
+def test_tuple():
+    snapshot(tuple()), "not equal"
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot({}),
+    )

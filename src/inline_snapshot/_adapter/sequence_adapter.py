@@ -36,10 +36,9 @@ class SequenceAdapter(Adapter):
 
     @classmethod
     def items(cls, value, node):
-        if node is None:
+        if node is None or not isinstance(node, cls.node_type):
             return [Item(value=v, node=None) for v in value]
 
-        assert isinstance(node, cls.node_type), (node, cls)
         assert len(value) == len(node.elts)
 
         return [Item(value=v, node=n) for v, n in zip(value, node.elts)]
