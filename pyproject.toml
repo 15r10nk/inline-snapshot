@@ -129,6 +129,10 @@ serve = "mkdocs serve"
 dependencies=["cogapp","lxml","requests"]
 scripts.update="cog -r docs/**.md"
 
+[tool.hatch.envs.gen]
+dependencies=["pysource-minimize"]
+scripts.test=["python testing/generate_tests.py"]
+
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ["3.13", "3.12", "3.11", "3.10", "3.9", "3.8","pypy3.9","pypy3.10"]
 extra-deps=["low","hight"]

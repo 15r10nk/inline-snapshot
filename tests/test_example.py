@@ -34,3 +34,15 @@ def test_no_tests():
 
     with raises(snapshot("UsageError: no test_*() functions in the example")):
         Example("").run_inline()
+
+
+def test_throws_exception():
+
+    with raises(snapshot("Exception: test")):
+        Example(
+            """\
+def test_a():
+    raise Exception("test")
+
+        """
+        ).run_inline()

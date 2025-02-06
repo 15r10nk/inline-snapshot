@@ -16,6 +16,7 @@ from typing import Any
 from rich.console import Console
 
 import inline_snapshot._external
+from inline_snapshot._exceptions import UsageError
 from inline_snapshot._problems import report_problems
 
 from .._change import apply_all
@@ -165,7 +166,9 @@ class Example:
                                 except Exception as e:
                                     traceback.print_exc()
                                     raised_exception.append(e)
-                        assert tests_found, "no test_*() functions in the example"
+
+                        if not tests_found:
+                            raise UsageError("no test_*() functions in the example")
                     finally:
                         state.active = False
 
@@ -194,6 +197,9 @@ class Example:
                 assert sorted(snapshot_flags) == reported_categories
 
             if raised_exception:
+                if raises is None:
+                    raise raised_exception[0]
+
                 assert raises == "\n".join(
                     f"{type(e).__name__}:\n" + str(e) for e in raised_exception
                 )
