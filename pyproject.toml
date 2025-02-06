@@ -59,6 +59,7 @@ dev = [
     "pytest>=8",
     "attrs>=24.3.0",
     "pydantic>=1",
+    "pytest-run-parallel",
 ]
 
 [project.entry-points.pytest11]
@@ -154,7 +155,8 @@ extra-dependencies = [
   "pyright>=1.1.359",
   "pytest-subtests>=0.11.0",
   "pytest-freezer>=0.4.8",
-  "pytest-mock>=3.14.0"
+  "pytest-mock>=3.14.0",
+  "pytest-run-parallel",
 ]
 env-vars.TOP = "{root}"
 
