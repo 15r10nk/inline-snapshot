@@ -1,3 +1,5 @@
+import pytest
+
 from inline_snapshot import snapshot
 from inline_snapshot.extra import warns
 from inline_snapshot.testing import Example
@@ -14,6 +16,7 @@ def test_a():
     ).run_inline(reported_categories=snapshot([]))
 
 
+@pytest.mark.thread_unsafe
 def test_fstring_fix():
 
     with warns(

@@ -1,6 +1,7 @@
 from typing import Iterator
 
 from inline_snapshot._adapter.adapter import adapter_map
+from inline_snapshot._locks import locked
 
 from .._adapter.adapter import AdapterContext
 from .._adapter.adapter import get_adapter_type
@@ -57,32 +58,42 @@ class UndecidedValue(GenericValue):
 
     # functions which determine the type
 
+    @locked
     def __eq__(self, other):
         from .._snapshot.eq_value import EqValue
 
-        self._change(EqValue)
+        if type(self) is UndecidedValue:
+            self._change(EqValue)
         return self == other
 
+    @locked
     def __le__(self, other):
         from .._snapshot.min_max_value import MinValue
 
-        self._change(MinValue)
+        if type(self) is UndecidedValue:
+            self._change(MinValue)
         return self <= other
 
+    @locked
     def __ge__(self, other):
         from .._snapshot.min_max_value import MaxValue
 
-        self._change(MaxValue)
+        if type(self) is UndecidedValue:
+            self._change(MaxValue)
         return self >= other
 
+    @locked
     def __contains__(self, other):
         from .._snapshot.collection_value import CollectionValue
 
-        self._change(CollectionValue)
+        if type(self) is UndecidedValue:
+            self._change(CollectionValue)
         return other in self
 
+    @locked
     def __getitem__(self, item):
         from .._snapshot.dict_value import DictValue
 
-        self._change(DictValue)
+        if type(self) is UndecidedValue:
+            self._change(DictValue)
         return self[item]

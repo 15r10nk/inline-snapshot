@@ -1,5 +1,7 @@
 from typing import Iterator
 
+from inline_snapshot._locks import locked
+
 from .._change import Change
 from .._change import Replace
 from .._global_state import state
@@ -17,6 +19,7 @@ class MinMaxValue(GenericValue):
     def cmp(a, b):
         raise NotImplementedError
 
+    @locked
     def _generic_cmp(self, other):
         if self._old_value is undefined:
             state().missing_values += 1

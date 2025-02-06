@@ -1,6 +1,8 @@
 import ast
 from typing import Iterator
 
+from inline_snapshot._locks import locked
+
 from .._change import Change
 from .._change import Delete
 from .._change import ListInsert
@@ -16,6 +18,7 @@ from .generic_value import ignore_old_value
 class CollectionValue(GenericValue):
     _current_op = "x in snapshot"
 
+    @locked
     def __contains__(self, item):
         if self._old_value is undefined:
             state().missing_values += 1

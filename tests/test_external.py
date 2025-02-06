@@ -1,4 +1,6 @@
 import ast
+import tempfile
+from pathlib import Path
 
 from inline_snapshot import _inline_snapshot
 from inline_snapshot import external
@@ -9,6 +11,7 @@ from inline_snapshot.extra import raises
 from tests.utils import config
 
 from .utils import apply_changes
+from .utils import storage
 
 
 def test_basic(check_update):
@@ -32,34 +35,40 @@ def test_max_hash():
         )
 
 
-def test_outsource(storage):
-    assert outsource("test") == snapshot(external("9f86d081884c*.txt"))
+def test_outsource():
+    with storage():
+        assert outsource("test") == snapshot(external("9f86d081884c*.txt"))
 
-    assert outsource("test", suffix=".log") == snapshot(external("9f86d081884c*.log"))
-
-    assert outsource(b"test") == snapshot(external("9f86d081884c*.bin"))
-
-    assert outsource(b"test", suffix=".png") == snapshot(external("9f86d081884c*.png"))
-
-    assert outsource("test")._load_value() == snapshot(b"test")
-
-
-def test_diskstorage(storage):
-    assert outsource("test4") == snapshot(external("a4e624d686e0*.txt"))
-    assert outsource("test5") == snapshot(external("a140c0c1eda2*.txt"))
-    assert outsource("test6") == snapshot(external("ed0cb90bdfa4*.txt"))
-
-    with raises(
-        snapshot(
-            "HashError: hash collision files=['a140c0c1eda2def2b830363ba362aa4d7d255c262960544821f556e16661b6ff-new.txt', 'a4e624d686e03ed2767c0abd85c14426b0b1157d2ce81d27bb4fe4f6f01d688a-new.txt']"
+        assert outsource("test", suffix=".log") == snapshot(
+            external("9f86d081884c*.log")
         )
-    ):
-        external("a*.txt")._load_value()
 
-    with raises(
-        snapshot("HashError: hash 'bbbbb*.txt' is not found in the DiscStorage")
-    ):
-        external("bbbbb*.txt")._load_value()
+        assert outsource(b"test") == snapshot(external("9f86d081884c*.bin"))
+
+        assert outsource(b"test", suffix=".png") == snapshot(
+            external("9f86d081884c*.png")
+        )
+
+        assert outsource("test")._load_value() == snapshot(b"test")
+
+
+def test_diskstorage():
+    with storage():
+        assert outsource("test4") == snapshot(external("a4e624d686e0*.txt"))
+        assert outsource("test5") == snapshot(external("a140c0c1eda2*.txt"))
+        assert outsource("test6") == snapshot(external("ed0cb90bdfa4*.txt"))
+
+        with raises(
+            snapshot(
+                "HashError: hash collision files=['a140c0c1eda2def2b830363ba362aa4d7d255c262960544821f556e16661b6ff-new.txt', 'a4e624d686e03ed2767c0abd85c14426b0b1157d2ce81d27bb4fe4f6f01d688a-new.txt']"
+            )
+        ):
+            external("a*.txt")._load_value()
+
+        with raises(
+            snapshot("HashError: hash 'bbbbb*.txt' is not found in the DiscStorage")
+        ):
+            external("bbbbb*.txt")._load_value()
 
 
 def test_persist(project):
@@ -354,48 +363,54 @@ test_something()
     )
 
 
-def test_ensure_imports(tmp_path):
-    file = tmp_path / "file.py"
-    file.write_text(
-        """\
+def test_ensure_imports():
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+
+        file = tmp_path / "file.py"
+        file.write_text(
+            """\
 from os import environ
 from os import getcwd
 """,
-        "utf-8",
-    )
+            "utf-8",
+        )
 
-    with apply_changes() as recorder:
-        ensure_import(file, {"os": ["chdir", "environ"]}, recorder)
+        with apply_changes() as recorder:
+            ensure_import(file, {"os": ["chdir", "environ"]}, recorder)
 
-    assert file.read_text("utf-8") == snapshot(
-        """\
+        assert file.read_text("utf-8") == snapshot(
+            """\
 from os import environ
 from os import getcwd
 
 from os import chdir
 """
-    )
+        )
 
 
-def test_ensure_imports_with_comment(tmp_path):
-    file = tmp_path / "file.py"
-    file.write_text(
-        """\
+def test_ensure_imports_with_comment():
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+
+        file = tmp_path / "file.py"
+        file.write_text(
+            """\
 from os import environ # comment
 """,
-        "utf-8",
-    )
+            "utf-8",
+        )
 
-    with apply_changes() as recorder:
-        ensure_import(file, {"os": ["chdir"]}, recorder)
+        with apply_changes() as recorder:
+            ensure_import(file, {"os": ["chdir"]}, recorder)
 
-    assert file.read_text("utf-8") == snapshot(
-        """\
+        assert file.read_text("utf-8") == snapshot(
+            """\
 from os import environ # comment
 
 from os import chdir
 """
-    )
+        )
 
 
 def test_new_externals(project):

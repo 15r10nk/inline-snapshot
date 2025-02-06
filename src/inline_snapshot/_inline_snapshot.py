@@ -6,6 +6,7 @@ from typing import cast
 
 from executing import Source
 
+from inline_snapshot._locks import locked
 from inline_snapshot._source_file import SourceFile
 
 from ._adapter.adapter import AdapterContext
@@ -24,7 +25,7 @@ class ReprWrapper:
         return self.func(*args, **kwargs)
 
     def __repr__(self):
-        return self.func.__name__
+        return "snapshot"
 
 
 _T = TypeVar("_T")
@@ -35,6 +36,7 @@ def repr_wrapper(func: _T) -> _T:
 
 
 @repr_wrapper
+@locked
 def snapshot(obj: Any = undefined) -> Any:
     """`snapshot()` is a placeholder for some value.
 
@@ -62,6 +64,8 @@ def snapshot(obj: Any = undefined) -> Any:
             return obj
 
     frame = inspect.currentframe()
+    assert frame is not None
+    frame = frame.f_back
     assert frame is not None
     frame = frame.f_back
     assert frame is not None
