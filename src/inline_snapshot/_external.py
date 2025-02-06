@@ -6,6 +6,7 @@ from typing import Set
 from typing import Union
 
 from . import _config
+from ._locks import locked
 
 
 class HashError(Exception):
@@ -74,6 +75,7 @@ storage: Optional[DiscStorage] = None
 
 
 class external:
+    @locked
     def __init__(self, name: str):
         """External objects are used as a representation for outsourced data.
         You should not create them directly.
@@ -113,6 +115,7 @@ class external:
         else:
             return f'external("{hash}*{self._suffix}")'
 
+    @locked
     def __eq__(self, other):
         """Two external objects are equal if they have the same hash and
         suffix."""
@@ -134,6 +137,7 @@ class external:
         return storage.read(self._path)
 
 
+@locked
 def outsource(data: Union[str, bytes], *, suffix: Optional[str] = None) -> external:
     """Outsource some data into an external file.
 

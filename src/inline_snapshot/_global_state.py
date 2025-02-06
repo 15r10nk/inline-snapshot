@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Generator
 
+from inline_snapshot._locks import snapshot_lock
+
 from ._flags import Flags
 
 
@@ -35,11 +37,13 @@ def state() -> State:
 @contextlib.contextmanager
 def snapshot_env() -> Generator[State]:
 
-    global _current
-    old = _current
-    _current = State()
+    with snapshot_lock:
 
-    try:
-        yield _current
-    finally:
-        _current = old
+        global _current
+        old = _current
+        _current = State()
+
+        try:
+            yield _current
+        finally:
+            _current = old

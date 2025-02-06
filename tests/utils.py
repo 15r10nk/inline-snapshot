@@ -5,6 +5,7 @@ import pytest
 
 import inline_snapshot._config as _config
 import inline_snapshot._external as external
+from inline_snapshot._locks import locked
 from inline_snapshot._rewrite_code import ChangeRecorder
 from inline_snapshot.testing._example import snapshot_env
 
@@ -12,6 +13,7 @@ __all__ = ("snapshot_env",)
 
 
 @contextlib.contextmanager
+@locked
 def config(**args):
     current_config = _config.config
     _config.config = _config.Config(**args)

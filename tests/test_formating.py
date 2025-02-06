@@ -3,6 +3,7 @@ import re
 import sys
 from types import SimpleNamespace
 
+import pytest
 from click.testing import CliRunner
 
 from inline_snapshot import snapshot
@@ -12,7 +13,9 @@ from tests._is_normalized import normalization
 executable = sys.executable.replace("\\", "\\\\")
 
 
+@pytest.mark.thread_unsafe
 def test_black_formatting_error(mocker):
+
     mocker.patch.object(CliRunner, "invoke", return_value=SimpleNamespace(exit_code=1))
 
     Example(

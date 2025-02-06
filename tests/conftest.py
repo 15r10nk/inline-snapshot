@@ -3,8 +3,11 @@ import platform
 import re
 import shutil
 import sys
+import tempfile
 import textwrap
+import threading
 import traceback
+from contextlib import contextmanager
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
@@ -66,8 +69,17 @@ def check_update(source):
 
 
 @pytest.fixture()
-def source(tmp_path: Path):
-    filecount = 1
+def subtests():
+    class Fake:
+        @contextmanager
+        def test(*a, **ka):
+            yield
+
+    return Fake()
+
+
+@pytest.fixture()
+def source():
 
     @dataclass
     class Source:
@@ -80,9 +92,10 @@ def source(tmp_path: Path):
         def run(self, *flags_arg: Category):
             flags = Flags({*flags_arg})
 
-            nonlocal filecount
-            filename: Path = tmp_path / f"test_{filecount}.py"
-            filecount += 1
+            tmp_dir = tempfile.TemporaryDirectory()
+            tmp_path = Path(tmp_dir.name)
+
+            filename: Path = tmp_path / f"test_a.py"
 
             prefix = """\"\"\"
 PYTEST_DONT_REWRITE
@@ -259,6 +272,9 @@ class RunResult:
         return result
 
 
+run_lock = threading.Lock()
+
+
 @pytest.fixture
 def project(pytester):
     class Project:
@@ -365,22 +381,23 @@ def set_time(freezer):
                 del os.environ["CI"]  # pragma: no cover
 
             try:
-                with mock.patch.dict(
-                    os.environ,
-                    {
-                        "TERM": "unknown",
-                        "COLUMNS": str(
-                            self.term_columns + 1
-                            if platform.system() == "Windows"
-                            else self.term_columns
-                        ),
-                    },
-                ):
+                with run_lock:
+                    with mock.patch.dict(
+                        os.environ,
+                        {
+                            "TERM": "unknown",
+                            "COLUMNS": str(
+                                self.term_columns + 1
+                                if platform.system() == "Windows"
+                                else self.term_columns
+                            ),
+                        },
+                    ):
 
-                    if stdin:
-                        result = pytester.run("pytest", *args, stdin=stdin)
-                    else:
-                        result = pytester.run("pytest", *args)
+                        if stdin:
+                            result = pytester.run("pytest", *args, stdin=stdin)
+                        else:
+                            result = pytester.run("pytest", *args)
             finally:
                 os.environ.update(old_environ)
 
@@ -390,11 +407,14 @@ def set_time(freezer):
 
 
 @pytest.fixture(params=[True, False], ids=["executing", "without-executing"])
-def executing_used(request, monkeypatch):
+def executing_used(request, monkeypatch, num_parallel_threads):
+
     used = request.param
     if used:
         yield used
     else:
+        if num_parallel_threads > 1:
+            pytest.skip("freethreading is not supported")
 
         def fake_executing(frame):
             return SimpleNamespace(node=None)
