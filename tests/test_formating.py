@@ -1,3 +1,4 @@
+import platform
 import re
 import sys
 from types import SimpleNamespace
@@ -7,6 +8,8 @@ from click.testing import CliRunner
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
 from tests._is_normalized import normalization
+
+executable = sys.executable.replace("\\", "\\\\")
 
 
 def test_black_formatting_error(mocker):
@@ -77,7 +80,7 @@ print(text)
 """,
             "pyproject.toml": f"""\
 [tool.inline-snapshot]
-format-command="{sys.executable} fmt_cmd.py {{filename}}"
+format-command="{executable} fmt_cmd.py {{filename}}"
 """,
             "test_a.py": """\
 from inline_snapshot import snapshot
@@ -106,13 +109,17 @@ def test_format_command_fail():
 
     @normalization
     def NoPaths(text):
+        path_re = "/[^ ]*/" if platform.system() != "Windows" else r".:\\[^ ]*\\"
         text = re.sub(
-            "The format_command.*following error:",
-            lambda m: m[0].replace("\n", ""),
+            "The.format_command.*following.error:",
+            lambda m: re.sub(" *\n *", " ", m[0]),
             text,
             flags=re.MULTILINE | re.DOTALL,
         )
-        text = re.sub("/[^ ]*/", "/.../", text, flags=re.MULTILINE)
+        text = re.sub(path_re, "/.../", text, flags=re.MULTILINE)
+
+        text = text.replace("python.exe", "python3")
+
         return text
 
     Example(
@@ -124,7 +131,7 @@ sys.exit(1)
 """,
             "pyproject.toml": f"""\
 [tool.inline-snapshot]
-format-command="{sys.executable} fmt_cmd.py {{filename}}"
+format-command="{executable} fmt_cmd.py {{filename}}"
 """,
             "test_a.py": """
 from inline_snapshot import snapshot
@@ -176,7 +183,7 @@ def test_no_black(mocker):
 
     Example(
         {
-            "test_a.py": """
+            "test_a.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -188,7 +195,6 @@ def test_a():
         changed_files=snapshot(
             {
                 "test_a.py": """\
-
 from inline_snapshot import snapshot
 
 def test_a():

@@ -1,5 +1,4 @@
 import ast
-import os
 import sys
 from pathlib import Path
 
@@ -280,6 +279,8 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     try:
         console = Console(
             highlight=False,
+            color_system=None,
+            #            width=81 if platform.system() == "Windows" else 80,
         )
         if "short-report" in flags:
 
@@ -337,7 +338,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             if not {"review", "report", flag} & flags:
                 continue
 
-            console.rule(f"[yellow bold]{flag.capitalize()} snapshots")
+            console.rule(f"[yellow bold]{flag.capitalize()} snapshots", characters="-")
 
             with ChangeRecorder().activate() as cr:
                 apply_all(used_changes)
@@ -352,11 +353,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                             Panel(
                                 Syntax(diff, "diff", theme="ansi_light"),
                                 title=str(name),
-                                box=(
-                                    box.ASCII
-                                    if os.environ.get("TERM", "") == "unknown"
-                                    else box.ROUNDED
-                                ),
+                                box=(box.ASCII),
                             )
                         )
 

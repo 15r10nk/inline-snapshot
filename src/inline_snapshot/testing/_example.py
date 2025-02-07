@@ -9,6 +9,7 @@ import traceback
 from argparse import ArgumentParser
 from io import StringIO
 from pathlib import Path
+from pathlib import PurePosixPath
 from tempfile import TemporaryDirectory
 from typing import Any
 
@@ -175,7 +176,7 @@ class Example:
                 recorder.fix_all()
 
                 report_output = StringIO()
-                console = Console(file=report_output)
+                console = Console(file=report_output, width=80)
 
                 # TODO: add all the report output here
                 report_problems(console)
@@ -298,7 +299,7 @@ class Example:
 
                 for name, content in sorted(self._read_files(tmp_path).items()):
                     if name not in self.files or self.files[name] != content:
-                        current_files[name] = content
+                        current_files[str(PurePosixPath(*Path(name).parts))] = content
                 assert changed_files == current_files
 
             return Example(self._read_files(tmp_path))
