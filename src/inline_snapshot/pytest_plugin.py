@@ -1,4 +1,5 @@
 import ast
+import os
 import sys
 from pathlib import Path
 
@@ -351,7 +352,11 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                             Panel(
                                 Syntax(diff, "diff", theme="ansi_light"),
                                 title=str(name),
-                                box=(box.ASCII),
+                                box=(
+                                    box.ASCII
+                                    if os.environ.get("TERM", "") == "unknown"
+                                    else box.ROUNDED
+                                ),
                             )
                         )
 

@@ -332,8 +332,6 @@ def set_time(freezer):
             )
 
         def pyproject(self, source):
-            print("write pyproject.toml:")
-            print(source)
             self.write_file("pyproject.toml", source)
 
         def write_file(self, filename, content):

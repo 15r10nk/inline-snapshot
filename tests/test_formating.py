@@ -183,7 +183,7 @@ def test_no_black(mocker):
 
     Example(
         {
-            "test_a.py": """\
+            "test_a.py": """
 from inline_snapshot import snapshot
 
 def test_a():
@@ -195,6 +195,7 @@ def test_a():
         changed_files=snapshot(
             {
                 "test_a.py": """\
+
 from inline_snapshot import snapshot
 
 def test_a():
