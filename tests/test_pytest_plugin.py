@@ -732,7 +732,7 @@ def test_storage_dir_config(project, tmp_path, storage_dir):
     project.pyproject(
         f"""
 [tool.inline-snapshot]
-storage-dir = "{storage_dir}"
+storage-dir = {str(storage_dir)!r}
 """
     )
 
