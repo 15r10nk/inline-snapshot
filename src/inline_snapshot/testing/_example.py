@@ -137,8 +137,8 @@ class Example:
             with snapshot_env() as state:
                 with ChangeRecorder().activate() as recorder:
                     state.update_flags = Flags({*flags})
-                    inline_snapshot._external.storage = (
-                        inline_snapshot._external.DiscStorage(tmp_path / ".storage")
+                    state.storage = inline_snapshot._external.DiscStorage(
+                        tmp_path / ".storage"
                     )
                     try:
                         for filename in tmp_path.glob("*.py"):

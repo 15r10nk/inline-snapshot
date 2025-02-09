@@ -5,6 +5,8 @@ from typing import Optional
 from typing import Set
 from typing import Union
 
+from inline_snapshot._global_state import state
+
 from . import _config
 from ._locks import locked
 
@@ -71,9 +73,6 @@ class DiscStorage:
         self._lookup_path(name).unlink()
 
 
-storage: Optional[DiscStorage] = None
-
-
 class external:
     @locked
     def __init__(self, name: str):
@@ -133,6 +132,7 @@ class external:
         return True
 
     def _load_value(self):
+        storage = state().storage
         assert storage is not None
         return storage.read(self._path)
 
@@ -174,6 +174,7 @@ def outsource(data: Union[str, bytes], *, suffix: Optional[str] = None) -> exter
     m.update(data)
     hash = m.hexdigest()
 
+    storage = state().storage
     assert storage is not None
 
     name = hash + suffix
