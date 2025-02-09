@@ -47,9 +47,9 @@ def check_pypy(request):
 
 
 @pytest.fixture()
-def check_update(source):
+def check_update():
     def w(source_code, *, flags="", reported_flags=None, number=1):
-        s = source(source_code)
+        s = Source(source_code).run()
         flags = {*flags.split(",")} - {""}
 
         if reported_flags is None:
@@ -78,26 +78,23 @@ def subtests():
     return Fake()
 
 
-@pytest.fixture()
-def source():
+@dataclass
+class Source:
+    source: str
+    flags: Set[str] = field(default_factory=set)
+    error: bool = False
+    number_snapshots: int = 0
+    number_changes: int = 0
 
-    @dataclass
-    class Source:
-        source: str
-        flags: Set[str] = field(default_factory=set)
-        error: bool = False
-        number_snapshots: int = 0
-        number_changes: int = 0
+    def run(self, *flags_arg: Category):
+        flags = Flags({*flags_arg})
 
-        def run(self, *flags_arg: Category):
-            flags = Flags({*flags_arg})
+        tmp_dir = tempfile.TemporaryDirectory()
+        tmp_path = Path(tmp_dir.name)
 
-            tmp_dir = tempfile.TemporaryDirectory()
-            tmp_path = Path(tmp_dir.name)
+        filename: Path = tmp_path / f"test_a.py"
 
-            filename: Path = tmp_path / f"test_a.py"
-
-            prefix = """\"\"\"
+        prefix = """\"\"\"
 PYTEST_DONT_REWRITE
 \"\"\"
 # äöß 🐍
@@ -106,66 +103,68 @@ from inline_snapshot import external
 from inline_snapshot import outsource
 
 """
-            source = prefix + textwrap.dedent(self.source)
+        source = prefix + textwrap.dedent(self.source)
 
-            filename.write_text(source, "utf-8")
+        filename.write_text(source, "utf-8")
 
-            print()
-            print("input:")
-            print(textwrap.indent(source, " |", lambda line: True).rstrip())
+        print()
+        print("input:")
+        print(textwrap.indent(source, " |", lambda line: True).rstrip())
 
-            with snapshot_env() as state:
-                with ChangeRecorder().activate() as recorder:
-                    state.update_flags = flags
-                    inline_snapshot._external.storage = (
-                        inline_snapshot._external.DiscStorage(tmp_path / ".storage")
-                    )
+        with snapshot_env() as state:
+            with ChangeRecorder().activate() as recorder:
+                state.update_flags = flags
+                inline_snapshot._external.storage = (
+                    inline_snapshot._external.DiscStorage(tmp_path / ".storage")
+                )
 
-                    error = False
+                error = False
 
-                    try:
-                        exec(compile(filename.read_text("utf-8"), filename, "exec"), {})
-                    except AssertionError:
-                        traceback.print_exc()
-                        error = True
-                    finally:
-                        state.active = False
+                try:
+                    exec(compile(filename.read_text("utf-8"), filename, "exec"), {})
+                except AssertionError:
+                    traceback.print_exc()
+                    error = True
+                finally:
+                    state.active = False
 
-                    number_snapshots = len(state.snapshots)
+                number_snapshots = len(state.snapshots)
 
-                    changes = []
-                    for snapshot in state.snapshots.values():
-                        changes += snapshot._changes()
+                changes = []
+                for snapshot in state.snapshots.values():
+                    changes += snapshot._changes()
 
-                    snapshot_flags = {change.flag for change in changes}
+                snapshot_flags = {change.flag for change in changes}
 
-                    apply_all(
-                        [
-                            change
-                            for change in changes
-                            if change.flag in state.update_flags.to_set()
-                        ]
-                    )
+                apply_all(
+                    [
+                        change
+                        for change in changes
+                        if change.flag in state.update_flags.to_set()
+                    ]
+                )
 
-                    recorder.fix_all()
+                recorder.fix_all()
 
-            source = filename.read_text("utf-8")[len(prefix) :]
-            print("reported_flags:", snapshot_flags)
-            print(
-                f'run: pytest --inline-snapshot={",".join(flags.to_set())}'
-                if flags
-                else ""
-            )
-            print("output:")
-            print(textwrap.indent(source, " |", lambda line: True).rstrip())
+        source = filename.read_text("utf-8")[len(prefix) :]
+        print("reported_flags:", snapshot_flags)
+        print(
+            f'run: pytest --inline-snapshot={",".join(flags.to_set())}' if flags else ""
+        )
+        print("output:")
+        print(textwrap.indent(source, " |", lambda line: True).rstrip())
 
-            return Source(
-                source=source,
-                flags=snapshot_flags,
-                error=error,
-                number_snapshots=number_snapshots,
-                number_changes=len(changes),
-            )
+        return Source(
+            source=source,
+            flags=snapshot_flags,
+            error=error,
+            number_snapshots=number_snapshots,
+            number_changes=len(changes),
+        )
+
+
+@pytest.fixture()
+def source():
 
     def w(source):
         return Source(source=source).run()
@@ -276,7 +275,10 @@ run_lock = threading.Lock()
 
 
 @pytest.fixture
-def project(pytester):
+def project(pytester, num_parallel_threads):
+    if num_parallel_threads > 1:
+        pytest.skip()
+
     class Project:
 
         def __init__(self):

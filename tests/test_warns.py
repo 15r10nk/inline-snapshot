@@ -1,9 +1,12 @@
 import warnings
 
+import pytest
+
 from inline_snapshot import snapshot
 from inline_snapshot.extra import warns
 
 
+@pytest.mark.thread_unsafe
 def test_warns():
 
     def warning():
