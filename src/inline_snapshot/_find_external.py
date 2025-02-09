@@ -63,10 +63,10 @@ def unused_externals() -> Set[str]:
     return unused_externals
 
 
-def ensure_import(filename, imports):
+def ensure_import(filename, imports, recorder: ChangeRecorder):
     source = Source.for_filename(filename)
 
-    change = ChangeRecorder.current.new_change()
+    change = recorder.new_change()
 
     tree = source.tree
     token = source.asttokens()
@@ -78,6 +78,8 @@ def ensure_import(filename, imports):
             if not contains_import(tree, module, name):
                 to_add.append((module, name))
 
+    assert isinstance(tree, ast.Module)
+
     last_import = None
     for node in tree.body:
         if not isinstance(node, (ast.ImportFrom, ast.Import)):
@@ -85,9 +87,9 @@ def ensure_import(filename, imports):
         last_import = node
 
     if last_import is None:
-        position = start_of(tree.body[0].first_token)
+        position = start_of(tree.body[0].first_token)  # type: ignore
     else:
-        last_token = last_import.last_token
+        last_token = last_import.last_token  # type: ignore
         while True:
             next_token = token.next_token(last_token)
             if last_token.end[0] == next_token.end[0]:

@@ -339,57 +339,59 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
             console.rule(f"[yellow bold]{flag.capitalize()} snapshots")
 
-            with ChangeRecorder().activate() as cr:
-                apply_all(used_changes)
-                cr.virtual_write()
-                apply_all(changes[flag])
+            cr = ChangeRecorder()
+            apply_all(used_changes, cr)
+            cr.virtual_write()
+            apply_all(changes[flag], cr)
 
-                for file in cr.files():
-                    diff = file.diff()
-                    if diff:
-                        name = file.filename.relative_to(Path.cwd())
-                        console.print(
-                            Panel(
-                                Syntax(diff, "diff", theme="ansi_light"),
-                                title=str(name),
-                                box=(
-                                    box.ASCII
-                                    if os.environ.get("TERM", "") == "unknown"
-                                    else box.ROUNDED
-                                ),
-                            )
+            for file in cr.files():
+                diff = file.diff()
+                if diff:
+                    name = file.filename.relative_to(Path.cwd())
+                    console.print(
+                        Panel(
+                            Syntax(diff, "diff", theme="ansi_light"),
+                            title=str(name),
+                            box=(
+                                box.ASCII
+                                if os.environ.get("TERM", "") == "unknown"
+                                else box.ROUNDED
+                            ),
                         )
+                    )
 
-                if apply_changes(flag):
-                    used_changes += changes[flag]
+            if apply_changes(flag):
+                used_changes += changes[flag]
 
         report_problems(console)
 
         if used_changes:
-            with ChangeRecorder().activate() as cr:
-                apply_all(used_changes)
+            cr = ChangeRecorder()
+            apply_all(used_changes, cr)
 
-                for test_file in cr.files():
-                    tree = ast.parse(test_file.new_code())
-                    used = used_externals(tree)
+            for test_file in cr.files():
+                tree = ast.parse(test_file.new_code())
+                used = used_externals(tree)
 
-                    required_imports = []
+                required_imports = []
 
-                    if used:
-                        required_imports.append("external")
+                if used:
+                    required_imports.append("external")
 
-                    if used_hasrepr(tree):
-                        required_imports.append("HasRepr")
+                if used_hasrepr(tree):
+                    required_imports.append("HasRepr")
 
-                    if required_imports:
-                        ensure_import(
-                            test_file.filename, {"inline_snapshot": required_imports}
-                        )
+                if required_imports:
+                    ensure_import(
+                        test_file.filename,
+                        {"inline_snapshot": required_imports},
+                        cr,
+                    )
 
-                    for external_name in used:
-                        _external.storage.persist(external_name)
+                for external_name in used:
+                    _external.storage.persist(external_name)
 
-                cr.fix_all()
+            cr.fix_all()
 
         unused_externals = _find_external.unused_externals()
 

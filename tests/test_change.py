@@ -32,10 +32,10 @@ def check_change(tmp_path):
         call = module.body[0].value
         assert isinstance(call, ast.Call)
 
-        with ChangeRecorder().activate() as cr:
-            apply_all(changes(context, call))
+        cr = ChangeRecorder()
+        apply_all(changes(context, call), cr)
 
-            cr.virtual_write()
+        cr.virtual_write()
 
         cr.dump()
 
