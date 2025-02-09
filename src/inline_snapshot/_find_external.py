@@ -63,10 +63,10 @@ def unused_externals() -> Set[str]:
     return unused_externals
 
 
-def ensure_import(filename, imports):
+def ensure_import(filename, imports, recorder: ChangeRecorder):
     source = Source.for_filename(filename)
 
-    change = ChangeRecorder.current.new_change()
+    change = recorder.new_change()
 
     tree = source.tree
     token = source.asttokens()

@@ -33,7 +33,7 @@ def check_change(tmp_path):
         assert isinstance(call, ast.Call)
 
         with ChangeRecorder().activate() as cr:
-            apply_all(changes(context, call))
+            apply_all(changes(context, call), cr)
 
             cr.virtual_write()
 

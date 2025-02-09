@@ -13,8 +13,6 @@ from itertools import islice
 import asttokens.util
 from asttokens import LineNumbers
 
-from inline_snapshot._locks import snapshot_lock
-
 from ._format import enforce_formatting
 from ._format import format_code
 
@@ -201,7 +199,6 @@ class SourceFile:
 
 
 class ChangeRecorder:
-    current: ChangeRecorder
 
     def __init__(self):
         self._source_files = defaultdict(SourceFile)
@@ -209,11 +206,7 @@ class ChangeRecorder:
 
     @contextlib.contextmanager
     def activate(self):
-        with snapshot_lock:
-            old_recorder = ChangeRecorder.current
-            ChangeRecorder.current = self
-            yield self
-            ChangeRecorder.current = old_recorder
+        yield self
 
     def get_source(self, filename) -> SourceFile:
         filename = pathlib.Path(filename)
@@ -250,7 +243,3 @@ class ChangeRecorder:
             print("file:", file.filename)
             for change in file.replacements:
                 print("  change:", change)
-
-
-global_recorder = ChangeRecorder()
-ChangeRecorder.current = global_recorder

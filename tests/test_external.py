@@ -364,8 +364,8 @@ from os import getcwd
         "utf-8",
     )
 
-    with apply_changes():
-        ensure_import(file, {"os": ["chdir", "environ"]})
+    with apply_changes() as recorder:
+        ensure_import(file, {"os": ["chdir", "environ"]}, recorder)
 
     assert file.read_text("utf-8") == snapshot(
         """\
@@ -386,8 +386,8 @@ from os import environ # comment
         "utf-8",
     )
 
-    with apply_changes():
-        ensure_import(file, {"os": ["chdir"]})
+    with apply_changes() as recorder:
+        ensure_import(file, {"os": ["chdir"]}, recorder)
 
     assert file.read_text("utf-8") == snapshot(
         """\

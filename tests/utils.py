@@ -26,7 +26,7 @@ def config(**args):
 @contextlib.contextmanager
 def apply_changes():
     with ChangeRecorder().activate() as recorder:
-        yield
+        yield recorder
 
         recorder.fix_all()
 

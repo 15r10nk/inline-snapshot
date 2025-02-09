@@ -141,7 +141,8 @@ from inline_snapshot import outsource
                         change
                         for change in changes
                         if change.flag in state.update_flags.to_set()
-                    ]
+                    ],
+                    recorder,
                 )
 
                 recorder.fix_all()

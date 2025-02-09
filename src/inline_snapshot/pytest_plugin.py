@@ -340,9 +340,9 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             console.rule(f"[yellow bold]{flag.capitalize()} snapshots")
 
             with ChangeRecorder().activate() as cr:
-                apply_all(used_changes)
+                apply_all(used_changes, cr)
                 cr.virtual_write()
-                apply_all(changes[flag])
+                apply_all(changes[flag], cr)
 
                 for file in cr.files():
                     diff = file.diff()
@@ -367,7 +367,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
         if used_changes:
             with ChangeRecorder().activate() as cr:
-                apply_all(used_changes)
+                apply_all(used_changes, cr)
 
                 for test_file in cr.files():
                     tree = ast.parse(test_file.new_code())
@@ -383,7 +383,9 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
                     if required_imports:
                         ensure_import(
-                            test_file.filename, {"inline_snapshot": required_imports}
+                            test_file.filename,
+                            {"inline_snapshot": required_imports},
+                            cr,
                         )
 
                     for external_name in used:
