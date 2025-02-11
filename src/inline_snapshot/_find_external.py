@@ -4,7 +4,6 @@ from typing import Set
 
 from executing import Source
 
-from . import _external
 from ._global_state import state
 from ._rewrite_code import ChangeRecorder
 from ._rewrite_code import end_of
@@ -54,7 +53,7 @@ def used_externals() -> Set[str]:
 
 
 def unused_externals() -> Set[str]:
-    storage = _external.storage
+    storage = state().storage
     assert storage is not None
     unused_externals = storage.list()
     for name in used_externals():

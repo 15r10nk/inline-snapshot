@@ -6,6 +6,7 @@ from typing import Set
 from typing import Union
 
 from . import _config
+from ._global_state import state
 
 
 class HashError(Exception):
@@ -70,9 +71,6 @@ class DiscStorage:
         self._lookup_path(name).unlink()
 
 
-storage: Optional[DiscStorage] = None
-
-
 class external:
     def __init__(self, name: str):
         """External objects are used as a representation for outsourced data.
@@ -130,8 +128,8 @@ class external:
         return True
 
     def _load_value(self):
-        assert storage is not None
-        return storage.read(self._path)
+        assert state().storage is not None
+        return state().storage.read(self._path)
 
 
 def outsource(data: Union[str, bytes], *, suffix: Optional[str] = None) -> external:
@@ -169,6 +167,8 @@ def outsource(data: Union[str, bytes], *, suffix: Optional[str] = None) -> exter
     m = hashlib.sha256()
     m.update(data)
     hash = m.hexdigest()
+
+    storage = state().storage
 
     assert storage is not None
 

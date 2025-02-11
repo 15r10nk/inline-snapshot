@@ -3,9 +3,13 @@ from __future__ import annotations
 import contextlib
 from dataclasses import dataclass
 from dataclasses import field
+from typing import TYPE_CHECKING
 from typing import Generator
 
 from ._flags import Flags
+
+if TYPE_CHECKING:
+    from ._external import DiscStorage
 
 
 @dataclass
@@ -20,7 +24,7 @@ class State:
     files_with_snapshots: set[str] = field(default_factory=set)
 
     # external
-    storage = None
+    storage: DiscStorage | None = None
 
 
 _current = State()

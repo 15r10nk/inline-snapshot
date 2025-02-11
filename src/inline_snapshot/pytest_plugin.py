@@ -134,7 +134,7 @@ def pytest_configure(config):
         _config.config.storage_dir or config.rootpath / ".inline-snapshot"
     ) / "external"
 
-    _external.storage = _external.DiscStorage(external_storage)
+    state().storage = _external.DiscStorage(external_storage)
 
     if flags - {"short-report", "disable"} and not is_pytest_compatible():
 
@@ -146,7 +146,7 @@ def pytest_configure(config):
 
     pydantic_fix()
 
-    _external.storage.prune_new_files()
+    state().storage.prune_new_files()
 
 
 @pytest.fixture(autouse=True)
@@ -397,7 +397,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                     )
 
                 for external_name in used:
-                    _external.storage.persist(external_name)
+                    state().storage.persist(external_name)
 
             cr.fix_all()
 
@@ -405,8 +405,8 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
         if unused_externals and state().update_flags.trim:
             for name in unused_externals:
-                assert _external.storage
-                _external.storage.remove(name)
+                assert state().storage
+                state().storage.remove(name)
             terminalreporter.write(
                 f"removed {len(unused_externals)} unused externals\n"
             )

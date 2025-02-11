@@ -15,8 +15,8 @@ from typing import Any
 
 from rich.console import Console
 
-import inline_snapshot._external
 from inline_snapshot._exceptions import UsageError
+from inline_snapshot._external import DiscStorage
 from inline_snapshot._problems import report_problems
 
 from .._change import apply_all
@@ -138,9 +138,7 @@ class Example:
             with snapshot_env() as state:
                 recorder = ChangeRecorder()
                 state.update_flags = Flags({*flags})
-                inline_snapshot._external.storage = (
-                    inline_snapshot._external.DiscStorage(tmp_path / ".storage")
-                )
+                state.storage = DiscStorage(tmp_path / ".storage")
                 try:
                     tests_found = False
                     for filename in tmp_path.glob("*.py"):
