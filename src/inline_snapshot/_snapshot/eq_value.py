@@ -2,6 +2,7 @@ from typing import Iterator
 from typing import List
 
 from inline_snapshot._adapter.adapter import Adapter
+from inline_snapshot._locks import locked
 
 from .._change import Change
 from .._compare_context import compare_only
@@ -15,6 +16,7 @@ class EqValue(GenericValue):
     _current_op = "x == snapshot"
     _changes: List[Change]
 
+    @locked
     def __eq__(self, other):
         if self._old_value is undefined:
             state().missing_values += 1

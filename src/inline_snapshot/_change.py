@@ -29,7 +29,7 @@ class Change:
     def filename(self):
         return self.file.filename
 
-    def apply(self):
+    def apply(self, recorder: ChangeRecorder):
         raise NotImplementedError()
 
 
@@ -76,8 +76,8 @@ class Replace(Change):
     old_value: Any
     new_value: Any
 
-    def apply(self):
-        change = ChangeRecorder.current.new_change()
+    def apply(self, recorder: ChangeRecorder):
+        change = recorder.new_change()
         range = self.file.asttokens().get_text_positions(self.node, False)
         change.replace(range, self.new_code, filename=self.filename)
 
@@ -106,8 +106,9 @@ def generic_sequence_update(
     brace_tokens: TokenRange,
     parent_elements: List[Union[TokenRange, None]],
     to_insert: Dict[int, List[str]],
+    recorder: ChangeRecorder,
 ):
-    rec = ChangeRecorder.current.new_change()
+    rec = recorder.new_change()
 
     new_code = []
     deleted = False
@@ -162,7 +163,7 @@ def generic_sequence_update(
         )
 
 
-def apply_all(all_changes: List[Change]):
+def apply_all(all_changes: List[Change], recorder: ChangeRecorder):
     by_parent: Dict[
         EnhancedAST, List[Union[Delete, DictInsert, ListInsert, CallArg]]
     ] = defaultdict(list)
@@ -181,7 +182,7 @@ def apply_all(all_changes: List[Change]):
             by_parent[node].append(change)
             sources[node] = change.file
         else:
-            change.apply()
+            change.apply(recorder)
 
     for parent, changes in by_parent.items():
         source = sources[parent]
@@ -206,6 +207,7 @@ def apply_all(all_changes: List[Change]):
                 brace_tokens(source, parent),
                 [None if e in to_delete else list_token_range(e) for e in parent.elts],
                 to_insert,
+                recorder,
             )
 
         elif isinstance(parent, ast.Call):
@@ -251,6 +253,7 @@ def apply_all(all_changes: List[Change]):
                     for e in parent.args + [kw.value for kw in parent.keywords]
                 ],
                 to_insert,
+                recorder,
             )
 
         elif isinstance(parent, ast.Dict):
@@ -278,6 +281,7 @@ def apply_all(all_changes: List[Change]):
                     for key, value in zip(parent.keys, parent.values)
                 ],
                 to_insert,
+                recorder,
             )
 
         else:

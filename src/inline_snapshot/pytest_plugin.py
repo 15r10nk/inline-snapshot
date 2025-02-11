@@ -133,7 +133,7 @@ def pytest_configure(config):
         _config.config.storage_dir or config.rootpath / ".inline-snapshot"
     ) / "external"
 
-    _external.storage = _external.DiscStorage(external_storage)
+    state().storage = _external.DiscStorage(external_storage)
 
     if flags - {"short-report", "disable"} and not is_pytest_compatible():
 
@@ -145,7 +145,7 @@ def pytest_configure(config):
 
     pydantic_fix()
 
-    _external.storage.prune_new_files()
+    state().storage.prune_new_files()
 
 
 @pytest.fixture(autouse=True)
@@ -340,9 +340,9 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             console.rule(f"[yellow bold]{flag.capitalize()} snapshots")
 
             with ChangeRecorder().activate() as cr:
-                apply_all(used_changes)
+                apply_all(used_changes, cr)
                 cr.virtual_write()
-                apply_all(changes[flag])
+                apply_all(changes[flag], cr)
 
                 for file in cr.files():
                     diff = file.diff()
@@ -367,7 +367,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
         if used_changes:
             with ChangeRecorder().activate() as cr:
-                apply_all(used_changes)
+                apply_all(used_changes, cr)
 
                 for test_file in cr.files():
                     tree = ast.parse(test_file.new_code())
@@ -383,11 +383,13 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
                     if required_imports:
                         ensure_import(
-                            test_file.filename, {"inline_snapshot": required_imports}
+                            test_file.filename,
+                            {"inline_snapshot": required_imports},
+                            cr,
                         )
 
                     for external_name in used:
-                        _external.storage.persist(external_name)
+                        state().storage.persist(external_name)
 
                 cr.fix_all()
 
@@ -395,8 +397,8 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
         if unused_externals and state().update_flags.trim:
             for name in unused_externals:
-                assert _external.storage
-                _external.storage.remove(name)
+                assert state().storage
+                state().storage.remove(name)
             terminalreporter.write(
                 f"removed {len(unused_externals)} unused externals\n"
             )

@@ -4,7 +4,6 @@ from typing import Set
 
 from executing import Source
 
-from . import _external
 from ._global_state import state
 from ._rewrite_code import ChangeRecorder
 from ._rewrite_code import end_of
@@ -54,7 +53,7 @@ def used_externals() -> Set[str]:
 
 
 def unused_externals() -> Set[str]:
-    storage = _external.storage
+    storage = state().storage
     assert storage is not None
     unused_externals = storage.list()
     for name in used_externals():
@@ -63,15 +62,17 @@ def unused_externals() -> Set[str]:
     return unused_externals
 
 
-def ensure_import(filename, imports):
+def ensure_import(filename, imports, recorder: ChangeRecorder):
     source = Source.for_filename(filename)
 
-    change = ChangeRecorder.current.new_change()
+    change = recorder.new_change()
 
     tree = source.tree
     token = source.asttokens()
 
     to_add = []
+
+    assert isinstance(tree, ast.Module)
 
     for module, names in imports.items():
         for name in names:
@@ -85,9 +86,9 @@ def ensure_import(filename, imports):
         last_import = node
 
     if last_import is None:
-        position = start_of(tree.body[0].first_token)
+        position = start_of(tree.body[0].first_token)  # type: ignore
     else:
-        last_token = last_import.last_token
+        last_token = last_import.last_token  # type: ignore
         while True:
             next_token = token.next_token(last_token)
             if last_token.end[0] == next_token.end[0]:
