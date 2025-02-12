@@ -33,15 +33,15 @@ def test_rewrite(tmp_path):
         "utf-8",
     )
 
-    with ChangeRecorder().activate() as recorder:
-        s = recorder.change_set()
+    recorder = ChangeRecorder()
+    s = recorder.new_change()
 
-        s.replace(((2, 2), (2, 3)), "a", filename=file)
-        s.delete(((3, 2), (3, 3)), filename=file)
-        s.insert((4, 2), "c", filename=file)
+    s.replace(((2, 2), (2, 3)), "a", filename=file)
+    s.delete(((3, 2), (3, 3)), filename=file)
+    s.insert((4, 2), "c", filename=file)
 
-        assert recorder.num_fixes() == 1
-        recorder.fix_all()
+    assert recorder.num_fixes() == 1
+    recorder.fix_all()
 
     assert (
         file.read_text("utf-8")

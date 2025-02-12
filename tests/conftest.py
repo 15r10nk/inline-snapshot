@@ -102,39 +102,40 @@ from inline_snapshot import outsource
             print(textwrap.indent(source, " |", lambda line: True).rstrip())
 
             with snapshot_env() as state:
-                with ChangeRecorder().activate() as recorder:
-                    state.update_flags = flags
-                    inline_snapshot._external.storage = (
-                        inline_snapshot._external.DiscStorage(tmp_path / ".storage")
-                    )
+                recorder = ChangeRecorder()
+                state.update_flags = flags
+                state.storage = inline_snapshot._external.DiscStorage(
+                    tmp_path / ".storage"
+                )
 
-                    error = False
+                error = False
 
-                    try:
-                        exec(compile(filename.read_text("utf-8"), filename, "exec"), {})
-                    except AssertionError:
-                        traceback.print_exc()
-                        error = True
-                    finally:
-                        state.active = False
+                try:
+                    exec(compile(filename.read_text("utf-8"), filename, "exec"), {})
+                except AssertionError:
+                    traceback.print_exc()
+                    error = True
+                finally:
+                    state.active = False
 
-                    number_snapshots = len(state.snapshots)
+                number_snapshots = len(state.snapshots)
 
-                    changes = []
-                    for snapshot in state.snapshots.values():
-                        changes += snapshot._changes()
+                changes = []
+                for snapshot in state.snapshots.values():
+                    changes += snapshot._changes()
 
-                    snapshot_flags = {change.flag for change in changes}
+                snapshot_flags = {change.flag for change in changes}
 
-                    apply_all(
-                        [
-                            change
-                            for change in changes
-                            if change.flag in state.update_flags.to_set()
-                        ]
-                    )
+                apply_all(
+                    [
+                        change
+                        for change in changes
+                        if change.flag in state.update_flags.to_set()
+                    ],
+                    recorder,
+                )
 
-                    recorder.fix_all()
+                recorder.fix_all()
 
             source = filename.read_text("utf-8")[len(prefix) :]
             print("reported_flags:", snapshot_flags)

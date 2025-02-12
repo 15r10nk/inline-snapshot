@@ -1,5 +1,6 @@
 from ._code_repr import HasRepr
 from ._code_repr import customize_repr
+from ._exceptions import UsageError
 from ._external import external
 from ._external import outsource
 from ._inline_snapshot import snapshot
@@ -16,6 +17,7 @@ __all__ = [
     "Is",
     "Category",
     "Snapshot",
+    "UsageError",
 ]
 
 __version__ = "0.20.1"

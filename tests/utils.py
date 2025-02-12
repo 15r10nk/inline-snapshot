@@ -5,6 +5,7 @@ import pytest
 
 import inline_snapshot._config as _config
 import inline_snapshot._external as external
+from inline_snapshot._global_state import state
 from inline_snapshot._rewrite_code import ChangeRecorder
 from inline_snapshot.testing._example import snapshot_env
 
@@ -23,18 +24,18 @@ def config(**args):
 
 @contextlib.contextmanager
 def apply_changes():
-    with ChangeRecorder().activate() as recorder:
-        yield
+    recorder = ChangeRecorder()
+    yield recorder
 
-        recorder.fix_all()
+    recorder.fix_all()
 
 
 @contextmanager
 def useStorage(storage):
-    old_storage = external.storage
-    external.storage = storage
+    old_storage = state().storage
+    state().storage = storage
     yield
-    external.storage = old_storage
+    state().storage = old_storage
 
 
 @pytest.fixture()

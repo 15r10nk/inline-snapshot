@@ -26,3 +26,18 @@ def test_list():
             }
         ),
     )
+
+
+def test_dict_constructor():
+
+    Example(
+        """\
+from inline_snapshot import snapshot
+
+def test_dict():
+    snapshot(dict())
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot({}),
+    )

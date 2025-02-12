@@ -15,7 +15,8 @@ from typing import Any
 
 from rich.console import Console
 
-import inline_snapshot._external
+from inline_snapshot._exceptions import UsageError
+from inline_snapshot._external import DiscStorage
 from inline_snapshot._problems import report_problems
 
 from .._change import apply_all
@@ -135,44 +136,53 @@ class Example:
 
             raised_exception = []
             with snapshot_env() as state:
-                with ChangeRecorder().activate() as recorder:
-                    state.update_flags = Flags({*flags})
-                    inline_snapshot._external.storage = (
-                        inline_snapshot._external.DiscStorage(tmp_path / ".storage")
-                    )
-                    try:
-                        for filename in tmp_path.glob("*.py"):
-                            globals: dict[str, Any] = {}
-                            print("run> pytest", filename)
-                            exec(
-                                compile(filename.read_text("utf-8"), filename, "exec"),
-                                globals,
-                            )
+                recorder = ChangeRecorder()
+                state.update_flags = Flags({*flags})
+                state.storage = DiscStorage(tmp_path / ".storage")
+                try:
+                    tests_found = False
+                    for filename in tmp_path.glob("*.py"):
+                        globals: dict[str, Any] = {}
+                        print("run> pytest", filename)
+                        exec(
+                            compile(filename.read_text("utf-8"), filename, "exec"),
+                            globals,
+                        )
 
-                            # run all test_* functions
-                            for k, v in globals.items():
-                                if k.startswith("test_") and callable(v):
-                                    try:
-                                        v()
-                                    except Exception as e:
-                                        traceback.print_exc()
-                                        raised_exception.append(e)
-                    finally:
-                        state.active = False
-
-                    changes = []
-                    for snapshot in state.snapshots.values():
-                        changes += snapshot._changes()
-
-                    snapshot_flags = {change.flag for change in changes}
-
-                    apply_all(
-                        [
-                            change
-                            for change in changes
-                            if change.flag in state.update_flags.to_set()
+                        # run all test_* functions
+                        tests = [
+                            v
+                            for k, v in globals.items()
+                            if (k.startswith("test_") or k == "test") and callable(v)
                         ]
-                    )
+                        tests_found |= len(tests) != 0
+
+                        for v in tests:
+                            try:
+                                v()
+                            except Exception as e:
+                                traceback.print_exc()
+                                raised_exception.append(e)
+
+                    if not tests_found:
+                        raise UsageError("no test_*() functions in the example")
+                finally:
+                    state.active = False
+
+                changes = []
+                for snapshot in state.snapshots.values():
+                    changes += snapshot._changes()
+
+                snapshot_flags = {change.flag for change in changes}
+
+                apply_all(
+                    [
+                        change
+                        for change in changes
+                        if change.flag in state.update_flags.to_set()
+                    ],
+                    recorder,
+                )
                 recorder.fix_all()
 
                 report_output = StringIO()
@@ -185,6 +195,9 @@ class Example:
                 assert sorted(snapshot_flags) == reported_categories
 
             if raised_exception:
+                if raises is None:
+                    raise raised_exception[0]
+
                 assert raises == "\n".join(
                     f"{type(e).__name__}:\n" + str(e) for e in raised_exception
                 )

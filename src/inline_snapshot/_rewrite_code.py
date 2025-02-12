@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 import logging
 import pathlib
 import sys
@@ -199,18 +198,10 @@ class SourceFile:
 
 
 class ChangeRecorder:
-    current: ChangeRecorder
 
     def __init__(self):
         self._source_files = defaultdict(SourceFile)
         self._changes = []
-
-    @contextlib.contextmanager
-    def activate(self):
-        old_recorder = ChangeRecorder.current
-        ChangeRecorder.current = self
-        yield self
-        ChangeRecorder.current = old_recorder
 
     def get_source(self, filename) -> SourceFile:
         filename = pathlib.Path(filename)
@@ -218,9 +209,6 @@ class ChangeRecorder:
             self._source_files[filename] = SourceFile(filename)
 
         return self._source_files[filename]
-
-    def change_set(self):
-        return Change(self)
 
     def files(self) -> Iterable[SourceFile]:
         return self._source_files.values()
@@ -247,7 +235,3 @@ class ChangeRecorder:
             print("file:", file.filename)
             for change in file.replacements:
                 print("  change:", change)
-
-
-global_recorder = ChangeRecorder()
-ChangeRecorder.current = global_recorder

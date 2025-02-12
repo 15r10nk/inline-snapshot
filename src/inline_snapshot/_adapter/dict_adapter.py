@@ -32,10 +32,8 @@ class DictAdapter(Adapter):
 
     @classmethod
     def items(cls, value, node):
-        if node is None:
+        if node is None or not isinstance(node, ast.Dict):
             return [Item(value=value, node=None) for value in value.values()]
-
-        assert isinstance(node, ast.Dict)
 
         result = []
 

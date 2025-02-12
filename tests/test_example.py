@@ -1,4 +1,5 @@
 from inline_snapshot import snapshot
+from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
 
 
@@ -27,3 +28,21 @@ def test_a():
         ["--inline-snapshot=fix"],
         changed_files=snapshot({}),
     )
+
+
+def test_no_tests():
+
+    with raises(snapshot("UsageError: no test_*() functions in the example")):
+        Example("").run_inline()
+
+
+def test_throws_exception():
+
+    with raises(snapshot("Exception: test")):
+        Example(
+            """\
+def test_a():
+    raise Exception("test")
+
+        """
+        ).run_inline()
