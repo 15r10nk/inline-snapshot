@@ -14,7 +14,10 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
-from inline_snapshot._types import Snapshot
+from inline_snapshot._code_repr import code_repr
+
+from ._types import Snapshot
+from ._unmanaged import declare_unmanaged
 
 
 @contextlib.contextmanager
@@ -204,3 +207,78 @@ def warns(
         return message
 
     assert [make_warning(w) for w in result] == expected_warnings
+
+
+@declare_unmanaged
+class IsTransformed:
+    """
+    `IsTransformed` allows you to transform your can be used to Transform a object inside a snapshot like in the following example:
+
+    === "original"
+        <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+        ``` python
+        from random import shuffle
+        from inline_snapshot import snapshot
+        from inline_snapshot.extra import IsTransformed
+
+
+        def request():
+            data = [1, 8, 18748, 493]
+            shuffle(data)
+            return {"name": "example", "data": data}
+
+
+        def test_request():
+            assert request() == snapshot(
+                {"name": "example", "data": IsTransformed(sorted, snapshot())}
+            )
+        ```
+
+    === "--inline-snapshot=create"
+        <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+        ``` python hl_lines="14 15 16 17"
+        from random import shuffle
+        from inline_snapshot import snapshot
+        from inline_snapshot.extra import IsTransformed
+
+
+        def request():
+            data = [1, 8, 18748, 493]
+            shuffle(data)
+            return {"name": "example", "data": data}
+
+
+        def test_request():
+            assert request() == snapshot(
+                {
+                    "name": "example",
+                    "data": IsTransformed(sorted, snapshot([1, 8, 493, 18748])),
+                }
+            )
+        ```
+
+    This is useful when you work with non-deterministic data.
+
+    """
+
+    def __init__(self, func, value) -> None:
+        self._func = func
+        self._value = value
+        self._last_transformed_value = None
+
+    def __eq__(self, other) -> bool:
+        self._last_transformed_value = self._func(other)
+        return self._last_transformed_value == self._value
+
+    def __repr__(self):
+        if self._last_transformed_value == self._value:
+            return f"IsTransformed({code_repr(self._func)},{self._value})"
+        else:
+            return f"IsTransformed({code_repr(self._func)}, {self._value}, should_be={self._last_transformed_value!r})"
+
+
+def transformation(func):
+    def f(value):
+        return IsTransformed(func, value)
+
+    return f
