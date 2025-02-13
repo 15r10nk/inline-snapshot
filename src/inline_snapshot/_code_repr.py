@@ -2,6 +2,7 @@ import ast
 from enum import Enum
 from enum import Flag
 from functools import singledispatch
+from types import BuiltinFunctionType
 from types import FunctionType
 from unittest import mock
 
@@ -159,3 +160,8 @@ def _(value: type):
 @customize_repr
 def _(value: FunctionType):
     return value.__qualname__
+
+
+@customize_repr
+def _(value: BuiltinFunctionType):
+    return value.__name__
