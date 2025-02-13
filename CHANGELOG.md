@@ -1,4 +1,19 @@
 
+<a id='changelog-0.20.2'></a>
+# 0.20.2 — 2025-02-13
+
+## Fixed
+
+- snapshots inside tests which are marked as xfail are now ignored (#184)
+
+- Fixed a crash caused by the following code:
+
+   ``` python
+   snapshot(tuple())
+   # or
+   snapshot(dict())
+   ```
+
 <a id='changelog-0.20.1'></a>
 # 0.20.1 — 2025-02-04
 
