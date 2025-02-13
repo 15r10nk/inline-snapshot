@@ -863,7 +863,7 @@ These changes will be applied, because you used create
 
     result = project.run("--inline-snapshot=report")
 
-    assert result.report == snapshot("""""")
+    assert result.report == snapshot("")
 
 
 @dataclass

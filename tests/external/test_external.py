@@ -266,7 +266,7 @@ def test_a():
         ]
     )
 
-    assert result.report == snapshot("""""")
+    assert result.report == snapshot("")
 
     result = project.run("--inline-snapshot=trim")
 
@@ -729,7 +729,7 @@ You can also use --inline-snapshot=review to approve the changes interactively\
 E           inline_snapshot._exceptions.UsageError: can not load external object from an non existing location 'uuid:'
 """
         ),
-        report=snapshot(""""""),
+        report=snapshot(""),
         returncode=1,
     )
 

@@ -32,5 +32,5 @@ def test_a():
     ).run_pytest(
         ["--inline-snapshot=report"],
         changed_files=snapshot({}),
-        report=snapshot(""""""),
+        report=snapshot(""),
     )

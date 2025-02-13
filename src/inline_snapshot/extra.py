@@ -1,7 +1,7 @@
-"""The following functions are build on top of inline-snapshot and could also
+"""The following functions are built on top of inline-snapshot and could also
 be implemented in an extra library.
 
-They are part of inline-snapshot because they are general useful and do
+They are part of inline-snapshot because they are generally useful and do
 not depend on other libraries.
 """
 
@@ -14,7 +14,10 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
-from inline_snapshot._types import Snapshot
+from inline_snapshot._code_repr import code_repr
+
+from ._types import Snapshot
+from ._unmanaged import declare_unmanaged
 
 
 @contextlib.contextmanager
@@ -22,7 +25,7 @@ def raises(exception: Snapshot[str]):
     """Check that an exception is raised.
 
     Parameters:
-        exception: snapshot which is compared with `#!python f"{type}: {message}"` if an exception occurred or `#!python "<no exception>"` if no exception was raised.
+        exception: Snapshot that is compared with `#!python f"{type}: {message}"` if an exception occurred, or `#!python "<no exception>"` if no exception was raised.
 
     === "original"
 
@@ -70,8 +73,8 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
     the output if needed.
 
     Parameters:
-        stdout: snapshot which is compared to the recorded output
-        stderr: snapshot which is compared to the recorded error output
+        stdout: Snapshot that is compared to the recorded output.
+        stderr: Snapshot that is compared to the recorded error output.
 
     === "original"
 
@@ -148,13 +151,13 @@ def warns(
 
     Parameters:
         expected_warnings: Snapshot containing a list of expected warnings.
-        include_line: If `True`, each expected warning is a tuple `(linenumber, message)`.
+        include_line: If `True`, each expected warning is a tuple `(line_number, message)`.
         include_file: If `True`, each expected warning is a tuple `(filename, message)`.
 
     The format of the expected warning:
 
-    - `(filename, linenumber, message)` if both `include_line` and `include_file` are `True`.
-    - `(linenumber, message)` if only `include_line` is `True`.
+    - `(filename, line_number, message)` if both `include_line` and `include_file` are `True`.
+    - `(line_number, message)` if only `include_line` is `True`.
     - `(filename, message)` if only `include_file` is `True`.
     - A string `message` if both are `False`.
 
@@ -204,3 +207,160 @@ def warns(
         return message
 
     assert [make_warning(w) for w in result] == expected_warnings
+
+
+@declare_unmanaged
+class Transformed:
+    """
+    `Transformed` allows you to move transformations of your values from one side of the == to the other.
+
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
+    from inline_snapshot import snapshot
+    from inline_snapshot.extra import Transformed
+
+
+    def test_transform():
+        numbers = [1, 8, 3, 7, 5]
+        assert sorted(numbers) == snapshot()
+        assert numbers == Transformed(sorted, snapshot())
+    ```
+
+    Both assertions test the create the same snapshots.
+
+    <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+    ``` python hl_lines="7 8"
+    from inline_snapshot import snapshot
+    from inline_snapshot.extra import Transformed
+
+
+    def test_transform():
+        numbers = [1, 8, 3, 7, 5]
+        assert sorted(numbers) == snapshot([1, 3, 5, 7, 8])
+        assert numbers == Transformed(sorted, snapshot([1, 3, 5, 7, 8]))
+    ```
+
+    Transformed is more flexible to use because you can also use it deep inside data structures.
+    The following example shows how Transformed is used inside a dictionary.
+
+    <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
+    ``` python
+    from random import shuffle
+    from inline_snapshot import snapshot
+    from inline_snapshot.extra import Transformed
+
+
+    def request():
+        data = [1, 8, 18748, 493]
+        shuffle(data)
+        return {"name": "example", "data": data}
+
+
+    def test_request():
+        assert request() == snapshot(
+            {
+                "name": "example",
+                "data": Transformed(sorted, snapshot([1, 8, 493, 18748])),
+            }
+        )
+    ```
+
+    Or to normalize strings.
+
+    <!-- inline-snapshot: create fix first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
+    from inline_snapshot.extra import Transformed
+    from inline_snapshot import snapshot
+    import re
+
+
+    class Thing:
+        def __repr__(self):
+            return "<Thing with some random id 152897513>"
+
+
+    def without_ids(text):
+        return re.sub(r"<([^0-9]*)[^>]+>", lambda m: f"<{m[1]} ...>", text)
+
+
+    def test_text_with_objects():
+        text = f"text can contain {Thing()}"
+
+        assert {"logs": text} == snapshot(
+            {
+                "logs": Transformed(
+                    without_ids,
+                    snapshot("text can contain <Thing with some random id  ...>"),
+                )
+            }
+        )
+    ```
+
+
+    You can use [@transformation][inline_snapshot.extra.transformation] if you want to use the same transformation multiple times.
+
+    """
+
+    def __init__(self, func, value) -> None:
+        self._func = func
+        self._value = value
+        self._last_transformed_value = None
+
+    def __eq__(self, other) -> bool:
+        self._last_transformed_value = self._func(other)
+        return self._last_transformed_value == self._value
+
+    def __repr__(self):
+        if self._last_transformed_value == self._value:
+            return f"Transformed({code_repr(self._func)}, {self._value})"
+        else:
+            return f"Transformed({code_repr(self._func)}, {self._value}, should_be={self._last_transformed_value!r})"
+
+
+def transformation(func):
+    """
+
+    `@transformation` can be used to bind a function to `Transformed`,
+    which simplifies your code if you want to use the same transformation multiple times.
+
+    <!-- inline-snapshot: create first_block outcome-passed=1 -->
+    ``` python
+    from inline_snapshot.extra import transformation
+    from inline_snapshot import snapshot
+    import re
+
+
+    class Thing:
+        def __repr__(self):
+            return "<Thing with some random id 152897513>"
+
+
+    @transformation
+    def WithoutIds(text):
+        return re.sub(r"<([^0-9]*)[^>]+>", lambda m: f"<{m[1]} ...>", text)
+
+
+    def test_text_with_objects():
+        text = f"text can contain {Thing()}"
+
+        assert {"logs": [text]} == snapshot(
+            {
+                "logs": [
+                    WithoutIds(
+                        snapshot(
+                            "text can contain <Thing with some random id  ...>"
+                        )
+                    )
+                ]
+            }
+        )
+    ```
+
+    !!! Tip
+        The argument of WithoutIds can also be an external `WithoutIds(external())`, if you want to store a large log in an external file.
+    """
+
+    def f(value):
+        return Transformed(func, value)
+
+    return f

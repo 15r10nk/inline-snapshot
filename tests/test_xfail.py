@@ -14,7 +14,7 @@ def test_a():
 """
     ).run_pytest(
         ["--inline-snapshot=fix"],
-        report=snapshot(""""""),
+        report=snapshot(""),
         returncode=snapshot(0),
         stderr=snapshot(""),
         changed_files=snapshot({}),
@@ -33,7 +33,7 @@ def test_a():
 """
     ).run_pytest(
         ["--inline-snapshot=fix"],
-        report=snapshot(""""""),
+        report=snapshot(""),
         returncode=snapshot(0),
         stderr=snapshot(""),
         changed_files=snapshot({}),

@@ -21,7 +21,7 @@ def test_external_location():
                 storage="hash", stem="", suffix=".b.txt", filename=None, qualname=None
             ),
             "hash:": ExternalLocation(
-                storage="hash", stem="""""", suffix="""""", filename=None, qualname=None
+                storage="hash", stem="", suffix="", filename=None, qualname=None
             ),
             "a.txt": ExternalLocation(
                 storage="uuid", stem="a", suffix=".txt", filename=None, qualname=None
@@ -37,7 +37,7 @@ def test_external_location():
                 storage="uuid", stem="", suffix=".b.txt", filename=None, qualname=None
             ),
             """""": ExternalLocation(
-                storage="uuid", stem="""""", suffix="""""", filename=None, qualname=None
+                storage="uuid", stem="", suffix="", filename=None, qualname=None
             ),
             "invalid:a.txt": "ValueError: storage has to be hash or uuid",
             "invalid:a.b.txt": "ValueError: storage has to be hash or uuid",
