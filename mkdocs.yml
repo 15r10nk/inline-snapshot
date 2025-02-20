@@ -43,6 +43,7 @@ nav:
   - Categories: categories.md
   - Code generation: code_generation.md
   - Limitations: limitations.md
+  - Changelog: changelog.md
 - Core:
   - x == snapshot(): eq_snapshot.md
   - x <= snapshot(): cmp_snapshot.md
@@ -57,7 +58,6 @@ nav:
 - Development:
   - Testing: testing.md
   - Contributing: contributing.md
-  - Changelog: changelog.md
 
 
 
