@@ -39,8 +39,8 @@ version = "0.20.2"
 [project.optional-dependencies]
 black = [
   "black>=23.3.0",
-  "click>=8.1.4"
 ]
+
 dirty-equals =[
     "dirty-equals>=0.9.0",
 ]
