@@ -6,6 +6,8 @@ edit_uri: edit/main/docs
 theme:
   name: material
   custom_dir: docs/theme
+  logo: assets/favicon.svg
+  favicon: assets/favicon.svg
   features:
   - toc.follow
   - content.code.annotate
