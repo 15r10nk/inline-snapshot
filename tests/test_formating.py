@@ -1,9 +1,6 @@
 import platform
 import re
 import sys
-from types import SimpleNamespace
-
-from click.testing import CliRunner
 
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
@@ -13,7 +10,10 @@ executable = sys.executable.replace("\\", "\\\\")
 
 
 def test_black_formatting_error(mocker):
-    mocker.patch.object(CliRunner, "invoke", return_value=SimpleNamespace(exit_code=1))
+    def custom_format_str(*a, **ka):
+        raise Exception()
+
+    mocker.patch("black.format_str", custom_format_str)
 
     Example(
         """\
@@ -118,7 +118,8 @@ def test_format_command_fail():
         )
         text = re.sub(path_re, "/.../", text, flags=re.MULTILINE)
 
-        text = text.replace("python.exe", "python3")
+        text = text.replace("python.exe", "python")
+        text = text.replace("python3", "python")
 
         return text
 
@@ -169,7 +170,7 @@ def test_a():
 +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 These changes will be applied, because you used --inline-snapshot=fix
 ----------------------------------------------------------------------------------------------- Problems -----------------------------------------------------------------------------------------------
-The format_command '/.../python3 fmt_cmd.py /.../test_a.py' caused the following error:
+The format_command '/.../python fmt_cmd.py /.../test_a.py' caused the following error:
 some problem\
 """
             )
@@ -216,5 +217,38 @@ for more information).
 
 
 """
+        ),
+    )
+
+
+def test_black_config():
+
+    Example(
+        {
+            "pyproject.toml": """
+[tool.black]
+skip_magic_trailing_comma=true
+skip_string_normalization=true
+preview=true
+""",
+            "test_a.py": """
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 1+1 == snapshot(3)
+""",
+        }
+    ).run_pytest(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "test_a.py": """\
+
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 1+1 == snapshot(2)
+"""
+            }
         ),
     )

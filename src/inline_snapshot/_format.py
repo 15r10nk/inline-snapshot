@@ -11,6 +11,32 @@ def enforce_formatting():
     return _config.config.format_command is not None
 
 
+def file_mode_for_path(path):
+    from black import FileMode
+    from black import find_pyproject_toml
+    from black import parse_pyproject_toml
+
+    mode = FileMode()
+    pyproject_path = find_pyproject_toml((), path)
+    if pyproject_path is not None:
+        config = parse_pyproject_toml(pyproject_path)
+
+        if "line_length" in config:
+            mode.line_length = int(config["line_length"])
+        if "skip_magic_trailing_comma" in config:
+            mode.magic_trailing_comma = not config["skip_magic_trailing_comma"]
+        if "skip_string_normalization" in config:
+            # The ``black`` command line argument is
+            # ``--skip-string-normalization``, but the parameter for
+            # ``black.Mode`` needs to be the opposite boolean of
+            # ``skip-string-normalization``, hence the inverse boolean
+            mode.string_normalization = not config["skip_string_normalization"]
+        if "preview" in config:
+            mode.preview = config["preview"]
+
+    return mode
+
+
 def format_code(text, filename):
     if _config.config.format_command is not None:
         format_command = _config.config.format_command.format(filename=filename)
@@ -29,8 +55,7 @@ def format_code(text, filename):
         return result.stdout.decode("utf-8")
 
     try:
-        from black import main
-        from click.testing import CliRunner
+        from black import format_str
     except ImportError:
         raise_problem(
             f"""\
@@ -45,18 +70,15 @@ This issue can be solved by:
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
 
-        runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(
-            main, ["--stdin-filename", str(filename), "-"], input=text
-        )
+        mode = file_mode_for_path(filename)
 
-    if result.exit_code != 0:
-        raise_problem(
-            """\
+        try:
+            return format_str(text, mode=mode)
+        except:
+            raise_problem(
+                """\
 [b]black could not format your code, which might be caused by this issue:[/b]
     [link=https://github.com/15r10nk/inline-snapshot/issues/138]https://github.com/15r10nk/inline-snapshot/issues/138[/link]\
 """
-        )
-        return text
-
-    return result.stdout
+            )
+            return text
