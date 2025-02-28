@@ -1,5 +1,9 @@
+import pytest
+
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
+
+docutils = pytest.importorskip("docutils")
 
 
 def test_pydantic_create_snapshot():
