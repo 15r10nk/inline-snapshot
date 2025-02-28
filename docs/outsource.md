@@ -1,5 +1,8 @@
 ## General
 
+!!! info
+    This feature is currently under development. See this [issue](https://github.com/15r10nk/inline-snapshot/issues/86) for more information.
+
 Storing snapshots in the source code is the main feature of inline snapshots.
 This has the advantage that you can easily see changes in code reviews. But it also has some problems:
 

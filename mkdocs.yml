@@ -6,6 +6,8 @@ edit_uri: edit/main/docs
 theme:
   name: material
   custom_dir: docs/theme
+  logo: assets/favicon.svg
+  favicon: assets/favicon.svg
   features:
   - toc.follow
   - content.code.annotate
@@ -43,6 +45,7 @@ nav:
   - Categories: categories.md
   - Code generation: code_generation.md
   - Limitations: limitations.md
+  - Changelog: changelog.md
 - Core:
   - x == snapshot(): eq_snapshot.md
   - x <= snapshot(): cmp_snapshot.md
@@ -57,7 +60,6 @@ nav:
 - Development:
   - Testing: testing.md
   - Contributing: contributing.md
-  - Changelog: changelog.md
 
 
 

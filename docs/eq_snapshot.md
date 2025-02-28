@@ -75,6 +75,12 @@ Other types are converted with a [customizable](customize_repr.md) `repr()` into
 
 ### dirty-equals
 
+!!! note
+    Use the optional *dirty-equals* dependency to install the version that works best in combination with inline-snapshot.
+    ``` sh
+    pip install inline-snapshot[dirty-equals]
+    ```
+
 It might be, that larger snapshots with many lists and dictionaries contain some values which change frequently and are not relevant for the test.
 They might be part of larger data structures and be difficult to normalize.
 
@@ -196,11 +202,42 @@ Example:
         )
     ```
 
-!!! note
-    Use the optional *dirty-equals* dependency to install the version that works best in combination with inline-snapshot.
-    ``` sh
-    pip install inline-snapshot[dirty-equals]
+`snapshot()` can also be used inside dirty-equals expressions.
+One useful example is `IsJson()`:
+
+
+=== "using IsJson()"
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
+    from dirty_equals import IsJson
+    from inline_snapshot import snapshot
+
+
+    def test_foo():
+        assert {"json_data": '{"value": 1}'} == snapshot(
+            {"json_data": IsJson(snapshot())}
+        )
     ```
+
+
+=== "--inline-snapshot=create"
+    <!-- inline-snapshot: create outcome-passed=1 -->
+    ``` python hl_lines="7"
+    from dirty_equals import IsJson
+    from inline_snapshot import snapshot
+
+
+    def test_foo():
+        assert {"json_data": '{"value": 1}'} == snapshot(
+            {"json_data": IsJson(snapshot({"value": 1}))}
+        )
+    ```
+
+The general rule is that functions to which you pass a *snapshot* as an argument can only use `==` (or other snapshot operations) on this argument.
+
+!!! important
+    You cannot use a *snapshot* for every dirty equals argument, but only for those that also support dirty equals expressions.
+
 
 ### Is(...)
 
