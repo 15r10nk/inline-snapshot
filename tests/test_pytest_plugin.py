@@ -698,8 +698,48 @@ UsageError:
 inline-snapshot uses `copy.deepcopy` to copy objects,
 but the copied object is not equal to the original one:
 
-original: Thing()
-copied:   Thing()
+value = Thing()
+copied_value = copy.deepcopy(value)
+assert value == copied_value
+
+Please fix the way your object is copied or your __eq__ implementation.
+"""
+        ),
+    )
+
+
+def test_equal_check_2():
+
+    Example(
+        {
+            "test_a.py": """
+from inline_snapshot import snapshot
+
+class A:
+    def __eq__(self,other):
+        if isinstance(other,A):
+            return False
+        return NotImplemented
+
+    def __repr__(self):
+        return "A()"
+
+def test_a():
+    assert A() == snapshot(A())
+    """,
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot({}),
+        raises=snapshot(
+            """\
+UsageError:
+inline-snapshot uses `copy.deepcopy` to copy objects,
+but the copied object is not equal to the original one:
+
+value = A()
+copied_value = copy.deepcopy(value)
+assert value == copied_value
 
 Please fix the way your object is copied or your __eq__ implementation.
 """
