@@ -1,4 +1,11 @@
 
+<a id='changelog-0.20.4'></a>
+# 0.20.4 — 2025-03-03
+
+## Fixed
+
+- Prevent a crash if a value cannot be copied and a UsageError is raised.
+
 <a id='changelog-0.20.3'></a>
 # 0.20.3 — 2025-02-28
 
