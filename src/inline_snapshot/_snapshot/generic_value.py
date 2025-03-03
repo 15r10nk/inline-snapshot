@@ -23,8 +23,9 @@ def clone(obj):
 inline-snapshot uses `copy.deepcopy` to copy objects,
 but the copied object is not equal to the original one:
 
-original: {code_repr(obj)}
-copied:   {code_repr(new)}
+value = {code_repr(obj)}
+copied_value = copy.deepcopy(value)
+assert value == copied_value
 
 Please fix the way your object is copied or your __eq__ implementation.
 """

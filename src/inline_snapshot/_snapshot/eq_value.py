@@ -20,9 +20,9 @@ class EqValue(GenericValue):
             state().missing_values += 1
 
         if not compare_only() and self._new_value is undefined:
+            self._changes = []
             adapter = Adapter(self._context).get_adapter(self._old_value, other)
             it = iter(adapter.assign(self._old_value, self._ast_node, clone(other)))
-            self._changes = []
             while True:
                 try:
                     self._changes.append(next(it))
