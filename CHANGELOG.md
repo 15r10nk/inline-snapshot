@@ -1,4 +1,11 @@
 
+<a id='changelog-0.20.5'></a>
+# 0.20.5 — 2025-03-04
+
+## Fixed
+
+- correct normalization of "python3.9" to "python" in tests
+
 <a id='changelog-0.20.4'></a>
 # 0.20.4 — 2025-03-03
 
