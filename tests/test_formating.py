@@ -118,8 +118,7 @@ def test_format_command_fail():
         )
         text = re.sub(path_re, "/.../", text, flags=re.MULTILINE)
 
-        text = text.replace("python.exe", "python")
-        text = text.replace("python3", "python")
+        text = re.sub(r"python(\.exe|\d\.\d*|\d)", "python", text)
 
         return text
 
