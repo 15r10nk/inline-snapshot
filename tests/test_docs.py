@@ -2,6 +2,7 @@ import itertools
 import platform
 import re
 import sys
+import tempfile
 import textwrap
 from collections import defaultdict
 from dataclasses import dataclass
@@ -126,50 +127,52 @@ def map_code_blocks(file, func, fix=False):
         assert current_code == new_code
 
 
-def test_map_code_blocks(tmp_path):
+def test_map_code_blocks():
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
 
-    file = tmp_path / "example.md"
+        file = tmp_path / "example.md"
 
-    def test_doc(
-        markdown_code,
-        handle_block=lambda block: exec(block.code),
-        blocks=[],
-        exception="<no exception>",
-        new_markdown_code=None,
-    ):
+        def test_doc(
+            markdown_code,
+            handle_block=lambda block: exec(block.code),
+            blocks=[],
+            exception="<no exception>",
+            new_markdown_code=None,
+        ):
 
-        file.write_text(markdown_code)
+            file.write_text(markdown_code)
 
-        recorded_blocks = []
+            recorded_blocks = []
 
-        with raises(exception):
+            with raises(exception):
 
-            def test_block(block):
-                handle_block(block)
-                recorded_blocks.append(block)
-                return block
+                def test_block(block):
+                    handle_block(block)
+                    recorded_blocks.append(block)
+                    return block
 
-            map_code_blocks(file, test_block, True)
-            assert recorded_blocks == blocks
-            map_code_blocks(file, test_block, False)
+                map_code_blocks(file, test_block, True)
+                assert recorded_blocks == blocks
+                map_code_blocks(file, test_block, False)
 
-        recorded_markdown_code = file.read_text()
-        if recorded_markdown_code != markdown_code:
-            assert new_markdown_code == recorded_markdown_code
-        else:
-            assert new_markdown_code is None
+            recorded_markdown_code = file.read_text()
+            if recorded_markdown_code != markdown_code:
+                assert new_markdown_code == recorded_markdown_code
+            else:
+                assert new_markdown_code is None
 
-    test_doc(
-        """
+        test_doc(
+            """
 ``` python
 1 / 0
 ```
 """,
-        exception=snapshot("ZeroDivisionError: division by zero"),
-    )
+            exception=snapshot("ZeroDivisionError: division by zero"),
+        )
 
-    test_doc(
-        """\
+        test_doc(
+            """\
 text
 ``` python
 print(1 + 1)
@@ -181,54 +184,57 @@ print(1 - 1)
 ```
 text
 """,
-        blocks=snapshot(
-            [
-                Block(
-                    code="print(1 + 1)\n", code_header=None, block_options="", line=2
-                ),
-                Block(
-                    code="print(1 - 1)\n",
-                    code_header="inline-snapshot: create test",
-                    block_options=' hl_lines="1 2 3"',
-                    line=7,
-                ),
-            ]
-        ),
-    )
+            blocks=snapshot(
+                [
+                    Block(
+                        code="print(1 + 1)\n",
+                        code_header=None,
+                        block_options="",
+                        line=2,
+                    ),
+                    Block(
+                        code="print(1 - 1)\n",
+                        code_header="inline-snapshot: create test",
+                        block_options=' hl_lines="1 2 3"',
+                        line=7,
+                    ),
+                ]
+            ),
+        )
 
-    def change_block(block):
-        block.code = "# removed"
-        block.code_header = "header"
-        block.block_options = "option a b c"
+        def change_block(block):
+            block.code = "# removed"
+            block.code_header = "header"
+            block.block_options = "option a b c"
 
-    test_doc(
-        """\
+        test_doc(
+            """\
 text
 ``` python
 print(1 + 1)
 ```
 """,
-        handle_block=change_block,
-        blocks=snapshot(
-            [
-                Block(
-                    code="# removed",
-                    code_header="header",
-                    block_options="option a b c",
-                    line=2,
-                )
-            ]
-        ),
-        new_markdown_code=snapshot(
-            """\
+            handle_block=change_block,
+            blocks=snapshot(
+                [
+                    Block(
+                        code="# removed",
+                        code_header="header",
+                        block_options="option a b c",
+                        line=2,
+                    )
+                ]
+            ),
+            new_markdown_code=snapshot(
+                """\
 text
 <!-- header -->
 ``` python option a b c
 # removed
 ```
 """
-        ),
-    )
+            ),
+        )
 
 
 @pytest.mark.skipif(

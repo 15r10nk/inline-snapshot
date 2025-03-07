@@ -23,9 +23,9 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', pypy3.9, pypy3.10]
-        os: [ubuntu-latest, windows-latest, macos-13]
-        extra_deps: ['"--with=pytest==8.3.3" "--with=pydantic<2"', '"--with=pytest>=8.3.4" "--with=pydantic>2"']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', 3.13t, pypy3.9, pypy3.10]
+        os: [ubuntu-latest]
+        extra_deps: ['"--with=pytest==8.3.3" ', '"--with=pytest>=8.3.4"']
     env:
       TOP: ${{github.workspace}}
       COVERAGE_PROCESS_START: ${{github.workspace}}/pyproject.toml
@@ -51,12 +51,14 @@ jobs:
         include-hidden-files: true
         if-no-files-found: ignore
 
+
+
   coverage:
     name: Combine & check coverage
     env:
       TOP: ${{github.workspace}}
     if: always()
-    needs: test
+    needs: [test]
     runs-on: ubuntu-latest
 
     steps:
@@ -82,7 +84,7 @@ jobs:
         coverage report --fail-under=100
 
     - name: Upload HTML report if check failed
-      uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+      uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
       with:
         name: html-report
         path: htmlcov
@@ -125,7 +127,7 @@ jobs:
 
     - name: Publish package distributions to PyPI
       if: ${{ steps.check-version.outputs.should_continue == 'true' }}
-      uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70 # v1.12.3
+      uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
 
     - name: create github release
       if: ${{ steps.check-version.outputs.should_continue == 'true' }}

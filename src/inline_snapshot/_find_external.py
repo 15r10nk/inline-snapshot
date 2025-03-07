@@ -72,6 +72,8 @@ def ensure_import(filename, imports, recorder: ChangeRecorder):
 
     to_add = []
 
+    assert isinstance(tree, ast.Module)
+
     for module, names in imports.items():
         for name in names:
             if not contains_import(tree, module, name):

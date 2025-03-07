@@ -3,6 +3,8 @@ import copy
 from typing import Any
 from typing import Iterator
 
+from inline_snapshot._locks import locked
+
 from .._adapter.adapter import AdapterContext
 from .._adapter.adapter import get_adapter_type
 from .._change import Change
@@ -116,22 +118,27 @@ class GenericValue(Snapshot):
             f"This snapshot cannot be use with `{op}`, because it was previously used with `{self._current_op}`"
         )
 
+    @locked
     def __eq__(self, _other):
         __tracebackhide__ = True
         self._type_error("==")
 
+    @locked
     def __le__(self, _other):
         __tracebackhide__ = True
         self._type_error("<=")
 
+    @locked
     def __ge__(self, _other):
         __tracebackhide__ = True
         self._type_error(">=")
 
+    @locked
     def __contains__(self, _other):
         __tracebackhide__ = True
         self._type_error("in")
 
+    @locked
     def __getitem__(self, _item):
         __tracebackhide__ = True
         self._type_error("snapshot[key]")
