@@ -5,8 +5,11 @@ from typing import Optional
 from typing import Set
 from typing import Union
 
+from inline_snapshot._global_state import state
+
 from . import _config
 from ._global_state import state
+from ._locks import locked
 
 
 class HashError(Exception):
@@ -72,6 +75,7 @@ class DiscStorage:
 
 
 class external:
+    @locked
     def __init__(self, name: str):
         """External objects are used as a representation for outsourced data.
         You should not create them directly.
@@ -111,6 +115,7 @@ class external:
         else:
             return f'external("{hash}*{self._suffix}")'
 
+    @locked
     def __eq__(self, other):
         """Two external objects are equal if they have the same hash and
         suffix."""
@@ -128,10 +133,12 @@ class external:
         return True
 
     def _load_value(self):
-        assert state().storage is not None
-        return state().storage.read(self._path)
+        storage = state().storage
+        assert storage is not None
+        return storage.read(self._path)
 
 
+@locked
 def outsource(data: Union[str, bytes], *, suffix: Optional[str] = None) -> external:
     """Outsource some data into an external file.
 
@@ -169,7 +176,6 @@ def outsource(data: Union[str, bytes], *, suffix: Optional[str] = None) -> exter
     hash = m.hexdigest()
 
     storage = state().storage
-
     assert storage is not None
 
     name = hash + suffix

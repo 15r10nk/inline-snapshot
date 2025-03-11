@@ -2,6 +2,8 @@ import platform
 import re
 import sys
 
+import pytest
+
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
 from tests._is_normalized import normalization
@@ -9,6 +11,7 @@ from tests._is_normalized import normalization
 executable = sys.executable.replace("\\", "\\\\")
 
 
+@pytest.mark.thread_unsafe
 def test_black_formatting_error(mocker):
     def custom_format_str(*a, **ka):
         raise Exception()

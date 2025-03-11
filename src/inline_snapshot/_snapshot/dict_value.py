@@ -1,6 +1,8 @@
 import ast
 from typing import Iterator
 
+from inline_snapshot._locks import locked
+
 from .._adapter.adapter import AdapterContext
 from .._change import Change
 from .._change import Delete
@@ -14,6 +16,7 @@ from .generic_value import GenericValue
 class DictValue(GenericValue):
     _current_op = "snapshot[key]"
 
+    @locked
     def __getitem__(self, index):
 
         if self._new_value is undefined:

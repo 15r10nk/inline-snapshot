@@ -3,8 +3,11 @@ import platform
 import re
 import shutil
 import sys
+import tempfile
 import textwrap
+import threading
 import traceback
+from contextlib import contextmanager
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
@@ -16,8 +19,8 @@ import black
 import executing
 import pytest
 
-import inline_snapshot._external
 from inline_snapshot._change import apply_all
+from inline_snapshot._external import DiscStorage
 from inline_snapshot._flags import Flags
 from inline_snapshot._format import format_code
 from inline_snapshot._rewrite_code import ChangeRecorder
@@ -44,9 +47,9 @@ def check_pypy(request):
 
 
 @pytest.fixture()
-def check_update(source):
+def check_update():
     def w(source_code, *, flags="", reported_flags=None, number=1):
-        s = source(source_code)
+        s = Source(source_code).run()
         flags = {*flags.split(",")} - {""}
 
         if reported_flags is None:
@@ -66,23 +69,30 @@ def check_update(source):
 
 
 @pytest.fixture()
-def source(tmp_path: Path):
-    filecount = 1
+def subtests():
+    class Fake:
+        @contextmanager
+        def test(*a, **ka):
+            yield
 
-    @dataclass
-    class Source:
-        source: str
-        flags: Set[str] = field(default_factory=set)
-        error: bool = False
-        number_snapshots: int = 0
-        number_changes: int = 0
+    return Fake()
 
-        def run(self, *flags_arg: Category):
-            flags = Flags({*flags_arg})
 
-            nonlocal filecount
-            filename: Path = tmp_path / f"test_{filecount}.py"
-            filecount += 1
+@dataclass
+class Source:
+    source: str
+    flags: Set[str] = field(default_factory=set)
+    error: bool = False
+    number_snapshots: int = 0
+    number_changes: int = 0
+
+    def run(self, *flags_arg: Category):
+        flags = Flags({*flags_arg})
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+
+            filename: Path = tmp_path / f"test_a.py"
 
             prefix = """\"\"\"
 PYTEST_DONT_REWRITE
@@ -104,9 +114,7 @@ from inline_snapshot import outsource
             with snapshot_env() as state:
                 recorder = ChangeRecorder()
                 state.update_flags = flags
-                state.storage = inline_snapshot._external.DiscStorage(
-                    tmp_path / ".storage"
-                )
+                state.storage = DiscStorage(tmp_path / ".storage")
 
                 error = False
 
@@ -154,6 +162,10 @@ from inline_snapshot import outsource
                 number_snapshots=number_snapshots,
                 number_changes=len(changes),
             )
+
+
+@pytest.fixture()
+def source():
 
     def w(source):
         return Source(source=source).run()
@@ -260,8 +272,14 @@ class RunResult:
         return result
 
 
+run_lock = threading.Lock()
+
+
 @pytest.fixture
-def project(pytester):
+def project(pytester, num_parallel_threads):
+    if num_parallel_threads > 1:
+        pytest.skip()
+
     class Project:
 
         def __init__(self):
@@ -366,22 +384,23 @@ def set_time(freezer):
                 del os.environ["CI"]  # pragma: no cover
 
             try:
-                with mock.patch.dict(
-                    os.environ,
-                    {
-                        "TERM": "unknown",
-                        "COLUMNS": str(
-                            self.term_columns + 1
-                            if platform.system() == "Windows"
-                            else self.term_columns
-                        ),
-                    },
-                ):
+                with run_lock:
+                    with mock.patch.dict(
+                        os.environ,
+                        {
+                            "TERM": "unknown",
+                            "COLUMNS": str(
+                                self.term_columns + 1
+                                if platform.system() == "Windows"
+                                else self.term_columns
+                            ),
+                        },
+                    ):
 
-                    if stdin:
-                        result = pytester.run("pytest", *args, stdin=stdin)
-                    else:
-                        result = pytester.run("pytest", *args)
+                        if stdin:
+                            result = pytester.run("pytest", *args, stdin=stdin)
+                        else:
+                            result = pytester.run("pytest", *args)
             finally:
                 os.environ.update(old_environ)
 
@@ -391,11 +410,14 @@ def set_time(freezer):
 
 
 @pytest.fixture(params=[True, False], ids=["executing", "without-executing"])
-def executing_used(request, monkeypatch):
+def executing_used(request, monkeypatch, num_parallel_threads):
+
     used = request.param
     if used:
         yield used
     else:
+        if num_parallel_threads > 1:
+            pytest.skip("freethreading is not supported")
 
         def fake_executing(frame):
             return SimpleNamespace(node=None)

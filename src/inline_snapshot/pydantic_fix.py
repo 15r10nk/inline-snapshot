@@ -10,7 +10,7 @@ def pydantic_fix():
     is_fixed = True
 
     try:
-        from pydantic import BaseModel
+        from pydantic import BaseModel  # type: ignore[import-not-found]
     except ImportError:  # pragma: no cover
         return
 

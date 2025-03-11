@@ -855,6 +855,7 @@ def warns(expected_warnings=[], include_line=False, include_file=False):
     ] == expected_warnings
 
 
+@pytest.mark.thread_unsafe
 def test_starred_warns_list():
 
     with warns(
@@ -878,6 +879,7 @@ def test():
         ).run_inline(["--inline-snapshot=fix"])
 
 
+@pytest.mark.thread_unsafe
 def test_starred_warns_dict():
     with warns(
         snapshot(

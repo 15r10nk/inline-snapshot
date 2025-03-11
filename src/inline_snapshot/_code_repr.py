@@ -6,6 +6,8 @@ from unittest import mock
 
 real_repr = repr
 
+import threading
+
 
 class HasRepr:
     """This class is used for objects where `__repr__()` returns an non-
@@ -72,18 +74,35 @@ def customize_repr(f):
     code_repr_dispatch.register(f)
 
 
-def code_repr(obj):
+code_repr_lock = threading.RLock()
+current_thread_ident = None
 
-    with mock.patch("builtins.repr", mocked_code_repr):
-        return mocked_code_repr(obj)
+
+def code_repr(obj):
+    global current_thread_ident
+
+    with code_repr_lock:
+        assert current_thread_ident in [None, threading.get_ident()]
+        current_thread_ident = threading.get_ident()
+
+        try:
+            with mock.patch("builtins.repr", mocked_code_repr):
+                return mocked_code_repr(obj)
+        finally:
+            current_thread_ident = None
 
 
 def mocked_code_repr(obj):
     from inline_snapshot._adapter.adapter import get_adapter_type
 
-    adapter = get_adapter_type(obj)
-    assert adapter is not None
-    return adapter.repr(obj)
+    assert current_thread_ident is not None
+
+    if current_thread_ident == threading.get_ident():
+        adapter = get_adapter_type(obj)
+        assert adapter is not None
+        return adapter.repr(obj)
+    else:
+        return real_repr(obj)
 
 
 def value_code_repr(obj):

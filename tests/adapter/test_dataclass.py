@@ -1,3 +1,5 @@
+import pytest
+
 from inline_snapshot import snapshot
 from inline_snapshot.extra import warns
 from inline_snapshot.testing._example import Example
@@ -310,6 +312,7 @@ not equal\
     )
 
 
+@pytest.mark.thread_unsafe
 def test_starred_warns():
     with warns(
         snapshot(
@@ -383,6 +386,7 @@ def test_something():
     )
 
 
+@pytest.mark.thread_unsafe
 def test_positional_star_args():
 
     with warns(
