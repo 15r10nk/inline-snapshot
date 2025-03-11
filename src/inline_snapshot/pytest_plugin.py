@@ -149,12 +149,21 @@ def pytest_configure(config):
     state().storage.prune_new_files()
 
 
+def is_xfail(request):
+    if not "xfail" in request.keywords:
+        return False
+    xfail = request.keywords["xfail"]
+    if xfail.args and xfail.args[0] == False:
+        return False
+    return True
+
+
 @pytest.fixture(autouse=True)
 def snapshot_check(request):
     state().missing_values = 0
     state().incorrect_values = 0
 
-    if "xfail" in request.keywords:
+    if is_xfail(request):
         with snapshot_env() as local_state:
             local_state.active = False
             yield
