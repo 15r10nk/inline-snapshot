@@ -98,7 +98,7 @@ def pytest_configure(config):
     if is_pytest_compatible():
         console = Console()
         if console.is_terminal:
-            _config.config.default_flags = ["review"]
+            _config.config.default_flags = ["create", "review"]
         else:
             _config.config.default_flags = ["report"]
 
