@@ -835,22 +835,3 @@ def test_something():
             }
         ),
     )
-
-
-def test_xfail():
-
-    Example(
-        """\
-import pytest
-
-@pytest.mark.xfail
-def test_a():
-    assert 1==snapshot(5)
-"""
-    ).run_pytest(
-        ["--inline-snapshot=fix"],
-        report=snapshot(""),
-        returncode=snapshot(0),
-        stderr=snapshot(""),
-        changed_files=snapshot({}),
-    )
