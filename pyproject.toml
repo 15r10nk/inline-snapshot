@@ -107,7 +107,8 @@ dependencies = [
   "mkdocs-autorefs",
   "replace-url @ {root:uri}/docs/plugins",
   "pytest",
-  "black"
+  "black",
+  "commitizen"
 ]
 [tool.hatch.envs.default]
 installer="uv"

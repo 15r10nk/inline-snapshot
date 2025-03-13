@@ -337,7 +337,7 @@ test_something()
 
     result = project.run("--inline-snapshot=create")
 
-    result.assert_outcomes(passed=1)
+    result.assert_outcomes(errors=1, passed=1)
 
     assert project.source == snapshot(
         """\

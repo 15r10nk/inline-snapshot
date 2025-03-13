@@ -70,7 +70,7 @@ def test_thing():
     """
     ).run_pytest(
         ["--inline-snapshot=create"],
-        returncode=snapshot(0),
+        returncode=snapshot(1),
         changed_files=snapshot(
             {
                 "test_something.py": """\

@@ -27,7 +27,7 @@ It might be necessary to import the right modules to match the `repr()` output.
         assert something() == snapshot()
     ```
 === "--inline-snapshot=create"
-    <!-- inline-snapshot: create outcome-passed=1 -->
+    <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
     ``` python hl_lines="18 19 20 21 22 23 24 25 26 27 28"
     from inline_snapshot import snapshot
     import datetime

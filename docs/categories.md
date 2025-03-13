@@ -39,7 +39,7 @@ def test_something():
     assert 5 == s["key"]
 ```
 
-<!-- inline-snapshot: create outcome-passed=1 -->
+<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
 ``` python hl_lines="5 7 9 11"
 from inline_snapshot import snapshot
 

@@ -174,7 +174,7 @@ def snapshot_check(request):
     missing_values = state().missing_values
     incorrect_values = state().incorrect_values
 
-    if missing_values != 0 and not state().update_flags.create:
+    if missing_values != 0:
         pytest.fail(
             (
                 "your snapshot is missing one value."
@@ -184,7 +184,7 @@ def snapshot_check(request):
             pytrace=False,
         )
 
-    if incorrect_values != 0 and not state().update_flags.fix:
+    if incorrect_values != 0:
         pytest.fail(
             "some snapshots in this test have incorrect values.",
             pytrace=False,

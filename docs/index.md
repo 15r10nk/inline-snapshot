@@ -37,7 +37,7 @@ You can use `snapshot()` instead of the value which you want to compare with and
 
 === "--inline-snapshot=create"
 
-    <!-- inline-snapshot: create outcome-passed=1 -->
+    <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
     ``` python hl_lines="9"
     from inline_snapshot import snapshot
 
@@ -146,7 +146,7 @@ It is possible to place `snapshot()` anywhere in the tests and reuse it multiple
 
 === "--inline-snapshot=create"
 
-    <!-- inline-snapshot: create outcome-passed=2 -->
+    <!-- inline-snapshot: create outcome-passed=2 outcome-errors=2 -->
     ``` python hl_lines="8"
     from inline_snapshot import snapshot
 
@@ -181,7 +181,7 @@ It is possible to place `snapshot()` anywhere in the tests and reuse it multiple
             assert len(name) == snapshot()
     ```
 === "--inline-snapshot=create"
-    <!-- inline-snapshot: create outcome-passed=1 -->
+    <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
     ``` python hl_lines="6"
     from inline_snapshot import snapshot
 
@@ -211,7 +211,7 @@ or passed as an argument to a function:
     ```
 
 === "--inline-snapshot=create"
-    <!-- inline-snapshot: create outcome-passed=1 -->
+    <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
     ``` python hl_lines="9 10 11"
     from inline_snapshot import snapshot
 

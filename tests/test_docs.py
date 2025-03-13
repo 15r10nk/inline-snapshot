@@ -359,9 +359,6 @@ line-length=80
 
             block.code = new_code
 
-            if flags - {"create"}:
-                assert result.ret == 0
-
             last_code = code
         return block
 
