@@ -1,4 +1,21 @@
 
+<a id='changelog-0.20.6'></a>
+# 0.20.6 — 2025-03-13
+
+## Fixed
+
+- Do not skip snapshots in conditional marked xfail tests.
+  ``` python
+  @pytest.mark.xfail(False, reason="...")
+  def test_a():
+      assert 5 == snapshot(3)  # <- this will be fixed
+
+
+  @pytest.mark.xfail(True, reason="...")
+  def test_b():
+      assert 5 == snapshot(3)  # <- this not
+  ```
+
 <a id='changelog-0.20.5'></a>
 # 0.20.5 — 2025-03-04
 
