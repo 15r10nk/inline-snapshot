@@ -1,4 +1,11 @@
 
+<a id='changelog-0.20.7'></a>
+# 0.20.7 — 2025-03-14
+
+## Changed
+
+- Tests with failed snapshot comparisons now always result in a pytest `Error`, even if snapshots have been fixed or created.
+
 <a id='changelog-0.20.6'></a>
 # 0.20.6 — 2025-03-13
 
