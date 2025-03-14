@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.8">
     
     
       
@@ -1230,49 +1230,54 @@ These flags can be combined with <em>report</em> and <em>review</em>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class=" -Color -Color-Bold -Color-Bold-Blue">&gt; pytest test_something.py --inline-snapshot=create,report</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class=" -Color -Color-Bold">============================= test session starts ==============================</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>platform linux -- Python 3.12.3, pytest-8.3.5, pluggy-1.5.0
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.OAJNr8RY4l
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.20.6
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.AKraW682zF
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.20.7
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>collected 1 item
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>test_something.py <span class=" -Color -Color-Green">.                                                      [100%]</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>=============================== inline snapshot ================================
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class=" -Color -Color-BrightGreen">─────────────────────────────── </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Create snapshots</span><span class=" -Color -Color-BrightGreen"> ───────────────────────────────</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>╭───────────────────────────── test_something.py ──────────────────────────────╮
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│ <span class=" -Color -Color-Bold -Color-Bold-Magenta">@@ -2,5 +2,5 @@</span>                                                              │
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│                                                                              │
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│ <span class=" -Color -Color-White"> </span>                                                                            │
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│ <span class=" -Color -Color-White"> </span>                                                                            │
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│ <span class=" -Color -Color-White"> </span>def test_something():                                                       │
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│ <span class=" -Color -Color-BrightRed">-    assert 1 == snapshot()</span>                                                  │
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│ <span class=" -Color -Color-Green">+    assert 1 == snapshot(1)</span>                                                 │
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│ <span class=" -Color -Color-White"> </span>    assert 2 &lt;= snapshot(5)                                                 │
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>╰──────────────────────────────────────────────────────────────────────────────╯
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>These changes will be applied, because you used <span class=" -Color -Color-Bold">--inline-snapshot=create</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class=" -Color -Color-BrightGreen">──────────────────────────────── </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Trim snapshots</span><span class=" -Color -Color-BrightGreen"> ────────────────────────────────</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>╭───────────────────────────── test_something.py ──────────────────────────────╮
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│ <span class=" -Color -Color-Bold -Color-Bold-Magenta">@@ -3,4 +3,4 @@</span>                                                              │
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│                                                                              │
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>│ <span class=" -Color -Color-White"> </span>                                                                            │
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>│ <span class=" -Color -Color-White"> </span>def test_something():                                                       │
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>│ <span class=" -Color -Color-White"> </span>    assert 1 == snapshot(1)                                                 │
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>│ <span class=" -Color -Color-BrightRed">-    assert 2 &lt;= snapshot(5)</span>                                                 │
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>│ <span class=" -Color -Color-Green">+    assert 2 &lt;= snapshot(2)</span>                                                 │
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>╰──────────────────────────────────────────────────────────────────────────────╯
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>These changes are not applied.
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>Use <span class=" -Color -Color-Bold">--inline-snapshot=trim</span> to apply them, or use the interactive mode with 
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class=" -Color -Color-Bold">--inline-snapshot=review</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>
-<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class=" -Color -Color-Green">============================== </span><span class=" -Color -Color-Bold -Color-Bold-Green">1 passed</span><span class=" -Color -Color-Green"> in 0.11s ===============================</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>test_something.py <span class=" -Color -Color-Green">.</span><span class=" -Color -Color-Red">E                                                     [100%]</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>==================================== ERRORS ====================================
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class=" -Color -Color-Bold -Color-Bold-Red">_____________________ ERROR at teardown of test_something ______________________</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>your snapshot is missing one value.
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>=============================== inline snapshot ================================
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class=" -Color -Color-BrightGreen">─────────────────────────────── </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Create snapshots</span><span class=" -Color -Color-BrightGreen"> ───────────────────────────────</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>╭───────────────────────────── test_something.py ──────────────────────────────╮
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│ <span class=" -Color -Color-Bold -Color-Bold-Magenta">@@ -2,5 +2,5 @@</span>                                                              │
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│                                                                              │
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│ <span class=" -Color -Color-White"> </span>                                                                            │
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│ <span class=" -Color -Color-White"> </span>                                                                            │
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│ <span class=" -Color -Color-White"> </span>def test_something():                                                       │
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│ <span class=" -Color -Color-BrightRed">-    assert 1 == snapshot()</span>                                                  │
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│ <span class=" -Color -Color-Green">+    assert 1 == snapshot(1)</span>                                                 │
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│ <span class=" -Color -Color-White"> </span>    assert 2 &lt;= snapshot(5)                                                 │
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>╰──────────────────────────────────────────────────────────────────────────────╯
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>These changes will be applied, because you used <span class=" -Color -Color-Bold">--inline-snapshot=create</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class=" -Color -Color-BrightGreen">──────────────────────────────── </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Trim snapshots</span><span class=" -Color -Color-BrightGreen"> ────────────────────────────────</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>╭───────────────────────────── test_something.py ──────────────────────────────╮
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>│ <span class=" -Color -Color-Bold -Color-Bold-Magenta">@@ -3,4 +3,4 @@</span>                                                              │
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>│                                                                              │
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>│ <span class=" -Color -Color-White"> </span>                                                                            │
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│ <span class=" -Color -Color-White"> </span>def test_something():                                                       │
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>│ <span class=" -Color -Color-White"> </span>    assert 1 == snapshot(1)                                                 │
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>│ <span class=" -Color -Color-BrightRed">-    assert 2 &lt;= snapshot(5)</span>                                                 │
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>│ <span class=" -Color -Color-Green">+    assert 2 &lt;= snapshot(2)</span>                                                 │
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>╰──────────────────────────────────────────────────────────────────────────────╯
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>These changes are not applied.
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>Use <span class=" -Color -Color-Bold">--inline-snapshot=trim</span> to apply them, or use the interactive mode with 
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class=" -Color -Color-Bold">--inline-snapshot=review</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class=" -Color -Color-Bold -Color-Bold-Cyan">=========================== short test summary info ============================</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class=" -Color -Color-Red">ERROR</span> test_something.py::<span class=" -Color -Color-Bold">test_something</span> - Failed: your snapshot is missing one value.
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class=" -Color -Color-Red">========================== </span><span class=" -Color -Color-Green">1 passed</span>, <span class=" -Color -Color-Bold -Color-Bold-Red">1 error</span><span class=" -Color -Color-Red"> in 0.12s ==========================</span>
 </code></pre></div>
 <h2 id="-inline-snapshotshort-report">--inline-snapshot=short-report<a class="headerlink" href="#-inline-snapshotshort-report" title="Permanent link">&para;</a></h2>
 <p>give a short report over which changes can be made to the snapshots</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class=" -Color -Color-Bold -Color-Bold-Blue">&gt; pytest test_something.py --inline-snapshot=short-report</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class=" -Color -Color-Bold">============================= test session starts ==============================</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>platform linux -- Python 3.12.3, pytest-8.3.5, pluggy-1.5.0
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.8lcJ2LLxvZ
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.20.6
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.U2qfUdE8Ce
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.20.7
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>collected 1 item
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>test_something.py <span class=" -Color -Color-Green">.</span><span class=" -Color -Color-Red">E                                                     [100%]</span>
@@ -1299,8 +1304,8 @@ This option will be replaced with <em>report</em> when this restriction is lifte
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class=" -Color -Color-Bold -Color-Bold-Blue">&gt; pytest test_something.py --inline-snapshot=report</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class=" -Color -Color-Bold">============================= test session starts ==============================</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>platform linux -- Python 3.12.3, pytest-8.3.5, pluggy-1.5.0
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.fdkpqpIUBk
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.20.6
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.iYazJxmvyj
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.20.7
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>collected 1 item
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>test_something.py <span class=" -Color -Color-Green">.</span><span class=" -Color -Color-Red">E                                                     [100%]</span>
@@ -1347,37 +1352,42 @@ This option will be replaced with <em>report</em> when this restriction is lifte
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class=" -Color -Color-Bold -Color-Bold-Blue">&gt; pytest test_something.py --inline-snapshot=review</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class=" -Color -Color-Bold">============================= test session starts ==============================</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>platform linux -- Python 3.12.3, pytest-8.3.5, pluggy-1.5.0
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.aazfwYCee3
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.20.6
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.qvSPEG6CNp
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.20.7
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>collected 1 item
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>test_something.py <span class=" -Color -Color-Green">.                                                      [100%]</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>=============================== inline snapshot ================================
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class=" -Color -Color-BrightGreen">─────────────────────────────── </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Create snapshots</span><span class=" -Color -Color-BrightGreen"> ───────────────────────────────</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>╭───────────────────────────── test_something.py ──────────────────────────────╮
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│ <span class=" -Color -Color-Bold -Color-Bold-Magenta">@@ -2,5 +2,5 @@</span>                                                              │
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│                                                                              │
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│ <span class=" -Color -Color-White"> </span>                                                                            │
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│ <span class=" -Color -Color-White"> </span>                                                                            │
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│ <span class=" -Color -Color-White"> </span>def test_something():                                                       │
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│ <span class=" -Color -Color-BrightRed">-    assert 1 == snapshot()</span>                                                  │
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│ <span class=" -Color -Color-Green">+    assert 1 == snapshot(1)</span>                                                 │
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│ <span class=" -Color -Color-White"> </span>    assert 2 &lt;= snapshot(5)                                                 │
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>╰──────────────────────────────────────────────────────────────────────────────╯
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class=" -Color -Color-Bold">do you want to </span><span class=" -Color -Color-Bold -Color-Bold-Blue">create</span><span class=" -Color -Color-Bold"> these snapshots?</span> <span class=" -Color -Color-Bold -Color-Bold-Magenta">[y/n]</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">(n)</span>: 
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class=" -Color -Color-BrightGreen">──────────────────────────────── </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Trim snapshots</span><span class=" -Color -Color-BrightGreen"> ────────────────────────────────</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>╭───────────────────────────── test_something.py ──────────────────────────────╮
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│ <span class=" -Color -Color-Bold -Color-Bold-Magenta">@@ -3,4 +3,4 @@</span>                                                              │
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│                                                                              │
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│ <span class=" -Color -Color-White"> </span>                                                                            │
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>│ <span class=" -Color -Color-White"> </span>def test_something():                                                       │
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>│ <span class=" -Color -Color-White"> </span>    assert 1 == snapshot(1)                                                 │
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>│ <span class=" -Color -Color-BrightRed">-    assert 2 &lt;= snapshot(5)</span>                                                 │
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>│ <span class=" -Color -Color-Green">+    assert 2 &lt;= snapshot(2)</span>                                                 │
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>╰──────────────────────────────────────────────────────────────────────────────╯
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class=" -Color -Color-Bold">do you want to </span><span class=" -Color -Color-Bold -Color-Bold-Blue">trim</span><span class=" -Color -Color-Bold"> these snapshots?</span> <span class=" -Color -Color-Bold -Color-Bold-Magenta">[y/n]</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">(n)</span>: 
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class=" -Color -Color-Green">============================== </span><span class=" -Color -Color-Bold -Color-Bold-Green">1 passed</span><span class=" -Color -Color-Green"> in 0.10s ===============================</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>test_something.py <span class=" -Color -Color-Green">.</span><span class=" -Color -Color-Red">E                                                     [100%]</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>==================================== ERRORS ====================================
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class=" -Color -Color-Bold -Color-Bold-Red">_____________________ ERROR at teardown of test_something ______________________</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>your snapshot is missing one value.
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>=============================== inline snapshot ================================
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class=" -Color -Color-BrightGreen">─────────────────────────────── </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Create snapshots</span><span class=" -Color -Color-BrightGreen"> ───────────────────────────────</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>╭───────────────────────────── test_something.py ──────────────────────────────╮
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│ <span class=" -Color -Color-Bold -Color-Bold-Magenta">@@ -2,5 +2,5 @@</span>                                                              │
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│                                                                              │
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│ <span class=" -Color -Color-White"> </span>                                                                            │
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│ <span class=" -Color -Color-White"> </span>                                                                            │
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│ <span class=" -Color -Color-White"> </span>def test_something():                                                       │
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│ <span class=" -Color -Color-BrightRed">-    assert 1 == snapshot()</span>                                                  │
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│ <span class=" -Color -Color-Green">+    assert 1 == snapshot(1)</span>                                                 │
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│ <span class=" -Color -Color-White"> </span>    assert 2 &lt;= snapshot(5)                                                 │
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>╰──────────────────────────────────────────────────────────────────────────────╯
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class=" -Color -Color-Bold">do you want to </span><span class=" -Color -Color-Bold -Color-Bold-Blue">create</span><span class=" -Color -Color-Bold"> these snapshots?</span> <span class=" -Color -Color-Bold -Color-Bold-Magenta">[y/n]</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">(n)</span>: 
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class=" -Color -Color-BrightGreen">──────────────────────────────── </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Trim snapshots</span><span class=" -Color -Color-BrightGreen"> ────────────────────────────────</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>╭───────────────────────────── test_something.py ──────────────────────────────╮
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>│ <span class=" -Color -Color-Bold -Color-Bold-Magenta">@@ -3,4 +3,4 @@</span>                                                              │
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>│                                                                              │
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>│ <span class=" -Color -Color-White"> </span>                                                                            │
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>│ <span class=" -Color -Color-White"> </span>def test_something():                                                       │
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│ <span class=" -Color -Color-White"> </span>    assert 1 == snapshot(1)                                                 │
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>│ <span class=" -Color -Color-BrightRed">-    assert 2 &lt;= snapshot(5)</span>                                                 │
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>│ <span class=" -Color -Color-Green">+    assert 2 &lt;= snapshot(2)</span>                                                 │
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>╰──────────────────────────────────────────────────────────────────────────────╯
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class=" -Color -Color-Bold">do you want to </span><span class=" -Color -Color-Bold -Color-Bold-Blue">trim</span><span class=" -Color -Color-Bold"> these snapshots?</span> <span class=" -Color -Color-Bold -Color-Bold-Magenta">[y/n]</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">(n)</span>: 
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class=" -Color -Color-Bold -Color-Bold-Cyan">=========================== short test summary info ============================</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class=" -Color -Color-Red">ERROR</span> test_something.py::<span class=" -Color -Color-Bold">test_something</span> - Failed: your snapshot is missing one value.
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class=" -Color -Color-Red">========================== </span><span class=" -Color -Color-Green">1 passed</span>, <span class=" -Color -Color-Bold -Color-Bold-Red">1 error</span><span class=" -Color -Color-Red"> in 0.11s ==========================</span>
 </code></pre></div>
 <h2 id="-inline-snapshotdisable">--inline-snapshot=disable<a class="headerlink" href="#-inline-snapshotdisable" title="Permanent link">&para;</a></h2>
 <p>Disables all the snapshot logic. <code>snapshot(x)</code> will just return <code>x</code>.
