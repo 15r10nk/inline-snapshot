@@ -40,7 +40,6 @@ def test_something():
 ```
 
 ```bash exec="1" title="something" result="ansi"
-set -e
 cd $(mktemp -d)
 
 export FORCE_COLOR=256
@@ -133,7 +132,6 @@ run pytest test_something.py --inline-snapshot=report
 Shows a diff report for each category and ask if you want to apply the changes
 
 ```bash exec="1" title="something" result="ansi"
-set -e
 cd $(mktemp -d)
 
 export FORCE_COLOR=256

@@ -39,7 +39,7 @@ def raises(exception: Snapshot[str]):
 
     === "--inline-snapshot=create"
 
-        <!-- inline-snapshot: create outcome-passed=1 -->
+        <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
         ``` python hl_lines="6"
         from inline_snapshot import snapshot
         from inline_snapshot.extra import raises
@@ -90,7 +90,7 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
 
     === "--inline-snapshot=create"
 
-        <!-- inline-snapshot: create outcome-passed=1 -->
+        <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
         ``` python hl_lines="7 8 9"
         from inline_snapshot import snapshot
         from inline_snapshot.extra import prints
@@ -174,7 +174,7 @@ def warns(
 
     === "--inline-snapshot=create"
 
-        <!-- inline-snapshot: create fix outcome-passed=1 -->
+        <!-- inline-snapshot: create fix outcome-passed=1 outcome-errors=1 -->
         ``` python hl_lines="7"
         from inline_snapshot import snapshot
         from inline_snapshot.extra import warns

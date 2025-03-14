@@ -32,7 +32,7 @@ You can also use --inline-snapshot=review to approve the changes interactively
 
     result = project.run("--inline-snapshot=create")
 
-    result.assert_outcomes(passed=1)
+    result.assert_outcomes(passed=1, errors=1)
 
     assert result.report == snapshot(
         """\
@@ -786,7 +786,7 @@ def test_outsource():
     )
 
     result = project.run("--inline-snapshot=create")
-    assert result.ret == 0
+    assert result.ret == 1
     assert project.source == snapshot(
         """\
 from inline_snapshot import outsource, snapshot
@@ -798,7 +798,7 @@ def test_outsource():
 """
     )
 
-    project.run("--inline-snapshot=fix")
+    result = project.run("--inline-snapshot=fix")
     assert result.ret == 0
 
     assert project.storage(storage_dir) == snapshot(

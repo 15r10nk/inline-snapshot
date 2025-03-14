@@ -62,7 +62,7 @@ You can now run the tests and record the correct values.
 $ pytest --inline-snapshot=review
 ```
 
-<!-- inline-snapshot: create outcome-passed=1 -->
+<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
 ``` python hl_lines="5"
 from inline_snapshot import snapshot
 
