@@ -228,6 +228,21 @@ def pytest_assertrepr_compare(config, op, left, right):
         return results[0]
 
 
+# Global variable to track test results
+test_results = {"failed": 0, "skipped": 0}
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_runtest_logreport(report):
+    """Called after each test phase (setup, call, teardown)."""
+    if report.when == "call":
+        print(report)
+        if report.failed:
+            test_results["failed"] += 1
+        elif report.skipped:
+            test_results["skipped"] += 1
+
+
 @pytest.hookimpl(trylast=True)
 def pytest_sessionfinish(session, exitstatus):
     print("\n")
@@ -315,11 +330,12 @@ def pytest_sessionfinish(session, exitstatus):
                 "Error: {num} snapshots have incorrect values ([b]--inline-snapshot=fix[/])",
             )
 
-            report(
-                "trim",
-                "Info: one snapshot can be trimmed ([b]--inline-snapshot=trim[/])",
-                "Info: {num} snapshots can be trimmed ([b]--inline-snapshot=trim[/])",
-            )
+            if not (test_results["failed"] or test_results["skipped"]):
+                report(
+                    "trim",
+                    "Info: one snapshot can be trimmed ([b]--inline-snapshot=trim[/])",
+                    "Info: {num} snapshots can be trimmed ([b]--inline-snapshot=trim[/])",
+                )
 
             report(
                 "create",
@@ -352,6 +368,12 @@ def pytest_sessionfinish(session, exitstatus):
                 continue
 
             if not {"review", "report", flag} & flags:
+                continue
+
+            if flag == "trim" and (test_results["failed"] or test_results["skipped"]):
+                console.print(
+                    "skipped trimming because not all tests where run successful"
+                )
                 continue
 
             console.rule(f"[yellow bold]{flag.capitalize()} snapshots")
