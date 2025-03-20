@@ -300,7 +300,10 @@ class Example:
                     if record and line:
                         report_list.append(line)
 
-                    if line.startswith("====") and "inline snapshot" in line:
+                    if (
+                        line.startswith(("-----", "═════"))
+                        and "inline-snapshot" in line
+                    ):
                         record = True
 
                 report_str = "\n".join(report_list)

@@ -228,28 +228,30 @@ def pytest_assertrepr_compare(config, op, left, right):
         return results[0]
 
 
-def pytest_terminal_summary(terminalreporter, exitstatus, config):
+@pytest.hookimpl(trylast=True)
+def pytest_sessionfinish(session, exitstatus):
+    print("\n")
+    config = session.config
+    console = Console(
+        highlight=False,
+    )
+
+    console.rule("[blue]inline-snapshot", characters="═")
 
     if xdist_running(config):
         if flags != {"disable"}:
-            terminalreporter.section("inline snapshot")
-            terminalreporter.write(
-                "INFO: inline-snapshot was disabled because you used xdist\n"
-            )
+            console.print("INFO: inline-snapshot was disabled because you used xdist\n")
         return
 
     if not is_implementation_supported():
         if flags != {"disable"}:
-            terminalreporter.section("inline snapshot")
-            terminalreporter.write(
+            console.print(
                 f"INFO: inline-snapshot was disabled because {sys.implementation.name} is not supported\n"
             )
         return
 
     if not state().active:
         return
-
-    terminalreporter.section("inline snapshot")
 
     capture = config.pluginmanager.getplugin("capturemanager")
 
@@ -295,9 +297,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
     capture.suspend_global_capture(in_=True)
     try:
-        console = Console(
-            highlight=False,
-        )
+
         if "short-report" in flags:
 
             def report(flag, message, message_n):
@@ -416,10 +416,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             for name in unused_externals:
                 assert state().storage
                 state().storage.remove(name)
-            terminalreporter.write(
-                f"removed {len(unused_externals)} unused externals\n"
-            )
-
+            console.print(f"removed {len(unused_externals)} unused externals\n")
     finally:
         capture.resume_global_capture()
 

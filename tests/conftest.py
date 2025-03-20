@@ -205,7 +205,7 @@ class RunResult:
             if record and line:
                 result.append(line)
 
-            if line.startswith("====") and "inline snapshot" in line:
+            if line.startswith(("-----", "═════")) and "inline-snapshot" in line:
                 record = True
 
         result = self._join_lines(result)
