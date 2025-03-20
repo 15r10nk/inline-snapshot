@@ -1,4 +1,11 @@
 
+<a id='changelog-0.20.8'></a>
+# 0.20.8 — 2025-03-20
+
+## Fixed
+
+- inline-snapshot now also works if you use `--no-summary` (which pycharm does if you run your tests from the IDE).
+
 <a id='changelog-0.20.7'></a>
 # 0.20.7 — 2025-03-14
 
