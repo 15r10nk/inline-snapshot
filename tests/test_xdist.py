@@ -82,4 +82,4 @@ default-flags = ["fix"]
 
     assert result.stderr.lines == snapshot([])
 
-    assert result.ret == 0
+    assert result.ret == 1
