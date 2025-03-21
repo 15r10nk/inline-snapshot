@@ -44,10 +44,14 @@ class GenericValue(Snapshot):
     _ast_node: ast.Expr
     _context: AdapterContext
 
-    @staticmethod
-    def _return(result):
+    def _return(self, result, new_result=True):
+
         if not result:
             state().incorrect_values += 1
+        flags = state().update_flags
+
+        if flags.fix or flags.create or flags.update or self._old_value is undefined:
+            return new_result
         return result
 
     @property
