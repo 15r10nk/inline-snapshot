@@ -37,7 +37,7 @@ Example:
     ```
 
 === "--inline-snapshot=fix"
-    <!-- inline-snapshot: fix outcome-passed=1 -->
+    <!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
     ``` python hl_lines="5"
     from inline_snapshot import snapshot
 
@@ -179,7 +179,7 @@ Example:
 
 
 === "--inline-snapshot=fix"
-    <!-- inline-snapshot: fix outcome-passed=1 -->
+    <!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
     ``` python hl_lines="17"
     from inline_snapshot import snapshot
     from dirty_equals import IsDatetime
@@ -277,7 +277,7 @@ The snapshot does not need to be fixed when `current_version` changes in the fut
     ```
 
 === "--inline-snapshot=fix"
-    <!-- inline-snapshot: fix outcome-passed=1 -->
+    <!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
     ``` python hl_lines="6"
     from inline_snapshot import snapshot, Is
 
@@ -322,7 +322,7 @@ The following example shows how this can be used to run a tests with two differe
     ```
 
 
-<!-- inline-snapshot: create fix first_block outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python
 from inline_snapshot import snapshot
 from my_lib import version, get_schema
@@ -342,7 +342,7 @@ def test_function():
 The advantage of this approach is that the test uses always the correct values for each library version.
 
 You can also extract the version logic into its own function.
-<!-- inline-snapshot: create fix first_block outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python
 from inline_snapshot import snapshot, Snapshot
 from my_lib import version, get_schema

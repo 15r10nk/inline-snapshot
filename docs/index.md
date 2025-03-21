@@ -70,7 +70,7 @@ your code is correct and you want to update your test results.
 
 
 === "--inline-snapshot=fix"
-    <!-- inline-snapshot: fix outcome-passed=1 -->
+    <!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
     ``` python hl_lines="9"
     from inline_snapshot import snapshot
 

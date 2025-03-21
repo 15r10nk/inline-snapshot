@@ -67,7 +67,7 @@ def test_a():
 These changes will be applied, because you used --inline-snapshot=fix\
 """
         ),
-        returncode=snapshot(0),
+        returncode=snapshot(1),
         stderr=snapshot(""),
         changed_files=snapshot(
             {

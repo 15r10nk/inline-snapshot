@@ -30,7 +30,7 @@ class EqValue(GenericValue):
                     self._new_value = ex.value
                     break
 
-        return self._return(self._visible_value() == other)
+        return self._return(self._old_value == other, self._new_value == other)
 
     def _new_code(self):
         return self._file._value_to_code(self._new_value)
