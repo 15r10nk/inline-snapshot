@@ -1328,7 +1328,7 @@ The value can later be changed with <code>--inline-snapshot=fix</code> if the va
 </span></code></pre></div></p>
 </div>
 <div class="tabbed-block">
-<p><!-- inline-snapshot: fix outcome-passed=1 -->
+<p><!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
@@ -1464,7 +1464,7 @@ They might be part of larger data structures and be difficult to normalize.</p>
 </code></pre></div></p>
 </div>
 <div class="tabbed-block">
-<p><!-- inline-snapshot: fix outcome-passed=1 -->
+<p><!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dirty_equals</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsDatetime</span>
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
@@ -1556,7 +1556,7 @@ It tells inline-snapshot that the developer wants control over some part of the 
 </code></pre></div></p>
 </div>
 <div class="tabbed-block">
-<p><!-- inline-snapshot: fix outcome-passed=1 -->
+<p><!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">Is</span>
 <a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
@@ -1596,7 +1596,7 @@ The test has to be executed in each specific condition to fill the snapshots.</p
 </div>
 </div>
 </div>
-<!-- inline-snapshot: create fix first_block outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">my_lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span><span class="p">,</span> <span class="n">get_schema</span>
 <a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
@@ -1613,7 +1613,7 @@ The test has to be executed in each specific condition to fill the snapshots.</p
 </code></pre></div>
 <p>The advantage of this approach is that the test uses always the correct values for each library version.</p>
 <p>You can also extract the version logic into its own function.</p>
-<!-- inline-snapshot: create fix first_block outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">Snapshot</span>
 <a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">my_lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span><span class="p">,</span> <span class="n">get_schema</span>
 <a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
