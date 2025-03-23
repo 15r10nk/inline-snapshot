@@ -79,7 +79,7 @@ You can also use --inline-snapshot=review to approve the changes interactively
 
     result = project.run("--inline-snapshot=fix")
 
-    result.assert_outcomes(passed=1)
+    result.assert_outcomes(passed=1, errors=1)
 
     assert result.report == snapshot(
         """\
@@ -606,7 +606,7 @@ def test_sub_snapshot():
 """
     )
 
-    assert result.ret == 0
+    assert result.ret == 1
 
 
 def test_diff_multiple_files():
