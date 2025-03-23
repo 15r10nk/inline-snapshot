@@ -1,4 +1,11 @@
 
+<a id='changelog-0.20.9'></a>
+# 0.20.9 — 2025-03-23
+
+## Fixed
+
+- `--inline-snapshot=create` preserves test failures now.
+
 <a id='changelog-0.20.8'></a>
 # 0.20.8 — 2025-03-20
 
