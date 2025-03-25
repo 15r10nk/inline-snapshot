@@ -823,7 +823,7 @@ def test_thing():
 | +        )                                                                   |
 | +    )                                                                       |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used --inline-snapshot=create
+These changes will be applied, because you used create
 """
     )
 

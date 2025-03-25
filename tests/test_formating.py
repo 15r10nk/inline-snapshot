@@ -167,7 +167,7 @@ def test_a():
 | -    assert "5" ==            snapshot('''3''')                                                                                                                                                      |
 | +    assert "5" ==            snapshot('5')                                                                                                                                                          |
 +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-These changes will be applied, because you used --inline-snapshot=fix
+These changes will be applied, because you used fix
 ----------------------------------------------------------------------------------------------- Problems -----------------------------------------------------------------------------------------------
 The format_command '/.../python fmt_cmd.py /.../test_a.py' caused the following error:
 some problem\

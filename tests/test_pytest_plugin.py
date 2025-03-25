@@ -46,7 +46,7 @@ You can also use --inline-snapshot=review to approve the changes interactively
 | -    assert 5==snapshot()                                                    |
 | +    assert 5==snapshot(5)                                                   |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used --inline-snapshot=create
+These changes will be applied, because you used create
 """
     )
 
@@ -93,7 +93,7 @@ You can also use --inline-snapshot=review to approve the changes interactively
 | -    assert 5==snapshot(4)                                                   |
 | +    assert 5==snapshot(5)                                                   |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used --inline-snapshot=fix
+These changes will be applied, because you used fix
 """
     )
 
@@ -142,7 +142,7 @@ You can also use --inline-snapshot=review to approve the changes interactively
 | -    assert "5" == snapshot('''5''')                                         |
 | +    assert "5" == snapshot("5")                                             |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used --inline-snapshot=update
+These changes will be applied, because you used update
 """
     )
 
@@ -187,7 +187,7 @@ You can also use --inline-snapshot=review to approve the changes interactively
 | -    assert 5 in snapshot([4,5])                                             |
 | +    assert 5 in snapshot([5])                                               |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used --inline-snapshot=trim
+These changes will be applied, because you used trim
 """
     )
 
@@ -246,7 +246,7 @@ You can also use --inline-snapshot=review to approve the changes interactively
 | -    assert 5 == snapshot(4)                                                 |
 | +    assert 5 == snapshot(5)                                                 |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used --inline-snapshot=fix
+These changes will be applied, because you used fix
 -------------------------------- Trim snapshots --------------------------------
 +-------------------------------- test_file.py --------------------------------+
 | @@ -5,5 +5,5 @@                                                              |
@@ -258,7 +258,7 @@ These changes will be applied, because you used --inline-snapshot=fix
 | +    assert 5 <= snapshot(5)                                                 |
 |      assert 5 == snapshot(5)                                                 |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used --inline-snapshot=trim
+These changes will be applied, because you used trim
 """
     )
 
@@ -330,7 +330,7 @@ Use --inline-snapshot=fix to apply them, or use the interactive mode with
 | +    assert 5 <= snapshot(5)                                                 |
 |      assert 5 == snapshot(4)                                                 |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used --inline-snapshot=trim
+These changes will be applied, because you used trim
 ------------------------------- Update snapshots -------------------------------
 +-------------------------------- test_file.py --------------------------------+
 | @@ -4,6 +4,6 @@                                                              |
@@ -537,7 +537,7 @@ def test_something():
 | -    assert 2 == snapshot(1)                                                 |
 | +    assert 2 == snapshot(2)                                                 |
 +------------------------------------------------------------------------------+
-do you want to fix these snapshots? [y/n] (n):
+Do you want to fix these snapshots? [y/n] (n):
 """
     )
 
@@ -660,7 +660,7 @@ def test_a():
 | -    assert 1==snapshot()                                                    |
 | +    assert 1==snapshot(1)                                                   |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used --inline-snapshot=create
+These changes will be applied, because you used create
 -------------------------------- Fix snapshots ---------------------------------
 +--------------------------------- test_a.py ----------------------------------+
 | @@ -2,5 +2,5 @@                                                              |
@@ -671,7 +671,7 @@ These changes will be applied, because you used --inline-snapshot=create
 | -    assert 1==snapshot(2)                                                   |
 | +    assert 1==snapshot(1)                                                   |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used --inline-snapshot=fix\
+These changes will be applied, because you used fix\
 """
         ),
     )
@@ -903,7 +903,7 @@ def test_a():
 | -    assert 1==snapshot(5)                                                   |
 | +    assert 1==snapshot(1)                                                   |
 +------------------------------------------------------------------------------+
-do you want to fix these snapshots? [y/n] (n):\
+Do you want to fix these snapshots? [y/n] (n):\
 """
         ),
         returncode=snapshot(1),

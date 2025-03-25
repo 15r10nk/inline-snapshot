@@ -268,17 +268,20 @@ def pytest_sessionfinish(session, exitstatus):
 
     # --inline-snapshot
 
+    def category_link(category):
+        return f"[italic blue link=https://15r10nk.github.io/inline-snapshot/latest/categories/#{category}]{category}[/]"
+
     def apply_changes(flag):
         if flag in flags:
             console.print(
-                f"These changes will be applied, because you used [b]--inline-snapshot={flag}[/]",
+                f"These changes will be applied, because you used {category_link(flag)}",
                 highlight=False,
             )
             console.print()
             return True
         if "review" in flags:
             result = Confirm.ask(
-                f"[bold]do you want to [blue]{flag}[/] these snapshots?[/]",
+                f"Do you want to {category_link(flag)} these snapshots?",
                 default=False,
             )
             console.print()
@@ -286,7 +289,8 @@ def pytest_sessionfinish(session, exitstatus):
         else:
             console.print("These changes are not applied.")
             console.print(
-                f"Use [b]--inline-snapshot={flag}[/] to apply them, or use the interactive mode with [b]--inline-snapshot=review[/]",
+                f"Use [bold]--inline-snapshot={category_link(flag)} to apply them, "
+                "or use the interactive mode with [b]--inline-snapshot=[italic blue link=https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview]review[/][/]",
                 highlight=False,
             )
             console.print()

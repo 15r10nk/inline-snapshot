@@ -100,7 +100,7 @@ def test_something():
 | -    assert 2 == snapshot(1+1)                                               |
 | +    assert 2 == snapshot(2)                                                 |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used --inline-snapshot=update
+These changes will be applied, because you used update
 """
     )
 

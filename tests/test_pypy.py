@@ -23,7 +23,7 @@ def test_pypy():
 | -    assert 1+1==snapshot(3)                                                 |
 | +    assert 1+1==snapshot(2)                                                 |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used --inline-snapshot=fix\
+These changes will be applied, because you used fix\
 """
         )
     )
