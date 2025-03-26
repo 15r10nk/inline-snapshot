@@ -1,4 +1,11 @@
 
+<a id='changelog-0.20.10'></a>
+# 0.20.10 — 2025-03-26
+
+## Fixed
+
+- Use of the correct snapshot category (update/fix) when deleting dataclass arguments.
+
 <a id='changelog-0.20.9'></a>
 # 0.20.9 — 2025-03-23
 
