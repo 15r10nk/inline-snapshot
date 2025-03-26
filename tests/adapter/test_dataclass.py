@@ -194,7 +194,7 @@ class A:
 
 def test_something():
     assert A(a=1) == snapshot(A(a=1,b=2,c=[],d=11))
-    assert A(a=2,b=3) == snapshot(A(a=2,b=3,c=[],d=11))
+    assert A(a=2,b=3) == snapshot(A(a=2,b=3,c=[]))
 """
             }
         ),
@@ -219,6 +219,41 @@ def test_something():
 """
             }
         ),
+        returncode=0,
+    )
+
+
+def test_attrs_fix_default_value():
+    Example(
+        """\
+from inline_snapshot import snapshot,Is
+import attrs
+
+@attrs.define
+class A:
+    a:int=attrs.field(default=2)
+
+def test_something():
+    assert A() == snapshot(A(a=1))
+"""
+    ).run_pytest(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot,Is
+import attrs
+
+@attrs.define
+class A:
+    a:int=attrs.field(default=2)
+
+def test_something():
+    assert A() == snapshot(A())
+"""
+            }
+        ),
+        returncode=1,
     )
 
 
