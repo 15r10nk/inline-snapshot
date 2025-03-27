@@ -189,7 +189,7 @@ class Example:
                 console = Console(file=report_output, width=80)
 
                 # TODO: add all the report output here
-                report_problems(console)
+                report_problems(lambda: console)
 
             if reported_categories is not None:
                 assert sorted(snapshot_flags) == reported_categories
