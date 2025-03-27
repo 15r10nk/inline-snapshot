@@ -48,3 +48,9 @@ fix=["create","fix"]
 
     !!! important
         The command should **not** format the file on disk. The current file content (with the new code changes) is passed to *stdin* and the formatted content should be written to *stdout*.
+
+    You can also use a `|` if you want to use multiple commands.
+    ``` toml
+    [tool.inline-snapshot]
+    format-command="ruff check --fix-only --stdin-filename {filename} | ruff format --stdin-filename {filename}"
+    ```
