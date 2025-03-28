@@ -1435,6 +1435,26 @@ It is recommended to use trim only if you run your complete test suite.</p>
 </div>
 </div>
 <p>The approval of this type of changes is easier, because inline-snapshot assures that the value has not changed.</p>
+<p>It is not necessary, but recommended to make these changes for the following reason:</p>
+<p>The goal of inline-snapshot is to generate the values for you in the correct format so that no manual editing is required.
+This improves your productivity and saves time.
+Keep in mind that any changes you make to your snapshots will likely need to be redone if your program's behavior (and expected values) change.
+Inline-snapshot uses the <em>update</em> category to let you know when it has a different opinion than you about how the code should look.
+You can agree with inline-snapshot and accept the changes or you can use one of the following options to tell inline-snapshot what the code should look like:</p>
+<ol>
+<li>
+<p>change the <code>__repr__</code> implementation of your object or use <a href="../customize_repr/">customize repr</a> if the class is not part of your codebase.</p>
+</li>
+<li>
+<p>define a <a href="../configuration/#format-command">format-command</a> if another tool has a different opinion about how your code should look. Inline-snapshot will apply this formatting before reporting an update.</p>
+</li>
+<li>
+<p>inline-snapshot manages everything within <code>snapshot(...)</code>, but you can take control by using <a href="../eq_snapshot/#Is">Is()</a> in cases where you want to use custom code (like local variables) in your snapshots.</p>
+</li>
+<li>
+<p>you can also open an [issue] (https://github.com/15r10nk/inline-snapshot/issues) if you have a specific problem with the way inline-snapshot generates the code.</p>
+</li>
+</ol>
 
 
 

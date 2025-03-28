@@ -1068,12 +1068,13 @@
 <p>Default configuration:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">[tool.inline-snapshot]</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">hash-length</span><span class="o">=</span><span class="mi">15</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">default-flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;short-report&quot;</span><span class="p">]</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">format-command</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">[tool.inline-snapshot.shortcuts]</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">review</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;review&quot;</span><span class="p">]</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">fix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span><span class="s2">&quot;fix&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">default-flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">default-flags-tui</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;review&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">format-command</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">[tool.inline-snapshot.shortcuts]</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">review</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;review&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">fix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span><span class="s2">&quot;fix&quot;</span><span class="p">]</span>
 </code></pre></div>
 <ul>
 <li><strong>hash-length:</strong> specifies the length of the hash used by <code>external()</code> in the code representation.
@@ -1083,6 +1084,21 @@
 <p><strong>default-flags:</strong> defines which flags should be used if there are no flags specified with <code>--inline-snapshot=...</code>.
     You can also use the environment variable <code>INLINE_SNAPSHOT_DEFAULT_FLAGS=...</code> to specify the flags and to override those in the configuration file.</p>
 </li>
+<li>
+<p><strong>default-flags-tui:</strong> defines which flags should be used if you run pytest in an interactive terminal.
+    inline-snapshot creates all snapshots by default in this case and asks when there are values to change.
+    This feature requires <em>cpython&gt;=3.11</em></p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The default flags are different if you use <em>cpython&lt;3.11</em> due to some <a href="../limitations/#pytest-assert-rewriting-is-disabled">technical limitations</a>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[tool.inline-snapshot]</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">default-flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;short-report&quot;</span><span class="p">]</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">default-flags-tui</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;short-report&quot;</span><span class="p">]</span>
+</code></pre></div></p>
+</div>
+<ul>
 <li>
 <p><strong>shortcuts:</strong> allows you to define custom commands to simplify your workflows.
     <code>--fix</code> and <code>--review</code> are defined by default, but this configuration can be changed to fit your needs.</p>
@@ -1095,14 +1111,18 @@
 </li>
 <li>
 <p><strong>format-command:<a href="" id="format-command"></a></strong> allows you to specify a custom command which is used to format the python code after code is changed.
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[tool.inline-snapshot]</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">format-command</span><span class="o">=</span><span class="s2">&quot;ruff format --stdin-filename {filename}&quot;</span>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">[tool.inline-snapshot]</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">format-command</span><span class="o">=</span><span class="s2">&quot;ruff format --stdin-filename {filename}&quot;</span>
 </code></pre></div>
    The placeholder <code>{filename}</code> can be used to specify the filename if it is needed to find the correct formatting options for this file.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>The command should <strong>not</strong> format the file on disk. The current file content (with the new code changes) is passed to <em>stdin</em> and the formatted content should be written to <em>stdout</em>.</p>
 </div>
+<p>You can also use a <code>|</code> if you want to use multiple commands.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">[tool.inline-snapshot]</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">format-command</span><span class="o">=</span><span class="s2">&quot;ruff check --fix-only --stdin-filename {filename} | ruff format --stdin-filename {filename}&quot;</span>
+</code></pre></div></p>
 </li>
 </ul>
 
