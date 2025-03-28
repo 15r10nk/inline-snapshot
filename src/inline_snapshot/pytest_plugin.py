@@ -11,9 +11,6 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
 
-from inline_snapshot._problems import report_problems
-from inline_snapshot.pydantic_fix import pydantic_fix
-
 from . import _config
 from . import _external
 from . import _find_external
@@ -24,8 +21,10 @@ from ._flags import Flags
 from ._global_state import snapshot_env
 from ._global_state import state
 from ._inline_snapshot import used_externals
+from ._problems import report_problems
 from ._rewrite_code import ChangeRecorder
 from ._snapshot.generic_value import GenericValue
+from .pydantic_fix import pydantic_fix
 
 pytest.register_assert_rewrite("inline_snapshot.extra")
 pytest.register_assert_rewrite("inline_snapshot.testing._example")
@@ -82,6 +81,27 @@ def xdist_running(config):
     )
 
 
+def is_ci_run():
+    ci_env_vars = (
+        "CI",
+        "bamboo.buildKey",
+        "BUILD_ID",
+        "BUILD_NUMBER",
+        "BUILDKITE",
+        "CIRCLECI",
+        "CONTINUOUS_INTEGRATION",
+        "GITHUB_ACTIONS",
+        "HUDSON_URL",
+        "JENKINS_URL",
+        "TEAMCITY_VERSION",
+        "TRAVIS",
+    )
+    for var in ci_env_vars:
+        if os.environ.get(var, False):
+            return var
+    return False
+
+
 def is_implementation_supported():
     return sys.implementation.name == "cpython"
 
@@ -94,10 +114,22 @@ def pytest_configure(config):
         if directory == directory.parent:
             break
         directory = directory.parent
-    _config.config = _config.read_config(pyproject)
+    _config.config = _config.Config()
+
+    if is_pytest_compatible():
+        _config.config.default_flags_tui = ["create", "review"]
+        _config.config.default_flags = ["report"]
+
+    _config.read_config(pyproject, _config.config)
+
+    console = Console()
+    if console.is_terminal:
+        default_flags = _config.config.default_flags_tui
+    else:
+        default_flags = _config.config.default_flags
 
     if config.option.inline_snapshot is None:
-        flags = set(_config.config.default_flags)
+        flags = set(default_flags)
     else:
         flags = config.option.inline_snapshot.split(",")
         flags = {flag for flag in flags if flag}
@@ -117,7 +149,7 @@ def pytest_configure(config):
             f"--inline-snapshot=disable can not be combined with other flags ({', '.join(flags-{'disable'})})"
         )
 
-    if xdist_running(config) or not is_implementation_supported():
+    if xdist_running(config) or not is_implementation_supported() or is_ci_run():
         state().active = False
 
     elif flags & {"review"}:
@@ -228,24 +260,51 @@ def pytest_assertrepr_compare(config, op, left, right):
         return results[0]
 
 
+def call_once(f):
+    called = False
+    result = None
+
+    def w():
+        nonlocal called
+        nonlocal result
+        if not called:
+            result = f()
+            called = True
+        return result
+
+    return w
+
+
 @pytest.hookimpl(trylast=True)
 def pytest_sessionfinish(session, exitstatus):
-    print("\n")
     config = session.config
-    console = Console(
-        highlight=False,
-    )
 
-    console.rule("[blue]inline-snapshot", characters="═")
+    @call_once
+    def console():
+        con = Console(highlight=False)
+        con.print("\n")
+        con.rule("[blue]inline-snapshot", characters="═")
+
+        return con
 
     if xdist_running(config):
         if flags != {"disable"}:
-            console.print("INFO: inline-snapshot was disabled because you used xdist\n")
+            console().print(
+                "INFO: inline-snapshot was disabled because you used xdist\n"
+            )
+        return
+
+    if env_var := is_ci_run():
+        if flags != {"disable"}:
+            console().print(
+                f'INFO: CI run was detected because environment variable "{env_var}" was defined.\n'
+                + "INFO: inline-snapshot runs with --inline-snapshot=disabled by default in CI.\n"
+            )
         return
 
     if not is_implementation_supported():
         if flags != {"disable"}:
-            console.print(
+            console().print(
                 f"INFO: inline-snapshot was disabled because {sys.implementation.name} is not supported\n"
             )
         return
@@ -257,28 +316,32 @@ def pytest_sessionfinish(session, exitstatus):
 
     # --inline-snapshot
 
+    def category_link(category):
+        return f"[italic blue link=https://15r10nk.github.io/inline-snapshot/latest/categories/#{category}]{category}[/]"
+
     def apply_changes(flag):
         if flag in flags:
-            console.print(
-                f"These changes will be applied, because you used [b]--inline-snapshot={flag}[/]",
+            console().print(
+                f"These changes will be applied, because you used {category_link(flag)}",
                 highlight=False,
             )
-            console.print()
+            console().print()
             return True
         if "review" in flags:
             result = Confirm.ask(
-                f"[bold]do you want to [blue]{flag}[/] these snapshots?[/]",
+                f"Do you want to {category_link(flag)} these snapshots?",
                 default=False,
             )
-            console.print()
+            console().print()
             return result
         else:
-            console.print("These changes are not applied.")
-            console.print(
-                f"Use [b]--inline-snapshot={flag}[/] to apply them, or use the interactive mode with [b]--inline-snapshot=review[/]",
+            console().print("These changes are not applied.")
+            console().print(
+                f"Use [bold]--inline-snapshot={category_link(flag)} to apply them, "
+                "or use the interactive mode with [b]--inline-snapshot=[italic blue link=https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview]review[/][/]",
                 highlight=False,
             )
-            console.print()
+            console().print()
             return False
 
     # auto mode
@@ -304,7 +367,7 @@ def pytest_sessionfinish(session, exitstatus):
                 num = snapshot_changes[flag]
 
                 if num and not getattr(state().update_flags, flag):
-                    console.print(
+                    console().print(
                         message if num == 1 else message.format(num=num),
                         highlight=False,
                     )
@@ -334,7 +397,7 @@ def pytest_sessionfinish(session, exitstatus):
             )
 
             if sum(snapshot_changes.values()) != 0:
-                console.print(
+                console().print(
                     "\nYou can also use [b]--inline-snapshot=review[/] to approve the changes interactively",
                     highlight=False,
                 )
@@ -354,18 +417,23 @@ def pytest_sessionfinish(session, exitstatus):
             if not {"review", "report", flag} & flags:
                 continue
 
-            console.rule(f"[yellow bold]{flag.capitalize()} snapshots")
+            @call_once
+            def header():
+                console().rule(f"[yellow bold]{flag.capitalize()} snapshots")
 
             cr = ChangeRecorder()
             apply_all(used_changes, cr)
             cr.virtual_write()
             apply_all(changes[flag], cr)
 
+            any_changes = False
+
             for file in cr.files():
                 diff = file.diff()
                 if diff:
+                    header()
                     name = file.filename.relative_to(Path.cwd())
-                    console.print(
+                    console().print(
                         Panel(
                             Syntax(diff, "diff", theme="ansi_light"),
                             title=str(name),
@@ -376,8 +444,9 @@ def pytest_sessionfinish(session, exitstatus):
                             ),
                         )
                     )
+                    any_changes = True
 
-            if apply_changes(flag):
+            if any_changes and apply_changes(flag):
                 used_changes += changes[flag]
 
         report_problems(console)
@@ -416,7 +485,7 @@ def pytest_sessionfinish(session, exitstatus):
             for name in unused_externals:
                 assert state().storage
                 state().storage.remove(name)
-            console.print(f"removed {len(unused_externals)} unused externals\n")
+            console().print(f"removed {len(unused_externals)} unused externals\n")
     finally:
         capture.resume_global_capture()
 

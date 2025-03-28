@@ -64,7 +64,7 @@ def test_a():
 | -    assert 1==snapshot(5)                                                   |
 | +    assert 1==snapshot(1)                                                   |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used --inline-snapshot=fix\
+These changes will be applied, because you used fix\
 """
         ),
         returncode=snapshot(1),

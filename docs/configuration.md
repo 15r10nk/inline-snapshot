@@ -3,7 +3,8 @@ Default configuration:
 ``` toml
 [tool.inline-snapshot]
 hash-length=15
-default-flags=["short-report"]
+default-flags=["report"]
+default-flags-tui=["create", "review"]
 format-command=""
 
 [tool.inline-snapshot.shortcuts]
@@ -16,6 +17,20 @@ fix=["create","fix"]
     The hash should be long enough to avoid hash collisions.
 * **default-flags:** defines which flags should be used if there are no flags specified with `--inline-snapshot=...`.
     You can also use the environment variable `INLINE_SNAPSHOT_DEFAULT_FLAGS=...` to specify the flags and to override those in the configuration file.
+
+* **default-flags-tui:** defines which flags should be used if you run pytest in an interactive terminal.
+    inline-snapshot creates all snapshots by default in this case and asks when there are values to change.
+    This feature requires *cpython>=3.11*
+
+!!! note
+    The default flags are different if you use *cpython<3.11* due to some [technical limitations](limitations.md#pytest-assert-rewriting-is-disabled):
+    ``` toml
+    [tool.inline-snapshot]
+    default-flags=["short-report"]
+    default-flags-tui=["short-report"]
+    ```
+
+
 
 * **shortcuts:** allows you to define custom commands to simplify your workflows.
     `--fix` and `--review` are defined by default, but this configuration can be changed to fit your needs.
@@ -33,3 +48,9 @@ fix=["create","fix"]
 
     !!! important
         The command should **not** format the file on disk. The current file content (with the new code changes) is passed to *stdin* and the formatted content should be written to *stdout*.
+
+    You can also use a `|` if you want to use multiple commands.
+    ``` toml
+    [tool.inline-snapshot]
+    format-command="ruff check --fix-only --stdin-filename {filename} | ruff format --stdin-filename {filename}"
+    ```

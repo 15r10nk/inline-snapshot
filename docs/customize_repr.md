@@ -60,11 +60,10 @@ for name, obj in sorted(
         print(f"- `{name}`")
 ```
 
+Please open an [issue](https://github.com/15r10nk/inline-snapshot/issues) if you found a builtin type which is not supported by inline-snapshot.
+
 !!! note
     Container types like `dict`, `list`, `tuple` or `dataclass` are handled in a different way, because inline-snapshot also needs to inspect these types to implement [unmanaged](/eq_snapshot.md#unmanaged-snapshot-values) snapshot values.
-
-
-
 
 
 ## customize recursive repr
