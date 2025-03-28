@@ -1,4 +1,27 @@
 
+<a id='changelog-0.21.0'></a>
+# 0.21.0 — 2025-03-28
+
+## Changed
+
+- inline-snapshot uses now `--inline-snapshot=disable` during CI runs by default.
+    This improves performance because `snapshot()` is then equal to:
+    ``` python
+    def snapshot(x):
+        return x
+    ```
+    It also has benefits for the accuracy of your tests as it is less likely that inline snapshot will affect your tests in CI.
+
+- The default flags have changed for cpython >= 3.11:
+    * `--inline-snapshot=create,review` is used in an interactive terminal and
+    * `--inline-snapshot=report` otherwise.
+
+- The categories in the terminal output are now links to the documentation if it is supported by the terminal.
+
+## Fixed
+
+- Hide update section if the diff is empty because the change is reverted by the format-command.
+
 <a id='changelog-0.20.10'></a>
 # 0.20.10 — 2025-03-26
 
