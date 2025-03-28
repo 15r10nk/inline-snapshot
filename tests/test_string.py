@@ -5,6 +5,7 @@ from hypothesis.strategies import text
 
 from inline_snapshot import snapshot
 from inline_snapshot._utils import triple_quote
+from inline_snapshot.testing import Example
 
 
 def test_string_update(check_update):
@@ -193,3 +194,56 @@ a
 def test_string_convert(s):
     print(s)
     assert ast.literal_eval(triple_quote(s)) == s
+
+
+def test_newline():
+    Example(
+        """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert "a\\r\\nb" == snapshot()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_something.py": '''\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert "a\\r\\nb" == snapshot("""\\
+a\\r
+b\\
+""")
+'''
+            }
+        ),
+    )
+
+
+def test_trailing_whitespaces():
+    Example(
+        """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert "a   \\r\\nb   \\nc   " == snapshot()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_something.py": '''\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert "a   \\r\\nb   \\nc   " == snapshot("""\\
+a   \\r
+b   \\n\\
+c   \\
+""")
+'''
+            }
+        ),
+    )
