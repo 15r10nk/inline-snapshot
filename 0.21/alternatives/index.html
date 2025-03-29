@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://15r10nk.github.io/inline-snapshot/0.21/code_generation/">
+        <link rel="canonical" href="https://15r10nk.github.io/inline-snapshot/0.21/alternatives/">
       
       
-        <link rel="prev" href="../categories/">
+        <link rel="prev" href="../limitations/">
       
       
-        <link rel="next" href="../limitations/">
+        <link rel="next" href="../changelog/">
       
       
       <link rel="icon" href="../assets/favicon.svg">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Code generation - inline-snapshot</title>
+        <title>Alternatives - inline-snapshot</title>
       
     
     
@@ -63,11 +63,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Code generation - inline-snapshot" >
+        <meta  property="og:title"  content="Alternatives - inline-snapshot" >
       
         <meta  property="og:description"  content="None" >
       
-        <meta  property="og:image"  content="https://15r10nk.github.io/inline-snapshot/0.21/assets/images/social/code_generation.png" >
+        <meta  property="og:image"  content="https://15r10nk.github.io/inline-snapshot/0.21/assets/images/social/alternatives.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -75,15 +75,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://15r10nk.github.io/inline-snapshot/0.21/code_generation/" >
+        <meta  property="og:url"  content="https://15r10nk.github.io/inline-snapshot/0.21/alternatives/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Code generation - inline-snapshot" >
+        <meta  name="twitter:title"  content="Alternatives - inline-snapshot" >
       
         <meta  name="twitter:description"  content="None" >
       
-        <meta  name="twitter:image"  content="https://15r10nk.github.io/inline-snapshot/0.21/assets/images/social/code_generation.png" >
+        <meta  name="twitter:image"  content="https://15r10nk.github.io/inline-snapshot/0.21/assets/images/social/alternatives.png" >
       
     
     
@@ -217,7 +217,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Code generation
+              Alternatives
             
           </span>
         </div>
@@ -571,17 +571,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../code_generation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -591,7 +584,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -623,10 +615,17 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../alternatives/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -636,6 +635,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -1085,148 +1085,19 @@
   
 
 
-  <h1>Code generation</h1>
+  <h1>Alternatives</h1>
 
-<p>You can use almost any python datatype and also complex values like <code>datatime.date</code>, because <code>repr()</code> is used to convert the values to source code.
-The default <code>__repr__()</code> behaviour can be <a href="../customize_repr/">customized</a>.
-It might be necessary to import the right modules to match the <code>repr()</code> output.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">original code</label><label for="__tabbed_1_2">--inline-snapshot=create</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p><!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">something</span><span class="p">():</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">return</span> <span class="p">{</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;hello&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="s2">&quot;one number&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="s2">&quot;numbers&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)),</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="s2">&quot;sets&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">},</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">22</span><span class="p">),</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="s2">&quot;complex stuff&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="n">j</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        <span class="s2">&quot;bytes&quot;</span><span class="p">:</span> <span class="sa">b</span><span class="s2">&quot;byte abc</span><span class="se">\n\x16</span><span class="s2">&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="p">}</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="k">assert</span> <span class="n">something</span><span class="p">()</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">()</span>
-</code></pre></div></p>
-</div>
-<div class="tabbed-block">
-<p><!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">something</span><span class="p">():</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="k">return</span> <span class="p">{</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;hello&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="s2">&quot;one number&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="s2">&quot;numbers&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)),</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="s2">&quot;sets&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">},</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">22</span><span class="p">),</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="s2">&quot;complex stuff&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="n">j</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="s2">&quot;bytes&quot;</span><span class="p">:</span> <span class="sa">b</span><span class="s2">&quot;byte abc</span><span class="se">\n\x16</span><span class="s2">&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="p">}</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="hll">    <span class="k">assert</span> <span class="n">something</span><span class="p">()</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
-</span><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="hll">        <span class="p">{</span>
-</span><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="hll">            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;hello&quot;</span><span class="p">,</span>
-</span><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="hll">            <span class="s2">&quot;one number&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-</span><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="hll">            <span class="s2">&quot;numbers&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span>
-</span><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="hll">            <span class="s2">&quot;sets&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">},</span>
-</span><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="hll">            <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">22</span><span class="p">),</span>
-</span><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="hll">            <span class="s2">&quot;complex stuff&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">5</span><span class="n">j</span><span class="p">),</span>
-</span><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="hll">            <span class="s2">&quot;bytes&quot;</span><span class="p">:</span> <span class="sa">b</span><span class="s2">&quot;byte abc</span><span class="se">\n\x16</span><span class="s2">&quot;</span><span class="p">,</span>
-</span><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="hll">        <span class="p">}</span>
-</span><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="hll">    <span class="p">)</span>
-</span></code></pre></div></p>
-</div>
-</div>
-</div>
-<p>The code is generated in the following way:</p>
-<ol>
-<li>The value is copied with <code>value = copy.deepcopy(value)</code> and it is checked if the copied value is equal to the original value.</li>
-<li>The code is generated with:<ul>
-<li><code>repr(value)</code> (which can be <a href="../customize_repr/">customized</a>)</li>
-<li>or a special internal implementation for container types to support <a href="../eq_snapshot/#unmanaged-snapshot-values">unmanaged snapshot values</a>.
-  This can currently not be customized.</li>
-</ul>
-</li>
-<li>
-<p>Strings which contain newlines are converted to triple quoted strings.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Missing newlines at start or end are escaped (since 0.4.0).</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">original code</label><label for="__tabbed_2_2">--inline-snapshot=update</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p><!-- inline-snapshot: first_block outcome-passed=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">assert</span> <span class="s2">&quot;first line</span><span class="se">\n</span><span class="s2">second line&quot;</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;first line</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="sd">second line&quot;&quot;&quot;</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="p">)</span>
-</code></pre></div></p>
-</div>
-<div class="tabbed-block">
-<p><!-- inline-snapshot: update outcome-passed=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="k">assert</span> <span class="s2">&quot;first line</span><span class="se">\n</span><span class="s2">second line&quot;</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="hll"><span class="w">        </span><span class="sd">&quot;&quot;&quot;\</span>
-</span><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="hll"><span class="sd">first line</span>
-</span><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="hll"><span class="sd">second line\</span>
-</span><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="hll"><span class="sd">&quot;&quot;&quot;</span>
-</span><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="p">)</span>
-</code></pre></div></p>
-</div>
-</div>
-</div>
-</div>
-</li>
-<li>
-<p>The new code fragments are formatted with black if it is installed.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Black is an optional dependency since inline-snapshot v0.19.0.
-You can install it with:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span>inline-snapshot<span class="o">[</span>black<span class="o">]</span>
-</code></pre></div></p>
-</div>
-</li>
-<li>
-<p>The whole file is formatted</p>
+<p>inline-snapshot is not the only snapshot library for python.
+There are several others to:</p>
 <ul>
-<li>
-<p>with black if it was formatted with black before.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The black formatting of the whole file could not work for the following reasons:</p>
-<ol>
-<li>black is configured with cli arguments and not in a configuration file.<br>
-   <strong>Solution:</strong> configure black in a <a href="https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file">configuration file</a></li>
-<li>inline-snapshot uses a different black version.<br>
-   <strong>Solution:</strong> specify which black version inline-snapshot should use by adding black with a specific version to your dependencies.</li>
-<li>black is not installed. Black is an optional dependency since inline-snapshot v0.19.0</li>
-</ol>
-</div>
-</li>
-<li>
-<p>or with the <a class="autorefs autorefs-internal" href="../configuration/#format-command">format-command</a> if you defined one.</p>
-</li>
+<li><a href="https://github.com/syrupy-project/syrupy">syrupy</a></li>
+<li><a href="https://github.com/syrusakbary/snapshottest">snapshottest</a></li>
+<li><a href="https://github.com/joseph-roitman/pytest-snapshot">pytest-snapshot</a></li>
+<li><a href="https://github.com/vberlier/pytest-insta">pytest-insta</a></li>
 </ul>
-</li>
-</ol>
+<p>All of them have things that make them unique. What sets inline-snapshot apart is the ability to store snapshots directly in the source code.
+If you miss a feature that is available in other libraries, please let me know.</p>
+<p><a href="https://www.star-history.com/#syrupy-project/syrupy&amp;syrusakbary/snapshottest&amp;joseph-roitman/pytest-snapshot&amp;vberlier/pytest-insta&amp;15r10nk/inline-snapshot&amp;Date"><img alt="star-history" src="../assets/star-history.png" /></a></p>
 
 
 
