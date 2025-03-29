@@ -100,6 +100,8 @@ def triple_quote(string):
     string, quote_types = _str_literal_helper(string, quote_types=['"""', "'''"])
     quote_type = quote_types[0]
 
+    string = string.replace(" \n", " \\n\\\n")
+
     string = "\\\n" + string
 
     if not string.endswith("\n"):
