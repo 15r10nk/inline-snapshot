@@ -1,4 +1,20 @@
 
+<a id='changelog-0.21.1'></a>
+# 0.21.1 — 2025-03-29
+
+## Changed
+
+- trailing white spaces in multi-line strings are now terminated with an `\n\`.
+    ``` python
+    def test_something():
+        assert "a   \nb\n" == snapshot(
+            """\
+    a   \n\
+    b
+    """
+        )
+    ```
+
 <a id='changelog-0.21.0'></a>
 # 0.21.0 — 2025-03-28
 
