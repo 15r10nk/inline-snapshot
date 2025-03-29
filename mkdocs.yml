@@ -45,6 +45,7 @@ nav:
   - Categories: categories.md
   - Code generation: code_generation.md
   - Limitations: limitations.md
+  - Alternatives: alternatives.md
   - Changelog: changelog.md
 - Core:
   - x == snapshot(): eq_snapshot.md
