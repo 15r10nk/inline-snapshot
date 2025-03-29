@@ -266,6 +266,6 @@ You can agree with inline-snapshot and accept the changes or you can use one of 
 
 2. define a [format-command](configuration.md#format-command) if another tool has a different opinion about how your code should look. Inline-snapshot will apply this formatting before reporting an update.
 
-3. inline-snapshot manages everything within `snapshot(...)`, but you can take control by using [Is()](eq_snapshot.md#Is) in cases where you want to use custom code (like local variables) in your snapshots.
+3. inline-snapshot manages everything within `snapshot(...)`, but you can take control by using [Is()](eq_snapshot.md#is) in cases where you want to use custom code (like local variables) in your snapshots.
 
-4. you can also open an [issue] (https://github.com/15r10nk/inline-snapshot/issues) if you have a specific problem with the way inline-snapshot generates the code.
+4. you can also open an [issue](https://github.com/15r10nk/inline-snapshot/issues) if you have a specific problem with the way inline-snapshot generates the code.
