@@ -48,7 +48,6 @@ def normalize(text):
     # fix windows problems
     text = text.replace("\u2500", "-")
     text = text.replace("\r", "")
-    text = text.replace(" \n", " ⏎\n")
     return text
 
 

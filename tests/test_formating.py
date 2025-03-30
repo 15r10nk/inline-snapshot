@@ -212,8 +212,8 @@ inline-snapshot is not able to format your code.
 This issue can be solved by:
  * installing inline-snapshot[black] which gives you the same formatting like in
 older versions
- * adding a `format-command` to your pyproject.toml (see ⏎
-https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command ⏎
+ * adding a `format-command` to your pyproject.toml (see \n\
+https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command \n\
 for more information).
 
 
