@@ -430,7 +430,7 @@ def test_a():
         """\
 >       assert "a"==snapshot("b")
 E       AssertionError: assert 'a' == 'b'
-E         ⏎
+E         \n\
 E         - b
 E         + a
 """
@@ -448,7 +448,7 @@ def test_a():
         """\
 >       assert snapshot("b")=="a"
 E       AssertionError: assert 'b' == 'a'
-E         ⏎
+E         \n\
 E         - a
 E         + b
 """

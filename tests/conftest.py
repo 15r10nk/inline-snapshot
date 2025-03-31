@@ -215,7 +215,6 @@ class RunResult:
         # fix windows problems
         result = result.replace("\u2500", "-")
         result = result.replace("\r", "")
-        result = result.replace(" \n", " ⏎\n")
 
         return result
 
@@ -231,7 +230,6 @@ class RunResult:
             if record and line:
                 result.append(line)
         result = self._join_lines(result)
-        result = result.replace(" \n", " ⏎\n")
 
         result = re.sub(r"\d+\.\d+s", "<time>", result)
         return result
@@ -256,7 +254,6 @@ class RunResult:
         result = self._join_lines(
             [line for line in self.stdout.lines if line and line[:2] in ("> ", "E ")]
         )
-        result = result.replace(" \n", " ⏎\n")
         return result
 
 

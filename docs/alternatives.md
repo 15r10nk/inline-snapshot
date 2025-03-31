@@ -10,4 +10,10 @@ All of them have things that make them unique. What sets inline-snapshot apart i
 
 If you miss a feature that is available in other libraries, please let me know.
 
-[![star-history](assets/star-history.png)](https://www.star-history.com/#syrupy-project/syrupy&syrusakbary/snapshottest&joseph-roitman/pytest-snapshot&vberlier/pytest-insta&15r10nk/inline-snapshot&Date)
+<iframe
+    src="https://pypacktrends.com/embed?packages=inline-snapshot&packages=snapshottest&packages=syrupy&packages=pytest-snapshot&packages=pytest-insta&time_range=2years"
+    width="100%"
+    height="480"
+    frameborder="0"
+>
+</iframe>
