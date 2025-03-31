@@ -1,5 +1,6 @@
-from inline_snapshot._inline_snapshot import snapshot
-from inline_snapshot.testing._example import Example
+from inline_snapshot import Is
+from inline_snapshot import snapshot
+from inline_snapshot.testing import Example
 
 
 def test_missing_is():
@@ -20,3 +21,9 @@ snapshot value should not change. Use Is(...) for dynamic snapshot parts.\
 """
         )
     )
+
+
+def test_is_repr():
+    # repr(Is(x)) == repr(x)
+    # see #217
+    assert "5" == repr(Is(5))
