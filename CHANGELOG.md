@@ -1,4 +1,11 @@
 
+<a id='changelog-0.21.2'></a>
+# 0.21.2 — 2025-03-31
+
+## Fixed
+
+- `repr(Is(x))` returns the same value as `repr(x)` to provide nice pytest outputs (#217)
+
 <a id='changelog-0.21.1'></a>
 # 0.21.1 — 2025-03-29
 
