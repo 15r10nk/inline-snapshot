@@ -12,7 +12,6 @@ import pytest
 
 from inline_snapshot import snapshot
 from inline_snapshot._flags import Flags
-from inline_snapshot._global_state import state
 from inline_snapshot.extra import raises
 
 
@@ -288,6 +287,13 @@ line-length=80
 
             options = set(block.code_header.split())
 
+            # if "requires_assert" in options and not is_pytest_compatible():
+            #    return block
+
+            if "requires_assert" in options:
+                # wen can not test the docs in the no insider version
+                return block
+
             flags = options & Flags.all().to_set()
 
             args = ["--inline-snapshot", ",".join(flags)] if flags else []
@@ -328,7 +334,7 @@ line-length=80
 
             block.code_header = "inline-snapshot: " + " ".join(
                 sorted(flags)
-                + sorted(options & {"first_block", "show_error"})
+                + sorted(options & {"first_block", "show_error", "requires_assert"})
                 + [
                     f"outcome-{k}={v}"
                     for k, v in result.parseoutcomes().items()
@@ -362,4 +368,4 @@ line-length=80
             last_code = code
         return block
 
-    map_code_blocks(file, test_block, state().update_flags.fix)
+    map_code_blocks(file, test_block, False)
