@@ -7,7 +7,7 @@
 inline-snapshot can be used for different things:
 
 * golden master/approval/snapshot testing.
-  The idea is that you have a function with a currently unknown result and you want to write a tests, which ensures that the result does not change during refactoring.
+  The idea is that you have a function with a currently unknown result and you want to write a test, which ensures that the result does not change during refactoring.
 * Compare things which are complex like lists with lot of numbers or complex data structures.
 * Things which might change during the development like error messages.
 
