@@ -11,7 +11,7 @@ class Flags:
     fix: the value needs to be changed to pass the tests
     update: the value should be updated because the token-stream has changed
     create: the snapshot is empty `snapshot()`
-    trim: the snapshot contains more values than neccessary. 1 could be trimmed in `5 in snapshot([1,5])`.
+    trim: the snapshot contains more values than necessary. 1 could be trimmed in `5 in snapshot([1,5])`.
     """
 
     def __init__(self, flags: set[Category] = set()):

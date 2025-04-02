@@ -13,7 +13,7 @@ next_version = (
 )
 
 if new_changes:
-    print(f"## upcomming version ({next_version})")
+    print(f"## upcoming version ({next_version})")
 
 for file in new_changes:
     print(file.read_text())

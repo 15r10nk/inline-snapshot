@@ -110,7 +110,7 @@
 ## Fixed
 
 - Use the black API directly to format python code.
-  This solves issues with the upcomming click 8.2.0 (#202) and problems in multithreading (https://github.com/15r10nk/inline-snapshot/pull/193#issuecomment-2660393512).
+  This solves issues with the upcoming click 8.2.0 (#202) and problems in multithreading (https://github.com/15r10nk/inline-snapshot/pull/193#issuecomment-2660393512).
 
 <a id='changelog-0.20.2'></a>
 # 0.20.2 — 2025-02-13
@@ -531,8 +531,8 @@
 ### Fix
 
 - update with UndecidedValue
-- handle dicts with mulitple insertions and deletions
-- handle lists with mulitple insertions and deletions
+- handle dicts with multiple insertions and deletions
+- handle lists with multiple insertions and deletions
 - fixed typing and coverage
 
 ### Refactor

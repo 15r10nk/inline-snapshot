@@ -1,6 +1,6 @@
 
 
-You can use almost any python datatype and also complex values like `datatime.date`, because `repr()` is used to convert the values to source code.
+You can use almost any python datatype and also complex values like `datetime.date`, because `repr()` is used to convert the values to source code.
 The default `__repr__()` behaviour can be [customized](customize_repr.md).
 It might be necessary to import the right modules to match the `repr()` output.
 

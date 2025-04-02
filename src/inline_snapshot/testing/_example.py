@@ -55,7 +55,7 @@ class Example:
     def __init__(self, files: str | dict[str, str]):
         """
         Parameters:
-            files: a collecton of files where inline-snapshot opperates on,
+            files: a collection of files where inline-snapshot operates on,
                    or just a string which will be saved as *test_something.py*.
         """
         if isinstance(files, str):
@@ -228,7 +228,7 @@ class Example:
         returncode: Snapshot[int] = 0,
         stdin: bytes = b"",
     ) -> Example:
-        """Run pytest with the given args and env variables in an seperate
+        """Run pytest with the given args and env variables in an separate
         process.
 
         It can be used to test the interaction between your code and pytest, but it is a bit slower than `run_inline`

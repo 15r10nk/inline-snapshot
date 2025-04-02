@@ -22,7 +22,7 @@ def raises(exception: Snapshot[str]):
     """Check that an exception is raised.
 
     Parameters:
-        exception: snapshot which is compared with `#!python f"{type}: {message}"` if an exception occured or `#!python "<no exception>"` if no exception was raised.
+        exception: snapshot which is compared with `#!python f"{type}: {message}"` if an exception occurred or `#!python "<no exception>"` if no exception was raised.
 
     === "original"
 
