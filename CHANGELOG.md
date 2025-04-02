@@ -1,4 +1,11 @@
 
+<a id='changelog-0.21.3'></a>
+# 0.21.3 — 2025-04-02
+
+## Fixed
+
+- Allowed inline-snapshot to work when pytest-xdist is disabled with `-n 0`.
+
 <a id='changelog-0.21.2'></a>
 # 0.21.2 — 2025-03-31
 
