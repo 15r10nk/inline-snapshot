@@ -944,7 +944,7 @@ def test_Is():
     )
 
 
-def test_create_elipsis():
+def test_create_ellipsis():
     Example(
         """\
 from inline_snapshot import snapshot

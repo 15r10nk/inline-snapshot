@@ -54,7 +54,7 @@ def code_repr_dispatch(value):
 
 
 def customize_repr(f):
-    """Register a funtion which should be used to get the code representation
+    """Register a function which should be used to get the code representation
     of a object.
 
     ``` python
@@ -63,11 +63,11 @@ def customize_repr(f):
         return f"MyCustomClass(attr={repr(obj.attr)})"
     ```
 
-    it is important to use `repr()` inside the implementation, because it is mocked to return the code represenation
+    it is important to use `repr()` inside the implementation, because it is mocked to return the code representation
 
     you dont have to provide a custom implementation if:
     * __repr__() of your class returns a valid code representation,
-    * and __repr__() uses `repr()` to get the representaion of the child objects
+    * and __repr__() uses `repr()` to get the representation of the child objects
     """
     code_repr_dispatch.register(f)
 

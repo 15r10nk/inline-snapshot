@@ -26,7 +26,7 @@ Impossible conditions can be handled with `assert False`.
 ``` python
 if some_condition:
     ...
-if some_other_codition:
+if some_other_condition:
     ...
 else:
     assert False, "unreachable because ..."

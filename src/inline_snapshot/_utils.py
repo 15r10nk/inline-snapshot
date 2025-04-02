@@ -140,11 +140,11 @@ def value_to_token(value):
             ):
                 # unparse creates a triple quoted string here,
                 # because it thinks that the string should be a docstring
-                tripple_quoted_string = triple_quote(s)
+                triple_quoted_string = triple_quote(s)
 
-                assert ast.literal_eval(tripple_quoted_string) == s
+                assert ast.literal_eval(triple_quoted_string) == s
 
-                return simple_token(tok.type, tripple_quoted_string)
+                return simple_token(tok.type, triple_quoted_string)
 
         return simple_token(tok.type, tok.string)
 
