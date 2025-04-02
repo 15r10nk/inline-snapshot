@@ -5,7 +5,8 @@ inline-snapshot must disable pytest assert-rewriting if you use *report/review/c
 
 ## xdist is not supported
 
-You can not use inline-snapshot in combination with `pytest-xdist`. The use of `-n=...` implies `--inline-snapshot=disable`.
+You can not use inline-snapshot in combination with [pytest-xdist](https://pytest-xdist.readthedocs.io/).
+xdist being active implies `--inline-snapshot=disable`.
 
 ## works only with cpython
 

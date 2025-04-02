@@ -83,3 +83,27 @@ default-flags = ["fix"]
     assert result.stderr.lines == snapshot([])
 
     assert result.ret == 1
+
+
+def test_xdist_zero_processes(project):
+
+    project.setup(
+        """\
+
+def test_a():
+    assert 1==snapshot(2)
+"""
+    )
+
+    result = project.run("-n=0", "--inline-snapshot=short-report")
+
+    result.assert_outcomes(failed=1, errors=1)
+
+    assert result.report == snapshot(
+        """\
+Error: one snapshot has incorrect values (--inline-snapshot=fix)
+You can also use --inline-snapshot=review to approve the changes interactively
+"""
+    )
+
+    assert result.stderr.lines == snapshot([])

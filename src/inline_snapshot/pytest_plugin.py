@@ -78,6 +78,7 @@ def xdist_running(config):
     return (
         hasattr(config.option, "numprocesses")
         and config.option.numprocesses is not None
+        and config.option.numprocesses != 0
     )
 
 
