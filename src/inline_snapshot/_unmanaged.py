@@ -28,10 +28,10 @@ def is_unmanaged(value):
     return not update_allowed(value)
 
 
-def declare_unmanaged(typ):
+def declare_unmanaged(data_type):
     global unmanaged_types
-    unmanaged_types.append(typ)
-    return typ
+    unmanaged_types.append(data_type)
+    return data_type
 
 
 class Unmanaged:

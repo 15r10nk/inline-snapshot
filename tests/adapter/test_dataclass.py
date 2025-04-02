@@ -467,8 +467,8 @@ class L:
 
 class LAdapter(GenericCallAdapter):
     @classmethod
-    def check_type(cls, typ):
-        return issubclass(typ,L)
+    def check_type(cls, value_type):
+        return issubclass(value_type,L)
 
     @classmethod
     def arguments(cls, value):
@@ -512,8 +512,8 @@ class L:
 
 class LAdapter(GenericCallAdapter):
     @classmethod
-    def check_type(cls, typ):
-        return issubclass(typ,L)
+    def check_type(cls, value_type):
+        return issubclass(value_type,L)
 
     @classmethod
     def arguments(cls, value):

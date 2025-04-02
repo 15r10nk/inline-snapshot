@@ -31,7 +31,7 @@ def gen_new_value(values):
     kind = chose(["dataclass", "dict", "tuple", "list", "f"])
 
     if kind == "dataclass":
-        typ = chose(["A"])
+        data_type = chose(["A"])
         num_args = chose(range(1, 3))
         num_pos_args = chose(range(num_args))
         assert num_pos_args <= num_args
@@ -47,7 +47,7 @@ def gen_new_value(values):
             ],
         ]
 
-        return f"{typ}({', '.join(args)})"
+        return f"{data_type}({', '.join(args)})"
 
     if kind == "tuple":
         return "(" + ", ".join(chose(values) for _ in range(3)) + ")"

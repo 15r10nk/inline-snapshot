@@ -17,9 +17,9 @@ from .adapter import Item
 from .adapter import adapter_map
 
 
-def get_adapter_for_type(typ):
+def get_adapter_for_type(value_type):
     subclasses = GenericCallAdapter.__subclasses__()
-    options = [cls for cls in subclasses if cls.check_type(typ)]
+    options = [cls for cls in subclasses if cls.check_type(value_type)]
 
     if not options:
         return
@@ -40,7 +40,7 @@ class Argument:
 class GenericCallAdapter(Adapter):
 
     @classmethod
-    def check_type(cls, typ) -> bool:
+    def check_type(cls, value_type) -> bool:
         raise NotImplementedError(cls)
 
     @classmethod
