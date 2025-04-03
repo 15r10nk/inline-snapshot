@@ -1131,10 +1131,11 @@
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">default-flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report&quot;</span><span class="p">]</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">default-flags-tui</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;review&quot;</span><span class="p">]</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">format-command</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">[tool.inline-snapshot.shortcuts]</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">review</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;review&quot;</span><span class="p">]</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">fix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span><span class="s2">&quot;fix&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">skip-snapshot-updates-for-now</span><span class="o">=</span><span class="kc">false</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">[tool.inline-snapshot.shortcuts]</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">review</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;review&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">fix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span><span class="s2">&quot;fix&quot;</span><span class="p">]</span>
 </code></pre></div>
 <ul>
 <li><strong>hash-length:</strong> specifies the length of the hash used by <code>external()</code> in the code representation.
@@ -1183,6 +1184,11 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">[tool.inline-snapshot]</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">format-command</span><span class="o">=</span><span class="s2">&quot;ruff check --fix-only --stdin-filename {filename} | ruff format --stdin-filename {filename}&quot;</span>
 </code></pre></div></p>
+</li>
+<li>
+<p><strong>skip-snapshot-updates-for-now:</strong> allows you to skip the reporting of updates.
+    Please create an new <a href="https://github.com/15r10nk/inline-snapshot/issues?q=is%3Aissue%20state%3Aopen%20label%3Aupdate_related">issue</a> if you think the snapshot value which was generated can be improved.
+    This option might be removed in the future when inline-snapshot has better capabilities to customize the way snapshots are generated.</p>
 </li>
 </ul>
 
