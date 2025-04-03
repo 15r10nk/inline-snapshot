@@ -276,6 +276,19 @@ def call_once(f):
     return w
 
 
+def link(text, link=None):
+    if link is None:
+        link = text
+    return f"[italic blue link={link}]{text}[/]"
+
+
+def category_link(category):
+    return link(
+        category,
+        f"https://15r10nk.github.io/inline-snapshot/latest/categories/#{category}",
+    )
+
+
 @pytest.hookimpl(trylast=True)
 def pytest_sessionfinish(session, exitstatus):
     config = session.config
@@ -316,9 +329,6 @@ def pytest_sessionfinish(session, exitstatus):
     capture = config.pluginmanager.getplugin("capturemanager")
 
     # --inline-snapshot
-
-    def category_link(category):
-        return f"[italic blue link=https://15r10nk.github.io/inline-snapshot/latest/categories/#{category}]{category}[/]"
 
     def apply_changes(flag):
         if flag in flags:
@@ -421,6 +431,23 @@ def pytest_sessionfinish(session, exitstatus):
             @call_once
             def header():
                 console().rule(f"[yellow bold]{flag.capitalize()} snapshots")
+
+            if (
+                flag == "update"
+                and _config.config.skip_snapshot_updates_for_now
+                and not "update" in flags
+            ):
+                console().print(
+                    f"{len(changes[flag])} updates are hidden. "
+                    f"Please report why you do not want these updates so that inline-snapshot can create better snapshots in the future."
+                )
+                console().print("You can find more information about updates here:")
+                console().print(
+                    link(
+                        "https://15r10nk.github.io/inline-snapshot/latest/categories/#update"
+                    )
+                )
+                continue
 
             cr = ChangeRecorder()
             apply_all(used_changes, cr)

@@ -21,6 +21,7 @@ class Config:
     shortcuts: Dict[str, List[str]] = field(default_factory=dict)
     format_command: Optional[str] = None
     storage_dir: Optional[Path] = None
+    skip_snapshot_updates_for_now: bool = False
 
 
 config = Config()
@@ -49,6 +50,13 @@ def read_config(path: Path, config=Config()) -> Config:
 
     try:
         config.default_flags_tui = tool_config["default-flags-tui"]
+    except KeyError:
+        pass
+
+    try:
+        config.skip_snapshot_updates_for_now = tool_config[
+            "skip-snapshot-updates-for-now"
+        ]
     except KeyError:
         pass
 
