@@ -1,4 +1,12 @@
 
+<a id='changelog-0.22.0'></a>
+# 0.22.0 — 2025-04-03
+
+## Added
+
+- You can now use the config option `skip-snapshot-updates-for-now` to skip the reporting of updates.
+  But be aware that this option might not be there forever. Please create an issue if you think that the creation of snapshots can be improved.
+
 <a id='changelog-0.21.3'></a>
 # 0.21.3 — 2025-04-02
 
