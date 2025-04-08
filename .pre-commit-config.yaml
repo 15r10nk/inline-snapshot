@@ -15,7 +15,7 @@ repos:
   - id: check-json
   - id: end-of-file-fixer
   repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.6.0
+  rev: v5.0.0
 - hooks:
   - args:
     - --in-place
@@ -35,12 +35,12 @@ repos:
     files: \.(md|py)$
 
 - repo: https://github.com/asottile/setup-cfg-fmt
-  rev: v2.5.0
+  rev: v2.8.0
   hooks:
   - id: setup-cfg-fmt
 
 - repo: https://github.com/pycqa/isort
-  rev: 5.13.2
+  rev: 6.0.1
   hooks:
   - id: isort
     name: isort (python)
@@ -50,16 +50,16 @@ repos:
     - --py38-plus
     id: pyupgrade
   repo: https://github.com/asottile/pyupgrade
-  rev: v3.17.0
+  rev: v3.19.1
 - hooks:
   - id: black
   repo: https://github.com/psf/black
-  rev: 24.8.0
+  rev: 25.1.0
 - hooks:
   - id: blacken-docs
     args: [-l80]
   repo: https://github.com/adamchainz/blacken-docs
-  rev: 1.18.0
+  rev: 1.19.1
 
 
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
@@ -73,7 +73,7 @@ repos:
     stages:
     - commit-msg
   repo: https://github.com/commitizen-tools/commitizen
-  rev: v3.28.0
+  rev: v4.5.0
 
 
 # - repo: https://github.com/PyCQA/docformatter
@@ -82,18 +82,18 @@ repos:
 #   - id: docformatter
 
 - repo: https://github.com/abravalheri/validate-pyproject
-  rev: v0.23
+  rev: v0.24.1
   hooks:
   - id: validate-pyproject
     # Optional extra validations from SchemaStore:
     additional_dependencies: ['validate-pyproject-schema-store[all]']
 
 - repo: https://github.com/rhysd/actionlint
-  rev: v1.7.4
+  rev: v1.7.7
   hooks:
   - id: actionlint
 
 - repo: https://github.com/crate-ci/typos
-  rev: v1.31.1
+  rev: v1
   hooks:
   - id: typos
