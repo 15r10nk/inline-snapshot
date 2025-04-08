@@ -106,7 +106,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#builtin-datatypes" class="md-skip">
+        <a href="#built-in-data-types" class="md-skip">
           Skip to content
         </a>
       
@@ -355,7 +355,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../eq_snapshot/" class="md-tabs__link">
+        <a href="../fix_assert/" class="md-tabs__link">
           
   
   
@@ -384,6 +384,25 @@
         </a>
       </li>
     
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../insiders/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Insiders
+
+      </a>
+    </li>
   
 
       
@@ -736,6 +755,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../fix_assert/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    assert x == ...
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../eq_snapshot/" class="md-nav__link">
         
   
@@ -897,9 +939,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#builtin-datatypes" class="md-nav__link">
+  <a href="#built-in-data-types" class="md-nav__link">
     <span class="md-ellipsis">
-      builtin datatypes
+      built-in data types
     </span>
   </a>
   
@@ -1053,6 +1095,28 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../insiders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Insiders
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
     
     
     
@@ -1065,10 +1129,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -1081,8 +1145,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Development
           </label>
@@ -1166,9 +1230,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#builtin-datatypes" class="md-nav__link">
+  <a href="#built-in-data-types" class="md-nav__link">
     <span class="md-ellipsis">
-      builtin datatypes
+      built-in data types
     </span>
   </a>
   
@@ -1235,7 +1299,7 @@ Here are some examples:</p>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="c1"># the special implementation to convert the Enum into a code</span>
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="k">assert</span> <span class="n">E</span><span class="o">.</span><span class="n">a</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
 </code></pre></div>
-<h2 id="builtin-datatypes">builtin datatypes<a class="headerlink" href="#builtin-datatypes" title="Permanent link">&para;</a></h2>
+<h2 id="built-in-data-types">built-in data types<a class="headerlink" href="#built-in-data-types" title="Permanent link">&para;</a></h2>
 <p>inline-snapshot comes with a special implementation for the following types:</p>
 <ul>
 <li><code>builtins.frozenset</code></li>
@@ -1244,7 +1308,7 @@ Here are some examples:</p>
 <li><code>enum.Enum</code></li>
 <li><code>enum.Flag</code></li>
 </ul>
-<p>Please open an <a href="https://github.com/15r10nk/inline-snapshot/issues">issue</a> if you found a builtin type which is not supported by inline-snapshot.</p>
+<p>Please open an <a href="https://github.com/15r10nk/inline-snapshot/issues">issue</a> if you found a built-in type which is not supported by inline-snapshot.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Container types like <code>dict</code>, <code>list</code>, <code>tuple</code> or <code>dataclass</code> are handled in a different way, because inline-snapshot also needs to inspect these types to implement <a href="../eq_snapshot/#unmanaged-snapshot-values">unmanaged</a> snapshot values.</p>
@@ -1289,7 +1353,7 @@ Here are some examples:</p>
 <p class="admonition-title">Note</p>
 <p>This implementation allows inline-snapshot to use the custom <code>repr()</code> recursively, but it does not allow you to use <a href="../eq_snapshot/#unmanaged-snapshot-values">unmanaged</a> snapshot values like <code class="highlight"><span class="n">Pair</span><span class="p">(</span><span class="n">Is</span><span class="p">(</span><span class="n">some_var</span><span class="p">),</span><span class="mi">5</span><span class="p">)</span></code></p>
 </div>
-<p>you can also customize the representation of datatypes in other libraries:</p>
+<p>you can also customize the representation of data types in other libraries:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">customize_repr</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">other_lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">SomeType</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>

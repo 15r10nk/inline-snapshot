@@ -355,7 +355,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../eq_snapshot/" class="md-tabs__link">
+        <a href="../fix_assert/" class="md-tabs__link">
           
   
   
@@ -384,6 +384,25 @@
         </a>
       </li>
     
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../insiders/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Insiders
+
+      </a>
+    </li>
   
 
       
@@ -819,6 +838,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../fix_assert/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    assert x == ...
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../eq_snapshot/" class="md-nav__link">
         
   
@@ -1080,6 +1122,28 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../insiders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Insiders
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
     
     
     
@@ -1092,10 +1156,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -1108,8 +1172,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Development
           </label>
@@ -1291,7 +1355,7 @@ These flags can be combined with <em>report</em> and <em>review</em>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class=" -Color -Color-Bold -Color-Bold-Blue">&gt; pytest test_something.py --inline-snapshot=create,report</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class=" -Color -Color-Bold">============================= test session starts ==============================</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>platform linux -- Python 3.12.3, pytest-8.3.5, pluggy-1.5.0
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.FRZaXlGoHK
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.BClBcLR2SH
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.22.0
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>collected 1 item
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
@@ -1309,7 +1373,7 @@ These flags can be combined with <em>report</em> and <em>review</em>.</p>
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│ <span class=" -Color -Color-Green">+    assert 1 == snapshot(1)</span>                                                 │
 <a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│ <span class=" -Color -Color-White"> </span>    assert 2 &lt;= snapshot(5)                                                 │
 <a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>╰──────────────────────────────────────────────────────────────────────────────╯
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>These changes will be applied, because you used ]8;id=845859;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\<span class=" -Color -Color-Blue">create</span>]8;;\
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>These changes will be applied, because you used ]8;id=248695;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\<span class=" -Color -Color-Blue">create</span>]8;;\
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
 <a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class=" -Color -Color-BrightGreen">──────────────────────────────── </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Trim snapshots</span><span class=" -Color -Color-BrightGreen"> ────────────────────────────────</span>
 <a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>╭───────────────────────────── test_something.py ──────────────────────────────╮
@@ -1322,8 +1386,8 @@ These flags can be combined with <em>report</em> and <em>review</em>.</p>
 <a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│ <span class=" -Color -Color-Green">+    assert 2 &lt;= snapshot(2)</span>                                                 │
 <a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>╰──────────────────────────────────────────────────────────────────────────────╯
 <a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>These changes are not applied.
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>Use <span class=" -Color -Color-Bold">--inline-snapshot=</span>]8;id=305504;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\<span class=" -Color -Color-Bold -Color-Bold-Blue">trim</span>]8;;\<span class=" -Color -Color-Bold"> to apply them, or use the interactive mode with </span>
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class=" -Color -Color-Bold">--inline-snapshot=</span>]8;id=531497;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\<span class=" -Color -Color-Bold -Color-Bold-Blue">review</span>]8;;\
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>Use <span class=" -Color -Color-Bold">--inline-snapshot=</span>]8;id=642971;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\<span class=" -Color -Color-Bold -Color-Bold-Blue">trim</span>]8;;\<span class=" -Color -Color-Bold"> to apply them, or use the interactive mode with </span>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class=" -Color -Color-Bold">--inline-snapshot=</span>]8;id=235974;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\<span class=" -Color -Color-Bold -Color-Bold-Blue">review</span>]8;;\
 <a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>
 <a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>
 <a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>
@@ -1339,7 +1403,7 @@ These flags can be combined with <em>report</em> and <em>review</em>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class=" -Color -Color-Bold -Color-Bold-Blue">&gt; pytest test_something.py --inline-snapshot=short-report</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class=" -Color -Color-Bold">============================= test session starts ==============================</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>platform linux -- Python 3.12.3, pytest-8.3.5, pluggy-1.5.0
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.KkPsCbSn2T
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.vJu2O5z3xc
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.22.0
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>collected 1 item
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
@@ -1369,7 +1433,7 @@ This option will be replaced with <em>report</em> when this restriction is lifte
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class=" -Color -Color-Bold -Color-Bold-Blue">&gt; pytest test_something.py --inline-snapshot=report</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class=" -Color -Color-Bold">============================= test session starts ==============================</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>platform linux -- Python 3.12.3, pytest-8.3.5, pluggy-1.5.0
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.gyMvX1p3gT
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.8SJt9YI2NE
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.22.0
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>collected 1 item
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
@@ -1388,8 +1452,8 @@ This option will be replaced with <em>report</em> when this restriction is lifte
 <a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│ <span class=" -Color -Color-White"> </span>    assert 2 &lt;= snapshot(5)                                                 │
 <a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>╰──────────────────────────────────────────────────────────────────────────────╯
 <a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>These changes are not applied.
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>Use <span class=" -Color -Color-Bold">--inline-snapshot=</span>]8;id=970636;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\<span class=" -Color -Color-Bold -Color-Bold-Blue">create</span>]8;;\<span class=" -Color -Color-Bold"> to apply them, or use the interactive mode with </span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class=" -Color -Color-Bold">--inline-snapshot=</span>]8;id=765193;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\<span class=" -Color -Color-Bold -Color-Bold-Blue">review</span>]8;;\
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>Use <span class=" -Color -Color-Bold">--inline-snapshot=</span>]8;id=277791;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\<span class=" -Color -Color-Bold -Color-Bold-Blue">create</span>]8;;\<span class=" -Color -Color-Bold"> to apply them, or use the interactive mode with </span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class=" -Color -Color-Bold">--inline-snapshot=</span>]8;id=11125;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\<span class=" -Color -Color-Bold -Color-Bold-Blue">review</span>]8;;\
 <a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
 <a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class=" -Color -Color-BrightGreen">──────────────────────────────── </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Trim snapshots</span><span class=" -Color -Color-BrightGreen"> ────────────────────────────────</span>
 <a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>╭───────────────────────────── test_something.py ──────────────────────────────╮
@@ -1402,8 +1466,8 @@ This option will be replaced with <em>report</em> when this restriction is lifte
 <a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>│ <span class=" -Color -Color-Green">+    assert 2 &lt;= snapshot(2)</span>                                                 │
 <a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>╰──────────────────────────────────────────────────────────────────────────────╯
 <a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>These changes are not applied.
-<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>Use <span class=" -Color -Color-Bold">--inline-snapshot=</span>]8;id=308483;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\<span class=" -Color -Color-Bold -Color-Bold-Blue">trim</span>]8;;\<span class=" -Color -Color-Bold"> to apply them, or use the interactive mode with </span>
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class=" -Color -Color-Bold">--inline-snapshot=</span>]8;id=394996;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\<span class=" -Color -Color-Bold -Color-Bold-Blue">review</span>]8;;\
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>Use <span class=" -Color -Color-Bold">--inline-snapshot=</span>]8;id=12504;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\<span class=" -Color -Color-Bold -Color-Bold-Blue">trim</span>]8;;\<span class=" -Color -Color-Bold"> to apply them, or use the interactive mode with </span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class=" -Color -Color-Bold">--inline-snapshot=</span>]8;id=536757;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\<span class=" -Color -Color-Bold -Color-Bold-Blue">review</span>]8;;\
 <a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>
 <a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>
 <a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>
@@ -1412,14 +1476,14 @@ This option will be replaced with <em>report</em> when this restriction is lifte
 <a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>your snapshot is missing one value.
 <a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class=" -Color -Color-Bold -Color-Bold-Cyan">=========================== short test summary info ============================</span>
 <a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a><span class=" -Color -Color-Red">ERROR</span> test_something.py::<span class=" -Color -Color-Bold">test_something</span> - Failed: your snapshot is missing one value.
-<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class=" -Color -Color-Red">========================== </span><span class=" -Color -Color-Green">1 passed</span>, <span class=" -Color -Color-Bold -Color-Bold-Red">1 error</span><span class=" -Color -Color-Red"> in 0.10s ==========================</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class=" -Color -Color-Red">========================== </span><span class=" -Color -Color-Green">1 passed</span>, <span class=" -Color -Color-Bold -Color-Bold-Red">1 error</span><span class=" -Color -Color-Red"> in 0.11s ==========================</span>
 </code></pre></div>
 <h2 id="-inline-snapshotreview">--inline-snapshot=review<a class="headerlink" href="#-inline-snapshotreview" title="Permanent link">&para;</a></h2>
 <p>Shows a diff report for each category and ask if you want to apply the changes</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class=" -Color -Color-Bold -Color-Bold-Blue">&gt; pytest test_something.py --inline-snapshot=review</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class=" -Color -Color-Bold">============================= test session starts ==============================</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>platform linux -- Python 3.12.3, pytest-8.3.5, pluggy-1.5.0
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.ex2ow5Ddpj
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>rootdir: /tmp/tmp.TClO6wlWnO
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>plugins: inline-snapshot-0.22.0
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>collected 1 item
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
@@ -1437,7 +1501,7 @@ This option will be replaced with <em>report</em> when this restriction is lifte
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│ <span class=" -Color -Color-Green">+    assert 1 == snapshot(1)</span>                                                 │
 <a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│ <span class=" -Color -Color-White"> </span>    assert 2 &lt;= snapshot(5)                                                 │
 <a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>╰──────────────────────────────────────────────────────────────────────────────╯
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>Do you want to ]8;id=992438;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\<span class=" -Color -Color-Blue">create</span>]8;;\ these snapshots? <span class=" -Color -Color-Bold -Color-Bold-Magenta">[y/n]</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">(n)</span>: 
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>Do you want to ]8;id=227359;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\<span class=" -Color -Color-Blue">create</span>]8;;\ these snapshots? <span class=" -Color -Color-Bold -Color-Bold-Magenta">[y/n]</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">(n)</span>: 
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class=" -Color -Color-BrightGreen">──────────────────────────────── </span><span class=" -Color -Color-Bold -Color-Bold-Yellow">Trim snapshots</span><span class=" -Color -Color-BrightGreen"> ────────────────────────────────</span>
 <a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>╭───────────────────────────── test_something.py ──────────────────────────────╮
 <a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│ <span class=" -Color -Color-Bold -Color-Bold-Magenta">@@ -3,4 +3,4 @@</span>                                                              │
@@ -1448,7 +1512,7 @@ This option will be replaced with <em>report</em> when this restriction is lifte
 <a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>│ <span class=" -Color -Color-BrightRed">-    assert 2 &lt;= snapshot(5)</span>                                                 │
 <a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>│ <span class=" -Color -Color-Green">+    assert 2 &lt;= snapshot(2)</span>                                                 │
 <a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>╰──────────────────────────────────────────────────────────────────────────────╯
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>Do you want to ]8;id=283608;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\<span class=" -Color -Color-Blue">trim</span>]8;;\ these snapshots? <span class=" -Color -Color-Bold -Color-Bold-Magenta">[y/n]</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">(n)</span>: 
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>Do you want to ]8;id=274509;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\<span class=" -Color -Color-Blue">trim</span>]8;;\ these snapshots? <span class=" -Color -Color-Bold -Color-Bold-Magenta">[y/n]</span> <span class=" -Color -Color-Bold -Color-Bold-Cyan">(n)</span>: 
 <a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>
 <a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>
 <a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>==================================== ERRORS ====================================
