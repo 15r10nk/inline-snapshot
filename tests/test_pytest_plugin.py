@@ -565,8 +565,23 @@ def test_sub_snapshot():
 
     assert result.ret == 1
 
-    assert result.errors == snapshot(
-        """\
+    if "insider" in result.errors:  # pragma: no cover
+        assert result.errors == snapshot(
+            """\
+============================================================================ ERRORS ============================================================================
+____________________________________________________________ ERROR at teardown of test_sub_snapshot ____________________________________________________________
+your snapshot is missing one value.
+============================================================== inline snapshot (insider version) ===============================================================
+Error: one snapshot is missing a value (--inline-snapshot=create)
+You can also use --inline-snapshot=review to approve the changes interactively
+=================================================================== short test summary info ====================================================================
+ERROR test_file.py::test_sub_snapshot - Failed: your snapshot is missing one value.
+================================================================== 1 passed, 1 error in <time> ==================================================================
+"""
+        )
+    else:
+        assert result.errors == snapshot(
+            """\
 ============================================================================ ERRORS ============================================================================
 ____________________________________________________________ ERROR at teardown of test_sub_snapshot ____________________________________________________________
 your snapshot is missing one value.
@@ -574,7 +589,7 @@ your snapshot is missing one value.
 ERROR test_file.py::test_sub_snapshot - Failed: your snapshot is missing one value.
 ================================================================== 1 passed, 1 error in <time> ==================================================================
 """
-    )
+        )
     assert result.report == snapshot(
         """\
 Error: one snapshot is missing a value (--inline-snapshot=create)

@@ -48,6 +48,7 @@ nav:
   - Alternatives: alternatives.md
   - Changelog: changelog.md
 - Core:
+  - assert x == ...: fix_assert.md
   - x == snapshot(): eq_snapshot.md
   - x <= snapshot(): cmp_snapshot.md
   - x in snapshot(): in_snapshot.md
@@ -58,6 +59,7 @@ nav:
 - Extensions:
   - first-party (extra): extra.md
   - third-party: third_party.md
+- Insiders: insiders.md
 - Development:
   - Testing: testing.md
   - Contributing: contributing.md

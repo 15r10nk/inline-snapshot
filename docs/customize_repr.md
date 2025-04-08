@@ -40,7 +40,7 @@ def test_enum():
     assert E.a == snapshot(E.a)
 ```
 
-## builtin datatypes
+## built-in data types
 
 inline-snapshot comes with a special implementation for the following types:
 
@@ -60,7 +60,7 @@ for name, obj in sorted(
         print(f"- `{name}`")
 ```
 
-Please open an [issue](https://github.com/15r10nk/inline-snapshot/issues) if you found a builtin type which is not supported by inline-snapshot.
+Please open an [issue](https://github.com/15r10nk/inline-snapshot/issues) if you found a built-in type which is not supported by inline-snapshot.
 
 !!! note
     Container types like `dict`, `list`, `tuple` or `dataclass` are handled in a different way, because inline-snapshot also needs to inspect these types to implement [unmanaged](/eq_snapshot.md#unmanaged-snapshot-values) snapshot values.
@@ -109,7 +109,7 @@ def test_enum():
     This implementation allows inline-snapshot to use the custom `repr()` recursively, but it does not allow you to use [unmanaged](/eq_snapshot.md#unmanaged-snapshot-values) snapshot values like `#!python Pair(Is(some_var),5)`
 
 
-you can also customize the representation of datatypes in other libraries:
+you can also customize the representation of data types in other libraries:
 
 ``` python
 from inline_snapshot import customize_repr

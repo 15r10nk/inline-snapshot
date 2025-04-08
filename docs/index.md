@@ -4,6 +4,8 @@
 
 # Welcome to inline-snapshot
 
+
+
 inline-snapshot can be used for different things:
 
 * golden master/approval/snapshot testing.
@@ -14,6 +16,23 @@ inline-snapshot can be used for different things:
 
 `inline-snapshot` automates the process of recording, storing and updating the value you want to compare with.
 The value is converted with `repr()` and stored in the source file as argument of the `snapshot()` function.
+
+!!! news
+    Hello, I would like to inform you about some changes.
+
+    I have started to offer [insider](https://15r10nk.github.io/inline-snapshot/latest/insiders/) features for inline-snapshot. I will only release features as insider features if they will not cause problems for you when used in an open source project.
+
+    I hope this will allow me to spend more time working on open source projects. You can help me by sharing this post on [Mastodon](https://fosstodon.org/@15r10nk/114279331495696963) or [X](https://x.com/15r10nk/status/1908110455307968809). I'm giving away insider access to one of you who helped me spread this message.
+    Thank you for using inline-snapshot, the future will be 🚀.
+
+    The first feature is that inline-snapshot can now also fix normal assertions which do not use `snapshot()` like:
+
+    ``` python
+    assert 1 + 1 == 3
+    ```
+
+    You can learn [here](fix_assert.md) more about this feature.
+
 
 ## Usage
 

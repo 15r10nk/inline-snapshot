@@ -258,7 +258,7 @@ It is not necessary, but recommended to make these changes for the following rea
 
 The goal of inline-snapshot is to generate the values for you in the correct format so that no manual editing is required.
 This improves your productivity and saves time.
-Keep in mind that any changes you make to your snapshots will likely need to be redone if your program's behavior (and expected values) change.
+Keep in mind that any changes you make to your snapshots will likely need to be redone if your program's behaviour (and expected values) change.
 Inline-snapshot uses the *update* category to let you know when it has a different opinion than you about how the code should look.
 You can agree with inline-snapshot and accept the changes or you can use one of the following options to tell inline-snapshot what the code should look like:
 
