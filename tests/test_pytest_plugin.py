@@ -604,7 +604,7 @@ def test_persist_unknown_external(project):
 from inline_snapshot import external, snapshot
 
 def test_sub_snapshot():
-    external("123*.png")
+    external("hash:123*.png")
     assert 1==snapshot(2)
 """
     )
@@ -616,7 +616,7 @@ def test_sub_snapshot():
 from inline_snapshot import external, snapshot
 
 def test_sub_snapshot():
-    external("123*.png")
+    external("hash:123*.png")
     assert 1==snapshot(1)
 """
     )
@@ -800,7 +800,7 @@ storage-dir = {str(storage_dir)!r}
 from inline_snapshot import outsource, snapshot
 
 def test_outsource():
-    assert outsource("hello", suffix=".html") == snapshot()
+    assert outsource("hello") == snapshot()
 """
     )
 
@@ -813,7 +813,7 @@ from inline_snapshot import outsource, snapshot
 from inline_snapshot import external
 
 def test_outsource():
-    assert outsource("hello", suffix=".html") == snapshot(external("2cf24dba5fb0*.html"))
+    assert outsource("hello") == snapshot(external("hash:2cf24dba5fb0*.txt"))
 """
     )
 
@@ -821,7 +821,7 @@ def test_outsource():
     assert result.ret == 0
 
     assert project.storage(storage_dir) == snapshot(
-        ["2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824.html"]
+        ["2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824.txt"]
     )
 
 
@@ -849,7 +849,7 @@ def test_something():
 from inline_snapshot import outsource,snapshot,external
 
 def test_something():
-    assert outsource("test") == snapshot(external("9f*.txt"))
+    assert outsource("test") == snapshot(external("hash:9f*.txt"))
 """
             }
         ),

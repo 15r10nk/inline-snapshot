@@ -80,9 +80,16 @@ class Example:
     def _read_files(self, dir: Path):
         return {
             str(p.relative_to(dir)): p.read_text()
-            for p in [*dir.iterdir(), *dir.rglob("*.py")]
-            if p.is_file()
+            for p in [
+                *dir.iterdir(),
+                *dir.rglob("*.py"),
+                *(dir / ".inline-snapshot/").rglob("*"),
+            ]
+            if p.is_file() and p.name != ".gitignore"
         }
+
+    def change_code(self, func):
+        return Example({name: func(text) for name, text in self.files.items()})
 
     def run_inline(
         self,
@@ -138,6 +145,7 @@ class Example:
                 recorder = ChangeRecorder()
                 state.update_flags = Flags({*flags})
                 state.storage = DiscStorage(tmp_path / ".storage")
+
                 try:
                     tests_found = False
                     for filename in tmp_path.glob("*.py"):
@@ -224,6 +232,7 @@ class Example:
         env: dict[str, str] = {},
         changed_files: Snapshot[dict[str, str]] | None = None,
         report: Snapshot[str] | None = None,
+        error: Snapshot[str] | None = None,
         stderr: Snapshot[str] | None = None,
         returncode: Snapshot[int] = 0,
         stdin: bytes = b"",
@@ -319,6 +328,19 @@ class Example:
                 report_str = "\n".join(report_list)
 
                 assert report_str == report, repr(report_str)
+
+            if error is not None:
+                assert (
+                    error
+                    == "\n".join(
+                        [
+                            line
+                            for line in result_stdout.splitlines()
+                            if line and line[:2] in ("> ", "E ")
+                        ]
+                    )
+                    + "\n"
+                )
 
             if changed_files is not None:
                 current_files = {}

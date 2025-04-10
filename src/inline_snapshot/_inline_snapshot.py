@@ -34,32 +34,15 @@ def repr_wrapper(func: _T) -> _T:
     return ReprWrapper(func)  # type: ignore
 
 
-@repr_wrapper
-def snapshot(obj: Any = undefined) -> Any:
-    """`snapshot()` is a placeholder for some value.
+def create_snapshot(Type, obj, extra_frames=0):
 
-    `pytest --inline-snapshot=create` will create the value which matches your conditions.
-
-    >>> assert 5 == snapshot()
-    >>> assert 5 <= snapshot()
-    >>> assert 5 >= snapshot()
-    >>> assert 5 in snapshot()
-
-    `snapshot()[key]` can be used to create sub-snapshots.
-
-    The generated value will be inserted as argument to `snapshot()`
-
-    >>> assert 5 == snapshot(5)
-
-    `snapshot(value)` has general the semantic of an noop which returns `value`.
-    """
     if not state().active:
         if obj is undefined:
             raise AssertionError(
                 "your snapshot is missing a value run pytest with --inline-snapshot=create"
             )
         else:
-            return obj
+            return Type.create_raw(obj)
 
     frame = inspect.currentframe()
     assert frame is not None
@@ -67,6 +50,10 @@ def snapshot(obj: Any = undefined) -> Any:
     assert frame is not None
     frame = frame.f_back
     assert frame is not None
+
+    for _ in range(extra_frames):
+        frame = frame.f_back
+        assert frame is not None
 
     expr = Source.executing(frame)
 
@@ -86,14 +73,40 @@ def snapshot(obj: Any = undefined) -> Any:
         node = expr.node
         if node is None:
             # we can run without knowing of the calling expression but we will not be able to fix code
-            state().snapshots[key] = SnapshotReference(obj, None, context)
+            new = Type(obj, None, context)
+            state().snapshots[key] = Type(obj, None, context)
         else:
             assert isinstance(node, ast.Call)
-            state().snapshots[key] = SnapshotReference(obj, expr, context)
+            new = Type(obj, expr, context)
+        state().snapshots[key] = new
     else:
-        state().snapshots[key]._re_eval(obj, context)
+        new = state().snapshots[key]
+        new._re_eval(obj, context)
 
-    return state().snapshots[key]._value
+    return new.result()
+
+
+@repr_wrapper
+def snapshot(obj: Any = undefined) -> Any:
+    """`snapshot()` is a placeholder for some value.
+
+    `pytest --inline-snapshot=create` will create the value which matches your conditions.
+
+    >>> assert 5 == snapshot()
+    >>> assert 5 <= snapshot()
+    >>> assert 5 >= snapshot()
+    >>> assert 5 in snapshot()
+
+    `snapshot()[key]` can be used to create sub-snapshots.
+
+    The generated value will be inserted as argument to `snapshot()`
+
+    >>> assert 5 == snapshot(5)
+
+    `snapshot(value)` has general the semantic of an noop which returns `value`.
+    """
+
+    return create_snapshot(SnapshotReference, obj, 1)
 
 
 def used_externals(tree):
@@ -113,6 +126,13 @@ class SnapshotReference:
         self._expr = expr
         node = expr.node.args[0] if expr is not None and expr.node.args else None
         self._value = UndecidedValue(value, node, context)
+
+    def result(self):
+        return self._value
+
+    @staticmethod
+    def create_raw(obj):
+        return obj
 
     def _changes(self):
 
