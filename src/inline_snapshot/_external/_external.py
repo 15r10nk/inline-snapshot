@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import ast
 import hashlib
-import json
 import re
 import shutil
 import typing
@@ -13,6 +12,7 @@ from typing import Any
 from typing import Generator
 from uuid import uuid4
 
+from inline_snapshot import UsageError
 from inline_snapshot._adapter.adapter import AdapterContext
 from inline_snapshot._change import CallArg
 from inline_snapshot._change import Replace
@@ -72,16 +72,15 @@ class Outsourced:
         self.data = data
         self._location = ExternalLocation("hash", None, suffix)
 
-        format = get_format_handler(data, self._location)
+        format = get_format_handler(data, self._location.suffix)
         if suffix is None:
             suffix = format.suffix
         self._location.suffix = suffix
-        meta_data = {"format_handler": format.__name__}
 
         storage = state().storage
         assert storage
 
-        with storage.store(self._location, meta_data) as f:
+        with storage.store(self._location) as f:
             format.encode(data, f)
 
     def __eq__(self, other):
@@ -91,7 +90,7 @@ class Outsourced:
         if isinstance(other, Outsourced):
             return self.data == other.data
 
-        return self.data == other
+        return NotImplemented
 
     def __repr__(self) -> str:
         return f'external("{self._location.to_str()}")'
@@ -101,9 +100,11 @@ class Outsourced:
 
 
 def outsource(data, suffix: str | None = None):
-
     if suffix and suffix[0] != ".":
         raise ValueError("suffix has to start with a '.' like '.png'")
+
+    if not state().active:
+        return data
 
     return Outsourced(data, suffix)
 
@@ -111,15 +112,11 @@ def outsource(data, suffix: str | None = None):
 class Protocol:
 
     @contextmanager
-    def load(
-        self, location: ExternalLocation
-    ) -> Generator[tuple[typing.BinaryIO, Any]]:
+    def load(self, location: ExternalLocation) -> Generator[typing.BinaryIO]:
         raise NotImplementedError
 
     @contextmanager
-    def store(
-        self, location: ExternalLocation, metadata: Any
-    ) -> Generator[typing.BinaryIO]:
+    def store(self, location: ExternalLocation) -> Generator[typing.BinaryIO]:
         raise NotImplementedError
 
 
@@ -132,10 +129,6 @@ def file_digest(file: typing.BinaryIO, name: str):
 class DiscStorage(Protocol):
     def __init__(self, directory):
         self.directory = Path(directory)
-
-    @property
-    def metadata_directory(self):
-        return self.directory / ".." / "metadata"
 
     def add(self, data, suffix=None):
         # for testing only
@@ -159,7 +152,6 @@ class DiscStorage(Protocol):
 
     def _ensure_directory(self):
         self.directory.mkdir(exist_ok=True, parents=True)
-        self.metadata_directory.mkdir(exist_ok=True, parents=True)
         gitignore = self.directory / ".gitignore"
         if not gitignore.exists():
             gitignore.write_text(
@@ -167,37 +159,15 @@ class DiscStorage(Protocol):
                 "utf-8",
             )
 
-    def save(self, name, data):
-        assert "*" not in name
-        self._ensure_directory()
-        (self.directory / name).write_bytes(data)
-
     @contextmanager
-    def load(
-        self, location: ExternalLocation
-    ) -> Generator[tuple[typing.BinaryIO, Any]]:
+    def load(self, location: ExternalLocation) -> Generator[typing.BinaryIO]:
         path = self._lookup_path(location.path)
-        metadata_path = self._metadata_path(location.path)
-        if metadata_path.exists():
-            metadata = json.loads(metadata_path.read_text())
-        else:
-            metadata = {"format_handler": "LegacyFormat"}
         with path.open("rb") as f:
-            yield f, metadata
+            yield f
 
     @contextmanager
-    def store(
-        self, location: ExternalLocation, metadata: Any
-    ) -> Generator[typing.BinaryIO]:
+    def store(self, location: ExternalLocation) -> Generator[typing.BinaryIO]:
         self._ensure_directory()
-
-        if location.stem is not None:
-            try:
-                self._lookup_path(location.path)
-            except:
-                pass
-            else:
-                return
 
         tmp_name = self.directory / str(uuid4())
 
@@ -211,10 +181,7 @@ class DiscStorage(Protocol):
 
         location.stem = hash_name
 
-        metadata_path = self.metadata_directory / Path(location.path + ".json")
-
         assert location.suffix is not None
-        metadata_path.write_text(json.dumps(metadata))
         if (self.directory / (hash_name + location.suffix)).exists():
             tmp_name.unlink()
         else:
@@ -228,9 +195,6 @@ class DiscStorage(Protocol):
             path += "*"
 
         location.stem = path
-
-    def read(self, name):
-        return self._lookup_path(name).read_bytes()
 
     def prune_new_files(self):
         for file in self.directory.glob("*-new.*"):
@@ -251,11 +215,6 @@ class DiscStorage(Protocol):
         if file.stem.endswith("-new"):
             stem = file.stem[:-4]
             file.rename(file.with_name(stem + file.suffix))
-
-    def _metadata_path(self, name):
-        path = self._lookup_path(name)
-        path = Path(str(path) + ".json")
-        return self.metadata_directory / path.name
 
     def _lookup_path(self, name) -> Path:
         if "*" not in name:
@@ -281,51 +240,27 @@ class DiscStorage(Protocol):
 DiscStorage = DiscStorage
 
 
-class UuidStorage: ...
-
-
 def external(name: str | None = None):
     return create_snapshot(External, name)
 
 
-def parse_external_path(name):
-    m = re.fullmatch(r"([0-9a-fA-F]*)\*?(\.[a-zA-Z0-9]*)", name)
+def get_format_handler(data, suffix: str | None) -> type[Format]:
 
-    if m:
-        _storage = "hash"
-        _filename = name
-    elif ":" in name:
-        _storage, _filename = name.split(":", 1)
+    for formatter in all_formats:
+        if formatter.handle(data) and (
+            suffix == formatter.suffix
+            if formatter.suffix_required
+            else (suffix is None or suffix == formatter.suffix)
+        ):
+            return formatter
     else:
-        raise ValueError(
-            "path has to be of the form <hash>.<suffix> or <partial_hash>*.<suffix>"
-        )
-    return _storage, _filename
-
-
-def get_format_handler(data, location: ExternalLocation) -> type[Format]:
-    suffix = location.suffix
-
-    for formatter in all_formats():
-        if formatter.handle_type(type(data)):
-            suffix = formatter.suffix
-            format = formatter
-            break
-    else:
-        raise TypeError("data has to be of type bytes | str")
-
-    if not suffix or suffix[0] != ".":
-        raise ValueError("suffix has to start with a '.' like '.png'")
-    else:
-        format = get_format_handler_from_suffix(suffix)
-        if format is None:
-            raise TypeError("data has to be of type bytes | str")
+        raise UsageError("data has to be of type bytes | str")
 
     return format
 
 
 def get_format_handler_from_suffix(suffix: str) -> type[Format] | None:
-    for formatter in all_formats():
+    for formatter in all_formats:
         if formatter.suffix == suffix:
             return formatter
     return None
@@ -359,11 +294,6 @@ class External:
     @classmethod
     def create_raw(cls, obj):
         return cls._load_value_from_location(ExternalLocation.from_name(obj))
-
-    # try:
-    #     return cls._load_value_from_location(ExternalLocation.from_name(obj))
-    # except HashError:
-    #     return MissingExternalObject(obj)
 
     def _changes(self):
         if self._expr is None:
@@ -409,26 +339,29 @@ class External:
         return f'external("{self._location.to_str()}")'
 
     def _assign(self, other):
-        format = get_format_handler(other, self._location)
+        format = get_format_handler(other, self._location.suffix)
 
         self._location.suffix = format.suffix
 
         storage = state().storage
-        with storage.store(self._location, None) as f:
+        with storage.store(self._location) as f:
             format.encode(other, f)
         self._value_changed = True
 
     def __eq__(self, other):
-        """Two external objects are equal if they have the same hash and
-        suffix."""
-
-        if self._location.stem is None:
-            self._assign(other)
-            state().missing_values += 1
-            return True
+        """Two external objects are equal if they have the same value"""
 
         if isinstance(other, Outsourced):
+            self._location.suffix = other._location.suffix
             other = other.data
+
+        if self._location.stem is None:
+            if state().update_flags.create:
+                self._assign(other)
+                state().missing_values += 1
+                return True
+            return False
+
         if isinstance(other, External):
             other = other._load_value()
 
@@ -458,24 +391,22 @@ class External:
         storage = state().storage
         assert storage is not None
 
-        with storage.load(location) as (f, metadata):
-            format_name = metadata["format_handler"]
-            for format in all_formats():
-                if format.__name__ == format_name:
-                    break
-            else:
-                raise ValueError(f"format {format_name} is unknown")
+        with storage.load(location) as f:
+            format = get_format_handler_from_suffix(location.suffix)
+            if format is None:
+                raise ValueError(f"format {location.suffix} is unknown")
 
             return format.decode(f, None)
 
 
-# outsource(data,suffix=".json",storage="hash",path="some/local/path")
 class Format:
 
     suffix: str | None
 
+    suffix_required = False
+
     @staticmethod
-    def handle_type(data_type):
+    def handle(data):
         raise NotImplementedError
 
     @staticmethod
@@ -487,54 +418,21 @@ class Format:
         raise NotImplementedError
 
 
-class LegacyFormat(Format):
-    suffix = None
-
-    @staticmethod
-    def handle_type(data_type):
-        # this format is only used for loading
-        return False
-
-    @staticmethod
-    def encode(value: bytes, file: typing.BinaryIO):
-        assert False
-        file.write(value)
-
-    @staticmethod
-    def decode(file: typing.BinaryIO, meta) -> LegacyType:
-
-        return LegacyType(file.read())
+all_formats = []
 
 
-class LegacyType:
-    def __init__(self, data):
-        self.data = data
-
-    def __eq__(self, other):
-        if isinstance(other, Outsourced):
-            return NotImplemented
-        if isinstance(other, str):
-            other = other.encode("utf-8")
-        return self.data == other
+def register_format(cls):
+    all_formats.append(cls)
+    return cls
 
 
-class MissingExternalObject:
-    def __init__(self, name):
-        self.name = name
-
-    def __eq__(self, other):
-        return False
-
-    def __repr__(self):
-        return f"MissingExternalObject({self.name})"
-
-
+@register_format
 class BinFormat(Format):
     suffix = ".bin"
 
     @staticmethod
-    def handle_type(data_type):
-        return data_type is bytes
+    def handle(data):
+        return isinstance(data, bytes)
 
     @staticmethod
     def encode(value: bytes, file: typing.BinaryIO):
@@ -545,12 +443,13 @@ class BinFormat(Format):
         return file.read()
 
 
+@register_format
 class TxtFormat(Format):
     suffix = ".txt"
 
     @staticmethod
-    def handle_type(data_type):
-        return data_type is str
+    def handle(data):
+        return isinstance(data, str)
 
     @staticmethod
     def encode(value: str, file: typing.BinaryIO):
@@ -561,5 +460,22 @@ class TxtFormat(Format):
         return file.read().decode("utf-8")
 
 
-def all_formats():
-    return Format.__subclasses__()
+def txt_like_suffix(suffix):
+    @register_format
+    class NewFormat(Format):
+
+        suffix_required = True
+
+        @staticmethod
+        def handle(data):
+            return isinstance(data, str)
+
+        @staticmethod
+        def encode(value: str, file: typing.BinaryIO):
+            file.write(value.encode("utf-8"))
+
+        @staticmethod
+        def decode(file: typing.BinaryIO, meta) -> str:
+            return file.read().decode("utf-8")
+
+    NewFormat.suffix = suffix

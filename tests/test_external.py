@@ -48,24 +48,45 @@ def test_a():
         )
 
 
-def test_outsource(storage):
-    storage.add("test")
-    storage.add("test", ".log")
-    storage.add(b"test")
-    storage.add(b"test", ".png")
+def test_outsource():
 
-    print(storage.list())
+    Example(
+        """\
+from inline_snapshot import outsource, snapshot,external,txt_like_suffix
 
-    assert outsource("test") == snapshot(external("hash:9f86d081884c*.txt"))
+txt_like_suffix(".log")
 
-    assert outsource("test", suffix=".log") == snapshot(
-        external("hash:9f86d081884c*.log")
-    )
+def test_a():
+    assert outsource("test") == external()
 
-    assert outsource(b"test") == snapshot(external("hash:9f86d081884c*.bin"))
+    assert outsource("test", suffix=".log") == external()
 
-    assert outsource(b"test", suffix=".png") == snapshot(
-        external("hash:9f86d081884c*.png")
+    assert outsource(b"test") == external()
+"""
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.bin": "test",
+                ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.log": "test",
+                ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt": "test",
+                "test_something.py": """\
+from inline_snapshot import outsource, snapshot,external,txt_like_suffix
+
+txt_like_suffix(".log")
+
+def test_a():
+    assert outsource("test") == external("hash:9f86d081884c*.txt")
+
+    assert outsource("test", suffix=".log") == external("hash:9f86d081884c*.log")
+
+    assert outsource(b"test") == external("hash:9f86d081884c*.bin")
+""",
+            }
+        ),
+        returncode=1,
+    ).run_pytest(
+        ["--inline-snapshot=disable"]
     )
 
 
@@ -101,6 +122,7 @@ def test_something():
             ["--inline-snapshot=create"],
             changed_files=snapshot(
                 {
+                    ".inline-snapshot/external/2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.txt": "foo",
                     "test_something.py": """\
 from inline_snapshot import outsource,snapshot
 
@@ -108,7 +130,7 @@ from inline_snapshot import external
 
 def test_something():
     assert outsource("foo") == snapshot(external("hash:2c26b46b68ff*.txt"))
-"""
+""",
                 }
             ),
             returncode=1,
@@ -330,7 +352,7 @@ def test_errors():
     with raises(snapshot("ValueError: suffix has to start with a '.' like '.png'")):
         outsource("test", suffix="blub")
 
-    with raises(snapshot("TypeError: data has to be of type bytes | str")):
+    with raises(snapshot("UsageError: data has to be of type bytes | str")):
         outsource(5)
 
     with raises(
@@ -486,6 +508,7 @@ def test_something():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
+                ".inline-snapshot/external/2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.txt": "foo",
                 "test_something.py": """\
 
 from inline_snapshot import external, snapshot,outsource
@@ -493,7 +516,7 @@ from inline_snapshot import external, snapshot,outsource
 def test_something():
     assert outsource("foo") == snapshot(external("hash:2c26b46b68ff*.txt"))
     assert "foo" == external("hash:2c26b46b68ff*.txt")
-"""
+""",
             }
         ),
         returncode=1,

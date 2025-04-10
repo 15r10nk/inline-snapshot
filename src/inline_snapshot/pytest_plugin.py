@@ -11,6 +11,7 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
 
+from inline_snapshot._external._external import HashError
 from inline_snapshot._unmanaged import Unmanaged
 
 from . import _config
@@ -18,7 +19,6 @@ from ._change import apply_all
 from ._code_repr import used_hasrepr
 from ._external import _external
 from ._external import _find_external
-from ._external._external import LegacyType
 from ._external._find_external import ensure_import
 from ._flags import Flags
 from ._global_state import snapshot_env
@@ -232,7 +232,10 @@ def unwrap(value):
         return unwrap(value._visible_value())[0], True
 
     if isinstance(value, (_external.External, _external.Outsourced)):
-        return unwrap(value._load_value())[0], True
+        try:
+            return unwrap(value._load_value())[0], True
+        except HashError:
+            return (None, False)
 
     if isinstance(value, Unmanaged):
         return unwrap(value.value)[0], True
@@ -245,18 +248,6 @@ def pytest_assertrepr_compare(config, op, left, right):
     results = []
     left, left_unwrapped = unwrap(left)
     right, right_unwrapped = unwrap(right)
-
-    if isinstance(left, (bytes, LegacyType)) or isinstance(right, (bytes, LegacyType)):
-        if isinstance(left, LegacyType):
-            left = left.data
-        if isinstance(right, LegacyType):
-            right = right.data
-
-    if isinstance(left, (str, LegacyType)) or isinstance(right, (str, LegacyType)):
-        if isinstance(left, LegacyType):
-            left = left.data.decode()
-        if isinstance(right, LegacyType):
-            right = right.data.decode()
 
     if left_unwrapped or right_unwrapped:
         results = config.hook.pytest_assertrepr_compare(

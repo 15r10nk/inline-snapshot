@@ -80,8 +80,12 @@ class Example:
     def _read_files(self, dir: Path):
         return {
             str(p.relative_to(dir)): p.read_text()
-            for p in [*dir.iterdir(), *dir.rglob("*.py")]
-            if p.is_file()
+            for p in [
+                *dir.iterdir(),
+                *dir.rglob("*.py"),
+                *(dir / ".inline-snapshot/").rglob("*"),
+            ]
+            if p.is_file() and p.name != ".gitignore"
         }
 
     def change_code(self, func):
