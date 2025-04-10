@@ -38,7 +38,16 @@ default-flags = ["trim"]
 
 
 def test_config_env():
-    Example(file_to_trim).run_pytest(
+    e = Example(file_to_trim)
+
+    e.run_pytest(
+        env={"INLINE_SNAPSHOT_DEFAULT_FLAGS": "trim"},
+        changed_files=trimmed_files,
+        returncode=snapshot(1),
+    )
+
+    e.run_pytest(
+        stdin=b"\n",
         env={"INLINE_SNAPSHOT_DEFAULT_FLAGS": "trim"},
         changed_files=trimmed_files,
         returncode=snapshot(1),

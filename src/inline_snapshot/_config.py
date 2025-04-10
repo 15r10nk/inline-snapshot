@@ -1,4 +1,3 @@
-import os
 import sys
 from dataclasses import dataclass
 from dataclasses import field
@@ -72,9 +71,5 @@ def read_config(path: Path, config=Config()) -> Config:
         config.storage_dir = storage_dir
 
     config.format_command = tool_config.get("format-command", None)
-
-    env_var = "INLINE_SNAPSHOT_DEFAULT_FLAGS"
-    if env_var in os.environ:
-        config.default_flags = os.environ[env_var].split(",")
 
     return config
