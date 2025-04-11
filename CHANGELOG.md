@@ -1,4 +1,13 @@
 
+<a id='changelog-0.22.1'></a>
+# 0.22.1 — 2025-04-11
+
+## Fixed
+
+- The environment variable `INLINE_SNAPSHOT_DEFAULT_FLAGS` now takes precedence over all default flags defined in *pyproject.toml*.
+
+- inline-snapshot can now be used in combination with `pytester.runpytest()`
+
 <a id='changelog-0.22.0'></a>
 # 0.22.0 — 2025-04-03
 
