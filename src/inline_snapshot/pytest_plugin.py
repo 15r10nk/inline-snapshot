@@ -18,6 +18,8 @@ from ._change import apply_all
 from ._code_repr import used_hasrepr
 from ._find_external import ensure_import
 from ._flags import Flags
+from ._global_state import enter_snapshot_context
+from ._global_state import leave_snapshot_context
 from ._global_state import snapshot_env
 from ._global_state import state
 from ._inline_snapshot import used_externals
@@ -71,7 +73,6 @@ def pytest_addoption(parser, pluginmanager):
 
 
 categories = Flags.all().to_set()
-flags = set()
 
 
 def xdist_running(config):
@@ -108,7 +109,7 @@ def is_implementation_supported():
 
 
 def pytest_configure(config):
-    global flags
+    enter_snapshot_context()
 
     directory = config.rootpath
     while not (pyproject := directory / "pyproject.toml").exists():
@@ -138,6 +139,7 @@ def pytest_configure(config):
             raise pytest.UsageError(
                 f"--inline-snapshot={','.join(flags)} can not be combined with xdist"
             )
+    state().flags = flags
 
     unknown_flags = flags - categories - {"disable", "review", "report", "short-report"}
     if unknown_flags:
@@ -291,230 +293,233 @@ def category_link(category):
 
 @pytest.hookimpl(trylast=True)
 def pytest_sessionfinish(session, exitstatus):
-    config = session.config
-
-    @call_once
-    def console():
-        con = Console(highlight=False)
-        con.print("\n")
-        con.rule("[blue]inline-snapshot", characters="═")
-
-        return con
-
-    if xdist_running(config):
-        if flags != {"disable"}:
-            console().print(
-                "INFO: inline-snapshot was disabled because you used xdist\n"
-            )
-        return
-
-    if env_var := is_ci_run():
-        if flags != {"disable"}:
-            console().print(
-                f'INFO: CI run was detected because environment variable "{env_var}" was defined.\n'
-                + "INFO: inline-snapshot runs with --inline-snapshot=disabled by default in CI.\n"
-            )
-        return
-
-    if not is_implementation_supported():
-        if flags != {"disable"}:
-            console().print(
-                f"INFO: inline-snapshot was disabled because {sys.implementation.name} is not supported\n"
-            )
-        return
-
-    if not state().active:
-        return
-
-    capture = config.pluginmanager.getplugin("capturemanager")
-
-    # --inline-snapshot
-
-    def apply_changes(flag):
-        if flag in flags:
-            console().print(
-                f"These changes will be applied, because you used {category_link(flag)}",
-                highlight=False,
-            )
-            console().print()
-            return True
-        if "review" in flags:
-            result = Confirm.ask(
-                f"Do you want to {category_link(flag)} these snapshots?",
-                default=False,
-            )
-            console().print()
-            return result
-        else:
-            console().print("These changes are not applied.")
-            console().print(
-                f"Use [bold]--inline-snapshot={category_link(flag)} to apply them, "
-                "or use the interactive mode with [b]--inline-snapshot=[italic blue link=https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview]review[/][/]",
-                highlight=False,
-            )
-            console().print()
-            return False
-
-    # auto mode
-    changes = {f: [] for f in Flags.all()}
-
-    snapshot_changes = {f: 0 for f in Flags.all()}
-
-    for snapshot in state().snapshots.values():
-        all_categories = set()
-        for change in snapshot._changes():
-            changes[change.flag].append(change)
-            all_categories.add(change.flag)
-
-        for category in all_categories:
-            snapshot_changes[category] += 1
-
-    capture.suspend_global_capture(in_=True)
     try:
+        config = session.config
 
-        if "short-report" in flags:
+        @call_once
+        def console():
+            con = Console(highlight=False)
+            con.print("\n")
+            con.rule("[blue]inline-snapshot", characters="═")
 
-            def report(flag, message, message_n):
-                num = snapshot_changes[flag]
+            return con
 
-                if num and not getattr(state().update_flags, flag):
+        if xdist_running(config):
+            if state().flags != {"disable"}:
+                console().print(
+                    "INFO: inline-snapshot was disabled because you used xdist\n"
+                )
+            return
+
+        if env_var := is_ci_run():
+            if state().flags != {"disable"}:
+                console().print(
+                    f'INFO: CI run was detected because environment variable "{env_var}" was defined.\n'
+                    + "INFO: inline-snapshot runs with --inline-snapshot=disabled by default in CI.\n"
+                )
+            return
+
+        if not is_implementation_supported():
+            if state().flags != {"disable"}:
+                console().print(
+                    f"INFO: inline-snapshot was disabled because {sys.implementation.name} is not supported\n"
+                )
+            return
+
+        if not state().active:
+            return
+
+        capture = config.pluginmanager.getplugin("capturemanager")
+
+        # --inline-snapshot
+
+        def apply_changes(flag):
+            if flag in state().flags:
+                console().print(
+                    f"These changes will be applied, because you used {category_link(flag)}",
+                    highlight=False,
+                )
+                console().print()
+                return True
+            if "review" in state().flags:
+                result = Confirm.ask(
+                    f"Do you want to {category_link(flag)} these snapshots?",
+                    default=False,
+                )
+                console().print()
+                return result
+            else:
+                console().print("These changes are not applied.")
+                console().print(
+                    f"Use [bold]--inline-snapshot={category_link(flag)} to apply them, "
+                    "or use the interactive mode with [b]--inline-snapshot=[italic blue link=https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview]review[/][/]",
+                    highlight=False,
+                )
+                console().print()
+                return False
+
+        # auto mode
+        changes = {f: [] for f in Flags.all()}
+
+        snapshot_changes = {f: 0 for f in Flags.all()}
+
+        for snapshot in state().snapshots.values():
+            all_categories = set()
+            for change in snapshot._changes():
+                changes[change.flag].append(change)
+                all_categories.add(change.flag)
+
+            for category in all_categories:
+                snapshot_changes[category] += 1
+
+        capture.suspend_global_capture(in_=True)
+        try:
+
+            if "short-report" in state().flags:
+
+                def report(flag, message, message_n):
+                    num = snapshot_changes[flag]
+
+                    if num and not getattr(state().update_flags, flag):
+                        console().print(
+                            message if num == 1 else message.format(num=num),
+                            highlight=False,
+                        )
+
+                report(
+                    "fix",
+                    "Error: one snapshot has incorrect values ([b]--inline-snapshot=fix[/])",
+                    "Error: {num} snapshots have incorrect values ([b]--inline-snapshot=fix[/])",
+                )
+
+                report(
+                    "trim",
+                    "Info: one snapshot can be trimmed ([b]--inline-snapshot=trim[/])",
+                    "Info: {num} snapshots can be trimmed ([b]--inline-snapshot=trim[/])",
+                )
+
+                report(
+                    "create",
+                    "Error: one snapshot is missing a value ([b]--inline-snapshot=create[/])",
+                    "Error: {num} snapshots are missing values ([b]--inline-snapshot=create[/])",
+                )
+
+                report(
+                    "update",
+                    "Info: one snapshot changed its representation ([b]--inline-snapshot=update[/])",
+                    "Info: {num} snapshots changed their representation ([b]--inline-snapshot=update[/])",
+                )
+
+                if sum(snapshot_changes.values()) != 0:
                     console().print(
-                        message if num == 1 else message.format(num=num),
+                        "\nYou can also use [b]--inline-snapshot=review[/] to approve the changes interactively",
                         highlight=False,
                     )
 
-            report(
-                "fix",
-                "Error: one snapshot has incorrect values ([b]--inline-snapshot=fix[/])",
-                "Error: {num} snapshots have incorrect values ([b]--inline-snapshot=fix[/])",
-            )
+                return
 
-            report(
-                "trim",
-                "Info: one snapshot can be trimmed ([b]--inline-snapshot=trim[/])",
-                "Info: {num} snapshots can be trimmed ([b]--inline-snapshot=trim[/])",
-            )
-
-            report(
-                "create",
-                "Error: one snapshot is missing a value ([b]--inline-snapshot=create[/])",
-                "Error: {num} snapshots are missing values ([b]--inline-snapshot=create[/])",
-            )
-
-            report(
-                "update",
-                "Info: one snapshot changed its representation ([b]--inline-snapshot=update[/])",
-                "Info: {num} snapshots changed their representation ([b]--inline-snapshot=update[/])",
-            )
-
-            if sum(snapshot_changes.values()) != 0:
-                console().print(
-                    "\nYou can also use [b]--inline-snapshot=review[/] to approve the changes interactively",
-                    highlight=False,
+            if not is_pytest_compatible():
+                assert not any(
+                    type(e).__name__ == "AssertionRewritingHook" for e in sys.meta_path
                 )
 
-            return
+            used_changes = []
+            for flag in Flags.all():
+                if not changes[flag]:
+                    continue
 
-        if not is_pytest_compatible():
-            assert not any(
-                type(e).__name__ == "AssertionRewritingHook" for e in sys.meta_path
-            )
+                if not {"review", "report", flag} & state().flags:
+                    continue
 
-        used_changes = []
-        for flag in Flags.all():
-            if not changes[flag]:
-                continue
+                @call_once
+                def header():
+                    console().rule(f"[yellow bold]{flag.capitalize()} snapshots")
 
-            if not {"review", "report", flag} & flags:
-                continue
-
-            @call_once
-            def header():
-                console().rule(f"[yellow bold]{flag.capitalize()} snapshots")
-
-            if (
-                flag == "update"
-                and _config.config.skip_snapshot_updates_for_now
-                and not "update" in flags
-            ):
-                console().print(
-                    f"{len(changes[flag])} updates are hidden. "
-                    f"Please report why you do not want these updates so that inline-snapshot can create better snapshots in the future."
-                )
-                console().print("You can find more information about updates here:")
-                console().print(
-                    link(
-                        "https://15r10nk.github.io/inline-snapshot/latest/categories/#update"
-                    )
-                )
-                continue
-
-            cr = ChangeRecorder()
-            apply_all(used_changes, cr)
-            cr.virtual_write()
-            apply_all(changes[flag], cr)
-
-            any_changes = False
-
-            for file in cr.files():
-                diff = file.diff()
-                if diff:
-                    header()
-                    name = file.filename.relative_to(Path.cwd())
+                if (
+                    flag == "update"
+                    and _config.config.skip_snapshot_updates_for_now
+                    and not "update" in state().flags
+                ):
                     console().print(
-                        Panel(
-                            Syntax(diff, "diff", theme="ansi_light"),
-                            title=str(name),
-                            box=(
-                                box.ASCII
-                                if os.environ.get("TERM", "") == "unknown"
-                                else box.ROUNDED
-                            ),
+                        f"{len(changes[flag])} updates are hidden. "
+                        f"Please report why you do not want these updates so that inline-snapshot can create better snapshots in the future."
+                    )
+                    console().print("You can find more information about updates here:")
+                    console().print(
+                        link(
+                            "https://15r10nk.github.io/inline-snapshot/latest/categories/#update"
                         )
                     )
-                    any_changes = True
+                    continue
 
-            if any_changes and apply_changes(flag):
-                used_changes += changes[flag]
+                cr = ChangeRecorder()
+                apply_all(used_changes, cr)
+                cr.virtual_write()
+                apply_all(changes[flag], cr)
 
-        report_problems(console)
+                any_changes = False
 
-        if used_changes:
-            cr = ChangeRecorder()
-            apply_all(used_changes, cr)
+                for file in cr.files():
+                    diff = file.diff()
+                    if diff:
+                        header()
+                        name = file.filename.relative_to(Path.cwd())
+                        console().print(
+                            Panel(
+                                Syntax(diff, "diff", theme="ansi_light"),
+                                title=str(name),
+                                box=(
+                                    box.ASCII
+                                    if os.environ.get("TERM", "") == "unknown"
+                                    else box.ROUNDED
+                                ),
+                            )
+                        )
+                        any_changes = True
 
-            for test_file in cr.files():
-                tree = ast.parse(test_file.new_code())
-                used = used_externals(tree)
+                if any_changes and apply_changes(flag):
+                    used_changes += changes[flag]
 
-                required_imports = []
+            report_problems(console)
 
-                if used:
-                    required_imports.append("external")
+            if used_changes:
+                cr = ChangeRecorder()
+                apply_all(used_changes, cr)
 
-                if used_hasrepr(tree):
-                    required_imports.append("HasRepr")
+                for test_file in cr.files():
+                    tree = ast.parse(test_file.new_code())
+                    used = used_externals(tree)
 
-                if required_imports:
-                    ensure_import(
-                        test_file.filename,
-                        {"inline_snapshot": required_imports},
-                        cr,
-                    )
+                    required_imports = []
 
-                for external_name in used:
-                    state().storage.persist(external_name)
+                    if used:
+                        required_imports.append("external")
 
-            cr.fix_all()
+                    if used_hasrepr(tree):
+                        required_imports.append("HasRepr")
 
-        unused_externals = _find_external.unused_externals()
+                    if required_imports:
+                        ensure_import(
+                            test_file.filename,
+                            {"inline_snapshot": required_imports},
+                            cr,
+                        )
 
-        if unused_externals and state().update_flags.trim:
-            for name in unused_externals:
-                assert state().storage
-                state().storage.remove(name)
-            console().print(f"removed {len(unused_externals)} unused externals\n")
+                    for external_name in used:
+                        state().storage.persist(external_name)
+
+                cr.fix_all()
+
+            unused_externals = _find_external.unused_externals()
+
+            if unused_externals and state().update_flags.trim:
+                for name in unused_externals:
+                    assert state().storage
+                    state().storage.remove(name)
+                console().print(f"removed {len(unused_externals)} unused externals\n")
+        finally:
+            capture.resume_global_capture()
+
+        return
     finally:
-        capture.resume_global_capture()
-
-    return
+        leave_snapshot_context()
