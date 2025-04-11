@@ -130,6 +130,10 @@ def pytest_configure(config):
     else:
         default_flags = _config.config.default_flags
 
+    env_var = "INLINE_SNAPSHOT_DEFAULT_FLAGS"
+    if env_var in os.environ:
+        default_flags = os.environ[env_var].split(",")
+
     if config.option.inline_snapshot is None:
         flags = set(default_flags)
     else:
