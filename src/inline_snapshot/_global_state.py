@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 from dataclasses import dataclass
 from dataclasses import field
+from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 from typing import Generator
 
@@ -53,10 +54,14 @@ def leave_snapshot_context():
 
 @contextlib.contextmanager
 def snapshot_env() -> Generator[State]:
+    from ._external import DiscStorage
 
     enter_snapshot_context()
 
     try:
-        yield _current
+        with TemporaryDirectory() as dir:
+            _current.storage = DiscStorage(dir)
+
+            yield _current
     finally:
         leave_snapshot_context()

@@ -5,6 +5,7 @@ from inline_snapshot import external
 from inline_snapshot import outsource
 from inline_snapshot import snapshot
 from inline_snapshot._external._find_external import ensure_import
+from inline_snapshot._global_state import snapshot_env
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
 from tests.utils import config
@@ -91,22 +92,24 @@ def test_a():
     )
 
 
-def test_diskstorage(storage):
-    assert outsource("test4") == snapshot(external("hash:a4e624d686e0*.txt"))
-    assert outsource("test5") == snapshot(external("hash:a140c0c1eda2*.txt"))
-    assert outsource("test6") == snapshot(external("hash:ed0cb90bdfa4*.txt"))
+def test_diskstorage():
+    with snapshot_env():
 
-    with raises(
-        snapshot(
-            "HashError: hash collision files=['a140c0c1eda2def2b830363ba362aa4d7d255c262960544821f556e16661b6ff-new.txt', 'a4e624d686e03ed2767c0abd85c14426b0b1157d2ce81d27bb4fe4f6f01d688a-new.txt']"
-        )
-    ):
-        assert outsource("test4") == external("hash:a*.txt")
+        assert outsource("test4") == snapshot(external("hash:a4e624d686e0*.txt"))
+        assert outsource("test5") == snapshot(external("hash:a140c0c1eda2*.txt"))
+        assert outsource("test6") == snapshot(external("hash:ed0cb90bdfa4*.txt"))
 
-    with raises(
-        snapshot("HashError: hash 'bbbbb*.txt' is not found in the DiscStorage")
-    ):
-        assert outsource("test4") == external("hash:bbbbb*.txt")
+        with raises(
+            snapshot(
+                "HashError: hash collision files=['a140c0c1eda2def2b830363ba362aa4d7d255c262960544821f556e16661b6ff-new.txt', 'a4e624d686e03ed2767c0abd85c14426b0b1157d2ce81d27bb4fe4f6f01d688a-new.txt']"
+            )
+        ):
+            assert outsource("test4") == external("hash:a*.txt")
+
+        with raises(
+            snapshot("HashError: hash 'bbbbb*.txt' is not found in the DiscStorage")
+        ):
+            assert outsource("test4") == external("hash:bbbbb*.txt")
 
 
 def test_update_legacy_external_names(project):
@@ -350,22 +353,19 @@ def test_a():
 
 
 def test_errors():
-    with raises(snapshot("ValueError: suffix has to start with a '.' like '.png'")):
-        outsource("test", suffix="blub")
+    with snapshot_env():
+        with raises(snapshot("ValueError: suffix has to start with a '.' like '.png'")):
+            outsource("test", suffix="blub")
 
-    with raises(snapshot("UsageError: data has to be of type bytes | str")):
-        outsource(5)
+        with raises(snapshot("UsageError: data has to be of type bytes | str")):
+            outsource(5)
 
-    with raises(
-        snapshot(
-            "ValueError: path has to be of the form <hash>.<suffix> or <partial_hash>*.<suffix>"
-        )
-    ):
-        external("invalid")
-
-    # assert external("123*.txt") == external("12*.txt")
-    # assert external("123*.txt") != external("124*.txt")
-    # assert external("123*.txt") != external("123*.bin")
+        with raises(
+            snapshot(
+                "ValueError: path has to be of the form <hash>.<suffix> or <partial_hash>*.<suffix>"
+            )
+        ):
+            external("invalid")
 
 
 def test_uses_external():
