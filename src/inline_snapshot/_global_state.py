@@ -26,8 +26,12 @@ class State:
     # external
     storage: DiscStorage | None = None
 
+    flags: set[str] = field(default_factory=set)
 
-_current = State()
+
+_latest_global_states: list[State] = []
+
+_current: State = State()
 _current.active = False
 
 
@@ -36,14 +40,23 @@ def state() -> State:
     return _current
 
 
+def enter_snapshot_context():
+    global _current
+    _latest_global_states.append(_current)
+    _current = State()
+
+
+def leave_snapshot_context():
+    global _current
+    _current = _latest_global_states.pop()
+
+
 @contextlib.contextmanager
 def snapshot_env() -> Generator[State]:
 
-    global _current
-    old = _current
-    _current = State()
+    enter_snapshot_context()
 
     try:
         yield _current
     finally:
-        _current = old
+        leave_snapshot_context()
