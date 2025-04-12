@@ -26,7 +26,7 @@ pip install inline-snapshot
 
 > [!IMPORTANT]
 > Hello, I would like to inform you about some changes. I have started to offer [insider](https://15r10nk.github.io/inline-snapshot/latest/insiders/) features for inline-snapshot. I will only release features as insider features if they will not cause problems for you when used in an open source project.
-> I hope sponsoring will allow me to spend more time working on open source projects. You can help me by sharing this post on [Mastodon](https://fosstodon.org/@15r10nk/114279331495696963) or [X](https://x.com/15r10nk/status/1908110455307968809). I'm giving away insider access to one of you who helped me spread this message.
+> I hope sponsoring will allow me to spend more time working on open source projects.
 > Thank you for using inline-snapshot, the future will be 🚀.
 
 ## Key Features
