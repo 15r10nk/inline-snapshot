@@ -945,3 +945,28 @@ def test_a():
         ),
         stdin=b"y\n",
     )
+
+
+def test_ide():
+    e = Example(
+        """
+from inline_snapshot import snapshot
+def test_something():
+    assert 5 == snapshot()
+"""
+    )
+
+    fixed_code = snapshot(
+        {
+            "test_something.py": """\
+
+from inline_snapshot import snapshot
+def test_something():
+    assert 5 == snapshot(5)
+"""
+        }
+    )
+
+    e.run_pytest(env={"PYCHARM_HOSTED": "true"}, changed_files=fixed_code, returncode=1)
+
+    e.run_pytest(env={"VSCODE_PID": "123"}, changed_files=fixed_code, returncode=1)
