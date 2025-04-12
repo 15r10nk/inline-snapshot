@@ -15,8 +15,11 @@ else:
 @dataclass
 class Config:
     hash_length: int = 12
+
     default_flags: List[str] = field(default_factory=lambda: ["short-report"])
     default_flags_tui: List[str] = field(default_factory=lambda: ["short-report"])
+    default_flags_ide: List[str] = field(default_factory=lambda: ["short-report"])
+
     shortcuts: Dict[str, List[str]] = field(default_factory=dict)
     format_command: Optional[str] = None
     storage_dir: Optional[Path] = None
@@ -54,6 +57,11 @@ def read_config(path: Path, config=Config()) -> Config:
 
     try:
         config.show_updates = tool_config["show-updates"]
+    except KeyError:
+        pass
+
+    try:
+        config.default_flags_ide = tool_config["default-flags-ide"]
     except KeyError:
         pass
 
