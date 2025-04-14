@@ -198,7 +198,7 @@ create=[
    "scriv collect",
     "- pre-commit run -a",
     "cz bump",
-    "git push --force-with-lease orgin $(git describe main --tags)",
+    "git push --force-with-lease origin main $(git describe main --tags)",
 ]
 
 [tool.scriv]
