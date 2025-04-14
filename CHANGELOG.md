@@ -1,4 +1,11 @@
 
+<a id='changelog-0.22.2'></a>
+# 0.22.2 — 2025-04-14
+
+## Fixed
+
+- show correct diff when `pytest --inline-snapshot=report -vv` is used (#231)
+
 <a id='changelog-0.22.1'></a>
 # 0.22.1 — 2025-04-11
 
