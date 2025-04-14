@@ -1,4 +1,11 @@
 
+<a id='changelog-0.22.3'></a>
+# 0.22.3 — 2025-04-14
+
+## Fixed
+
+- A pycharm environment is no longer incorrectly recognized as a CI environment.
+
 <a id='changelog-0.22.2'></a>
 # 0.22.2 — 2025-04-14
 
