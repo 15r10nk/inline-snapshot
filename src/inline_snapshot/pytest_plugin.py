@@ -86,6 +86,11 @@ def xdist_running(config):
 
 
 def is_ci_run():
+    if bool(os.environ.get("PYCHARM_HOSTED", False)):
+        # pycharm exports TEAMCITY_VERSION but luckily also PYCHARM_HOSTED,
+        # which allows to detect the incorrect ci detection
+        return False
+
     ci_env_vars = (
         "CI",
         "bamboo.buildKey",
