@@ -11,6 +11,8 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
 
+from inline_snapshot.fix_pytest_diff import fix_pytest_diff
+
 from . import _config
 from . import _external
 from . import _find_external
@@ -184,6 +186,8 @@ def pytest_configure(config):
         ]
 
     pydantic_fix()
+
+    fix_pytest_diff()
 
     state().storage.prune_new_files()
 

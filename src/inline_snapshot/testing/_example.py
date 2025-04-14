@@ -224,6 +224,7 @@ class Example:
         env: dict[str, str] = {},
         changed_files: Snapshot[dict[str, str]] | None = None,
         report: Snapshot[str] | None = None,
+        error: Snapshot[str] | None = None,
         stderr: Snapshot[str] | None = None,
         returncode: Snapshot[int] = 0,
         stdin: bytes = b"",
@@ -319,6 +320,19 @@ class Example:
                 report_str = "\n".join(report_list)
 
                 assert report_str == report, repr(report_str)
+
+            if error is not None:
+                assert (
+                    error
+                    == "\n".join(
+                        [
+                            line
+                            for line in result_stdout.splitlines()
+                            if line and line[:2] in ("> ", "E ")
+                        ]
+                    )
+                    + "\n"
+                )
 
             if changed_files is not None:
                 current_files = {}
