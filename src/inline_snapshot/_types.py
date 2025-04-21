@@ -3,15 +3,18 @@
 from typing import TYPE_CHECKING
 from typing import Generic
 from typing import Literal
+from typing import Protocol
 from typing import TypeVar
 
 if TYPE_CHECKING:
 
-    from typing_extensions import TypeAlias
+    pass
 
-    T = TypeVar("T")
+    T = TypeVar("T", covariant=True)
 
-    Snapshot: TypeAlias = T
+    class Snapshot(Protocol[T]):
+
+        def __eq__(self, other: object, /) -> bool: ...
 
 else:
     T = TypeVar("T")

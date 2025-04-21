@@ -7,6 +7,7 @@ from inline_snapshot import snapshot
 from inline_snapshot._find_external import ensure_import
 from inline_snapshot.extra import raises
 from tests.utils import config
+from tests.utils import storage  # noqa
 
 from .utils import apply_changes
 
