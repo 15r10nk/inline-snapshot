@@ -1,4 +1,11 @@
 
+<a id='changelog-0.23.0'></a>
+# 0.23.0 — 2025-04-25
+
+## Changed
+
+- snapshot updates are now disabled by default. They be enabled with `show-updates=true` in your config. This is done because they can confuse new inline-snapshot users and does not fit the way how most users work with inline-snapshot. updates will become much more useful when (#177) is implemented.
+
 <a id='changelog-0.22.3'></a>
 # 0.22.3 — 2025-04-14
 

@@ -35,7 +35,7 @@ keywords = []
 name = "inline-snapshot"
 readme = "README.md"
 requires-python = ">=3.8"
-version = "0.22.3"
+version = "0.23.0"
 
 [project.optional-dependencies]
 black = [
@@ -189,7 +189,7 @@ venvPath = ".nox"
 [tool.hatch.envs.release]
 detached=true
 dependencies=[
-    "scriv",
+    "scriv[toml]",
     "commitizen"
 ]
 
