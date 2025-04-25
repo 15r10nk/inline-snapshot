@@ -2,22 +2,14 @@ from inline_snapshot import snapshot
 from inline_snapshot.testing._example import Example
 
 
-def test_skip_snapshot_updates():
+def test_use_snapshot_updates():
 
-    expected_report = snapshot(
-        """\
-1 updates are hidden. Please report why you do not want these updates so that
-inline-snapshot can create better snapshots in the future.
-You can find more information about updates here:
-https://15r10nk.github.io/inline-snapshot/latest/categories/#update\
-"""
-    )
+    expected_report = snapshot("")
 
     Example(
         {
             "pyproject.toml": f"""\
 [tool.inline-snapshot]
-skip-snapshot-updates-for-now=true
 """,
             "test_a.py": """\
 from inline_snapshot import snapshot

@@ -183,7 +183,9 @@ It is recommended to use trim only if you run your complete test suite.
 
 ### Update
 
-Changes in the update category do not change the value in the code, just the representation. The reason might be that `#!python repr()` of the object has changed or that inline-snapshot provides some new logic which changes the representation. Like with the strings in the following example:
+Changes in the update category do not change the value of the snapshot, just its representation.
+These updates are not shown by default in your reports and can be enabled with [show-updates](configuration.md/#show-updates).
+The reason might be that `#!python repr()` of the object has changed or that inline-snapshot provides some new logic which changes the representation. Like with the strings in the following example:
 
 
 === "original"
@@ -254,8 +256,6 @@ Changes in the update category do not change the value in the code, just the rep
 
 The approval of this type of changes is easier, because inline-snapshot assures that the value has not changed.
 
-It is not necessary, but recommended to make these changes for the following reason:
-
 The goal of inline-snapshot is to generate the values for you in the correct format so that no manual editing is required.
 This improves your productivity and saves time.
 Keep in mind that any changes you make to your snapshots will likely need to be redone if your program's behaviour (and expected values) change.
@@ -269,3 +269,6 @@ You can agree with inline-snapshot and accept the changes or you can use one of 
 3. inline-snapshot manages everything within `snapshot(...)`, but you can take control by using [Is()](eq_snapshot.md#is) in cases where you want to use custom code (like local variables) in your snapshots.
 
 4. you can also open an [issue](https://github.com/15r10nk/inline-snapshot/issues?q=is%3Aissue%20state%3Aopen%20label%3Aupdate_related) if you have a specific problem with the way inline-snapshot generates the code.
+
+!!! note:
+    [#177](https://github.com/15r10nk/inline-snapshot/issues/177) will give the developer more control about how snapshots are created. *update* will them become much more useful.

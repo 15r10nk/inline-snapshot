@@ -292,9 +292,7 @@ def call_once(f):
 
 
 def link(text, link=None):
-    if link is None:
-        link = text
-    return f"[italic blue link={link}]{text}[/]"
+    return f"[italic blue link={link or text}]{text}[/]"
 
 
 def category_link(category):
@@ -450,19 +448,9 @@ def pytest_sessionfinish(session, exitstatus):
 
                 if (
                     flag == "update"
-                    and _config.config.skip_snapshot_updates_for_now
+                    and not _config.config.show_updates
                     and not "update" in state().flags
                 ):
-                    console().print(
-                        f"{len(changes[flag])} updates are hidden. "
-                        f"Please report why you do not want these updates so that inline-snapshot can create better snapshots in the future."
-                    )
-                    console().print("You can find more information about updates here:")
-                    console().print(
-                        link(
-                            "https://15r10nk.github.io/inline-snapshot/latest/categories/#update"
-                        )
-                    )
                     continue
 
                 cr = ChangeRecorder()
