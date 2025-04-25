@@ -6,7 +6,7 @@ hash-length=15
 default-flags=["report"]
 default-flags-tui=["create", "review"]
 format-command=""
-skip-snapshot-updates-for-now=false
+show-updates=false
 
 [tool.inline-snapshot.shortcuts]
 review=["review"]
@@ -56,6 +56,4 @@ fix=["create","fix"]
     format-command="ruff check --fix-only --stdin-filename {filename} | ruff format --stdin-filename {filename}"
     ```
 
-* **skip-snapshot-updates-for-now:** allows you to skip the reporting of updates.
-    Please create an new [issue](https://github.com/15r10nk/inline-snapshot/issues?q=is%3Aissue%20state%3Aopen%20label%3Aupdate_related) if you think the snapshot value which was generated can be improved.
-    This option might be removed in the future when inline-snapshot has better capabilities to customize the way snapshots are generated.
+* **show-updates:**[](){#show-updates} shows updates in reviews and reports.

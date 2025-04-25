@@ -20,6 +20,7 @@ print(text,end="")
             "pyproject.toml": f"""\
 [tool.inline-snapshot]
 format-command="{executable} fmt_cmd.py {{filename}}"
+show-updates=true
 """,
             "test_a.py": """\
 from inline_snapshot import snapshot

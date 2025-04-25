@@ -302,6 +302,13 @@ def test_a():
 """
     )
 
+    project.pyproject(
+        """
+[tool.inline-snapshot]
+show-updates=true
+"""
+    )
+
     result = project.run("--inline-snapshot=trim,report")
 
     assert result.report == snapshot(

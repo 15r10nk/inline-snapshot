@@ -20,7 +20,7 @@ class Config:
     shortcuts: Dict[str, List[str]] = field(default_factory=dict)
     format_command: Optional[str] = None
     storage_dir: Optional[Path] = None
-    skip_snapshot_updates_for_now: bool = False
+    show_updates: bool = False
 
 
 config = Config()
@@ -53,9 +53,7 @@ def read_config(path: Path, config=Config()) -> Config:
         pass
 
     try:
-        config.skip_snapshot_updates_for_now = tool_config[
-            "skip-snapshot-updates-for-now"
-        ]
+        config.show_updates = tool_config["show-updates"]
     except KeyError:
         pass
 
