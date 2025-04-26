@@ -16,7 +16,6 @@ from .._change import Delete
 from ..syntax_warnings import InlineSnapshotSyntaxWarning
 from .adapter import Adapter
 from .adapter import Item
-from .adapter import adapter_map
 
 
 def get_adapter_for_type(value_type):
@@ -28,8 +27,6 @@ def get_adapter_for_type(value_type):
 
     assert len(options) == 1
     return options[0]
-
-
 
 
 class GenericCallAdapter(Adapter):
@@ -52,8 +49,7 @@ class GenericCallAdapter(Adapter):
         call = cls.arguments(value)
 
         arguments = [repr(value) for value in call.args] + [
-            f"{key}={repr(value)}"
-            for key, value in call.kwargs.items()
+            f"{key}={repr(value)}" for key, value in call.kwargs.items()
         ]
 
         return f"{repr(type(value))}({', '.join(arguments)})"
@@ -61,12 +57,11 @@ class GenericCallAdapter(Adapter):
     @classmethod
     def map(cls, value, map_function):
         return cls.arguments(value).map(map_function)
-       
 
     @classmethod
     def items(cls, value, node):
 
-        args=cls.arguments(value)
+        args = cls.arguments(value)
         new_args = args.args
         new_kwargs = args.kwargs
 
@@ -87,12 +82,8 @@ class GenericCallAdapter(Adapter):
                 return None
 
         return [
-            Item(value=arg, node=pos_arg_node(i))
-            for i, arg in enumerate(new_args)
-        ] + [
-            Item(value=kw, node=kw_arg_node(name))
-            for name, kw in new_kwargs.items()
-        ]
+            Item(value=arg, node=pos_arg_node(i)) for i, arg in enumerate(new_args)
+        ] + [Item(value=kw, node=kw_arg_node(name)) for name, kw in new_kwargs.items()]
 
     def assign(self, old_value, old_node, new_value):
         if old_node is None or not isinstance(old_node, ast.Call):
@@ -127,7 +118,7 @@ class GenericCallAdapter(Adapter):
                 )
                 return old_value
 
-        call=self.arguments(new_value)
+        call = self.arguments(new_value)
         new_args = call.args
         new_kwargs = call.kwargs
 
@@ -259,7 +250,7 @@ class DataclassAdapter(GenericCallAdapter):
                 if not is_default:
                     kwargs[field.name] = field_value
 
-        return CustomCall(type(value),*[], **kwargs)
+        return CustomCall(type(value), *[], **kwargs)
 
     def argument(self, value, pos_or_name):
         if isinstance(pos_or_name, str):
@@ -403,7 +394,8 @@ class NamedTupleAdapter(GenericCallAdapter):
     @classmethod
     def arguments(cls, value: IsNamedTuple):
 
-        return CustomCall(type(value),
+        return CustomCall(
+            type(value),
             **{
                 field: getattr(value, field)
                 for field in value._fields
@@ -425,7 +417,8 @@ class DefaultDictAdapter(GenericCallAdapter):
     @classmethod
     def arguments(cls, value: defaultdict):
 
-        return CustomCall(type(value),
+        return CustomCall(
+            type(value),
             *[value.default_factory, dict(value)],
         )
 
