@@ -6,6 +6,7 @@ from inline_snapshot import outsource
 from inline_snapshot import snapshot
 from inline_snapshot._find_external import ensure_import
 from inline_snapshot.extra import raises
+from inline_snapshot.testing._example import Example
 from tests.utils import config
 from tests.utils import storage  # noqa
 
@@ -443,4 +444,20 @@ def test_something():
             "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.txt",
             "8dc140e6fe831481a2005ae152ffe32a9974aa92a260dfbac780d6a87154bb0b-new.txt",
         ]
+    )
+
+
+def test_persist_twice():
+    Example(
+        """\
+from inline_snapshot import snapshot,outsource
+
+def test_a():
+    assert outsource("testabc") == snapshot()
+    assert 1+1==snapshot()
+"""
+    ).run_pytest(["--inline-snapshot=create"], returncode=1).code_change(
+        "snapshot(2)", "snapshot()"
+    ).run_pytest(
+        ["--inline-snapshot=create"], returncode=1
     )

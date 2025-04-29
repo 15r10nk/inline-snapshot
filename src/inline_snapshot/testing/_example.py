@@ -115,6 +115,11 @@ class Example:
     def with_files(self, extra_files):
         return Example(self.files | extra_files)
 
+    def code_change(self, src, dest):
+        return Example(
+            {name: file.replace(src, dest) for name, file in self.files.items()}
+        )
+
     def run_inline(
         self,
         args: list[str] = [],
