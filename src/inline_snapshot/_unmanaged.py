@@ -1,6 +1,3 @@
-from ._is import Is
-from ._types import Snapshot
-
 try:
     import dirty_equals  # type: ignore
 except ImportError:  # pragma: no cover
@@ -21,7 +18,7 @@ def update_allowed(value):
     return not (is_dirty_equal(value) or isinstance(value, tuple(unmanaged_types)))  # type: ignore
 
 
-unmanaged_types = [Is, Snapshot]
+unmanaged_types = []
 
 
 def is_unmanaged(value):

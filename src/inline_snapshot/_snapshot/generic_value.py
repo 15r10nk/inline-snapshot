@@ -10,8 +10,9 @@ from .._code_repr import code_repr
 from .._exceptions import UsageError
 from .._global_state import state
 from .._sentinels import undefined
-from .._types import Snapshot
+from .._types import SnapshotBase
 from .._unmanaged import Unmanaged
+from .._unmanaged import declare_unmanaged
 from .._unmanaged import update_allowed
 
 
@@ -37,7 +38,8 @@ def ignore_old_value():
     return state().update_flags.fix or state().update_flags.update
 
 
-class GenericValue(Snapshot):
+@declare_unmanaged
+class GenericValue(SnapshotBase):
     _new_value: Any
     _old_value: Any
     _current_op = "undefined"
