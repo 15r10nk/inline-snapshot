@@ -51,6 +51,32 @@ def normalize(text):
     return text
 
 
+# this code is copied from pytest
+
+# Regex to match the session duration string in the summary: "74.34s".
+rex_session_duration = re.compile(r"\d+\.\d\ds")
+# Regex to match all the counts and phrases in the summary line: "34 passed, 111 skipped".
+rex_outcome = re.compile(r"(\d+) (\w+)")
+
+
+def parse_outcomes(lines):
+    for line in reversed(lines):
+        if rex_session_duration.search(line):
+            outcomes = rex_outcome.findall(line)
+            ret = {noun: int(count) for (count, noun) in outcomes}
+            break
+        else:
+            pass  # pragma: no cover
+    else:
+        raise ValueError("Pytest terminal summary report not found")  # pragma: no cover
+
+    to_plural = {
+        "warning": "warnings",
+        "error": "errors",
+    }
+    return {to_plural.get(k, k): v for k, v in ret.items()}
+
+
 class Example:
     def __init__(self, files: str | dict[str, str]):
         """
@@ -78,11 +104,21 @@ class Example:
             filename.write_text(content)
 
     def _read_files(self, dir: Path):
+        storage_dir = dir / ".inline-snapshot"
+
         return {
             str(p.relative_to(dir)): p.read_text()
-            for p in [*dir.iterdir(), *dir.rglob("*.py")]
+            for p in [*dir.iterdir(), *dir.rglob("*.py"), *storage_dir.rglob("*")]
             if p.is_file()
         }
+
+    def with_files(self, extra_files):
+        return Example(self.files | extra_files)
+
+    def code_change(self, src, dest):
+        return Example(
+            {name: file.replace(src, dest) for name, file in self.files.items()}
+        )
 
     def run_inline(
         self,
@@ -228,6 +264,7 @@ class Example:
         stderr: Snapshot[str] | None = None,
         returncode: Snapshot[int] = 0,
         stdin: bytes = b"",
+        outcomes: Snapshot[dict[str, int]] | None = None,
     ) -> Example:
         """Run pytest with the given args and env variables in an separate
         process.
@@ -341,5 +378,8 @@ class Example:
                     if name not in self.files or self.files[name] != content:
                         current_files[str(PurePosixPath(*Path(name).parts))] = content
                 assert changed_files == current_files
+
+            if outcomes is not None:
+                assert outcomes == parse_outcomes(result_stdout.splitlines())
 
             return Example(self._read_files(tmp_path))

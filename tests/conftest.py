@@ -281,7 +281,7 @@ from inline_snapshot import outsource
 from inline_snapshot import snapshot
 from inline_snapshot import outsource
 """
-            else:
+            else:  # pragma: no cover
                 self.header = ""
 
             header = self.header

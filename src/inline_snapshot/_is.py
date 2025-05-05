@@ -1,6 +1,8 @@
 import typing
 from typing import TYPE_CHECKING
 
+from inline_snapshot._unmanaged import declare_unmanaged
+
 if TYPE_CHECKING:
 
     T = typing.TypeVar("T")
@@ -10,6 +12,7 @@ if TYPE_CHECKING:
 
 else:
 
+    @declare_unmanaged
     class Is:
         def __init__(self, value):
             self.value = value
