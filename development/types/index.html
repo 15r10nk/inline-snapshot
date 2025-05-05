@@ -1391,7 +1391,12 @@ values.</p>
 
               <details class="quote">
                 <summary>Source code in <code>src/inline_snapshot/_types.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-19">19</a></span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-14">14</a></span>
+<span class="normal"><a href="#__codelineno-0-15">15</a></span>
+<span class="normal"><a href="#__codelineno-0-16">16</a></span>
+<span class="normal"><a href="#__codelineno-0-17">17</a></span>
+<span class="normal"><a href="#__codelineno-0-18">18</a></span>
+<span class="normal"><a href="#__codelineno-0-19">19</a></span>
 <span class="normal"><a href="#__codelineno-0-20">20</a></span>
 <span class="normal"><a href="#__codelineno-0-21">21</a></span>
 <span class="normal"><a href="#__codelineno-0-22">22</a></span>
@@ -1438,62 +1443,77 @@ values.</p>
 <span class="normal"><a href="#__codelineno-0-63">63</a></span>
 <span class="normal"><a href="#__codelineno-0-64">64</a></span>
 <span class="normal"><a href="#__codelineno-0-65">65</a></span>
-<span class="normal"><a href="#__codelineno-0-66">66</a></span>
-<span class="normal"><a href="#__codelineno-0-67">67</a></span>
-<span class="normal"><a href="#__codelineno-0-68">68</a></span>
-<span class="normal"><a href="#__codelineno-0-69">69</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="k">class</span><span class="w"> </span><span class="nc">Snapshot</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Can be used to annotate function arguments which accept snapshot</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="sd">    values.</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22"></a>
-<a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="sd">    You can annotate function arguments with `Snapshot[T]` to declare that a snapshot-value can be passed as function argument.</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="sd">    `Snapshot[T]` is a type alias for `T`, which allows you to pass `int` values instead of `int` snapshots.</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25"></a>
-<a id="__codelineno-0-26" name="__codelineno-0-26"></a>
-<a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="sd">    Example:</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="sd">    &lt;!-- inline-snapshot: create fix trim first_block outcome-passed=2 --&gt;</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="sd">    ``` python</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">    from typing import Optional</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">    from inline_snapshot import snapshot, Snapshot</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32"></a>
-<a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="sd">    # required snapshots</span>
+<span class="normal"><a href="#__codelineno-0-66">66</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="k">class</span><span class="w"> </span><span class="nc">Snapshot</span><span class="p">(</span><span class="n">Protocol</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Can be used to annotate function arguments which accept snapshot</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="sd">    values.</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17"></a>
+<a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="sd">    You can annotate function arguments with `Snapshot[T]` to declare that a snapshot-value can be passed as function argument.</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="sd">    `Snapshot[T]` is a type alias for `T`, which allows you to pass `int` values instead of `int` snapshots.</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a>
+<a id="__codelineno-0-21" name="__codelineno-0-21"></a>
+<a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="sd">    Example:</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="sd">    &lt;!-- inline-snapshot: create fix trim first_block outcome-passed=2 --&gt;</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="sd">    ``` python</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="sd">    from typing import Optional</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="sd">    from inline_snapshot import snapshot, Snapshot</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27"></a>
+<a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="sd">    # required snapshots</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29"></a>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a>
+<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">    def check_in_bounds(value, lower: Snapshot[int], upper: Snapshot[int]):</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">        assert lower &lt;= value &lt;= upper</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a>
 <a id="__codelineno-0-34" name="__codelineno-0-34"></a>
-<a id="__codelineno-0-35" name="__codelineno-0-35"></a>
-<a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="sd">    def check_in_bounds(value, lower: Snapshot[int], upper: Snapshot[int]):</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="sd">        assert lower &lt;= value &lt;= upper</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="sd">    def test_numbers():</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="sd">        for c in &quot;hello world&quot;:</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="sd">            check_in_bounds(ord(c), snapshot(32), snapshot(119))</span>
 <a id="__codelineno-0-38" name="__codelineno-0-38"></a>
-<a id="__codelineno-0-39" name="__codelineno-0-39"></a>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">    def test_numbers():</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="sd">        for c in &quot;hello world&quot;:</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="sd">            check_in_bounds(ord(c), snapshot(32), snapshot(119))</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a>
-<a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="sd">        # use with normal values</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="sd">        check_in_bounds(5, 0, 10)</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46"></a>
-<a id="__codelineno-0-47" name="__codelineno-0-47"></a>
-<a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="sd">    # optional snapshots</span>
-<a id="__codelineno-0-49" name="__codelineno-0-49"></a>
-<a id="__codelineno-0-50" name="__codelineno-0-50"></a>
-<a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="sd">    def check_container(</span>
-<a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="sd">        value,</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">        *,</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">        value_repr: Optional[Snapshot[str]] = None,</span>
-<a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="sd">        length: Optional[Snapshot[int]] = None</span>
-<a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="sd">    ):</span>
-<a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">        if value_repr is not None:</span>
-<a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="sd">            assert repr(value) == value_repr</span>
-<a id="__codelineno-0-59" name="__codelineno-0-59"></a>
-<a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">        if length is not None:</span>
-<a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">            assert len(value) == length</span>
-<a id="__codelineno-0-62" name="__codelineno-0-62"></a>
-<a id="__codelineno-0-63" name="__codelineno-0-63"></a>
-<a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="sd">    def test_container():</span>
-<a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="sd">        check_container([1, 2], value_repr=snapshot(&quot;[1, 2]&quot;), length=snapshot(2))</span>
-<a id="__codelineno-0-66" name="__codelineno-0-66"></a>
-<a id="__codelineno-0-67" name="__codelineno-0-67"></a><span class="sd">        check_container({1, 1}, length=snapshot(1))</span>
-<a id="__codelineno-0-68" name="__codelineno-0-68"></a><span class="sd">    ```</span>
-<a id="__codelineno-0-69" name="__codelineno-0-69"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="sd">        # use with normal values</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">        check_in_bounds(5, 0, 10)</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="sd">    # optional snapshots</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="sd">    def check_container(</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="sd">        value,</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="sd">        *,</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="sd">        value_repr: Optional[Snapshot[str]] = None,</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="sd">        length: Optional[Snapshot[int]] = None</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="sd">    ):</span>
+<a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="sd">        if value_repr is not None:</span>
+<a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">            assert repr(value) == value_repr</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54"></a>
+<a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="sd">        if length is not None:</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="sd">            assert len(value) == length</span>
+<a id="__codelineno-0-57" name="__codelineno-0-57"></a>
+<a id="__codelineno-0-58" name="__codelineno-0-58"></a>
+<a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">    def test_container():</span>
+<a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">        check_container([1, 2], value_repr=snapshot(&quot;[1, 2]&quot;), length=snapshot(2))</span>
+<a id="__codelineno-0-61" name="__codelineno-0-61"></a>
+<a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">        check_container({1, 1}, length=snapshot(1))</span>
+<a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">    ```</span>
+<a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65"></a>
+<a id="__codelineno-0-66" name="__codelineno-0-66"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span> <span class="o">...</span>  <span class="c1"># pragma: no cover</span>
 </code></pre></div></td></tr></table></div>
               </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
 
     </div>
 
