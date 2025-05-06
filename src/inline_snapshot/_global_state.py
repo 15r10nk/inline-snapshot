@@ -31,6 +31,8 @@ class State:
 
     format_aliases: dict[str, str] = field(default_factory=dict)
 
+    all_formats: list[type] = field(default_factory=list)
+
 
 _latest_global_states: list[State] = []
 
@@ -47,6 +49,7 @@ def enter_snapshot_context():
     global _current
     _latest_global_states.append(_current)
     _current = State()
+    _current.all_formats = list(_latest_global_states[-1].all_formats)
 
 
 def leave_snapshot_context():

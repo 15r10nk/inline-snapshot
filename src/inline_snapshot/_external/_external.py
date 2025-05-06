@@ -12,10 +12,11 @@ from typing import Any
 from typing import Generator
 from uuid import uuid4
 
-from inline_snapshot import UsageError
 from inline_snapshot._adapter.adapter import AdapterContext
 from inline_snapshot._change import CallArg
 from inline_snapshot._change import Replace
+from inline_snapshot._external._format import get_format_handler
+from inline_snapshot._external._format import get_format_handler_from_suffix
 from inline_snapshot._global_state import state
 from inline_snapshot._inline_snapshot import create_snapshot
 from inline_snapshot._unmanaged import declare_unmanaged
@@ -130,26 +131,6 @@ class DiscStorage(Protocol):
     def __init__(self, directory):
         self.directory = Path(directory)
 
-    def add(self, data, suffix=None):
-        # for testing only
-        self._ensure_directory()
-
-        if suffix is None:
-            suffix = ".txt" if isinstance(data, str) else ".bin"
-
-        if isinstance(data, str):
-            data = data.encode()
-
-        tmp_name = self.directory / str(uuid4())
-
-        with tmp_name.open("wb") as f:
-            f.write(data)
-
-        with tmp_name.open("rb") as f:
-            hash_name = file_digest(f, "sha256").hexdigest()
-
-        shutil.move(tmp_name, self.directory / (hash_name + suffix))
-
     def _ensure_directory(self):
         self.directory.mkdir(exist_ok=True, parents=True)
         gitignore = self.directory / ".gitignore"
@@ -242,29 +223,6 @@ DiscStorage = DiscStorage
 
 def external(name: str | None = None):
     return create_snapshot(External, name)
-
-
-def get_format_handler(data, suffix: str | None) -> type[Format]:
-
-    if suffix is not None:
-        suffix = state().format_aliases.get(suffix, suffix)
-
-    for formatter in all_formats:
-        if formatter.handle(data) and (suffix is None or suffix == formatter.suffix):
-            return formatter
-    else:
-        raise UsageError("data has to be of type bytes | str")
-
-    return format
-
-
-def get_format_handler_from_suffix(suffix: str) -> type[Format] | None:
-    suffix = state().format_aliases.get(suffix, suffix)
-
-    for formatter in all_formats:
-        if formatter.suffix == suffix:
-            return formatter
-    return None
 
 
 @declare_unmanaged
@@ -398,67 +356,4 @@ class External:
             if format is None:
                 raise ValueError(f"format {location.suffix} is unknown")
 
-            return format.decode(f, None)
-
-
-class Format:
-
-    suffix: str
-
-    @staticmethod
-    def handle(data):
-        raise NotImplementedError
-
-    @staticmethod
-    def encode(value, file):
-        raise NotImplementedError
-
-    @staticmethod
-    def decode(file, meta):
-        raise NotImplementedError
-
-
-all_formats = []
-
-
-def register_format(cls):
-    all_formats.append(cls)
-    return cls
-
-
-@register_format
-class BinFormat(Format):
-    suffix = ".bin"
-
-    @staticmethod
-    def handle(data):
-        return isinstance(data, bytes)
-
-    @staticmethod
-    def encode(value: bytes, file: typing.BinaryIO):
-        file.write(value)
-
-    @staticmethod
-    def decode(file: typing.BinaryIO, meta) -> bytes:
-        return file.read()
-
-
-@register_format
-class TxtFormat(Format):
-    suffix = ".txt"
-
-    @staticmethod
-    def handle(data):
-        return isinstance(data, str)
-
-    @staticmethod
-    def encode(value: str, file: typing.BinaryIO):
-        file.write(value.encode("utf-8"))
-
-    @staticmethod
-    def decode(file: typing.BinaryIO, meta) -> str:
-        return file.read().decode("utf-8")
-
-
-def txt_like_suffix(suffix):
-    state().format_aliases[suffix] = ".txt"
+            return format.decode(f)
