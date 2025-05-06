@@ -3,10 +3,10 @@ from __future__ import annotations
 import typing
 
 from inline_snapshot._exceptions import UsageError
-from inline_snapshot._global_state import state
 
 
 def get_format_handler(data, suffix: str | None) -> type[Format]:
+    from inline_snapshot._global_state import state
 
     if suffix is not None:
         suffix = state().format_aliases.get(suffix, suffix)
@@ -19,6 +19,8 @@ def get_format_handler(data, suffix: str | None) -> type[Format]:
 
 
 def get_format_handler_from_suffix(suffix: str) -> type[Format] | None:
+    from inline_snapshot._global_state import state
+
     suffix = state().format_aliases.get(suffix, suffix)
 
     for formatter in state().all_formats:
@@ -45,6 +47,8 @@ class Format:
 
 
 def register_format(cls):
+    from inline_snapshot._global_state import state
+
     state().all_formats.append(cls)
     return cls
 
@@ -84,4 +88,6 @@ class TxtFormat(Format):
 
 
 def txt_like_suffix(suffix):
+    from inline_snapshot._global_state import state
+
     state().format_aliases[suffix] = ".txt"

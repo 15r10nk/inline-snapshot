@@ -7,6 +7,8 @@ from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 from typing import Generator
 
+from inline_snapshot._external._format import Format
+
 from ._flags import Flags
 
 if TYPE_CHECKING:
@@ -31,7 +33,7 @@ class State:
 
     format_aliases: dict[str, str] = field(default_factory=dict)
 
-    all_formats: list[type] = field(default_factory=list)
+    all_formats: list[type[Format]] = field(default_factory=list)
 
 
 _latest_global_states: list[State] = []

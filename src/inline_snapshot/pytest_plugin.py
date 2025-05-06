@@ -11,7 +11,9 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
 
+from inline_snapshot._external._external import External
 from inline_snapshot._external._external import HashError
+from inline_snapshot._external._outsource import Outsourced
 from inline_snapshot._unmanaged import Unmanaged
 from inline_snapshot.fix_pytest_diff import fix_pytest_diff
 
@@ -245,7 +247,7 @@ def unwrap(value):
     if isinstance(value, GenericValue):
         return unwrap(value._visible_value())[0], True
 
-    if isinstance(value, (_external.External, _external.Outsourced)):
+    if isinstance(value, (External, Outsourced)):
         try:
             return unwrap(value._load_value())[0], True
         except HashError:
