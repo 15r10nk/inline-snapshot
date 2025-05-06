@@ -2,21 +2,24 @@ from __future__ import annotations
 
 import os
 import platform
+import random
 import re
 import subprocess as sp
 import sys
 import traceback
+import uuid
 from argparse import ArgumentParser
 from io import StringIO
 from pathlib import Path
 from pathlib import PurePosixPath
 from tempfile import TemporaryDirectory
 from typing import Any
+from unittest.mock import patch
 
 from rich.console import Console
 
 from inline_snapshot._exceptions import UsageError
-from inline_snapshot._external import HashStorage
+from inline_snapshot._external._storage import HashStorage
 from inline_snapshot._problems import report_problems
 
 from .._change import apply_all
@@ -104,7 +107,6 @@ class Example:
             filename.write_text(content)
 
     def _read_files(self, dir: Path):
-        storage_dir = dir / ".inline-snapshot"
 
         def try_read(path: Path):
             try:
@@ -117,8 +119,11 @@ class Example:
 
         return {
             normalize_path(p): try_read(p)
-            for p in [*dir.iterdir(), *dir.rglob("*.py"), *storage_dir.rglob("*")]
-            if p.is_file() and p.name != ".gitignore"
+            for p in dir.rglob("*")
+            if p.is_file()
+            and p.name != ".gitignore"
+            and p.suffix != ".pyc"
+            and ".pytest_cache" not in p.parts
         }
 
     def with_files(self, extra_files):
@@ -177,10 +182,19 @@ class Example:
             self._write_files(tmp_path)
 
             raised_exception = []
-            with snapshot_env() as state:
+
+            rd = random.Random(0)
+
+            def deterministic_uuid4():
+                return uuid.UUID(int=rd.getrandbits(128), version=4)
+
+            with snapshot_env() as state, patch("uuid.uuid4", new=deterministic_uuid4):
+
                 recorder = ChangeRecorder()
                 state.update_flags = Flags({*flags})
-                state.storage = HashStorage(tmp_path / ".inline-snapshot" / "external")
+                state.all_storages["hash"] = HashStorage(
+                    tmp_path / ".inline-snapshot" / "external"
+                )
 
                 try:
                     tests_found = False

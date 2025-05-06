@@ -8,11 +8,12 @@ from typing import TYPE_CHECKING
 from typing import Generator
 
 from inline_snapshot._external._format import Format
+from inline_snapshot._external._storage import StorageProtocol
 
 from ._flags import Flags
 
 if TYPE_CHECKING:
-    from ._external import HashStorage
+    pass
 
 
 @dataclass
@@ -26,14 +27,15 @@ class State:
     active: bool = True
     files_with_snapshots: set[str] = field(default_factory=set)
 
-    # external
-    storage: HashStorage | None = None
-
     flags: set[str] = field(default_factory=set)
 
     format_aliases: dict[str, str] = field(default_factory=dict)
 
     all_formats: dict[str, type[Format]] = field(default_factory=dict)
+
+    all_storages: dict[str, StorageProtocol] = field(default_factory=dict)
+
+    default_storage: str = "hash"
 
 
 _latest_global_states: list[State] = []
@@ -61,13 +63,16 @@ def leave_snapshot_context():
 
 @contextlib.contextmanager
 def snapshot_env() -> Generator[State]:
-    from ._external import HashStorage
+    from ._external._storage import HashStorage
+
+    old = _current
 
     enter_snapshot_context()
 
     try:
         with TemporaryDirectory() as dir:
-            _current.storage = HashStorage(dir)
+            _current.all_storages = dict(old.all_storages)
+            _current.all_storages["hash"] = HashStorage(dir)
 
             yield _current
     finally:

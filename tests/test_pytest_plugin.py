@@ -852,12 +852,13 @@ def test_something():
         ["--rootdir", "./project", "--inline-snapshot=create"],
         changed_files=snapshot(
             {
+                "project/.inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt": "test",
                 "project/test_something.py": """\
 from inline_snapshot import outsource,snapshot,external
 
 def test_something():
     assert outsource("test") == snapshot(external("hash:9f*.txt"))
-"""
+""",
             }
         ),
         returncode=1,
