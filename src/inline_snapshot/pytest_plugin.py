@@ -12,15 +12,15 @@ from rich.prompt import Confirm
 from rich.syntax import Syntax
 
 from inline_snapshot._external._external import External
-from inline_snapshot._external._external import HashError
 from inline_snapshot._external._outsource import Outsourced
+from inline_snapshot._external._storage import HashError
+from inline_snapshot._external._storage import HashStorage
 from inline_snapshot._unmanaged import Unmanaged
 from inline_snapshot.fix_pytest_diff import fix_pytest_diff
 
 from . import _config
 from ._change import apply_all
 from ._code_repr import used_hasrepr
-from ._external import _external
 from ._external import _find_external
 from ._external._find_external import ensure_import
 from ._flags import Flags
@@ -184,7 +184,7 @@ def pytest_configure(config):
         _config.config.storage_dir or config.rootpath / ".inline-snapshot"
     ) / "external"
 
-    state().storage = _external.DiscStorage(external_storage)
+    state().storage = HashStorage(external_storage)
 
     if flags - {"short-report", "disable"} and not is_pytest_compatible():
 

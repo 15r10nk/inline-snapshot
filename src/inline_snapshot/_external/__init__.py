@@ -1,5 +1,5 @@
-from ._external import DiscStorage
 from ._external import external
 from ._outsource import outsource
+from ._storage import HashStorage
 
-__all__ = ("external", "outsource", "DiscStorage")
+__all__ = ("external", "outsource", "HashStorage")
