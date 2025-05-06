@@ -108,12 +108,15 @@ class Example:
 
         def try_read(path: Path):
             try:
-                return path.read_text()
+                return path.read_text("utf-8")
             except UnicodeDecodeError:
                 return path.read_bytes()
 
+        def normalize_path(path):
+            return str(path.relative_to(dir)).replace("\\", "/")
+
         return {
-            str(p.relative_to(dir)): try_read(p)
+            normalize_path(p): try_read(p)
             for p in [*dir.iterdir(), *dir.rglob("*.py"), *storage_dir.rglob("*")]
             if p.is_file() and p.name != ".gitignore"
         }
