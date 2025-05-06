@@ -12,7 +12,7 @@ def get_format_handler(data, suffix: str | None) -> type[Format]:
     if suffix is not None:
         suffix = state().format_aliases.get(suffix, suffix)
 
-    for formatter in state().all_formats:
+    for formatter in state().all_formats.values():
         if formatter.handle(data) and (
             suffix == formatter.suffix
             if formatter.suffix_required
@@ -28,10 +28,7 @@ def get_format_handler_from_suffix(suffix: str) -> type[Format] | None:
 
     suffix = state().format_aliases.get(suffix, suffix)
 
-    for formatter in state().all_formats:
-        if formatter.suffix == suffix:
-            return formatter
-    return None
+    return state().all_formats.get(suffix, None)
 
 
 class Format:
@@ -55,7 +52,7 @@ class Format:
 def register_format(cls):
     from inline_snapshot._global_state import state
 
-    state().all_formats.append(cls)
+    state().all_formats[cls.suffix] = cls
     return cls
 
 
@@ -140,7 +137,7 @@ class PickleFormat(Format):
         return pickle.load(file)
 
 
-def txt_like_suffix(suffix):
+def register_format_alias(suffix, format_suffix):
     from inline_snapshot._global_state import state
 
-    state().format_aliases[suffix] = ".txt"
+    state().format_aliases[suffix] = format_suffix
