@@ -246,12 +246,11 @@ def external(name: str | None = None):
 
 def get_format_handler(data, suffix: str | None) -> type[Format]:
 
+    if suffix is not None:
+        suffix = state().format_aliases.get(suffix, suffix)
+
     for formatter in all_formats:
-        if formatter.handle(data) and (
-            suffix == formatter.suffix
-            if formatter.suffix_required
-            else (suffix is None or suffix == formatter.suffix)
-        ):
+        if formatter.handle(data) and (suffix is None or suffix == formatter.suffix):
             return formatter
     else:
         raise UsageError("data has to be of type bytes | str")
@@ -260,6 +259,8 @@ def get_format_handler(data, suffix: str | None) -> type[Format]:
 
 
 def get_format_handler_from_suffix(suffix: str) -> type[Format] | None:
+    suffix = state().format_aliases.get(suffix, suffix)
+
     for formatter in all_formats:
         if formatter.suffix == suffix:
             return formatter
@@ -341,7 +342,8 @@ class External:
     def _assign(self, other):
         format = get_format_handler(other, self._location.suffix)
 
-        self._location.suffix = format.suffix
+        if self._location.suffix is None:
+            self._location.suffix = format.suffix
 
         storage = state().storage
         with storage.store(self._location) as f:
@@ -401,9 +403,7 @@ class External:
 
 class Format:
 
-    suffix: str | None
-
-    suffix_required = False
+    suffix: str
 
     @staticmethod
     def handle(data):
@@ -461,21 +461,4 @@ class TxtFormat(Format):
 
 
 def txt_like_suffix(suffix):
-    @register_format
-    class NewFormat(Format):
-
-        suffix_required = True
-
-        @staticmethod
-        def handle(data):
-            return isinstance(data, str)
-
-        @staticmethod
-        def encode(value: str, file: typing.BinaryIO):
-            file.write(value.encode("utf-8"))
-
-        @staticmethod
-        def decode(file: typing.BinaryIO, meta) -> str:
-            return file.read().decode("utf-8")
-
-    NewFormat.suffix = suffix
+    state().format_aliases[suffix] = ".txt"

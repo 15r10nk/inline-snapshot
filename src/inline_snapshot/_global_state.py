@@ -29,6 +29,8 @@ class State:
 
     flags: set[str] = field(default_factory=set)
 
+    format_aliases: dict[str, str] = field(default_factory=dict)
+
 
 _latest_global_states: list[State] = []
 
