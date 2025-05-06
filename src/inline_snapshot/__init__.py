@@ -2,7 +2,7 @@ from ._code_repr import HasRepr
 from ._code_repr import customize_repr
 from ._exceptions import UsageError
 from ._external import external
-from ._external._format import txt_like_suffix
+from ._external._format import register_format_alias
 from ._external._outsource import outsource
 from ._inline_snapshot import snapshot
 from ._is import Is
@@ -19,7 +19,7 @@ __all__ = [
     "Category",
     "Snapshot",
     "UsageError",
-    "txt_like_suffix",
+    "register_format_alias",
 ]
 
 __version__ = "0.23.0"

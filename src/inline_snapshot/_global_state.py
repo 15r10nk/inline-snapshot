@@ -33,7 +33,7 @@ class State:
 
     format_aliases: dict[str, str] = field(default_factory=dict)
 
-    all_formats: list[type[Format]] = field(default_factory=list)
+    all_formats: dict[str, type[Format]] = field(default_factory=dict)
 
 
 _latest_global_states: list[State] = []
@@ -51,7 +51,7 @@ def enter_snapshot_context():
     global _current
     _latest_global_states.append(_current)
     _current = State()
-    _current.all_formats = list(_latest_global_states[-1].all_formats)
+    _current.all_formats = dict(_latest_global_states[-1].all_formats)
 
 
 def leave_snapshot_context():
