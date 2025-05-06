@@ -55,9 +55,9 @@ def test_outsource():
 
     Example(
         """\
-from inline_snapshot import outsource, snapshot,external,txt_like_suffix
+from inline_snapshot import outsource, snapshot,external,register_format_alias
 
-txt_like_suffix(".log")
+register_format_alias(".log",".txt")
 
 def test_a():
     assert outsource("test") == external()
@@ -74,9 +74,9 @@ def test_a():
                 ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.log": "test",
                 ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt": "test",
                 "test_something.py": """\
-from inline_snapshot import outsource, snapshot,external,txt_like_suffix
+from inline_snapshot import outsource, snapshot,external,register_format_alias
 
-txt_like_suffix(".log")
+register_format_alias(".log",".txt")
 
 def test_a():
     assert outsource("test") == external("hash:9f86d081884c*.txt")
