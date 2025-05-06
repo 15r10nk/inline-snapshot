@@ -4,10 +4,10 @@ from typing import Set
 
 from executing import Source
 
-from ._global_state import state
-from ._rewrite_code import ChangeRecorder
-from ._rewrite_code import end_of
-from ._rewrite_code import start_of
+from .._global_state import state
+from .._rewrite_code import ChangeRecorder
+from .._rewrite_code import end_of
+from .._rewrite_code import start_of
 
 
 def contains_import(tree, module, name):
@@ -44,10 +44,18 @@ def used_externals_in(source) -> Set[str]:
     }
 
 
+def removeprefix(s: str, prefix: str):
+    if s.startswith(prefix):
+        return s[len(prefix) :]
+    return s
+
+
 def used_externals() -> Set[str]:
     result = set()
     for filename in state().files_with_snapshots:
         result |= used_externals_in(pathlib.Path(filename).read_text("utf-8"))
+
+    result = {removeprefix(s, "hash:") for s in result}
 
     return result
 

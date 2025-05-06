@@ -3,13 +3,16 @@ from __future__ import annotations
 import contextlib
 from dataclasses import dataclass
 from dataclasses import field
+from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 from typing import Generator
+
+from inline_snapshot._external._format import Format
 
 from ._flags import Flags
 
 if TYPE_CHECKING:
-    from ._external import DiscStorage
+    from ._external import HashStorage
 
 
 @dataclass
@@ -24,9 +27,13 @@ class State:
     files_with_snapshots: set[str] = field(default_factory=set)
 
     # external
-    storage: DiscStorage | None = None
+    storage: HashStorage | None = None
 
     flags: set[str] = field(default_factory=set)
+
+    format_aliases: dict[str, str] = field(default_factory=dict)
+
+    all_formats: dict[str, type[Format]] = field(default_factory=dict)
 
 
 _latest_global_states: list[State] = []
@@ -44,6 +51,7 @@ def enter_snapshot_context():
     global _current
     _latest_global_states.append(_current)
     _current = State()
+    _current.all_formats = dict(_latest_global_states[-1].all_formats)
 
 
 def leave_snapshot_context():
@@ -53,10 +61,14 @@ def leave_snapshot_context():
 
 @contextlib.contextmanager
 def snapshot_env() -> Generator[State]:
+    from ._external import HashStorage
 
     enter_snapshot_context()
 
     try:
-        yield _current
+        with TemporaryDirectory() as dir:
+            _current.storage = HashStorage(dir)
+
+            yield _current
     finally:
         leave_snapshot_context()

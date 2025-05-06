@@ -16,7 +16,7 @@ from typing import Any
 from rich.console import Console
 
 from inline_snapshot._exceptions import UsageError
-from inline_snapshot._external import DiscStorage
+from inline_snapshot._external import HashStorage
 from inline_snapshot._problems import report_problems
 
 from .._change import apply_all
@@ -106,19 +106,26 @@ class Example:
     def _read_files(self, dir: Path):
         storage_dir = dir / ".inline-snapshot"
 
+        def try_read(path: Path):
+            try:
+                return path.read_text("utf-8")
+            except UnicodeDecodeError:
+                return path.read_bytes()
+
+        def normalize_path(path):
+            return str(path.relative_to(dir)).replace("\\", "/")
+
         return {
-            str(p.relative_to(dir)): p.read_text()
+            normalize_path(p): try_read(p)
             for p in [*dir.iterdir(), *dir.rglob("*.py"), *storage_dir.rglob("*")]
-            if p.is_file()
+            if p.is_file() and p.name != ".gitignore"
         }
 
     def with_files(self, extra_files):
         return Example(self.files | extra_files)
 
-    def code_change(self, src, dest):
-        return Example(
-            {name: file.replace(src, dest) for name, file in self.files.items()}
-        )
+    def change_code(self, func):
+        return Example({name: func(text) for name, text in self.files.items()})
 
     def run_inline(
         self,
@@ -173,12 +180,13 @@ class Example:
             with snapshot_env() as state:
                 recorder = ChangeRecorder()
                 state.update_flags = Flags({*flags})
-                state.storage = DiscStorage(tmp_path / ".storage")
+                state.storage = HashStorage(tmp_path / ".inline-snapshot" / "external")
+
                 try:
                     tests_found = False
                     for filename in tmp_path.glob("*.py"):
                         globals: dict[str, Any] = {}
-                        print("run> pytest", filename)
+                        print("run> pytest-inline", filename)
                         exec(
                             compile(filename.read_text("utf-8"), filename, "exec"),
                             globals,

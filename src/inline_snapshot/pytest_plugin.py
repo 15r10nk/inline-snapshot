@@ -11,14 +11,18 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
 
+from inline_snapshot._external._external import External
+from inline_snapshot._external._outsource import Outsourced
+from inline_snapshot._external._storage import HashError
+from inline_snapshot._external._storage import HashStorage
+from inline_snapshot._unmanaged import Unmanaged
 from inline_snapshot.fix_pytest_diff import fix_pytest_diff
 
 from . import _config
-from . import _external
-from . import _find_external
 from ._change import apply_all
 from ._code_repr import used_hasrepr
-from ._find_external import ensure_import
+from ._external import _find_external
+from ._external._find_external import ensure_import
 from ._flags import Flags
 from ._global_state import enter_snapshot_context
 from ._global_state import leave_snapshot_context
@@ -180,7 +184,7 @@ def pytest_configure(config):
         _config.config.storage_dir or config.rootpath / ".inline-snapshot"
     ) / "external"
 
-    state().storage = _external.DiscStorage(external_storage)
+    state().storage = HashStorage(external_storage)
 
     if flags - {"short-report", "disable"} and not is_pytest_compatible():
 
@@ -239,35 +243,29 @@ def snapshot_check(request):
         )
 
 
+def unwrap(value):
+    if isinstance(value, GenericValue):
+        return unwrap(value._visible_value())[0], True
+
+    if isinstance(value, (External, Outsourced)):
+        try:
+            return unwrap(value._load_value())[0], True
+        except HashError:
+            return (None, False)
+
+    if isinstance(value, Unmanaged):
+        return unwrap(value.value)[0], True
+
+    return value, False
+
+
 def pytest_assertrepr_compare(config, op, left, right):
 
     results = []
-    if isinstance(left, GenericValue):
-        results = config.hook.pytest_assertrepr_compare(
-            config=config, op=op, left=left._visible_value(), right=right
-        )
+    left, left_unwrapped = unwrap(left)
+    right, right_unwrapped = unwrap(right)
 
-    if isinstance(right, GenericValue):
-        results = config.hook.pytest_assertrepr_compare(
-            config=config, op=op, left=left, right=right._visible_value()
-        )
-
-    external_used = False
-    if isinstance(right, _external.external):
-        external_used = True
-        if right._suffix == ".txt":
-            right = right._load_value().decode()
-        else:
-            right = right._load_value()
-
-    if isinstance(left, _external.external):
-        external_used = True
-        if left._suffix == ".txt":
-            left = left._load_value().decode()
-        else:
-            left = left._load_value()
-
-    if external_used:
+    if left_unwrapped or right_unwrapped:
         results = config.hook.pytest_assertrepr_compare(
             config=config, op=op, left=left, right=right
         )
@@ -467,7 +465,9 @@ def pytest_sessionfinish(session, exitstatus):
                         name = file.filename.relative_to(Path.cwd())
                         console().print(
                             Panel(
-                                Syntax(diff, "diff", theme="ansi_light"),
+                                Syntax(
+                                    diff, "diff", theme="ansi_light", word_wrap=True
+                                ),
                                 title=str(name),
                                 box=(
                                     box.ASCII
@@ -507,7 +507,13 @@ def pytest_sessionfinish(session, exitstatus):
                         )
 
                     for external_name in used:
-                        state().storage.persist(external_name)
+                        if ":" in external_name:
+                            storage, path = external_name.split(":", 1)
+
+                            assert storage == "hash"
+                        else:
+                            path = external_name
+                        state().storage.persist(path)
 
                 cr.fix_all()
 
