@@ -2,13 +2,10 @@ from __future__ import annotations
 
 import ast
 import hashlib
-import re
 import shutil
 import typing
 from contextlib import contextmanager
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 from typing import Generator
 from uuid import uuid4
 
@@ -17,97 +14,18 @@ from inline_snapshot._change import CallArg
 from inline_snapshot._change import Replace
 from inline_snapshot._external._format import get_format_handler
 from inline_snapshot._external._format import get_format_handler_from_suffix
+from inline_snapshot._external._outsource import Outsourced
 from inline_snapshot._global_state import state
 from inline_snapshot._inline_snapshot import create_snapshot
 from inline_snapshot._unmanaged import declare_unmanaged
 
 from .. import _config
 from .._snapshot.generic_value import GenericValue
+from ._external_location import ExternalLocation
 
 
 class HashError(Exception):
     pass
-
-
-@dataclass()
-class ExternalLocation:
-    storage: str | None
-    stem: str | None
-    suffix: str | None
-
-    @classmethod
-    def from_name(cls, name: str | None):
-        if name is None:
-            return cls(None, None, None)
-
-        m = re.fullmatch(r"([0-9a-fA-F]*)\*?(\.[a-zA-Z0-9]*)", name)
-
-        if m:
-            storage = "hash"
-            path = name
-        elif ":" in name:
-            storage, path = name.split(":", 1)
-        else:
-            raise ValueError(
-                "path has to be of the form <hash>.<suffix> or <partial_hash>*.<suffix>"
-            )
-        if "." in path:
-            stem, suffix = path.split(".", 1)
-            suffix = "." + suffix
-        else:
-            stem = path
-            suffix = None
-
-        return cls(storage, stem, suffix)
-
-    @property
-    def path(self) -> str:
-        return f"{self.stem}{self.suffix or ''}"
-
-    def to_str(self) -> str:
-        return f"{self.storage}:{self.path}"
-
-
-class Outsourced:
-    def __init__(self, data: Any, suffix: str | None):
-        self.data = data
-        self._location = ExternalLocation("hash", None, suffix)
-
-        format = get_format_handler(data, self._location.suffix)
-        if suffix is None:
-            suffix = format.suffix
-        self._location.suffix = suffix
-
-        storage = state().storage
-        assert storage
-
-        with storage.store(self._location) as f:
-            format.encode(data, f)
-
-    def __eq__(self, other):
-        if isinstance(other, GenericValue):
-            return NotImplemented
-
-        if isinstance(other, Outsourced):
-            return self.data == other.data
-
-        return NotImplemented
-
-    def __repr__(self) -> str:
-        return f'external("{self._location.to_str()}")'
-
-    def _load_value(self) -> Any:
-        return self.data
-
-
-def outsource(data, suffix: str | None = None):
-    if suffix and suffix[0] != ".":
-        raise ValueError("suffix has to start with a '.' like '.png'")
-
-    if not state().active:
-        return data
-
-    return Outsourced(data, suffix)
 
 
 class Protocol:
