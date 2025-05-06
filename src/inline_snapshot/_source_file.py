@@ -19,8 +19,12 @@ class SourceFile:
         self._source = source
 
     @property
-    def filename(self):
+    def filename(self) -> str:
         return self._source.filename
+
+    @property
+    def path(self) -> Path:
+        return Path(self._source.filename)
 
     def _format(self, text):
         if self._source is None or enforce_formatting():

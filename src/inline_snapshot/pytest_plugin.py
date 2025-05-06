@@ -14,7 +14,7 @@ from rich.syntax import Syntax
 from inline_snapshot._external._external import External
 from inline_snapshot._external._outsource import Outsourced
 from inline_snapshot._external._storage import HashError
-from inline_snapshot._external._storage import HashStorage
+from inline_snapshot._external._storage import default_storages
 from inline_snapshot._unmanaged import Unmanaged
 from inline_snapshot.fix_pytest_diff import fix_pytest_diff
 
@@ -180,11 +180,9 @@ def pytest_configure(config):
 
         state().update_flags = Flags(flags & categories)
 
-    external_storage = (
-        _config.config.storage_dir or config.rootpath / ".inline-snapshot"
-    ) / "external"
+    storage_dir = _config.config.storage_dir or config.rootpath / ".inline-snapshot"
 
-    state().storage = HashStorage(external_storage)
+    state().all_storages = default_storages(storage_dir)
 
     if flags - {"short-report", "disable"} and not is_pytest_compatible():
 
@@ -198,7 +196,8 @@ def pytest_configure(config):
 
     fix_pytest_diff()
 
-    state().storage.prune_new_files()
+    for storage in state().all_storages.values():
+        storage.cleanup()
 
 
 def is_xfail(request):
@@ -510,20 +509,23 @@ def pytest_sessionfinish(session, exitstatus):
                         if ":" in external_name:
                             storage, path = external_name.split(":", 1)
 
-                            assert storage == "hash"
                         else:
                             path = external_name
-                        state().storage.persist(path)
+                            storage = "hash"
+
+                        state().all_storages[storage].persist(path)
 
                 cr.fix_all()
 
-            unused_externals = _find_external.unused_externals()
+            used_externals2 = _find_external.used_externals2()
 
-            if unused_externals and state().update_flags.trim:
-                for name in unused_externals:
-                    assert state().storage
-                    state().storage.remove(name)
-                console().print(f"removed {len(unused_externals)} unused externals\n")
+            if state().update_flags.trim:
+                for name, storage in state().all_storages.items():
+                    num = storage.remove_unused(
+                        [e for e in used_externals2 if e.storage == name]
+                    )
+                    if num:
+                        console().print(f"removed {num} unused externals\n")
         finally:
             capture.resume_global_capture()
 

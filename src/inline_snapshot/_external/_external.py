@@ -34,6 +34,7 @@ class External:
         Parameters:
             name: the name of the external stored object.
         """
+
         self._expr = expr
         self._context = context
         self._original_name = name
@@ -47,8 +48,8 @@ class External:
         return self
 
     @classmethod
-    def create_raw(cls, obj):
-        return cls._load_value_from_location(ExternalLocation.from_name(obj))
+    def create_raw(cls, obj, context: AdapterContext):
+        return cls._load_value_from_location(ExternalLocation.from_name(obj), context)
 
     def _changes(self):
         if self._expr is None:
@@ -97,14 +98,19 @@ class External:
 
         return f'external("{self._location.to_str()}")'
 
+    @property
+    def storage(self):
+        storage_name = self._location.storage or state().default_storage
+
+        return state().all_storages[storage_name]
+
     def _assign(self, other):
         format = get_format_handler(other, self._location.suffix)
 
         if self._location.suffix is None:
             self._location.suffix = format.suffix
 
-        storage = state().storage
-        with storage.store(self._location) as f:
+        with self.storage.store(self._location, self._context) as f:
             format.encode(other, f)
         self._value_changed = True
 
@@ -144,14 +150,13 @@ class External:
         return result
 
     def _load_value(self):
-        return self._load_value_from_location(self._location)
+        return self._load_value_from_location(self._location, self._context)
 
     @classmethod
-    def _load_value_from_location(cls, location):
-        storage = state().storage
-        assert storage is not None
+    def _load_value_from_location(cls, location, context: AdapterContext):
+        storage = state().all_storages[location.storage]
 
-        with storage.load(location) as f:
+        with storage.load(location, context) as f:
             format = get_format_handler_from_suffix(location.suffix)
             if format is None:
                 raise ValueError(f"format {location.suffix} is unknown")

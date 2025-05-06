@@ -19,10 +19,10 @@ class Outsourced:
             suffix = format.suffix
         self._location.suffix = suffix
 
-        storage = state().storage
+        storage = state().all_storages["hash"]
         assert storage
 
-        with storage.store(self._location) as f:
+        with storage.store(self._location, None) as f:  # type:ignore
             format.encode(data, f)
 
     def __eq__(self, other):
