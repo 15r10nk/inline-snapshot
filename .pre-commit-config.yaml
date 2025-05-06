@@ -73,7 +73,7 @@ repos:
     stages:
     - commit-msg
   repo: https://github.com/commitizen-tools/commitizen
-  rev: v4.5.0
+  rev: v4.6.1
 
 
 # - repo: https://github.com/PyCQA/docformatter
