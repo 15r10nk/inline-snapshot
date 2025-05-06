@@ -106,8 +106,14 @@ class Example:
     def _read_files(self, dir: Path):
         storage_dir = dir / ".inline-snapshot"
 
+        def try_read(path: Path):
+            try:
+                return path.read_text()
+            except UnicodeDecodeError:
+                return path.read_bytes()
+
         return {
-            str(p.relative_to(dir)): p.read_text()
+            str(p.relative_to(dir)): try_read(p)
             for p in [*dir.iterdir(), *dir.rglob("*.py"), *storage_dir.rglob("*")]
             if p.is_file() and p.name != ".gitignore"
         }
@@ -171,13 +177,13 @@ class Example:
             with snapshot_env() as state:
                 recorder = ChangeRecorder()
                 state.update_flags = Flags({*flags})
-                state.storage = DiscStorage(tmp_path / ".storage")
+                state.storage = DiscStorage(tmp_path / ".inline-snapshot" / "external")
 
                 try:
                     tests_found = False
                     for filename in tmp_path.glob("*.py"):
                         globals: dict[str, Any] = {}
-                        print("run> pytest", filename)
+                        print("run> pytest-inline", filename)
                         exec(
                             compile(filename.read_text("utf-8"), filename, "exec"),
                             globals,

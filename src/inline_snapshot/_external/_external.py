@@ -162,6 +162,7 @@ class External:
         self._original_name = name
 
         self._location = ExternalLocation.from_name(name)
+        self._original_location = ExternalLocation.from_name(name)
 
         self._value_changed = False
 
@@ -195,7 +196,11 @@ class External:
             else:
                 return [
                     Replace(
-                        "fix" if self._value_changed else "update",
+                        (
+                            ("fix" if self._original_location.stem else "create")
+                            if self._value_changed
+                            else "update"
+                        ),
                         self._context.file,
                         node.args[0] if node else None,
                         f'"{new_name}"',
@@ -233,7 +238,7 @@ class External:
             self._location.suffix = other._location.suffix
             other = other.data
 
-        if self._location.stem is None:
+        if not self._original_location.stem:
             if state().update_flags.create:
                 self._assign(other)
                 state().missing_values += 1
