@@ -106,7 +106,7 @@ class JsonFormat(Format):
     def encode(value: object, file: typing.BinaryIO):
         import json
 
-        text = TextIOWrapper(file, encoding="utf-8")
+        text = TextIOWrapper(file, encoding="utf-8", newline="\n")
         json.dump(value, text, indent=2)  # type: ignore
 
     @staticmethod
