@@ -1,6 +1,6 @@
 import pytest
 
-from inline_snapshot._external import DiscStorage
+from inline_snapshot._external import HashStorage
 from tests.utils import snapshot_env
 from tests.utils import useStorage
 
@@ -9,7 +9,7 @@ from tests.utils import useStorage
 def snapshot_env_for_doctest(request, tmp_path):
     if hasattr(request.node, "dtest"):
         with snapshot_env():
-            storage = DiscStorage(tmp_path / ".storage")
+            storage = HashStorage(tmp_path / ".storage")
             with useStorage(storage):
                 yield
     else:

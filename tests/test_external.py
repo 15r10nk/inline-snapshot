@@ -108,7 +108,7 @@ def test_diskstorage():
             assert outsource("test4") == external("hash:a*.txt")
 
         with raises(
-            snapshot("HashError: hash 'bbbbb*.txt' is not found in the DiscStorage")
+            snapshot("HashError: hash 'bbbbb*.txt' is not found in the HashStorage")
         ):
             assert outsource("test4") == external("hash:bbbbb*.txt")
 
@@ -554,8 +554,8 @@ def test_something():
         error=snapshot(
             """\
 >       assert "foo" == external("hash:aaaaaaaaaaaa*.txt")
->           raise HashError(f"hash {name!r} is not found in the DiscStorage")
-E           inline_snapshot._external._external.HashError: hash 'aaaaaaaaaaaa*.txt' is not found in the DiscStorage
+>           raise HashError(f"hash {name!r} is not found in the HashStorage")
+E           inline_snapshot._external._storage.HashError: hash 'aaaaaaaaaaaa*.txt' is not found in the HashStorage
 """
         ),
         returncode=1,

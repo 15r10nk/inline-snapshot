@@ -4,7 +4,7 @@ from contextlib import contextmanager
 import pytest
 
 import inline_snapshot._config as _config
-from inline_snapshot._external._external import DiscStorage
+from inline_snapshot._external._storage import HashStorage
 from inline_snapshot._global_state import state
 from inline_snapshot._rewrite_code import ChangeRecorder
 from inline_snapshot.testing._example import snapshot_env
@@ -40,6 +40,6 @@ def useStorage(storage):
 
 @pytest.fixture()
 def storage(tmp_path):
-    storage = DiscStorage(tmp_path / ".storage")
+    storage = HashStorage(tmp_path / ".storage")
     with useStorage(storage):
         yield storage
