@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+from io import TextIOWrapper
 
 from inline_snapshot._exceptions import UsageError
 
@@ -12,7 +13,11 @@ def get_format_handler(data, suffix: str | None) -> type[Format]:
         suffix = state().format_aliases.get(suffix, suffix)
 
     for formatter in state().all_formats:
-        if formatter.handle(data) and (suffix is None or suffix == formatter.suffix):
+        if formatter.handle(data) and (
+            suffix == formatter.suffix
+            if formatter.suffix_required
+            else (suffix is None or suffix == formatter.suffix)
+        ):
             return formatter
     else:
         raise UsageError("data has to be of type bytes | str")
@@ -32,6 +37,7 @@ def get_format_handler_from_suffix(suffix: str) -> type[Format] | None:
 class Format:
 
     suffix: str
+    suffix_required = False
 
     @staticmethod
     def handle(data):
@@ -85,6 +91,53 @@ class TxtFormat(Format):
     @staticmethod
     def decode(file: typing.BinaryIO) -> str:
         return file.read().decode("utf-8")
+
+
+@register_format
+class JsonFormat(Format):
+    suffix = ".json"
+    suffix_required = True
+
+    @staticmethod
+    def handle(data):
+        return True
+
+    @staticmethod
+    def encode(value: object, file: typing.BinaryIO):
+        import json
+
+        text = TextIOWrapper(file, encoding="utf-8")
+        json.dump(value, text, indent=2)  # type: ignore
+
+    @staticmethod
+    def decode(file: typing.BinaryIO) -> str:
+        import json
+
+        text = TextIOWrapper(file, encoding="utf-8")
+
+        return json.load(text)
+
+
+@register_format
+class PickleFormat(Format):
+    suffix = ".pickle"
+    suffix_required = True
+
+    @staticmethod
+    def handle(data):
+        return True
+
+    @staticmethod
+    def encode(value: object, file: typing.BinaryIO):
+        import pickle
+
+        pickle.dump(value, file, protocol=5)
+
+    @staticmethod
+    def decode(file: typing.BinaryIO) -> typing.Any:
+        import pickle
+
+        return pickle.load(file)
 
 
 def txt_like_suffix(suffix):
