@@ -1,8 +1,11 @@
 import ast
 import pathlib
+from typing import List
 from typing import Set
 
 from executing import Source
+
+from inline_snapshot._external._external_location import ExternalLocation
 
 from .._global_state import state
 from .._rewrite_code import ChangeRecorder
@@ -60,14 +63,17 @@ def used_externals() -> Set[str]:
     return result
 
 
-def unused_externals() -> Set[str]:
-    storage = state().storage
-    assert storage is not None
-    unused_externals = storage.list()
-    for name in used_externals():
-        unused_externals -= storage.lookup_all(name)
+def used_externals2() -> List[ExternalLocation]:
+    result = list()
 
-    return unused_externals
+    for filename in state().files_with_snapshots:
+        for name in used_externals_in(pathlib.Path(filename).read_text("utf-8")):
+            try:
+                result.append(ExternalLocation.from_name(name))
+            except ValueError:
+                pass
+
+    return result
 
 
 def ensure_import(filename, imports, recorder: ChangeRecorder):

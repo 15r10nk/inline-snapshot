@@ -36,14 +36,6 @@ def repr_wrapper(func: _T) -> _T:
 
 def create_snapshot(Type, obj, extra_frames=0):
 
-    if not state().active:
-        if obj is undefined:
-            raise AssertionError(
-                "your snapshot is missing a value run pytest with --inline-snapshot=create"
-            )
-        else:
-            return Type.create_raw(obj)
-
     frame = inspect.currentframe()
     assert frame is not None
     frame = frame.f_back
@@ -61,7 +53,16 @@ def create_snapshot(Type, obj, extra_frames=0):
     context = AdapterContext(
         file=SourceFile(source),
         frame=FrameContext(globals=frame.f_globals, locals=frame.f_locals),
+        qualname=expr.code_qualname(),
     )
+
+    if not state().active:
+        if obj is undefined:
+            raise AssertionError(
+                "your snapshot is missing a value run pytest with --inline-snapshot=create"
+            )
+        else:
+            return Type.create_raw(obj, context)
 
     module = inspect.getmodule(frame)
     if module is not None and module.__file__ is not None:
@@ -131,7 +132,7 @@ class SnapshotReference:
         return self._value
 
     @staticmethod
-    def create_raw(obj):
+    def create_raw(obj, context: AdapterContext):
         return obj
 
     def _changes(self):

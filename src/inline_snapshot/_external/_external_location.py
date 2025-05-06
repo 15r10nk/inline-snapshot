@@ -30,6 +30,7 @@ class ExternalLocation:
             raise ValueError(
                 "path has to be of the form <hash>.<suffix> or <partial_hash>*.<suffix>"
             )
+
         if "." in path:
             stem, suffix = path.split(".", 1)
             suffix = "." + suffix
