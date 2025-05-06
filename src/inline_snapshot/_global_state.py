@@ -12,7 +12,7 @@ from inline_snapshot._external._format import Format
 from ._flags import Flags
 
 if TYPE_CHECKING:
-    from ._external import DiscStorage
+    from ._external import HashStorage
 
 
 @dataclass
@@ -27,7 +27,7 @@ class State:
     files_with_snapshots: set[str] = field(default_factory=set)
 
     # external
-    storage: DiscStorage | None = None
+    storage: HashStorage | None = None
 
     flags: set[str] = field(default_factory=set)
 
@@ -61,13 +61,13 @@ def leave_snapshot_context():
 
 @contextlib.contextmanager
 def snapshot_env() -> Generator[State]:
-    from ._external import DiscStorage
+    from ._external import HashStorage
 
     enter_snapshot_context()
 
     try:
         with TemporaryDirectory() as dir:
-            _current.storage = DiscStorage(dir)
+            _current.storage = HashStorage(dir)
 
             yield _current
     finally:

@@ -16,7 +16,7 @@ from typing import Any
 from rich.console import Console
 
 from inline_snapshot._exceptions import UsageError
-from inline_snapshot._external import DiscStorage
+from inline_snapshot._external import HashStorage
 from inline_snapshot._problems import report_problems
 
 from .._change import apply_all
@@ -177,7 +177,7 @@ class Example:
             with snapshot_env() as state:
                 recorder = ChangeRecorder()
                 state.update_flags = Flags({*flags})
-                state.storage = DiscStorage(tmp_path / ".inline-snapshot" / "external")
+                state.storage = HashStorage(tmp_path / ".inline-snapshot" / "external")
 
                 try:
                     tests_found = False
