@@ -23,13 +23,13 @@ class StorageProtocol:
     @contextmanager
     def load(
         self, location: ExternalLocation, context: AdapterContext
-    ) -> Generator[typing.BinaryIO]:
+    ) -> Generator[Path]:
         raise NotImplementedError
 
     @contextmanager
     def store(
         self, location: ExternalLocation, context: AdapterContext
-    ) -> Generator[typing.BinaryIO]:
+    ) -> Generator[Path]:
         raise NotImplementedError
 
     def cleanup(self):
@@ -46,22 +46,20 @@ class UuidStorage(StorageProtocol):
     @contextmanager
     def load(
         self, location: ExternalLocation, context: AdapterContext
-    ) -> Generator[typing.BinaryIO]:
+    ) -> Generator[Path]:
         snapshot_path = self._get_path(location, context)
 
-        with snapshot_path.open("rb") as f:
-            yield f
+        yield snapshot_path
 
     @contextmanager
     def store(
         self, location: ExternalLocation, context: AdapterContext
-    ) -> Generator[typing.BinaryIO]:
+    ) -> Generator[Path]:
         snapshot_path = self._get_path(location, context)
 
         snapshot_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with snapshot_path.open("wb") as f:
-            yield f
+        yield snapshot_path
 
     def _get_path(self, location: ExternalLocation, context: AdapterContext) -> Path:
 
@@ -110,21 +108,19 @@ class HashStorage(StorageProtocol):
     @contextmanager
     def load(
         self, location: ExternalLocation, context: AdapterContext
-    ) -> Generator[typing.BinaryIO]:
+    ) -> Generator[Path]:
         path = self._lookup_path(location.path)
-        with path.open("rb") as f:
-            yield f
+        yield path
 
     @contextmanager
     def store(
         self, location: ExternalLocation, context: AdapterContext
-    ) -> Generator[typing.BinaryIO]:
+    ) -> Generator[Path]:
         self._ensure_directory()
 
         tmp_name = self.directory / str(uuid.uuid4())
 
-        with tmp_name.open("wb") as f:
-            yield f
+        yield tmp_name
 
         with tmp_name.open("rb") as f:
             hash_name = file_digest(f, "sha256").hexdigest()

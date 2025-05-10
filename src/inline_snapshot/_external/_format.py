@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from io import TextIOWrapper
+from pathlib import Path
 
 from inline_snapshot._exceptions import UsageError
 
@@ -41,11 +41,11 @@ class Format:
         raise NotImplementedError
 
     @staticmethod
-    def encode(value, file):
+    def encode(value, path: Path):
         raise NotImplementedError
 
     @staticmethod
-    def decode(file):
+    def decode(path: Path):
         raise NotImplementedError
 
 
@@ -65,12 +65,12 @@ class BinFormat(Format):
         return isinstance(data, bytes)
 
     @staticmethod
-    def encode(value: bytes, file: typing.BinaryIO):
-        file.write(value)
+    def encode(value: bytes, path: Path):
+        path.write_bytes(value)
 
     @staticmethod
-    def decode(file: typing.BinaryIO) -> bytes:
-        return file.read()
+    def decode(path: Path) -> bytes:
+        return path.read_bytes()
 
 
 @register_format
@@ -82,12 +82,12 @@ class TxtFormat(Format):
         return isinstance(data, str)
 
     @staticmethod
-    def encode(value: str, file: typing.BinaryIO):
-        file.write(value.encode("utf-8"))
+    def encode(value: str, path: Path):
+        path.write_text(value, encoding="utf-8")
 
     @staticmethod
-    def decode(file: typing.BinaryIO) -> str:
-        return file.read().decode("utf-8")
+    def decode(path: Path) -> str:
+        return path.read_text(encoding="utf-8")
 
 
 @register_format
@@ -100,19 +100,18 @@ class JsonFormat(Format):
         return True
 
     @staticmethod
-    def encode(value: object, file: typing.BinaryIO):
+    def encode(value: object, path: Path):
         import json
 
-        text = TextIOWrapper(file, encoding="utf-8", newline="\n")
-        json.dump(value, text, indent=2)  # type: ignore
+        with path.open("w") as f:
+            json.dump(value, f, indent=2)
 
     @staticmethod
-    def decode(file: typing.BinaryIO) -> str:
+    def decode(path: Path) -> str:
         import json
 
-        text = TextIOWrapper(file, encoding="utf-8")
-
-        return json.load(text)
+        with path.open("r") as f:
+            return json.load(f)
 
 
 @register_format
@@ -125,16 +124,18 @@ class PickleFormat(Format):
         return True
 
     @staticmethod
-    def encode(value: object, file: typing.BinaryIO):
+    def encode(value: object, path: Path):
         import pickle
 
-        pickle.dump(value, file, protocol=5)
+        with path.open("wb") as f:
+            pickle.dump(value, f, protocol=5)
 
     @staticmethod
-    def decode(file: typing.BinaryIO) -> typing.Any:
+    def decode(path: Path) -> typing.Any:
         import pickle
 
-        return pickle.load(file)
+        with path.open("rb") as f:
+            return pickle.load(f)
 
 
 def register_format_alias(suffix, format_suffix):
