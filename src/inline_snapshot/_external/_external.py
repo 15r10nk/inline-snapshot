@@ -153,10 +153,14 @@ class External:
         return self._load_value_from_location(self._location, self._context)
 
     @classmethod
-    def _load_value_from_location(cls, location, context: AdapterContext):
+    def _load_value_from_location(
+        cls, location: ExternalLocation, context: AdapterContext
+    ) -> object:
+        assert location.storage
         storage = state().all_storages[location.storage]
 
         with storage.load(location, context) as f:
+            assert location.suffix
             format = get_format_handler_from_suffix(location.suffix)
             if format is None:
                 raise ValueError(f"format {location.suffix} is unknown")
