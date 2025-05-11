@@ -106,6 +106,7 @@ from inline_snapshot import outsource
                 state.all_storages["hash"] = inline_snapshot._external.HashStorage(
                     tmp_path / ".storage"
                 )
+                state.config.storage_dir = tmp_path / ".inline-snapshot"
 
                 error = False
 

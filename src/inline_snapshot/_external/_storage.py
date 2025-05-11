@@ -10,7 +10,6 @@ from typing import Generator
 
 from inline_snapshot._adapter.adapter import AdapterContext
 
-from .. import _config
 from ._external_location import ExternalLocation
 
 
@@ -24,12 +23,31 @@ class StorageProtocol:
     def load(
         self, location: ExternalLocation, context: AdapterContext
     ) -> Generator[Path]:
+        """
+        returns the path to a file in the storage.
+        """
         raise NotImplementedError
 
-    @contextmanager
     def store(
-        self, location: ExternalLocation, context: AdapterContext
-    ) -> Generator[Path]:
+        self, location: ExternalLocation, context: AdapterContext, file_path: Path
+    ):
+        """
+        stores the file in the storage.
+
+        Parameters:
+
+            location: the location in the storage
+            context: context where the snapshot is defined
+            file_path: path to a temporaray file which should be stored in the Storage
+        """
+        raise NotImplementedError
+
+    def new_location(
+        self, location: ExternalLocation, context: AdapterContext, file_path: Path
+    ) -> ExternalLocation:
+        """
+        creates or changes the location where the file should be stored.
+        """
         raise NotImplementedError
 
     def cleanup(self):
@@ -51,15 +69,22 @@ class UuidStorage(StorageProtocol):
 
         yield snapshot_path
 
-    @contextmanager
     def store(
-        self, location: ExternalLocation, context: AdapterContext
-    ) -> Generator[Path]:
+        self, location: ExternalLocation, context: AdapterContext, file_path: Path
+    ):
         snapshot_path = self._get_path(location, context)
 
         snapshot_path.parent.mkdir(parents=True, exist_ok=True)
 
-        yield snapshot_path
+        shutil.move(str(file_path), str(snapshot_path))
+
+    def new_location(
+        self, location: ExternalLocation, context: AdapterContext, file_path: Path
+    ) -> ExternalLocation:
+
+        if location.stem is None:
+            return ExternalLocation("uuid", str(uuid.uuid4()), location.suffix)
+        return location
 
     def _get_path(self, location: ExternalLocation, context: AdapterContext) -> Path:
 
@@ -112,37 +137,36 @@ class HashStorage(StorageProtocol):
         path = self._lookup_path(location.path)
         yield path
 
-    @contextmanager
     def store(
-        self, location: ExternalLocation, context: AdapterContext
-    ) -> Generator[Path]:
+        self, location: ExternalLocation, context: AdapterContext, file_path: Path
+    ):
         self._ensure_directory()
 
-        tmp_name = self.directory / str(uuid.uuid4())
-
-        yield tmp_name
-
-        with tmp_name.open("rb") as f:
+        with file_path.open("rb") as f:
             hash_name = file_digest(f, "sha256").hexdigest()
 
-        location.storage = "hash"
-
-        location.stem = hash_name
-
-        assert location.suffix is not None
         if (self.directory / (hash_name + location.suffix)).exists():
-            tmp_name.unlink()
+            file_path.unlink()
         else:
+            # TODO: remove -new
             shutil.move(
-                tmp_name, self.directory / (hash_name + "-new" + location.suffix)
+                str(file_path),
+                str(self.directory / (hash_name + "-new" + location.suffix)),
             )
 
-        path = hash_name[: _config.config.hash_length]
+    def new_location(
+        self, location: ExternalLocation, context: AdapterContext, file_path: Path
+    ) -> ExternalLocation:
+        from inline_snapshot._global_state import state
 
-        if _config.config.hash_length < len(hash_name):
+        with file_path.open("rb") as f:
+            hash_name = file_digest(f, "sha256").hexdigest()
+
+        path = hash_name[: state().config.hash_length]
+        if len(path) < len(hash_name):
             path += "*"
 
-        location.stem = path
+        return ExternalLocation("hash", path, location.suffix)
 
     def prune_new_files(self):
         for file in self.directory.glob("*-new.*"):
