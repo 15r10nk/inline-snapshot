@@ -8,7 +8,6 @@ from inline_snapshot._external._find_external import ensure_import
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
-from tests.utils import config
 from tests.utils import storage  # noqa
 
 from .utils import apply_changes
@@ -29,26 +28,31 @@ def test_basic(check_update):
 
 
 def test_max_hash():
-    with config(hash_length=64):
-        Example(
-            """\
+    Example(
+        {
+            "test_something.py": """\
 from inline_snapshot import external
 def test_a():
     assert "a" == external()
-"""
-        ).run_inline(
-            ["--inline-snapshot=create"],
-            changed_files=snapshot(
-                {
-                    ".inline-snapshot/external/ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb-new.txt": "a",
-                    "test_something.py": """\
+""",
+            "pyproject.toml": """\
+[tool.inline-snapshot]
+hash-length=64
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                ".inline-snapshot/external/ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb-new.txt": "a",
+                "test_something.py": """\
 from inline_snapshot import external
 def test_a():
     assert "a" == external("hash:ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb.txt")
 """,
-                }
-            ),
-        )
+            }
+        ),
+    )
 
 
 def test_outsource():

@@ -14,6 +14,7 @@ __all__ = ("snapshot_env",)
 
 @contextlib.contextmanager
 def config(**args):
+    assert False
     current_config = _config.config
     _config.config = _config.Config(**args)
     try:

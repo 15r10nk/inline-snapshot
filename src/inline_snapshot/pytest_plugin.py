@@ -127,21 +127,20 @@ def pytest_configure(config):
         if directory == directory.parent:
             break
         directory = directory.parent
-    _config.config = _config.Config()
 
     if is_pytest_compatible():
-        _config.config.default_flags_tui = ["create", "review"]
-        _config.config.default_flags = ["report"]
+        state().config.default_flags_tui = ["create", "review"]
+        state().config.default_flags = ["report"]
 
-    _config.read_config(pyproject, _config.config)
+    _config.read_config(pyproject, state().config)
 
     console = Console()
     if is_ci_run():
         default_flags = {"disable"}
     elif console.is_terminal:
-        default_flags = _config.config.default_flags_tui
+        default_flags = state().config.default_flags_tui
     else:
-        default_flags = _config.config.default_flags
+        default_flags = state().config.default_flags
 
     env_var = "INLINE_SNAPSHOT_DEFAULT_FLAGS"
     if env_var in os.environ:
@@ -182,9 +181,10 @@ def pytest_configure(config):
 
         state().update_flags = Flags(flags & categories)
 
-    storage_dir = _config.config.storage_dir or config.rootpath / ".inline-snapshot"
+    if state().config.storage_dir is None:
+        state().config.storage_dir = config.rootpath / ".inline-snapshot"
 
-    state().all_storages = default_storages(storage_dir)
+    state().all_storages = default_storages(state().config.storage_dir)
 
     if flags - {"short-report", "disable"} and not is_pytest_compatible():
 
@@ -447,7 +447,7 @@ def pytest_sessionfinish(session, exitstatus):
 
                 if (
                     flag == "update"
-                    and not _config.config.show_updates
+                    and not state().config.show_updates
                     and not "update" in state().flags
                 ):
                     continue
