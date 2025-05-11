@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import ast
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 from inline_snapshot._adapter.adapter import AdapterContext
 from inline_snapshot._change import CallArg
@@ -14,7 +16,6 @@ from inline_snapshot._unmanaged import declare_unmanaged
 
 from .._snapshot.generic_value import GenericValue
 from ._external_location import ExternalLocation
-from ._tmp_file import generate_tmp_file
 
 
 def external(name: str | None = None):
@@ -111,13 +112,14 @@ class External:
         if self._location.suffix is None:
             self._location.suffix = format.suffix
 
-        tmp_file = generate_tmp_file()
+        tmp_file = NamedTemporaryFile()
+        tmp_path = Path(tmp_file.name)
 
-        format.encode(other, tmp_file)
+        format.encode(other, tmp_path)
         self._location = self.storage.new_location(
-            self._location, self._context, tmp_file
+            self._location, self._context, tmp_path
         )
-        self.storage.store(self._location, self._context, tmp_file)
+        self.storage.store(self._location, self._context, tmp_path)
 
         self._value_changed = True
 

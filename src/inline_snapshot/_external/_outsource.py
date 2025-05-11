@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any
 
 from inline_snapshot._external._external_location import ExternalLocation
@@ -7,28 +9,28 @@ from inline_snapshot._external._format import get_format_handler
 from inline_snapshot._global_state import state
 
 from .._snapshot.generic_value import GenericValue
-from ._tmp_file import generate_tmp_file
 
 
 class Outsourced:
     def __init__(self, data: Any, suffix: str | None):
         self.data = data
 
-        format = get_format_handler(data, suffix)
+        self._format = get_format_handler(data, suffix)
         if suffix is None:
-            suffix = format.suffix
+            suffix = self._format.suffix
 
         self._location = ExternalLocation("hash", None, suffix)
 
-        tmp_path = generate_tmp_file()
+        tmp_file = NamedTemporaryFile()
+        tmp_path = Path(tmp_file.name)
 
-        format.encode(data, tmp_path)
+        self._format.encode(data, tmp_path)
 
         storage = state().all_storages["hash"]
 
         self._location = storage.new_location(
-            self._location, None, tmp_path
-        )  # type:ignore
+            self._location, None, tmp_path  # type:ignore
+        )
 
         storage.store(self._location, None, tmp_path)  # type: ignore
 
