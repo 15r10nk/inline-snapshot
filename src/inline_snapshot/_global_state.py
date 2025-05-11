@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import contextlib
+from copy import deepcopy
 from dataclasses import dataclass
 from dataclasses import field
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 from typing import Generator
 
+from inline_snapshot._config import Config
 from inline_snapshot._external._format import Format
 from inline_snapshot._external._storage import StorageProtocol
 
@@ -18,6 +20,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class State:
+    config: Config = field(default_factory=Config)
+
     # snapshot
     missing_values: int = 0
     incorrect_values: int = 0
@@ -51,9 +55,11 @@ def state() -> State:
 
 def enter_snapshot_context():
     global _current
+    latest = _current
     _latest_global_states.append(_current)
     _current = State()
-    _current.all_formats = dict(_latest_global_states[-1].all_formats)
+    _current.all_formats = dict(latest.all_formats)
+    _current.config = deepcopy(latest.config)
 
 
 def leave_snapshot_context():

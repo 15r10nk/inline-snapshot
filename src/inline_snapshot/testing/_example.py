@@ -18,6 +18,8 @@ from unittest.mock import patch
 
 from rich.console import Console
 
+from inline_snapshot._config import Config
+from inline_snapshot._config import read_config
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._external._storage import HashStorage
 from inline_snapshot._problems import report_problems
@@ -195,6 +197,10 @@ class Example:
                 state.all_storages["hash"] = HashStorage(
                     tmp_path / ".inline-snapshot" / "external"
                 )
+                state.config = Config()
+                read_config(tmp_path / "pyproject.toml", state.config)
+                if state.config.storage_dir is None:
+                    state.config.storage_dir = tmp_path / ".inline_snapshot"
 
                 try:
                     tests_found = False

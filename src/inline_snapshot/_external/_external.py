@@ -14,6 +14,7 @@ from inline_snapshot._unmanaged import declare_unmanaged
 
 from .._snapshot.generic_value import GenericValue
 from ._external_location import ExternalLocation
+from ._tmp_file import generate_tmp_file
 
 
 def external(name: str | None = None):
@@ -110,8 +111,14 @@ class External:
         if self._location.suffix is None:
             self._location.suffix = format.suffix
 
-        with self.storage.store(self._location, self._context) as f:
-            format.encode(other, f)
+        tmp_file = generate_tmp_file()
+
+        format.encode(other, tmp_file)
+        self._location = self.storage.new_location(
+            self._location, self._context, tmp_file
+        )
+        self.storage.store(self._location, self._context, tmp_file)
+
         self._value_changed = True
 
     def __eq__(self, other):
