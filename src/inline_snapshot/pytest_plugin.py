@@ -479,6 +479,21 @@ def pytest_sessionfinish(session, exitstatus):
                         )
                         any_changes = True
 
+                for change in changes[flag]:
+                    if hasattr(change, "rich_diff"):
+                        title, content = change.rich_diff()
+                        console().print(
+                            Panel(
+                                content,
+                                title=title,
+                                box=(
+                                    box.ASCII
+                                    if os.environ.get("TERM", "") == "unknown"
+                                    else box.ROUNDED
+                                ),
+                            )
+                        )
+
                 if any_changes and apply_changes(flag):
                     used_changes += changes[flag]
 
@@ -487,6 +502,9 @@ def pytest_sessionfinish(session, exitstatus):
             if used_changes:
                 cr = ChangeRecorder()
                 apply_all(used_changes, cr)
+
+                for change in used_changes:
+                    change.apply_external_changes()
 
                 for test_file in cr.files():
                     tree = ast.parse(test_file.new_code())

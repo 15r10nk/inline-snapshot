@@ -248,6 +248,10 @@ class Example:
                 )
                 recorder.fix_all()
 
+                for change in changes:
+                    if change.flag in state.update_flags.to_set():
+                        change.apply_external_changes()
+
                 report_output = StringIO()
                 console = Console(file=report_output, width=80)
 

@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import ast
-from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 from inline_snapshot._adapter.adapter import AdapterContext
 from inline_snapshot._change import CallArg
+from inline_snapshot._change import ExternalChange
 from inline_snapshot._change import Replace
 from inline_snapshot._external._format import get_format_handler
 from inline_snapshot._external._format import get_format_handler_from_suffix
 from inline_snapshot._external._outsource import Outsourced
+from inline_snapshot._external._tmp_path import new_tmp_path
 from inline_snapshot._global_state import state
 from inline_snapshot._inline_snapshot import create_snapshot
 from inline_snapshot._unmanaged import declare_unmanaged
@@ -41,8 +41,8 @@ class External:
         self._context = context
         self._original_name = name
 
-        self._location = ExternalLocation.from_name(name)
-        self._original_location = ExternalLocation.from_name(name)
+        self._location = ExternalLocation.from_name(name, context=context)
+        self._original_location = ExternalLocation.from_name(name, context=context)
 
         self._value_changed = False
 
@@ -51,7 +51,9 @@ class External:
 
     @classmethod
     def create_raw(cls, obj, context: AdapterContext):
-        return cls._load_value_from_location(ExternalLocation.from_name(obj), context)
+        return cls._load_value_from_location(
+            ExternalLocation.from_name(obj, context=context)
+        )
 
     def _changes(self):
         if self._expr is None:
@@ -59,37 +61,42 @@ class External:
         else:
             node = self._expr.node
             assert isinstance(node, ast.Call)
+
         new_name = self._location.to_str()
         if new_name != self._original_name:
             if self._original_name is None:
-                return [
-                    CallArg(
-                        "create",
-                        self._context.file,
-                        node,
-                        0,
-                        None,
-                        f'"{new_name}"',
-                        new_name,
-                    )
-                ]
+                yield CallArg(
+                    "create",
+                    self._context.file,
+                    node,
+                    0,
+                    None,
+                    f'"{new_name}"',
+                    new_name,
+                )
+
             else:
-                return [
-                    Replace(
-                        (
-                            ("fix" if self._original_location.stem else "create")
-                            if self._value_changed
-                            else "update"
-                        ),
-                        self._context.file,
-                        node.args[0] if node else None,
-                        f'"{new_name}"',
-                        self._original_name,
-                        new_name,
-                    )
-                ]
-        else:
-            return []
+                yield Replace(
+                    (
+                        ("fix" if self._original_location.stem else "create")
+                        if self._value_changed
+                        else "update"
+                    ),
+                    self._context.file,
+                    node.args[0] if node else None,
+                    f'"{new_name}"',
+                    self._original_name,
+                    new_name,
+                )
+
+        if self._value_changed:
+            yield ExternalChange(
+                "fix" if self._original_location.stem else "create",
+                self._tmp_file,
+                self._original_location,
+                self._location,
+                self._diff,
+            )
 
     def __repr__(self):
         """Returns the representation of the external object.
@@ -112,14 +119,14 @@ class External:
         if self._location.suffix is None:
             self._location.suffix = format.suffix
 
-        tmp_file = NamedTemporaryFile()
-        tmp_path = Path(tmp_file.name)
+        self._tmp_file = new_tmp_path(self._location.suffix)
 
-        format.encode(other, tmp_path)
-        self._location = self.storage.new_location(
-            self._location, self._context, tmp_path
-        )
-        self.storage.store(self._location, self._context, tmp_path)
+        format.encode(other, self._tmp_file)
+        print(self._location)
+        self._location = self.storage.new_location(self._location, self._tmp_file)
+        print(self._location)
+
+        self._diff = format.diff
 
         self._value_changed = True
 
@@ -159,16 +166,14 @@ class External:
         return result
 
     def _load_value(self):
-        return self._load_value_from_location(self._location, self._context)
+        return self._load_value_from_location(self._location)
 
     @classmethod
-    def _load_value_from_location(
-        cls, location: ExternalLocation, context: AdapterContext
-    ) -> object:
+    def _load_value_from_location(cls, location: ExternalLocation) -> object:
         assert location.storage
         storage = state().all_storages[location.storage]
 
-        with storage.load(location, context) as f:
+        with storage.load(location) as f:
             assert location.suffix
             format = get_format_handler_from_suffix(location.suffix)
             if format is None:
