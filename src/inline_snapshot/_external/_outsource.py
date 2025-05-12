@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import Any
 
 from inline_snapshot._external._external_location import ExternalLocation
 from inline_snapshot._external._format import get_format_handler
+from inline_snapshot._external._tmp_path import new_tmp_path
 from inline_snapshot._global_state import state
 
 from .._snapshot.generic_value import GenericValue
@@ -19,20 +18,19 @@ class Outsourced:
         if suffix is None:
             suffix = self._format.suffix
 
-        self._location = ExternalLocation("hash", None, suffix)
+        self._location = ExternalLocation("hash", None, suffix, None, None)
 
-        tmp_file = NamedTemporaryFile()
-        tmp_path = Path(tmp_file.name)
+        tmp_path = new_tmp_path(suffix)
 
         self._format.encode(data, tmp_path)
 
         storage = state().all_storages["hash"]
 
         self._location = storage.new_location(
-            self._location, None, tmp_path  # type:ignore
+            self._location, tmp_path  # type:ignore
         )
 
-        storage.store(self._location, None, tmp_path)  # type: ignore
+        storage.store(self._location, tmp_path)  # type: ignore
 
     def __eq__(self, other):
         if isinstance(other, GenericValue):

@@ -8,8 +8,6 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Generator
 
-from inline_snapshot._adapter.adapter import AdapterContext
-
 from ._external_location import ExternalLocation
 
 
@@ -20,30 +18,25 @@ class HashError(Exception):
 class StorageProtocol:
 
     @contextmanager
-    def load(
-        self, location: ExternalLocation, context: AdapterContext
-    ) -> Generator[Path]:
+    def load(self, location: ExternalLocation) -> Generator[Path]:
         """
         returns the path to a file in the storage.
         """
         raise NotImplementedError
 
-    def store(
-        self, location: ExternalLocation, context: AdapterContext, file_path: Path
-    ):
+    def store(self, location: ExternalLocation, file_path: Path):
         """
         stores the file in the storage.
 
         Parameters:
 
             location: the location in the storage
-            context: context where the snapshot is defined
             file_path: path to a temporaray file which should be stored in the Storage
         """
         raise NotImplementedError
 
     def new_location(
-        self, location: ExternalLocation, context: AdapterContext, file_path: Path
+        self, location: ExternalLocation, file_path: Path
     ) -> ExternalLocation:
         """
         creates or changes the location where the file should be stored.
@@ -62,34 +55,33 @@ def file_digest(file: typing.BinaryIO, name: str):
 
 class UuidStorage(StorageProtocol):
     @contextmanager
-    def load(
-        self, location: ExternalLocation, context: AdapterContext
-    ) -> Generator[Path]:
-        snapshot_path = self._get_path(location, context)
+    def load(self, location: ExternalLocation) -> Generator[Path]:
+        snapshot_path = self._get_path(location)
 
         yield snapshot_path
 
-    def store(
-        self, location: ExternalLocation, context: AdapterContext, file_path: Path
-    ):
-        snapshot_path = self._get_path(location, context)
+    def store(self, location: ExternalLocation, file_path: Path):
+        snapshot_path = self._get_path(location)
 
         snapshot_path.parent.mkdir(parents=True, exist_ok=True)
 
-        shutil.move(str(file_path), str(snapshot_path))
+        shutil.copy(str(file_path), str(snapshot_path))
 
     def new_location(
-        self, location: ExternalLocation, context: AdapterContext, file_path: Path
+        self, location: ExternalLocation, file_path: Path
     ) -> ExternalLocation:
 
-        if location.stem is None:
-            return ExternalLocation("uuid", str(uuid.uuid4()), location.suffix)
+        if not location.stem:
+            return location.with_stem(str(uuid.uuid4()))
         return location
 
-    def _get_path(self, location: ExternalLocation, context: AdapterContext) -> Path:
+    def _get_path(self, location: ExternalLocation) -> Path:
 
-        file_path = Path(context.file.filename)
-        qualname = context.qualname
+        file_path = location.filename
+        qualname = location.qualname
+        assert file_path
+        assert qualname
+
         if qualname == "<module>":
             qualname = "__module__"
 
@@ -131,31 +123,25 @@ class HashStorage(StorageProtocol):
             )
 
     @contextmanager
-    def load(
-        self, location: ExternalLocation, context: AdapterContext
-    ) -> Generator[Path]:
+    def load(self, location: ExternalLocation) -> Generator[Path]:
         path = self._lookup_path(location.path)
         yield path
 
-    def store(
-        self, location: ExternalLocation, context: AdapterContext, file_path: Path
-    ):
+    def store(self, location: ExternalLocation, file_path: Path):
         self._ensure_directory()
 
         with file_path.open("rb") as f:
             hash_name = file_digest(f, "sha256").hexdigest()
 
-        if (self.directory / (hash_name + location.suffix)).exists():
-            file_path.unlink()
-        else:
+        if not (self.directory / (hash_name + location.suffix)).exists():
             # TODO: remove -new
-            shutil.move(
+            shutil.copy(
                 str(file_path),
                 str(self.directory / (hash_name + "-new" + location.suffix)),
             )
 
     def new_location(
-        self, location: ExternalLocation, context: AdapterContext, file_path: Path
+        self, location: ExternalLocation, file_path: Path
     ) -> ExternalLocation:
         from inline_snapshot._global_state import state
 
@@ -166,7 +152,7 @@ class HashStorage(StorageProtocol):
         if len(path) < len(hash_name):
             path += "*"
 
-        return ExternalLocation("hash", path, location.suffix)
+        return location.with_stem(path)
 
     def prune_new_files(self):
         for file in self.directory.glob("*-new.*"):
