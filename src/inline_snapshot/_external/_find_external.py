@@ -69,7 +69,9 @@ def used_externals2() -> List[ExternalLocation]:
     for filename in state().files_with_snapshots:
         for name in used_externals_in(pathlib.Path(filename).read_text("utf-8")):
             try:
-                result.append(ExternalLocation.from_name(name))
+                result.append(
+                    ExternalLocation.from_name(name, filename=pathlib.Path(filename))
+                )
             except ValueError:
                 pass
 

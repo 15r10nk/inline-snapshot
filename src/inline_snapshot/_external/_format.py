@@ -32,9 +32,10 @@ def get_format_handler_from_suffix(suffix: str) -> type[Format] | None:
 
 
 class Format:
-
     suffix: str
     suffix_required = False
+
+    diff: typing.Literal["text", "binary"]
 
     @staticmethod
     def handle(data):
@@ -60,6 +61,8 @@ def register_format(cls):
 class BinFormat(Format):
     suffix = ".bin"
 
+    diff = "binary"
+
     @staticmethod
     def handle(data):
         return isinstance(data, bytes)
@@ -76,6 +79,8 @@ class BinFormat(Format):
 @register_format
 class TxtFormat(Format):
     suffix = ".txt"
+
+    diff = "text"
 
     @staticmethod
     def handle(data):
@@ -95,6 +100,8 @@ class JsonFormat(Format):
     suffix = ".json"
     suffix_required = True
 
+    diff = "text"
+
     @staticmethod
     def handle(data):
         return True
@@ -103,14 +110,14 @@ class JsonFormat(Format):
     def encode(value: object, path: Path):
         import json
 
-        with path.open("w") as f:
+        with path.open("w", newline="\n", encoding="utf-8") as f:
             json.dump(value, f, indent=2)
 
     @staticmethod
     def decode(path: Path) -> str:
         import json
 
-        with path.open("r") as f:
+        with path.open("r", newline="\n", encoding="utf-8") as f:
             return json.load(f)
 
 
@@ -118,6 +125,7 @@ class JsonFormat(Format):
 class PickleFormat(Format):
     suffix = ".pickle"
     suffix_required = True
+    diff = "binary"
 
     @staticmethod
     def handle(data):
