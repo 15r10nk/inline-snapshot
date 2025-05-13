@@ -88,11 +88,13 @@ class TxtFormat(Format):
 
     @staticmethod
     def encode(value: str, path: Path):
-        path.write_text(value, encoding="utf-8")
+        with path.open("w", encoding="utf-8", newline="\n") as f:
+            f.write(value)
 
     @staticmethod
     def decode(path: Path) -> str:
-        return path.read_text(encoding="utf-8")
+        with path.open("r", encoding="utf-8", newline="\n") as f:
+            return f.read()
 
 
 @register_format
