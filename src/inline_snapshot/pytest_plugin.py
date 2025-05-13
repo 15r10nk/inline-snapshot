@@ -13,7 +13,7 @@ from rich.syntax import Syntax
 
 from inline_snapshot._external._external import External
 from inline_snapshot._external._outsource import Outsourced
-from inline_snapshot._external._storage import HashError
+from inline_snapshot._external._storage import StorageLookupError
 from inline_snapshot._external._storage import default_storages
 from inline_snapshot._unmanaged import Unmanaged
 from inline_snapshot.fix_pytest_diff import fix_pytest_diff
@@ -251,7 +251,7 @@ def unwrap(value):
     if isinstance(value, (External, Outsourced)):
         try:
             return unwrap(value._load_value())[0], True
-        except HashError:
+        except StorageLookupError:
             return (None, False)
 
     if isinstance(value, Unmanaged):
