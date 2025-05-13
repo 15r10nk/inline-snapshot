@@ -564,3 +564,110 @@ E           inline_snapshot._external._storage.HashError: hash 'aaaaaaaaaaaa*.tx
         ),
         returncode=1,
     )
+
+
+def test_show_diff():
+    Example(
+        """
+from inline_snapshot import external
+
+def test_a():
+    n=3
+    assert "\\n".join(map(str,range(n))) == external()
+    """
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        report=snapshot(
+            """\
+------------------------------- Create snapshots -------------------------------
++----------------------------- test_something.py ------------------------------+
+| @@ -3,5 +3,5 @@                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_a():                                                               |
+|      n=3                                                                     |
+| -    assert "\\n".join(map(str,range(n))) == external()                       |
+| +    assert "\\n".join(map(str,range(n))) ==                                  |
+| external("hash:c4276dce1d59*.txt")                                           |
++------------------------------------------------------------------------------+
++--------------------------- hash:c4276dce1d59*.txt ---------------------------+
+| 0                                                                            |
+| 1                                                                            |
+| 2                                                                            |
++------------------------------------------------------------------------------+
+These changes will be applied, because you used create\
+"""
+        ),
+        returncode=1,
+    ).change_code(
+        lambda text: text.replace("n=3", "n=5")
+    ).run_pytest(
+        ["--inline-snapshot=create,fix"],
+        report=snapshot(
+            """\
+-------------------------------- Fix snapshots ---------------------------------
++----------------------------- test_something.py ------------------------------+
+| @@ -3,5 +3,5 @@                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_a():                                                               |
+|      n=5                                                                     |
+| -    assert "\\n".join(map(str,range(n))) ==                                  |
+| external("hash:c4276dce1d59*.txt")                                           |
+| +    assert "\\n".join(map(str,range(n))) ==                                  |
+| external("hash:2965d24b80b4*.txt")                                           |
++------------------------------------------------------------------------------+
++--------------------------- hash:2965d24b80b4*.txt ---------------------------+
+| @@ -1,3 +1,5 @@                                                              |
+|                                                                              |
+|  0                                                                           |
+|  1                                                                           |
+|  2                                                                           |
+| +3                                                                           |
+| +4                                                                           |
++------------------------------------------------------------------------------+
+These changes will be applied, because you used fix\
+"""
+        ),
+        returncode=1,
+    )
+
+
+def test_double_eq():
+    Example(
+        """
+from inline_snapshot import external
+
+def test_a():
+    n=3
+    assert "hi" == external(".json") == external(".txt")
+    """
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        error=snapshot(
+            """\
+>       assert "hi" == external(".json") == external(".txt")
+>           raise UsageError("you can not compare external(...) with external(...)")
+E           inline_snapshot._exceptions.UsageError: you can not compare external(...) with external(...)
+"""
+        ),
+        report=snapshot(
+            """\
+------------------------------- Create snapshots -------------------------------
++----------------------------- test_something.py ------------------------------+
+| @@ -3,5 +3,5 @@                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_a():                                                               |
+|      n=3                                                                     |
+| -    assert "hi" == external(".json") == external(".txt")                    |
+| +    assert "hi" == external("hash:b49177e05868*.json") == external(".txt")  |
++------------------------------------------------------------------------------+
++-------------------------- hash:b49177e05868*.json ---------------------------+
+| "hi"                                                                         |
++------------------------------------------------------------------------------+
+These changes will be applied, because you used create\
+"""
+        ),
+        returncode=1,
+    )

@@ -6,6 +6,7 @@ from inline_snapshot._adapter.adapter import AdapterContext
 from inline_snapshot._change import CallArg
 from inline_snapshot._change import ExternalChange
 from inline_snapshot._change import Replace
+from inline_snapshot._exceptions import UsageError
 from inline_snapshot._external._format import get_format_handler
 from inline_snapshot._external._format import get_format_handler_from_suffix
 from inline_snapshot._external._outsource import Outsourced
@@ -122,9 +123,7 @@ class External:
         self._tmp_file = new_tmp_path(self._location.suffix)
 
         format.encode(other, self._tmp_file)
-        print(self._location)
         self._location = self.storage.new_location(self._location, self._tmp_file)
-        print(self._location)
 
         self._diff = format.diff
 
@@ -137,18 +136,18 @@ class External:
             self._location.suffix = other._location.suffix
             other = other.data
 
+        if isinstance(other, External):
+            raise UsageError("you can not compare external(...) with external(...)")
+
+        if isinstance(other, GenericValue):
+            raise UsageError("you can not compare external(...) with snapshot(...)")
+
         if not self._original_location.stem:
             if state().update_flags.create:
                 self._assign(other)
                 state().missing_values += 1
                 return True
             return False
-
-        if isinstance(other, External):
-            other = other._load_value()
-
-        if isinstance(other, GenericValue):
-            return NotImplemented
 
         if self._location.stem:
             value = self._load_value()
