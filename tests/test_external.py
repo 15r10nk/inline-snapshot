@@ -106,13 +106,15 @@ def test_diskstorage():
 
         with raises(
             snapshot(
-                "HashError: hash collision files=['a140c0c1eda2def2b830363ba362aa4d7d255c262960544821f556e16661b6ff-new.txt', 'a4e624d686e03ed2767c0abd85c14426b0b1157d2ce81d27bb4fe4f6f01d688a-new.txt']"
+                "StorageLookupError: hash collision files=['a140c0c1eda2def2b830363ba362aa4d7d255c262960544821f556e16661b6ff-new.txt', 'a4e624d686e03ed2767c0abd85c14426b0b1157d2ce81d27bb4fe4f6f01d688a-new.txt']"
             )
         ):
             assert outsource("test4") == external("hash:a*.txt")
 
         with raises(
-            snapshot("HashError: hash 'bbbbb*.txt' is not found in the HashStorage")
+            snapshot(
+                "StorageLookupError: hash 'bbbbb*.txt' is not found in the HashStorage"
+            )
         ):
             assert outsource("test4") == external("hash:bbbbb*.txt")
 
@@ -558,8 +560,8 @@ def test_something():
         error=snapshot(
             """\
 >       assert "foo" == external("hash:aaaaaaaaaaaa*.txt")
->           raise HashError(f"hash {name!r} is not found in the HashStorage")
-E           inline_snapshot._external._storage.HashError: hash 'aaaaaaaaaaaa*.txt' is not found in the HashStorage
+>           raise StorageLookupError(f"hash {name!r} is not found in the HashStorage")
+E           inline_snapshot._external._storage.StorageLookupError: hash 'aaaaaaaaaaaa*.txt' is not found in the HashStorage
 """
         ),
         returncode=1,
@@ -602,7 +604,7 @@ These changes will be applied, because you used create\
     ).change_code(
         lambda text: text.replace("n=3", "n=5")
     ).run_pytest(
-        ["--inline-snapshot=create,fix"],
+        ["--inline-snapshot=fix"],
         report=snapshot(
             """\
 -------------------------------- Fix snapshots ---------------------------------
@@ -669,5 +671,28 @@ E           inline_snapshot._exceptions.UsageError: you can not compare external
 These changes will be applied, because you used create\
 """
         ),
+        returncode=1,
+    )
+
+
+def test_missing():
+    Example(
+        """
+from inline_snapshot import external
+
+def test_a():
+    n=3
+    assert "hi" == external()
+    """
+    ).run_pytest(
+        ["--inline-snapshot=disable"],
+        error=snapshot(
+            """\
+>       assert "hi" == external()
+>           raise StorageLookupError(f"hash {name!r} is not found in the HashStorage")
+E           inline_snapshot._external._storage.StorageLookupError: hash 'None*' is not found in the HashStorage
+"""
+        ),
+        report=snapshot(""""""),
         returncode=1,
     )
