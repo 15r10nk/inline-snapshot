@@ -8,10 +8,6 @@ from pathlib import Path
 from inline_snapshot._adapter.adapter import AdapterContext
 
 
-class HashError(Exception):
-    pass
-
-
 @dataclass
 class ExternalLocation:
     storage: str | None

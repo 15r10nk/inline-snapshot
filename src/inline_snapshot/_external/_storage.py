@@ -11,7 +11,7 @@ from typing import Generator
 from ._external_location import ExternalLocation
 
 
-class HashError(Exception):
+class StorageLookupError(Exception):
     pass
 
 
@@ -183,7 +183,7 @@ class HashStorage(StorageProtocol):
     def persist(self, name):
         try:
             file = self._lookup_path(name)
-        except HashError:
+        except StorageLookupError:
             return
         if file.stem.endswith("-new"):
             stem = file.stem[:-4]
@@ -196,10 +196,12 @@ class HashStorage(StorageProtocol):
         files = list(self.directory.glob(name))
 
         if len(files) > 1:
-            raise HashError(f"hash collision files={sorted(f.name for f in  files)}")
+            raise StorageLookupError(
+                f"hash collision files={sorted(f.name for f in  files)}"
+            )
 
         if not files:
-            raise HashError(f"hash {name!r} is not found in the HashStorage")
+            raise StorageLookupError(f"hash {name!r} is not found in the HashStorage")
 
         return files[0]
 
