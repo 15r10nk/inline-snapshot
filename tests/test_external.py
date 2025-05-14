@@ -8,7 +8,6 @@ from inline_snapshot._external._find_external import used_externals_in
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
-from tests.utils import storage  # noqa
 
 from .utils import apply_changes
 
