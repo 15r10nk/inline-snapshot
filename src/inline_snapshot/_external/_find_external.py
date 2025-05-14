@@ -2,6 +2,7 @@ import ast
 import pathlib
 from typing import List
 from typing import Set
+from typing import Union
 
 from executing import Source
 
@@ -24,10 +25,13 @@ def contains_import(tree, module, name):
     return False
 
 
-def used_externals_in(source) -> Set[str]:
-    tree = ast.parse(source)
+def used_externals_in(source: Union[str, ast.Module], check_import=True) -> Set[str]:
+    if isinstance(source, str):
+        tree = ast.parse(source)
+    else:
+        tree = source
 
-    if not contains_import(tree, "inline_snapshot", "external"):
+    if check_import and not contains_import(tree, "inline_snapshot", "external"):
         return set()
 
     usages = []
@@ -47,23 +51,7 @@ def used_externals_in(source) -> Set[str]:
     }
 
 
-def removeprefix(s: str, prefix: str):
-    if s.startswith(prefix):
-        return s[len(prefix) :]
-    return s
-
-
-def used_externals() -> Set[str]:
-    result = set()
-    for filename in state().files_with_snapshots:
-        result |= used_externals_in(pathlib.Path(filename).read_text("utf-8"))
-
-    result = {removeprefix(s, "hash:") for s in result}
-
-    return result
-
-
-def used_externals2() -> List[ExternalLocation]:
+def used_externals() -> List[ExternalLocation]:
     result = list()
 
     for filename in state().files_with_snapshots:
