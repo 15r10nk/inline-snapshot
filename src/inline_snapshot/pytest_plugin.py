@@ -23,12 +23,12 @@ from ._change import apply_all
 from ._code_repr import used_hasrepr
 from ._external import _find_external
 from ._external._find_external import ensure_import
+from ._external._find_external import used_externals_in
 from ._flags import Flags
 from ._global_state import enter_snapshot_context
 from ._global_state import leave_snapshot_context
 from ._global_state import snapshot_env
 from ._global_state import state
-from ._inline_snapshot import used_externals
 from ._problems import report_problems
 from ._rewrite_code import ChangeRecorder
 from ._snapshot.generic_value import GenericValue
@@ -508,7 +508,7 @@ def pytest_sessionfinish(session, exitstatus):
 
                 for test_file in cr.files():
                     tree = ast.parse(test_file.new_code())
-                    used = used_externals(tree)
+                    used = used_externals_in(tree, check_import=False)
 
                     required_imports = []
 
@@ -537,7 +537,7 @@ def pytest_sessionfinish(session, exitstatus):
 
                 cr.fix_all()
 
-            used_externals2 = _find_external.used_externals2()
+            used_externals2 = _find_external.used_externals()
 
             if state().update_flags.trim:
                 for name, storage in state().all_storages.items():

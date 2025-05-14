@@ -1,10 +1,10 @@
 import ast
 
-from inline_snapshot import _inline_snapshot
 from inline_snapshot import external
 from inline_snapshot import outsource
 from inline_snapshot import snapshot
 from inline_snapshot._external._find_external import ensure_import
+from inline_snapshot._external._find_external import used_externals_in
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
@@ -376,9 +376,11 @@ def test_errors():
 
 
 def test_uses_external():
-    assert _inline_snapshot.used_externals(ast.parse("[external('hash:111*.txt')]"))
-    assert not _inline_snapshot.used_externals(ast.parse("[external()]"))
-    assert not _inline_snapshot.used_externals(ast.parse("[external]"))
+    assert used_externals_in(
+        ast.parse("[external('hash:111*.txt')]"), check_import=False
+    )
+    assert not used_externals_in(ast.parse("[external()]"), check_import=False)
+    assert not used_externals_in(ast.parse("[external]"), check_import=False)
 
 
 def test_no_imports(project):

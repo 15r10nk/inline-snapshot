@@ -110,18 +110,6 @@ def snapshot(obj: Any = undefined) -> Any:
     return create_snapshot(SnapshotReference, obj, 1)
 
 
-def used_externals(tree):
-    return [
-        n.args[0].value
-        for n in ast.walk(tree)
-        if isinstance(n, ast.Call)
-        and isinstance(n.func, ast.Name)
-        and n.func.id == "external"
-        and n.args
-        and isinstance(n.args[0], ast.Constant)
-    ]
-
-
 class SnapshotReference:
     def __init__(self, value, expr, context: AdapterContext):
         self._expr = expr
