@@ -106,7 +106,10 @@ class Example:
         for name, content in self.files.items():
             filename = dir / name
             filename.parent.mkdir(exist_ok=True, parents=True)
-            filename.write_text(content)
+            if isinstance(content, str):
+                filename.write_text(content)
+            else:
+                filename.write_bytes(content)
 
     def _read_files(self, dir: Path):
 
