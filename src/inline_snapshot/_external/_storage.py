@@ -85,18 +85,14 @@ class UuidStorage(StorageProtocol):
         if qualname == "<module>":
             qualname = "__module__"
 
-        if location.stem:
-            stem = location.stem
-        else:
-            stem = str(uuid.uuid4())
-            location.stem = stem
+        assert location.stem
 
         return (
             file_path.parent
             / "__inline_snapshot__"
             / f"{file_path.stem}"
             / qualname
-            / f"{stem}{location.suffix}"
+            / f"{location.stem}{location.suffix}"
         )
 
     def cleanup(self):
