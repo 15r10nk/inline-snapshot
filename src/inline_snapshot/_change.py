@@ -18,6 +18,7 @@ from rich.syntax import Syntax
 
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._external._diff import binaryDiff
+from inline_snapshot._external._diff import hexdump
 from inline_snapshot._external._diff import textDiff
 from inline_snapshot._external._external_location import ExternalLocation
 from inline_snapshot._source_file import SourceFile
@@ -53,9 +54,24 @@ class ExternalChange:
             with storage.load(self.old_location) as old_file:
                 return self.new_location.to_str(), d(old_file, self.new_file)
         else:
-            return self.new_location.to_str(), Syntax.from_path(
-                self.new_file, theme="ansi_light", word_wrap=True
-            )
+            if self.diff == "text":
+                self.new_file.read_text(encoding="utf-8")
+                return self.new_location.to_str(), Syntax.from_path(
+                    self.new_file, theme="ansi_light", word_wrap=True
+                )
+            else:
+
+                content = self.new_file.read_bytes()
+
+                if len(content) > 20 * 16:
+                    return (
+                        self.new_location.to_str(),
+                        f"<binary file ({len(content)} bytes)>",
+                    )
+                else:
+                    return self.new_location.to_str(), Syntax(
+                        hexdump(content), "hexdump", theme="ansi_light"
+                    )
 
     def apply_external_changes(self):
         from inline_snapshot._global_state import state
