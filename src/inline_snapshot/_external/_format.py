@@ -123,29 +123,29 @@ class JsonFormat(Format):
             return json.load(f)
 
 
-@register_format
-class PickleFormat(Format):
-    suffix = ".pickle"
-    suffix_required = True
-    diff = "binary"
+# @register_format
+# class PickleFormat(Format):
+#     suffix = ".pickle"
+#     suffix_required = True
+#     diff = "binary"
 
-    @staticmethod
-    def handle(data):
-        return True
+#     @staticmethod
+#     def handle(data):
+#         return True
 
-    @staticmethod
-    def encode(value: object, path: Path):
-        import pickle
+#     @staticmethod
+#     def encode(value: object, path: Path):
+#         import pickle
 
-        with path.open("wb") as f:
-            pickle.dump(value, f, protocol=5)
+#         with path.open("wb") as f:
+#             pickle.dump(value, f, protocol=5)
 
-    @staticmethod
-    def decode(path: Path) -> typing.Any:
-        import pickle
+#     @staticmethod
+#     def decode(path: Path) -> typing.Any:
+#         import pickle
 
-        with path.open("rb") as f:
-            return pickle.load(f)
+#         with path.open("rb") as f:
+#             return pickle.load(f)
 
 
 def register_format_alias(suffix, format_suffix):
