@@ -1,7 +1,12 @@
+from inline_snapshot._external._diff import BinaryDiff
+from inline_snapshot._external._diff import TextDiff
+
 from ._code_repr import HasRepr
 from ._code_repr import customize_repr
 from ._exceptions import UsageError
 from ._external._external import external
+from ._external._format import Format
+from ._external._format import register_format
 from ._external._format import register_format_alias
 from ._external._outsource import outsource
 from ._inline_snapshot import snapshot
@@ -20,6 +25,10 @@ __all__ = [
     "Snapshot",
     "UsageError",
     "register_format_alias",
+    "register_format",
+    "Format",
+    "TextDiff",
+    "BinaryDiff",
 ]
 
 __version__ = "0.23.0"

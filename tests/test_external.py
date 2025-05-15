@@ -691,8 +691,8 @@ def test_a():
         error=snapshot(
             """\
 >       assert "hi" == external("uuid:fake.blub")
->               raise UsageError(f"format {location.suffix} is unknown")
-E               inline_snapshot._exceptions.UsageError: format .blub is unknown
+>           raise UsageError(f"format '{suffix}' is unknown")
+E           inline_snapshot._exceptions.UsageError: format '.blub' is unknown
 """
         ),
         returncode=1,

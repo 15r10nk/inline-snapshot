@@ -18,11 +18,6 @@ def diff(original_text, new_text):
     return Syntax(diff, "diff", theme="ansi_light", word_wrap=True)
 
 
-def textDiff(original: Path, new: Path):
-
-    return diff(original.read_text("utf-8"), new.read_text("utf-8"))
-
-
 def hexdump(bytes):
     from binascii import hexlify
 
@@ -35,9 +30,31 @@ def hexdump(bytes):
     return "\n".join(result)
 
 
-def binaryDiff(original: Path, new: Path):
+class TextDiff:
+    @staticmethod
+    def rich_diff(original: Path, new: Path):
 
-    original_bytes = original.read_bytes()
-    new_bytes = new.read_bytes()
+        return diff(original.read_text("utf-8"), new.read_text("utf-8"))
 
-    return diff(hexdump(original_bytes), hexdump(new_bytes))
+    @staticmethod
+    def rich_show(path: Path):
+        return Syntax.from_path(str(path), theme="ansi_light", word_wrap=True)
+
+
+class BinaryDiff:
+    @staticmethod
+    def rich_diff(original: Path, new: Path):
+
+        original_bytes = original.read_bytes()
+        new_bytes = new.read_bytes()
+
+        return diff(hexdump(original_bytes), hexdump(new_bytes))
+
+    @staticmethod
+    def rich_show(path: Path):
+        content = path.read_bytes()
+
+        if len(content) > 20 * 16:
+            return f"<binary file ({len(content)} bytes)>"
+        else:
+            return Syntax(hexdump(content), "hexdump", theme="ansi_light")

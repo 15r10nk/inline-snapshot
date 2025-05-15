@@ -96,7 +96,6 @@ class External:
                 self._tmp_file,
                 self._original_location,
                 self._location,
-                self._diff,
             )
 
     def __repr__(self):
@@ -124,8 +123,6 @@ class External:
 
         format.encode(other, self._tmp_file)
         self._location = self.storage.new_location(self._location, self._tmp_file)
-
-        self._diff = format.diff
 
         self._value_changed = True
 
@@ -175,7 +172,5 @@ class External:
         with storage.load(location) as f:
             assert location.suffix
             format = get_format_handler_from_suffix(location.suffix)
-            if format is None:
-                raise UsageError(f"format {location.suffix} is unknown")
 
             return format.decode(f)

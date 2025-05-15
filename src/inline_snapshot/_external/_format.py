@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import typing
 from pathlib import Path
 
 from inline_snapshot._exceptions import UsageError
+from inline_snapshot._external._diff import BinaryDiff
+from inline_snapshot._external._diff import TextDiff
 
 
 def get_format_handler(data, suffix: str | None) -> type[Format]:
@@ -23,19 +24,30 @@ def get_format_handler(data, suffix: str | None) -> type[Format]:
         raise UsageError("data has to be of type bytes | str")
 
 
-def get_format_handler_from_suffix(suffix: str) -> type[Format] | None:
+def get_format_handler_from_suffix(suffix: str) -> type[Format]:
     from inline_snapshot._global_state import state
 
     suffix = state().format_aliases.get(suffix, suffix)
 
-    return state().all_formats.get(suffix, None)
+    format = state().all_formats.get(suffix, None)
+
+    if format is None:
+        raise UsageError(f"format '{suffix}' is unknown")
+
+    return format
 
 
 class Format:
     suffix: str
     suffix_required = False
 
-    diff: typing.Literal["text", "binary"]
+    @staticmethod
+    def rich_diff(original: Path, new: Path):
+        raise NotImplementedError
+
+    @staticmethod
+    def rich_show(path: Path):
+        raise NotImplementedError
 
     @staticmethod
     def handle(data):
@@ -58,10 +70,8 @@ def register_format(cls):
 
 
 @register_format
-class BinFormat(Format):
+class BinaryFormat(BinaryDiff, Format):
     suffix = ".bin"
-
-    diff = "binary"
 
     @staticmethod
     def handle(data):
@@ -77,10 +87,8 @@ class BinFormat(Format):
 
 
 @register_format
-class TxtFormat(Format):
+class TextFormat(TextDiff, Format):
     suffix = ".txt"
-
-    diff = "text"
 
     @staticmethod
     def handle(data):
@@ -98,11 +106,9 @@ class TxtFormat(Format):
 
 
 @register_format
-class JsonFormat(Format):
+class JsonFormat(TextDiff, Format):
     suffix = ".json"
     suffix_required = True
-
-    diff = "text"
 
     @staticmethod
     def handle(data):
