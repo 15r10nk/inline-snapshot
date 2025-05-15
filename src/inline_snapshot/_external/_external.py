@@ -146,12 +146,10 @@ class External:
                 return True
             return False
 
-        if self._location.stem:
-            value = self._load_value()
-            result = value == other
-        else:
-            result = False
-            state().missing_values += 1
+        assert self._location.stem
+
+        value = self._load_value()
+        result = value == other
 
         if state().update_flags.fix or state().update_flags.update:
             if not result:
@@ -167,6 +165,11 @@ class External:
     @classmethod
     def _load_value_from_location(cls, location: ExternalLocation) -> object:
         assert location.storage
+
+        if not location.stem:
+            raise UsageError(
+                f"can not load external object from an non existing location {location.to_str()!r}"
+            )
         storage = state().all_storages[location.storage]
 
         with storage.load(location) as f:

@@ -700,6 +700,15 @@ E           inline_snapshot._exceptions.UsageError: format '.blub' is unknown
 
 
 def test_missing():
+
+    error = snapshot(
+        """\
+>       assert "hi" == external()
+>           raise UsageError(
+E           inline_snapshot._exceptions.UsageError: can not load external object from an non existing location 'hash:'
+"""
+    )
+
     Example(
         """
 from inline_snapshot import external
@@ -709,14 +718,18 @@ def test_a():
     assert "hi" == external()
     """
     ).run_pytest(
-        ["--inline-snapshot=disable"],
-        error=snapshot(
+        ["--inline-snapshot=short-report"],
+        error=error,
+        report=snapshot(
             """\
->       assert "hi" == external()
->           raise StorageLookupError(f"hash {name!r} is not found in the HashStorage")
-E           inline_snapshot._external._storage.StorageLookupError: hash 'None*' is not found in the HashStorage
+Error: one snapshot is missing a value (--inline-snapshot=create)
+You can also use --inline-snapshot=review to approve the changes interactively\
 """
         ),
+        returncode=1,
+    ).run_pytest(
+        ["--inline-snapshot=disable"],
+        error=error,
         report=snapshot(""""""),
         returncode=1,
     )
