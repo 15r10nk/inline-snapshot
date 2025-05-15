@@ -56,10 +56,13 @@ class ExternalLocation:
 
     @property
     def path(self) -> str:
-        return f"{self.stem}{self.suffix or ''}"
+        return f"{self.stem or ''}{self.suffix or ''}"
 
     def to_str(self) -> str:
-        return f"{self.storage}:{self.path}"
+        if self.storage:
+            return f"{self.storage}:{self.path}"
+        else:
+            return self.path
 
     def with_stem(self, new_stem):
         return dataclasses.replace(self, stem=new_stem)
