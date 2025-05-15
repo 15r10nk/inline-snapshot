@@ -24,8 +24,22 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', pypy3.9, pypy3.10]
-        os: [ubuntu-latest, windows-latest, macos-13]
+        os: [ubuntu-latest]
         extra_deps: ['"--with=pydantic<2"', '"--with=pydantic>2"']
+        include:
+        - os: windows-latest
+          python-version: '3.8'
+          extra_deps: '"--with=pydantic>2"'
+        - os: windows-latest
+          python-version: '3.13'
+          extra_deps: '"--with=pydantic>2"'
+
+        - os: macos-13
+          python-version: '3.8'
+          extra_deps: '"--with=pydantic>2"'
+        - os: macos-13
+          python-version: '3.13'
+          extra_deps: '"--with=pydantic>2"'
     env:
       TOP: ${{github.workspace}}
       COVERAGE_PROCESS_START: ${{github.workspace}}/pyproject.toml
