@@ -1,4 +1,7 @@
+from pathlib import Path
+
 import pytest
+from dirty_equals import IsIgnoreDict
 from executing import is_pytest_compatible
 
 from inline_snapshot import snapshot
@@ -792,29 +795,32 @@ def test_a():
 def test_storage_dir_config(project, tmp_path, storage_dir):
     # Relative path case: `tests/snapshots` (parametrized).
     # Absolute path case: `tmp_path / "snapshots"` (parametrized as `None`).
+    relative = storage_dir is not None
+
     if not storage_dir:
         storage_dir = tmp_path / "snapshots"
 
-    project.pyproject(
-        f"""
+    external_value = snapshot("hello")
+
+    Example(
+        {
+            "pyproject.toml": f"""\
 [tool.inline-snapshot]
 storage-dir = {str(storage_dir)!r}
-"""
-    )
-
-    project.setup(
-        """
+""",
+            "test_a.py": """\
 from inline_snapshot import outsource, snapshot
 
 def test_outsource():
     assert outsource("hello") == snapshot()
-"""
-    )
-
-    result = project.run("--inline-snapshot=create")
-    assert result.ret == 1
-    assert project.source == snapshot(
-        """\
+""",
+        }
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        changed_files=IsIgnoreDict(
+            {
+                "test_a.py": snapshot(
+                    """\
 from inline_snapshot import outsource, snapshot
 
 from inline_snapshot import external
@@ -822,14 +828,33 @@ from inline_snapshot import external
 def test_outsource():
     assert outsource("hello") == snapshot(external("hash:2cf24dba5fb0*.txt"))
 """
+                ),
+                "tests/snapshots/external/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824.txt": (
+                    external_value if relative else None
+                ),
+            }
+        ),
+        returncode=1,
+    ).run_pytest(
+        ["--inline-snapshot=disable"], returncode=0, changed_files=snapshot({})
+    ).run_pytest(
+        ["--inline-snapshot=fix"], returncode=0, changed_files=snapshot({})
     )
 
-    result = project.run("--inline-snapshot=fix")
-    assert result.ret == 0
+    # assert result.ret == 0
 
-    assert project.storage(storage_dir) == snapshot(
-        ["2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824.txt"]
-    )
+    if not relative:
+        assert {
+            p.name: p.read_text() for p in (Path(storage_dir) / "external").iterdir()
+        } == snapshot(
+            {
+                ".gitignore": """\
+# ignore all snapshots which are not referred in the source
+*-new.*
+""",
+                "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824.txt": external_value,
+            }
+        )
 
 
 def test_find_pyproject_in_parent_directories():
