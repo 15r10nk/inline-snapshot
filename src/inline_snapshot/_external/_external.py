@@ -176,6 +176,6 @@ class External:
             assert location.suffix
             format = get_format_handler_from_suffix(location.suffix)
             if format is None:
-                raise ValueError(f"format {location.suffix} is unknown")
+                raise UsageError(f"format {location.suffix} is unknown")
 
             return format.decode(f)

@@ -642,7 +642,6 @@ def test_double_eq():
 from inline_snapshot import external
 
 def test_a():
-    n=3
     assert "hi" == external(".json") == external(".txt")
     """
     ).run_pytest(
@@ -654,22 +653,46 @@ def test_a():
 E           inline_snapshot._exceptions.UsageError: you can not compare external(...) with external(...)
 """
         ),
-        report=snapshot(
+        returncode=1,
+    )
+
+
+def test_external_eq_snapshot():
+    Example(
+        """
+from inline_snapshot import external, snapshot
+
+def test_a():
+    assert "hi" == external(".json") == snapshot(".txt")
+    """
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        error=snapshot(
             """\
-------------------------------- Create snapshots -------------------------------
-+----------------------------- test_something.py ------------------------------+
-| @@ -3,5 +3,5 @@                                                              |
-|                                                                              |
-|                                                                              |
-|  def test_a():                                                               |
-|      n=3                                                                     |
-| -    assert "hi" == external(".json") == external(".txt")                    |
-| +    assert "hi" == external("hash:b49177e05868*.json") == external(".txt")  |
-+------------------------------------------------------------------------------+
-+-------------------------- hash:b49177e05868*.json ---------------------------+
-| "hi"                                                                         |
-+------------------------------------------------------------------------------+
-These changes will be applied, because you used create\
+>       assert "hi" == external(".json") == snapshot(".txt")
+>           raise UsageError("you can not compare external(...) with snapshot(...)")
+E           inline_snapshot._exceptions.UsageError: you can not compare external(...) with snapshot(...)
+"""
+        ),
+        returncode=1,
+    )
+
+
+def test_unknown_suffix():
+    Example(
+        """
+from inline_snapshot import external
+
+def test_a():
+    assert "hi" == external("uuid:fake.blub")
+    """
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        error=snapshot(
+            """\
+>       assert "hi" == external("uuid:fake.blub")
+>               raise UsageError(f"format {location.suffix} is unknown")
+E               inline_snapshot._exceptions.UsageError: format .blub is unknown
 """
         ),
         returncode=1,
