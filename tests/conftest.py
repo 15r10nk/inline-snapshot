@@ -258,7 +258,7 @@ class RunResult:
 
 
 @pytest.fixture
-def project(pytester):
+def project(pytester):  # pragma: no cover
     class Project:
 
         def __init__(self):
