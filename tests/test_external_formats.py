@@ -143,6 +143,40 @@ These changes will be applied, because you used fix\
     )
 
 
+def test_large_binary_format():
+
+    Example(
+        """\
+from inline_snapshot import external
+
+def test_a():
+    data=bytes(range(256))*20
+    assert data == external()
+"""
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        report=snapshot(
+            """\
+------------------------------- Create snapshots -------------------------------
++----------------------------- test_something.py ------------------------------+
+| @@ -2,4 +2,4 @@                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_a():                                                               |
+|      data=bytes(range(256))*20                                               |
+| -    assert data == external()                                               |
+| +    assert data == external("hash:4345361085c7*.bin")                       |
++------------------------------------------------------------------------------+
++--------------------------- hash:4345361085c7*.bin ---------------------------+
+| <binary file (5120 bytes)>                                                   |
++------------------------------------------------------------------------------+
+These changes will be applied, because you used create\
+"""
+        ),
+        returncode=1,
+    )
+
+
 # def test_pickle_format():
 
 #     Example(
