@@ -83,7 +83,9 @@ def parse_outcomes(lines):
 
 
 class Example:
-    def __init__(self, files: str | dict[str, str]):
+    files: dict[str, str | bytes]
+
+    def __init__(self, files: str | dict[str, str | bytes]):
         """
         Parameters:
             files: a collection of files where inline-snapshot operates on,
@@ -131,11 +133,19 @@ class Example:
             and ".pytest_cache" not in p.parts
         }
 
-    def with_files(self, extra_files):
-        return Example(self.files | extra_files)
+    def with_files(self, extra_files: dict[str, str | bytes]) -> Example:
+        return Example({**self.files, **extra_files})
 
-    def change_code(self, func):
+    def read_text(self, name: str) -> str:
+        text = self.files[name]
+        assert isinstance(text, str)
+        return text
+
+    def change_code(self, func) -> Example:
         return Example({name: func(text) for name, text in self.files.items()})
+
+    def replace(self, text, new_text) -> Example:
+        return self.change_code(lambda code: code.replace(text, new_text))
 
     def run_inline(
         self,

@@ -29,6 +29,8 @@ def test_a():
 """,
             }
         ),
+    ).run_inline(
+        ["--inline-snapshot=disable"]
     )
 
 
