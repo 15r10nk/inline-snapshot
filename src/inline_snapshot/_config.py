@@ -23,9 +23,6 @@ class Config:
     show_updates: bool = False
 
 
-config = Config()
-
-
 def read_config(path: Path, config=Config()) -> Config:
     tool_config = {}
 

@@ -1,6 +1,7 @@
 import ast
 from collections import defaultdict
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 from typing import DefaultDict
 from typing import Dict
@@ -13,11 +14,47 @@ from typing import cast
 from asttokens.util import Token
 from executing.executing import EnhancedAST
 
+from inline_snapshot._external._external_location import ExternalLocation
+from inline_snapshot._external._format import get_format_handler_from_suffix
 from inline_snapshot._source_file import SourceFile
 
 from ._rewrite_code import ChangeRecorder
 from ._rewrite_code import end_of
 from ._rewrite_code import start_of
+
+
+@dataclass()
+class ExternalChange:
+    flag: str
+
+    new_file: Path
+
+    old_location: ExternalLocation
+    new_location: ExternalLocation
+
+    def rich_diff(self):
+        from inline_snapshot._global_state import state
+
+        d = get_format_handler_from_suffix(self.new_location.suffix or "")
+
+        if (
+            self.old_location.stem
+            and self.old_location.suffix == self.new_location.suffix
+        ):
+            storage = state().all_storages[self.old_location.storage]
+            with storage.load(self.old_location) as old_file:
+                return self.new_location.to_str(), d.rich_diff(old_file, self.new_file)
+        else:
+            return self.new_location.to_str(), d.rich_show(self.new_file)
+
+    def apply_external_changes(self):
+        from inline_snapshot._global_state import state
+
+        storage = state().all_storages[self.new_location.storage]
+        storage.store(self.new_location, self.new_file)
+
+    def apply(self, recorder: ChangeRecorder):
+        pass
 
 
 @dataclass()
@@ -31,6 +68,9 @@ class Change:
 
     def apply(self, recorder: ChangeRecorder):
         raise NotImplementedError()
+
+    def apply_external_changes(self):
+        pass
 
 
 @dataclass()
