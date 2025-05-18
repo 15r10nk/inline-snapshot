@@ -214,6 +214,8 @@ class Example:
                 read_config(tmp_path / "pyproject.toml", state.config)
                 if state.config.storage_dir is None:
                     state.config.storage_dir = tmp_path / ".inline_snapshot"
+                else:
+                    pass  # pragma: no cover
 
                 try:
                     tests_found = False
