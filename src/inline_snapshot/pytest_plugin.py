@@ -21,6 +21,7 @@ from inline_snapshot.fix_pytest_diff import fix_pytest_diff
 from . import _config
 from ._change import apply_all
 from ._code_repr import used_hasrepr
+from ._exceptions import UsageError
 from ._external import _find_external
 from ._external._find_external import ensure_import
 from ._external._find_external import used_externals_in
@@ -249,7 +250,7 @@ def unwrap(value):
     if isinstance(value, (External, Outsourced)):
         try:
             return unwrap(value._load_value())[0], True
-        except StorageLookupError:
+        except (UsageError, StorageLookupError):
             return (None, False)
 
     if isinstance(value, Unmanaged):

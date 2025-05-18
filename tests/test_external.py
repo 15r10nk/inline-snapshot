@@ -593,7 +593,7 @@ def test_a():
 | +    assert "\\n".join(map(str,range(n))) ==                                  |
 | external("hash:c4276dce1d59*.txt")                                           |
 +------------------------------------------------------------------------------+
-+--------------------------- hash:c4276dce1d59*.txt ---------------------------+
++----------------------- hash: → hash:c4276dce1d59*.txt -----------------------+
 | 0                                                                            |
 | 1                                                                            |
 | 2                                                                            |
@@ -620,7 +620,7 @@ These changes will be applied, because you used create\
 | +    assert "\\n".join(map(str,range(n))) ==                                  |
 | external("hash:2965d24b80b4*.txt")                                           |
 +------------------------------------------------------------------------------+
-+--------------------------- hash:2965d24b80b4*.txt ---------------------------+
++-------------- hash:c4276dce1d59*.txt → hash:2965d24b80b4*.txt ---------------+
 | @@ -1,3 +1,5 @@                                                              |
 |                                                                              |
 |  0                                                                           |
@@ -701,14 +701,6 @@ E           inline_snapshot._exceptions.UsageError: format '.blub' is unknown
 
 def test_missing():
 
-    error = snapshot(
-        """\
->       assert "hi" == external()
->           raise UsageError(
-E           inline_snapshot._exceptions.UsageError: can not load external object from an non existing location 'hash:'
-"""
-    )
-
     Example(
         """
 from inline_snapshot import external
@@ -719,7 +711,13 @@ def test_a():
     """
     ).run_pytest(
         ["--inline-snapshot=short-report"],
-        error=error,
+        error=snapshot(
+            """\
+>       assert "hi" == external()
+E       assert 'hi' == external("hash:")
+E        +  where external("hash:") = external()
+"""
+        ),
         report=snapshot(
             """\
 Error: one snapshot is missing a value (--inline-snapshot=create)
@@ -729,7 +727,13 @@ You can also use --inline-snapshot=review to approve the changes interactively\
         returncode=1,
     ).run_pytest(
         ["--inline-snapshot=disable"],
-        error=error,
+        error=snapshot(
+            """\
+>       assert "hi" == external()
+>           raise UsageError(
+E           inline_snapshot._exceptions.UsageError: can not load external object from an non existing location 'hash:'
+"""
+        ),
         report=snapshot(""""""),
         returncode=1,
     )
