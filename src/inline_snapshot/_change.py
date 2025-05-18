@@ -37,15 +37,19 @@ class ExternalChange:
 
         d = get_format_handler_from_suffix(self.new_location.suffix or "")
 
+        title = self.new_location.to_str()
+        if title != (old_name := self.old_location.to_str()):
+            title = f"{old_name} → {title}"
+
         if (
             self.old_location.stem
             and self.old_location.suffix == self.new_location.suffix
         ):
             storage = state().all_storages[self.old_location.storage]
             with storage.load(self.old_location) as old_file:
-                return self.new_location.to_str(), d.rich_diff(old_file, self.new_file)
+                return title, d.rich_diff(old_file, self.new_file)
         else:
-            return self.new_location.to_str(), d.rich_show(self.new_file)
+            return title, d.rich_show(self.new_file)
 
     def apply_external_changes(self):
         from inline_snapshot._global_state import state

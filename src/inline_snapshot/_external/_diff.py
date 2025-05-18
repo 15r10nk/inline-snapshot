@@ -18,14 +18,24 @@ def diff(original_text, new_text):
     return Syntax(diff, "diff", theme="ansi_light", word_wrap=True)
 
 
-def hexdump(bytes):
+def hexdump(bytes, style=False):
     from binascii import hexlify
 
     result = []
     for i in range(0, len(bytes), 16):
         line = bytes[i : i + 16]
-        s = "".join(chr(c) if 32 <= c < 127 else "." for c in line)
-        result.append(f"{i:08x}: {hexlify(line,' ',-2).decode():<39} |{s:<16}|")
+        if style:
+            dot = "[white].[/white]"
+        else:
+            dot = "."
+
+        s = "".join(chr(c) if 32 <= c < 127 else dot for c in line)
+        if style:
+            result.append(
+                f"[dark_green]{i:08x}[/]: [bright_black]{hexlify(line,' ',-2).decode():<39}[/] |[orange3]{s}{' '*(16-len(line))}[/]|"
+            )
+        else:
+            result.append(f"{i:08x}: {hexlify(line,' ',-2).decode():<39} |{s:<16}|")
 
     return "\n".join(result)
 
@@ -57,4 +67,4 @@ class BinaryDiff:
         if len(content) > 20 * 16:
             return f"<binary file ({len(content)} bytes)>"
         else:
-            return Syntax(hexdump(content), "hexdump", theme="ansi_light")
+            return hexdump(content, style=True)

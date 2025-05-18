@@ -105,7 +105,7 @@ class External:
         [config](configuration.md).
         """
 
-        return f'external("{self._location.to_str()}")'
+        return f'external("{self._original_location.to_str()}")'
 
     @property
     def storage(self):
@@ -140,9 +140,9 @@ class External:
             raise UsageError("you can not compare external(...) with snapshot(...)")
 
         if not self._original_location.stem:
+            self._assign(other)
+            state().missing_values += 1
             if state().update_flags.create:
-                self._assign(other)
-                state().missing_values += 1
                 return True
             return False
 
