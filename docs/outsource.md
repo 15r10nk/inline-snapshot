@@ -9,37 +9,36 @@ This has the advantage that you can easily see changes in code reviews. But it a
 * It is problematic to snapshot a lot of data, because it takes up a lot of space in your tests.
 * Binary data or images are not readable in your tests.
 
-The `outsource()` function solves this problem and integrates itself nicely with the inline snapshot.
-It stores the data in a special `external()` object that can be compared in snapshots.
-The object is represented by the hash of the data.
-The actual data is stored in a separate file in your project.
+The `external()` solves this problem and integrates itself nicely with the inline snapshot.
+It stores a reference to the external date in a special `external()` object which can be used like `snapshot()`.
 
-This allows the test to be renamed and moved around in your code without losing the connection to the stored data.
+There are different storage protocols like *hash* or *uuid* and different file formats like *.txt*, *.bin*, and *.json*. It is also possible to implement custom file formats.
+
 
 Example:
 
 === "original code"
-    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    <!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
     ``` python
-    from inline_snapshot import snapshot, outsource
-
-
-    def test_something():
-        assert outsource("long text\n" * 1000) == snapshot()
-    ```
-
-=== "--inline-snapshot=create"
-    <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-    ``` python hl_lines="3 4 7 8 9"
-    from inline_snapshot import snapshot, outsource
-
     from inline_snapshot import external
 
 
     def test_something():
-        assert outsource("long text\n" * 1000) == snapshot(
-            external("hash:f5a956460453*.txt")
-        )
+        assert "string" == external()
+        assert b"bytes" == external()
+        assert ["json", "like", "data"] == external(".json")
+    ```
+
+=== "--inline-snapshot=create"
+    <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+    ``` python hl_lines="5 6 7"
+    from inline_snapshot import external
+
+
+    def test_something():
+        assert "string" == external("hash:473287f8298d*.txt")
+        assert b"bytes" == external("hash:277089d91c0b*.bin")
+        assert ["json", "like", "data"] == external("hash:e790f887ceac*.json")
     ```
 
 The `external` object can be used inside other data structures.

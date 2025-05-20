@@ -18,7 +18,10 @@ from typing import TypeVar
 import pytest
 
 from inline_snapshot import snapshot
+from inline_snapshot._external._external_file import external_file
+from inline_snapshot._external._format import TextFormat
 from inline_snapshot._flags import Flags
+from inline_snapshot._global_state import snapshot_env
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
 
@@ -31,7 +34,7 @@ class Block:
     line: int
 
 
-def map_code_blocks(file: Path, func, fix: bool = False):
+def map_code_blocks(file: Path, func):
 
     block_start = re.compile("( *)``` *python(.*)")
     block_end = re.compile("```.*")
@@ -128,11 +131,7 @@ def map_code_blocks(file: Path, func, fix: bool = False):
 
     new_code = "\n".join(new_lines) + "\n"
 
-    if fix:
-        file.write_text(new_code)
-    else:
-        assert current_code.splitlines() == new_code.splitlines()
-        assert current_code == new_code
+    assert external_file(file, format=TextFormat) == new_code
 
 
 def test_map_code_blocks(tmp_path):
@@ -158,9 +157,20 @@ def test_map_code_blocks(tmp_path):
                 recorded_blocks.append(block)
                 return block
 
-            map_code_blocks(file, test_block, True)
+            with snapshot_env() as state:
+                state.update_flags.fix = True
+                state.active = True
+
+                map_code_blocks(file, test_block)
+
+                for snapshot in state.snapshots.values():
+                    for change in snapshot._changes():
+                        change.apply_external_changes()
+
             assert recorded_blocks == blocks
-            map_code_blocks(file, test_block, False)
+
+            with snapshot_env():
+                map_code_blocks(file, test_block)
 
         recorded_markdown_code = file.read_text()
         if recorded_markdown_code != markdown_code:
@@ -277,7 +287,6 @@ class Store(Generic[T]):
 def file_test(
     file: Path,
     subtests,
-    fix_files: bool = False,
     width: int = 80,
     use_hl_lines: bool = True,
 ):
@@ -432,7 +441,7 @@ def set_time(freezer):
             last_code = code
         return block
 
-    map_code_blocks(file, test_block, fix_files)
+    map_code_blocks(file, test_block)
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -448,4 +457,4 @@ if __name__ == "__main__":  # pragma: no cover
 
     nosubtests = SimpleNamespace(test=test)
 
-    file_test(file, nosubtests, fix_files=True, width=60, use_hl_lines=False)
+    file_test(file, nosubtests, width=60, use_hl_lines=False)
