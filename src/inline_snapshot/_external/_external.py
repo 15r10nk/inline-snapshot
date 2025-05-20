@@ -96,6 +96,7 @@ class External:
                 self._tmp_file,
                 self._original_location,
                 self._location,
+                get_format_handler_from_suffix(self._location.suffix or ""),
             )
 
     def __repr__(self):

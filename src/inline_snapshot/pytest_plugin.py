@@ -12,6 +12,7 @@ from rich.prompt import Confirm
 from rich.syntax import Syntax
 
 from inline_snapshot._external._external import External
+from inline_snapshot._external._external_file import ExternalFile
 from inline_snapshot._external._outsource import Outsourced
 from inline_snapshot._external._storage import StorageLookupError
 from inline_snapshot._external._storage import default_storages
@@ -249,7 +250,7 @@ def unwrap(value):
     if isinstance(value, GenericValue):
         return unwrap(value._visible_value())[0], True
 
-    if isinstance(value, (External, Outsourced)):
+    if isinstance(value, (External, Outsourced, ExternalFile)):
         try:
             return unwrap(value._load_value())[0], True
         except (UsageError, StorageLookupError):
@@ -494,6 +495,7 @@ def pytest_sessionfinish(session, exitstatus):
                                 ),
                             )
                         )
+                        any_changes = True
 
                 if any_changes and apply_changes(flag):
                     used_changes += changes[flag]
