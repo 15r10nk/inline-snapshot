@@ -11,20 +11,26 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
 
+from inline_snapshot._external._external import External
+from inline_snapshot._external._external_file import ExternalFile
+from inline_snapshot._external._outsource import Outsourced
+from inline_snapshot._external._storage import StorageLookupError
+from inline_snapshot._external._storage import default_storages
+from inline_snapshot._unmanaged import Unmanaged
 from inline_snapshot.fix_pytest_diff import fix_pytest_diff
 
 from . import _config
-from . import _external
-from . import _find_external
 from ._change import apply_all
 from ._code_repr import used_hasrepr
-from ._find_external import ensure_import
+from ._exceptions import UsageError
+from ._external import _find_external
+from ._external._find_external import ensure_import
+from ._external._find_external import used_externals_in
 from ._flags import Flags
 from ._global_state import enter_snapshot_context
 from ._global_state import leave_snapshot_context
 from ._global_state import snapshot_env
 from ._global_state import state
-from ._inline_snapshot import used_externals
 from ._problems import report_problems
 from ._rewrite_code import ChangeRecorder
 from ._snapshot.generic_value import GenericValue
@@ -123,19 +129,18 @@ def pytest_configure(config):
         if directory == directory.parent:
             break
         directory = directory.parent
-    _config.config = _config.Config()
 
     if is_pytest_compatible():
-        _config.config.default_flags_tui = ["create", "review"]
-        _config.config.default_flags = ["report"]
+        state().config.default_flags_tui = ["create", "review"]
+        state().config.default_flags = ["report"]
 
-    _config.read_config(pyproject, _config.config)
+    _config.read_config(pyproject, state().config)
 
     console = Console()
     if console.is_terminal:
-        default_flags = _config.config.default_flags_tui
+        default_flags = state().config.default_flags_tui
     else:
-        default_flags = _config.config.default_flags
+        default_flags = state().config.default_flags
 
     env_var = "INLINE_SNAPSHOT_DEFAULT_FLAGS"
     if env_var in os.environ:
@@ -176,11 +181,10 @@ def pytest_configure(config):
 
         state().update_flags = Flags(flags & categories)
 
-    external_storage = (
-        _config.config.storage_dir or config.rootpath / ".inline-snapshot"
-    ) / "external"
+    if state().config.storage_dir is None:
+        state().config.storage_dir = config.rootpath / ".inline-snapshot"
 
-    state().storage = _external.DiscStorage(external_storage)
+    state().all_storages = default_storages(state().config.storage_dir)
 
     if flags - {"short-report", "disable"} and not is_pytest_compatible():
 
@@ -194,7 +198,8 @@ def pytest_configure(config):
 
     fix_pytest_diff()
 
-    state().storage.prune_new_files()
+    for storage in state().all_storages.values():
+        storage.cleanup()
 
 
 def is_xfail(request):
@@ -239,35 +244,29 @@ def snapshot_check(request):
         )
 
 
+def unwrap(value):
+    if isinstance(value, GenericValue):
+        return unwrap(value._visible_value())[0], True
+
+    if isinstance(value, (External, Outsourced, ExternalFile)):
+        try:
+            return unwrap(value._load_value())[0], True
+        except (UsageError, StorageLookupError):
+            return (None, False)
+
+    if isinstance(value, Unmanaged):
+        return unwrap(value.value)[0], True
+
+    return value, False
+
+
 def pytest_assertrepr_compare(config, op, left, right):
 
     results = []
-    if isinstance(left, GenericValue):
-        results = config.hook.pytest_assertrepr_compare(
-            config=config, op=op, left=left._visible_value(), right=right
-        )
+    left, left_unwrapped = unwrap(left)
+    right, right_unwrapped = unwrap(right)
 
-    if isinstance(right, GenericValue):
-        results = config.hook.pytest_assertrepr_compare(
-            config=config, op=op, left=left, right=right._visible_value()
-        )
-
-    external_used = False
-    if isinstance(right, _external.external):
-        external_used = True
-        if right._suffix == ".txt":
-            right = right._load_value().decode()
-        else:
-            right = right._load_value()
-
-    if isinstance(left, _external.external):
-        external_used = True
-        if left._suffix == ".txt":
-            left = left._load_value().decode()
-        else:
-            left = left._load_value()
-
-    if external_used:
+    if left_unwrapped or right_unwrapped:
         results = config.hook.pytest_assertrepr_compare(
             config=config, op=op, left=left, right=right
         )
@@ -448,7 +447,7 @@ def pytest_sessionfinish(session, exitstatus):
 
                 if (
                     flag == "update"
-                    and not _config.config.show_updates
+                    and not state().config.show_updates
                     and not "update" in state().flags
                 ):
                     continue
@@ -467,8 +466,26 @@ def pytest_sessionfinish(session, exitstatus):
                         name = file.filename.relative_to(Path.cwd())
                         console().print(
                             Panel(
-                                Syntax(diff, "diff", theme="ansi_light"),
+                                Syntax(
+                                    diff, "diff", theme="ansi_light", word_wrap=True
+                                ),
                                 title=str(name),
+                                box=(
+                                    box.ASCII
+                                    if os.environ.get("TERM", "") == "unknown"
+                                    else box.ROUNDED
+                                ),
+                            )
+                        )
+                        any_changes = True
+
+                for change in changes[flag]:
+                    if hasattr(change, "rich_diff"):
+                        title, content = change.rich_diff()
+                        console().print(
+                            Panel(
+                                content,
+                                title=title,
                                 box=(
                                     box.ASCII
                                     if os.environ.get("TERM", "") == "unknown"
@@ -487,9 +504,12 @@ def pytest_sessionfinish(session, exitstatus):
                 cr = ChangeRecorder()
                 apply_all(used_changes, cr)
 
+                for change in used_changes:
+                    change.apply_external_changes()
+
                 for test_file in cr.files():
                     tree = ast.parse(test_file.new_code())
-                    used = used_externals(tree)
+                    used = used_externals_in(tree, check_import=False)
 
                     required_imports = []
 
@@ -507,17 +527,26 @@ def pytest_sessionfinish(session, exitstatus):
                         )
 
                     for external_name in used:
-                        state().storage.persist(external_name)
+                        if ":" in external_name:
+                            storage, path = external_name.split(":", 1)
+
+                        else:
+                            path = external_name
+                            storage = "hash"
+
+                        state().all_storages[storage].persist(path)
 
                 cr.fix_all()
 
-            unused_externals = _find_external.unused_externals()
+            used_externals2 = _find_external.used_externals()
 
-            if unused_externals and state().update_flags.trim:
-                for name in unused_externals:
-                    assert state().storage
-                    state().storage.remove(name)
-                console().print(f"removed {len(unused_externals)} unused externals\n")
+            if state().update_flags.trim:
+                for name, storage in state().all_storages.items():
+                    num = storage.remove_unused(
+                        [e for e in used_externals2 if e.storage == name]
+                    )
+                    if num:
+                        console().print(f"removed {num} unused externals\n")
         finally:
             capture.resume_global_capture()
 

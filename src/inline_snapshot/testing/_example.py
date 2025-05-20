@@ -2,21 +2,26 @@ from __future__ import annotations
 
 import os
 import platform
+import random
 import re
 import subprocess as sp
 import sys
 import traceback
+import uuid
 from argparse import ArgumentParser
 from io import StringIO
 from pathlib import Path
 from pathlib import PurePosixPath
 from tempfile import TemporaryDirectory
 from typing import Any
+from unittest.mock import patch
 
 from rich.console import Console
 
+from inline_snapshot._config import Config
+from inline_snapshot._config import read_config
 from inline_snapshot._exceptions import UsageError
-from inline_snapshot._external import DiscStorage
+from inline_snapshot._external._storage import HashStorage
 from inline_snapshot._problems import report_problems
 
 from .._change import apply_all
@@ -78,7 +83,9 @@ def parse_outcomes(lines):
 
 
 class Example:
-    def __init__(self, files: str | dict[str, str]):
+    files: dict[str, str | bytes]
+
+    def __init__(self, files: str | dict[str, str | bytes]):
         """
         Parameters:
             files: a collection of files where inline-snapshot operates on,
@@ -101,24 +108,44 @@ class Example:
         for name, content in self.files.items():
             filename = dir / name
             filename.parent.mkdir(exist_ok=True, parents=True)
-            filename.write_text(content)
+            if isinstance(content, str):
+                filename.write_text(content)
+            else:
+                filename.write_bytes(content)
 
     def _read_files(self, dir: Path):
-        storage_dir = dir / ".inline-snapshot"
+
+        def try_read(path: Path):
+            try:
+                return path.read_text("utf-8")
+            except UnicodeDecodeError:
+                return path.read_bytes()
+
+        def normalize_path(path):
+            return str(path.relative_to(dir)).replace("\\", "/")
 
         return {
-            str(p.relative_to(dir)): p.read_text()
-            for p in [*dir.iterdir(), *dir.rglob("*.py"), *storage_dir.rglob("*")]
+            normalize_path(p): try_read(p)
+            for p in dir.rglob("*")
             if p.is_file()
+            and p.name != ".gitignore"
+            and p.suffix != ".pyc"
+            and ".pytest_cache" not in p.parts
         }
 
-    def with_files(self, extra_files):
-        return Example(self.files | extra_files)
+    def with_files(self, extra_files: dict[str, str | bytes]) -> Example:
+        return Example({**self.files, **extra_files})
 
-    def code_change(self, src, dest):
-        return Example(
-            {name: file.replace(src, dest) for name, file in self.files.items()}
-        )
+    def read_text(self, name: str) -> str:
+        text = self.files[name]
+        assert isinstance(text, str)
+        return text
+
+    def change_code(self, func) -> Example:
+        return Example({name: func(text) for name, text in self.files.items()})
+
+    def replace(self, text, new_text) -> Example:
+        return self.change_code(lambda code: code.replace(text, new_text))
 
     def run_inline(
         self,
@@ -170,15 +197,31 @@ class Example:
             self._write_files(tmp_path)
 
             raised_exception = []
-            with snapshot_env() as state:
+
+            rd = random.Random(0)
+
+            def deterministic_uuid4():
+                return uuid.UUID(int=rd.getrandbits(128), version=4)
+
+            with snapshot_env() as state, patch("uuid.uuid4", new=deterministic_uuid4):
+
                 recorder = ChangeRecorder()
                 state.update_flags = Flags({*flags})
-                state.storage = DiscStorage(tmp_path / ".storage")
+                state.all_storages["hash"] = HashStorage(
+                    tmp_path / ".inline-snapshot" / "external"
+                )
+                state.config = Config()
+                read_config(tmp_path / "pyproject.toml", state.config)
+                if state.config.storage_dir is None:
+                    state.config.storage_dir = tmp_path / ".inline_snapshot"
+                else:
+                    pass  # pragma: no cover
+
                 try:
                     tests_found = False
                     for filename in tmp_path.glob("*.py"):
                         globals: dict[str, Any] = {}
-                        print("run> pytest", filename)
+                        print("run> pytest-inline", filename)
                         exec(
                             compile(filename.read_text("utf-8"), filename, "exec"),
                             globals,
@@ -219,6 +262,10 @@ class Example:
                     recorder,
                 )
                 recorder.fix_all()
+
+                for change in changes:
+                    if change.flag in state.update_flags.to_set():
+                        change.apply_external_changes()
 
                 report_output = StringIO()
                 console = Console(file=report_output, width=80)
