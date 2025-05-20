@@ -2,14 +2,34 @@ from __future__ import annotations
 
 import dataclasses
 import re
+import shutil
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Generator
 
 from inline_snapshot._adapter.adapter import AdapterContext
 
 
+class Location:
+    suffix: str | None
+
+    def __str__(self) -> str:
+        raise NotImplementedError
+
+    @contextmanager
+    def load(self) -> Generator[Path]:
+        raise NotImplementedError
+
+    def store(self, new_file: Path):
+        raise NotImplementedError
+
+    def exists(self):
+        raise NotImplementedError
+
+
 @dataclass
-class ExternalLocation:
+class ExternalLocation(Location):
     storage: str | None
     stem: str | None
     suffix: str | None
@@ -58,7 +78,10 @@ class ExternalLocation:
     def path(self) -> str:
         return f"{self.stem or ''}{self.suffix or ''}"
 
-    def to_str(self) -> str:
+    def to_str(self):
+        return str(self)
+
+    def __str__(self) -> str:
         if self.storage:
             return f"{self.storage}:{self.path}"
         else:
@@ -66,3 +89,46 @@ class ExternalLocation:
 
     def with_stem(self, new_stem):
         return dataclasses.replace(self, stem=new_stem)
+
+    @contextmanager
+    def load(self) -> Generator[Path]:
+        from inline_snapshot._global_state import state
+
+        assert self.storage
+
+        storage = state().all_storages[self.storage]
+        with storage.load(self) as file:
+            yield file
+
+    def store(self, new_file: Path):
+        from inline_snapshot._global_state import state
+
+        assert self.storage
+
+        storage = state().all_storages[self.storage]
+        storage.store(self, new_file)
+
+    def exists(self):
+        return self.stem
+
+
+class FileLocation(Location):
+    def __init__(self, filename: Path):
+        self._filename = filename
+
+    @property
+    def suffix(self):
+        return self._filename.suffix
+
+    def __str__(self) -> str:
+        return str(self._filename)
+
+    @contextmanager
+    def load(self) -> Generator[Path]:
+        yield self._filename
+
+    def store(self, new_file: Path):
+        shutil.copy(new_file, self._filename)
+
+    def exists(self):
+        return self._filename.exists()

@@ -14,8 +14,8 @@ from typing import cast
 from asttokens.util import Token
 from executing.executing import EnhancedAST
 
-from inline_snapshot._external._external_location import ExternalLocation
-from inline_snapshot._external._format import get_format_handler_from_suffix
+from inline_snapshot._external._external_location import Location
+from inline_snapshot._external._format import Format
 from inline_snapshot._source_file import SourceFile
 
 from ._rewrite_code import ChangeRecorder
@@ -29,33 +29,29 @@ class ExternalChange:
 
     new_file: Path
 
-    old_location: ExternalLocation
-    new_location: ExternalLocation
+    old_location: Location
+    new_location: Location
+
+    format: type[Format]
 
     def rich_diff(self):
-        from inline_snapshot._global_state import state
+        pass
 
-        d = get_format_handler_from_suffix(self.new_location.suffix or "")
-
-        title = self.new_location.to_str()
-        if title != (old_name := self.old_location.to_str()):
+        title = str(self.new_location)
+        if title != (old_name := str(self.old_location)):
             title = f"{old_name} → {title}"
 
         if (
-            self.old_location.stem
+            self.old_location.exists()
             and self.old_location.suffix == self.new_location.suffix
         ):
-            storage = state().all_storages[self.old_location.storage]
-            with storage.load(self.old_location) as old_file:
-                return title, d.rich_diff(old_file, self.new_file)
+            with self.old_location.load() as old_file:
+                return title, self.format.rich_diff(old_file, self.new_file)
         else:
-            return title, d.rich_show(self.new_file)
+            return title, self.format.rich_show(self.new_file)
 
     def apply_external_changes(self):
-        from inline_snapshot._global_state import state
-
-        storage = state().all_storages[self.new_location.storage]
-        storage.store(self.new_location, self.new_file)
+        self.new_location.store(self.new_file)
 
     def apply(self, recorder: ChangeRecorder):
         pass
