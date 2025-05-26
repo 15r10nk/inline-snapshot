@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import partial
 from pathlib import Path
 from typing import Protocol
 from typing import TypeVar
@@ -46,34 +47,43 @@ class Format(Protocol[T]):
     suffix: str
     suffix_required: bool = False
 
-    @classmethod
-    def rich_diff(cls, original: Path, new: Path):
+    def rich_diff(self, original: Path, new: Path):
         raise NotImplementedError
 
-    @classmethod
-    def rich_show(cls, path: Path):
+    def rich_show(self, path: Path):
         raise NotImplementedError
 
-    @classmethod
-    def handle(cls, data: object):
+    def handle(self, data: object):
         raise NotImplementedError
 
-    @classmethod
-    def encode(cls, value: T, path: Path):
+    def encode(self, value: T, path: Path):
         raise NotImplementedError
 
-    @classmethod
-    def decode(cls, path: Path) -> T:
+    def decode(self, path: Path) -> T:
         raise NotImplementedError
 
 
 FormatT = TypeVar("FormatT")
 
 
-def register_format(format: type[Format[FormatT]] | Format[FormatT]):
+def register_format(
+    format: type[Format[FormatT]] | Format[FormatT] | None = None,
+    *,
+    replace_handler=False,
+):
+
+    if format is None:
+        return partial(register_format, replace_handler=replace_handler)
+
     from inline_snapshot._global_state import state
 
     instance = format() if isinstance(format, type) else format
+
+    if not replace_handler and instance.suffix in state().all_formats:
+        raise UsageError(
+            f"Two format handlers cannot be registered for the same suffix '{instance.suffix}'."
+        )
+
     state().all_formats[instance.suffix] = instance
     return format
 
@@ -84,16 +94,13 @@ class BinaryFormat(BinaryDiff, Format[bytes]):
 
     suffix = ".bin"
 
-    @classmethod
-    def handle(cls, data: object):
+    def handle(self, data: object):
         return isinstance(data, bytes)
 
-    @classmethod
-    def encode(cls, value: bytes, path: Path):
+    def encode(self, value: bytes, path: Path):
         path.write_bytes(value)
 
-    @classmethod
-    def decode(cls, path: Path) -> bytes:
+    def decode(self, path: Path) -> bytes:
         return path.read_bytes()
 
 
@@ -103,17 +110,14 @@ class TextFormat(TextDiff, Format):
 
     suffix = ".txt"
 
-    @classmethod
-    def handle(cls, data: object):
+    def handle(self, data: object):
         return isinstance(data, str)
 
-    @classmethod
-    def encode(cls, value: str, path: Path):
+    def encode(self, value: str, path: Path):
         with path.open("w", encoding="utf-8", newline="\n") as f:
             f.write(value)
 
-    @classmethod
-    def decode(cls, path: Path) -> str:
+    def decode(self, path: Path) -> str:
         with path.open("r", encoding="utf-8", newline="\n") as f:
             return f.read()
 
@@ -125,19 +129,16 @@ class JsonFormat(TextDiff, Format[object]):
     suffix = ".json"
     suffix_required = True
 
-    @classmethod
-    def handle(cls, data: object):
+    def handle(self, data: object):
         return True
 
-    @classmethod
-    def encode(cls, value: object, path: Path):
+    def encode(self, value: object, path: Path):
         import json
 
         with path.open("w", newline="\n", encoding="utf-8") as f:
             json.dump(value, f, indent=2)
 
-    @classmethod
-    def decode(cls, path: Path) -> object:
+    def decode(self, path: Path) -> object:
         import json
 
         with path.open("r", newline="\n", encoding="utf-8") as f:

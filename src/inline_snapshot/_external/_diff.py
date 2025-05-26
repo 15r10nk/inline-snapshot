@@ -41,27 +41,23 @@ def hexdump(bytes, style=False):
 
 
 class TextDiff:
-    @classmethod
-    def rich_diff(cls, original: Path, new: Path):
+    def rich_diff(self, original: Path, new: Path):
 
         return diff(original.read_text("utf-8"), new.read_text("utf-8"))
 
-    @classmethod
-    def rich_show(cls, path: Path):
+    def rich_show(self, path: Path):
         return Syntax.from_path(str(path), theme="ansi_light", word_wrap=True)
 
 
 class BinaryDiff:
-    @classmethod
-    def rich_diff(cls, original: Path, new: Path):
+    def rich_diff(self, original: Path, new: Path):
 
         original_bytes = original.read_bytes()
         new_bytes = new.read_bytes()
 
         return diff(hexdump(original_bytes), hexdump(new_bytes))
 
-    @classmethod
-    def rich_show(cls, path: Path):
+    def rich_show(self, path: Path):
         content = path.read_bytes()
 
         if len(content) > 20 * 16:
