@@ -32,7 +32,7 @@ class ExternalChange:
     old_location: Location
     new_location: Location
 
-    format: type[Format]
+    format: Format
 
     def rich_diff(self):
         pass

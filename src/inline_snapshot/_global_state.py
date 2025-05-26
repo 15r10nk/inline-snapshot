@@ -35,7 +35,7 @@ class State:
 
     format_aliases: dict[str, str] = field(default_factory=dict)
 
-    all_formats: dict[str, type[Format]] = field(default_factory=dict)
+    all_formats: dict[str, Format] = field(default_factory=dict)
 
     all_storages: dict[str, StorageProtocol] = field(default_factory=dict)
 
