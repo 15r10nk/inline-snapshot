@@ -271,31 +271,26 @@ inline-snapshot needs to know how changes in your external files should be displ
     class NumberSetFormat(Format[NumberSet]):
         suffix = ".numberset"
 
-        @classmethod
-        def rich_diff(cls, original: Path, new: Path):
-            original_numbers = set(cls.decode(original).numbers)
-            new_numbers = set(cls.decode(new).numbers)
+        def rich_diff(self, original: Path, new: Path):
+            original_numbers = set(self.decode(original).numbers)
+            new_numbers = set(self.decode(new).numbers)
 
             return (
                 f"new numbers: [green]{new_numbers-original_numbers}[/]\n"
                 f"removed numbers: [red]{original_numbers-new_numbers}[/]"
             )
 
-        @classmethod
-        def rich_show(cls, path: Path):
-            return " ".join(f"[blue]{n}[/]" for n in cls.decode(path).numbers)
+        def rich_show(self, path: Path):
+            return " ".join(f"[blue]{n}[/]" for n in self.decode(path).numbers)
 
-        @classmethod
-        def handle(cls, data: object):
+        def handle(self, data: object):
             return isinstance(data, NumberSet)
 
-        @classmethod
-        def encode(cls, value: NumberSet, path: Path):
+        def encode(self, value: NumberSet, path: Path):
             with path.open("w", encoding="utf-8", newline="\n") as f:
                 f.write("\n".join(sorted(map(str, value.numbers))))
 
-        @classmethod
-        def decode(cls, path: Path) -> NumberSet:
+        def decode(self, path: Path) -> NumberSet:
             with path.open("r", encoding="utf-8", newline="\n") as f:
                 return NumberSet(set(map(int, f.read().splitlines())))
     ```
