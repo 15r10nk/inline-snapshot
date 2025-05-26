@@ -17,15 +17,39 @@ def test_something():
         report=snapshot(
             """\
 INFO: CI run was detected because environment variable "CI" was defined.
-INFO: inline-snapshot runs with --inline-snapshot=disabled by default in CI.\
+INFO: inline-snapshot runs with --inline-snapshot=disable by default in CI.\
 """
         ),
     )
 
-    e.run_pytest(
-        ["--inline-snapshot=disable"],
+
+def test_ci_and_fix():
+    Example(
+        """
+from inline_snapshot import snapshot
+def test_something():
+    assert 5==snapshot(2)
+
+    """
+    ).run_pytest(
+        ["--inline-snapshot=fix"],
         env={"CI": "true"},
-        report=snapshot(""),
+        report=snapshot(
+            """\
+-------------------------------- Fix snapshots ---------------------------------
++----------------------------- test_something.py ------------------------------+
+| @@ -1,6 +1,6 @@                                                              |
+|                                                                              |
+|                                                                              |
+|  from inline_snapshot import snapshot                                        |
+|  def test_something():                                                       |
+| -    assert 5==snapshot(2)                                                   |
+| +    assert 5==snapshot(5)                                                   |
++------------------------------------------------------------------------------+
+These changes will be applied, because you used fix\
+"""
+        ),
+        returncode=1,
     )
 
 

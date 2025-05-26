@@ -132,7 +132,9 @@ def pytest_configure(config):
     _config.read_config(pyproject, _config.config)
 
     console = Console()
-    if console.is_terminal:
+    if is_ci_run():
+        default_flags = {"disable"}
+    elif console.is_terminal:
         default_flags = _config.config.default_flags_tui
     else:
         default_flags = _config.config.default_flags
@@ -163,7 +165,7 @@ def pytest_configure(config):
             f"--inline-snapshot=disable can not be combined with other flags ({', '.join(flags-{'disable'})})"
         )
 
-    if xdist_running(config) or not is_implementation_supported() or is_ci_run():
+    if xdist_running(config) or not is_implementation_supported():
         state().active = False
 
     elif flags & {"review"}:
@@ -323,12 +325,12 @@ def pytest_sessionfinish(session, exitstatus):
             return
 
         if env_var := is_ci_run():
-            if state().flags != {"disable"}:
+            if state().flags == {"disable"}:
                 console().print(
                     f'INFO: CI run was detected because environment variable "{env_var}" was defined.\n'
-                    + "INFO: inline-snapshot runs with --inline-snapshot=disabled by default in CI.\n"
+                    + "INFO: inline-snapshot runs with --inline-snapshot=disable by default in CI.\n"
                 )
-            return
+                return
 
         if not is_implementation_supported():
             if state().flags != {"disable"}:
