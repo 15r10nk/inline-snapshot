@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Protocol
+from typing import TypeVar
 
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._external._diff import BinaryDiff
 from inline_snapshot._external._diff import TextDiff
 
 
-def get_format_handler(data, suffix: str | None) -> type[Format]:
+def get_format_handler(data, suffix: str | None) -> Format:
     from inline_snapshot._global_state import state
 
     if suffix is not None:
@@ -24,7 +26,7 @@ def get_format_handler(data, suffix: str | None) -> type[Format]:
         raise UsageError("data has to be of type bytes | str")
 
 
-def get_format_handler_from_suffix(suffix: str) -> type[Format]:
+def get_format_handler_from_suffix(suffix: str) -> Format:
     from inline_snapshot._global_state import state
 
     suffix = state().format_aliases.get(suffix, suffix)
@@ -37,92 +39,105 @@ def get_format_handler_from_suffix(suffix: str) -> type[Format]:
     return format
 
 
-class Format:
+T = TypeVar("T")
+
+
+class Format(Protocol[T]):
     suffix: str
-    suffix_required = False
+    suffix_required: bool = False
 
-    @staticmethod
-    def rich_diff(original: Path, new: Path):
+    @classmethod
+    def rich_diff(cls, original: Path, new: Path):
         raise NotImplementedError
 
-    @staticmethod
-    def rich_show(path: Path):
+    @classmethod
+    def rich_show(cls, path: Path):
         raise NotImplementedError
 
-    @staticmethod
-    def handle(data):
+    @classmethod
+    def handle(cls, data: object):
         raise NotImplementedError
 
-    @staticmethod
-    def encode(value, path: Path):
+    @classmethod
+    def encode(cls, value: T, path: Path):
         raise NotImplementedError
 
-    @staticmethod
-    def decode(path: Path):
+    @classmethod
+    def decode(cls, path: Path) -> T:
         raise NotImplementedError
 
 
-def register_format(cls):
+FormatT = TypeVar("FormatT")
+
+
+def register_format(format: type[Format[FormatT]] | Format[FormatT]):
     from inline_snapshot._global_state import state
 
-    state().all_formats[cls.suffix] = cls
-    return cls
+    instance = format() if isinstance(format, type) else format
+    state().all_formats[instance.suffix] = instance
+    return format
 
 
 @register_format
-class BinaryFormat(BinaryDiff, Format):
+class BinaryFormat(BinaryDiff, Format[bytes]):
+    "stores bytes in `.bin` files and shows them as hexdump"
+
     suffix = ".bin"
 
-    @staticmethod
-    def handle(data):
+    @classmethod
+    def handle(cls, data: object):
         return isinstance(data, bytes)
 
-    @staticmethod
-    def encode(value: bytes, path: Path):
+    @classmethod
+    def encode(cls, value: bytes, path: Path):
         path.write_bytes(value)
 
-    @staticmethod
-    def decode(path: Path) -> bytes:
+    @classmethod
+    def decode(cls, path: Path) -> bytes:
         return path.read_bytes()
 
 
 @register_format
 class TextFormat(TextDiff, Format):
+    "stores strings in `.txt` files"
+
     suffix = ".txt"
 
-    @staticmethod
-    def handle(data):
+    @classmethod
+    def handle(cls, data: object):
         return isinstance(data, str)
 
-    @staticmethod
-    def encode(value: str, path: Path):
+    @classmethod
+    def encode(cls, value: str, path: Path):
         with path.open("w", encoding="utf-8", newline="\n") as f:
             f.write(value)
 
-    @staticmethod
-    def decode(path: Path) -> str:
+    @classmethod
+    def decode(cls, path: Path) -> str:
         with path.open("r", encoding="utf-8", newline="\n") as f:
             return f.read()
 
 
 @register_format
-class JsonFormat(TextDiff, Format):
+class JsonFormat(TextDiff, Format[object]):
+    "stores the data with `json.dump()`"
+
     suffix = ".json"
     suffix_required = True
 
-    @staticmethod
-    def handle(data):
+    @classmethod
+    def handle(cls, data: object):
         return True
 
-    @staticmethod
-    def encode(value: object, path: Path):
+    @classmethod
+    def encode(cls, value: object, path: Path):
         import json
 
         with path.open("w", newline="\n", encoding="utf-8") as f:
             json.dump(value, f, indent=2)
 
-    @staticmethod
-    def decode(path: Path) -> str:
+    @classmethod
+    def decode(cls, path: Path) -> object:
         import json
 
         with path.open("r", newline="\n", encoding="utf-8") as f:

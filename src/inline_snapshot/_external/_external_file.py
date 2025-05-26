@@ -11,7 +11,7 @@ from inline_snapshot._global_state import state
 
 class ExternalFile:
 
-    def __init__(self, filename: Path, format: type[Format]):
+    def __init__(self, filename: Path, format: Format):
         self._filename = filename
         self._format = format
         self._value_changed = False

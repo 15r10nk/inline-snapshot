@@ -324,6 +324,18 @@ def _(value:FakeDate):
 def set_time(freezer):
         freezer.move_to(datetime.datetime(2024, 3, 14, 0, 0, 0, 0))
         yield
+
+import uuid
+import random
+
+rd = random.Random(0)
+
+def f():
+    return uuid.UUID(int=rd.getrandbits(128), version=4)
+
+uuid.uuid4=f
+
+
 """,
     }
 

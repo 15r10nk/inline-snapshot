@@ -9,6 +9,7 @@ import sys
 import traceback
 import uuid
 from argparse import ArgumentParser
+from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
 from pathlib import PurePosixPath
@@ -54,6 +55,17 @@ def normalize(text):
     text = text.replace("\u2500", "-")
     text = text.replace("\r", "")
     return text
+
+
+@contextmanager
+def deterministic_uuid():
+    rd = random.Random(0)
+
+    def f():
+        return uuid.UUID(int=rd.getrandbits(128), version=4)
+
+    with patch("uuid.uuid4", new=f):
+        yield
 
 
 # this code is copied from pytest
@@ -198,12 +210,7 @@ class Example:
 
             raised_exception = []
 
-            rd = random.Random(0)
-
-            def deterministic_uuid4():
-                return uuid.UUID(int=rd.getrandbits(128), version=4)
-
-            with snapshot_env() as state, patch("uuid.uuid4", new=deterministic_uuid4):
+            with snapshot_env() as state, deterministic_uuid():
 
                 recorder = ChangeRecorder()
                 state.update_flags = Flags({*flags})
