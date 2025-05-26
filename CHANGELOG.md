@@ -1,4 +1,15 @@
 
+<a id='changelog-0.23.1'></a>
+# 0.23.1 — 2025-05-26
+
+## Changed
+
+- changed how the `Snapshot[T]` type is implemented.
+
+## Fixed
+
+- command line flags work again in CI (#242)
+
 <a id='changelog-0.23.0'></a>
 # 0.23.0 — 2025-04-25
 
