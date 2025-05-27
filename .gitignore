@@ -73,3 +73,6 @@ target/
 .python-version
 .mutmut-cache
 html
+
+# uv lock file
+uv.lock
