@@ -37,8 +37,8 @@ if sys.version_info >= (3, 13):
     # fixes #186
     try:
         import readline  # noqa
-    except ModuleNotFoundError:  # pragma: no cover
-        # should fix #189
+    except (ImportError, ModuleNotFoundError):  # pragma: no cover
+        # should fix #189 and #245
         pass
 
 
