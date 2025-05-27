@@ -674,3 +674,146 @@ def test_list():
             }
         ),
     )
+
+
+def test_dataclass_repr():
+
+    Example(
+        """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+
+@dataclass
+class container:
+    a: int
+
+    def __repr__(self):
+        return f"Repr {self.a}"
+
+def test_list():
+    l=container(5)
+    assert l == snapshot(l), "not equal"
+"""
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+
+@dataclass
+class container:
+    a: int
+
+    def __repr__(self):
+        return f"Repr {self.a}"
+
+def test_list():
+    l=container(5)
+    assert l == snapshot(container("Repr 5")), "not equal"
+"""
+            }
+        ),
+    )
+
+
+def test_dataclass_customize_repr():
+
+    Example(
+        """\
+from inline_snapshot import snapshot,Is,customize_repr
+from dataclasses import dataclass,field
+
+@dataclass
+class container:
+    a: int
+
+    def __repr__(self):
+        return f"Repr {self.a}"
+
+@customize_repr
+def _(value:container):
+    return f"Custom Repr {value.a}"
+
+def test_list():
+    l=container(5)
+    assert l == snapshot(l), "not equal"
+"""
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot,Is,customize_repr
+from dataclasses import dataclass,field
+
+
+@dataclass
+class container:
+    a: int
+
+    def __repr__(self):
+        return f"Repr {self.a}"
+
+@customize_repr
+def _(value:container):
+    return f"Custom Repr {value.a}"
+
+def test_list():
+    l=container(5)
+    assert l == snapshot(container("Custom Repr 5")), "not equal"
+"""
+            }
+        ),
+    )
+
+
+def test_dataclass_repr_for_func():
+
+    Example(
+        """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+from collections.abc import Callable
+
+def func():...
+
+@dataclass
+class container:
+    a: int
+    b: Callable
+
+    def __repr__(self):
+        return f"Repr {self.a} {self.b.__name__}"
+
+def test_list():
+    l=container(5, func)
+    assert l == snapshot(l), "not equal"
+"""
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+from collections.abc import Callable
+
+def func():...
+
+@dataclass
+class container:
+    a: int
+    b: Callable
+
+    def __repr__(self):
+        return f"Repr {self.a} {self.b.__name__}"
+
+def test_list():
+    l=container(5, func)
+    assert l == snapshot(container("Repr 5")), "not equal"
+"""
+            }
+        ),
+    )
