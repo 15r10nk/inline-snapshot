@@ -1,4 +1,11 @@
 
+<a id='changelog-0.23.2'></a>
+# 0.23.2 — 2025-05-28
+
+## Fixed
+
+- The `readline` module doesn't have to be installed on non-windows systems.
+
 <a id='changelog-0.23.1'></a>
 # 0.23.1 — 2025-05-26
 
