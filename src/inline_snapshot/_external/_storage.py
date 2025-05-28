@@ -46,6 +46,9 @@ class StorageProtocol:
     def cleanup(self):
         raise NotImplementedError
 
+    def sync_used_externals(self, used_externals: list[ExternalLocation]) -> int:
+        raise NotImplementedError
+
 
 def file_digest(file: typing.BinaryIO, name: str):
     algo = hashlib.new(name)
@@ -98,11 +101,8 @@ class UuidStorage(StorageProtocol):
     def cleanup(self):
         pass
 
-    def remove_unused(self, used):
-        pass
-
-    def persist(self, name):
-        pass
+    def sync_used_externals(self, used_externals: list[ExternalLocation]) -> int:
+        return 0
 
 
 class HashStorage(StorageProtocol):
@@ -154,15 +154,22 @@ class HashStorage(StorageProtocol):
         for file in self.directory.glob("*-new.*"):
             file.unlink()
 
-    def remove_unused(self, used_externals: list[ExternalLocation]) -> int:
+    def sync_used_externals(self, used_externals: list[ExternalLocation]) -> int:
         unused_externals = self.list()
         for location in used_externals:
-            unused_externals -= self.lookup_all(location.path)
+            used = self.lookup_all(location.path)
+            for u in used:
+                self.persist(u)
+            unused_externals -= used
 
         n = 0
-        for name in unused_externals:
-            self.remove(name)
-            n += 1
+
+        from inline_snapshot._global_state import state
+
+        if state().update_flags.trim:
+            for name in unused_externals:
+                self.remove(name)
+                n += 1
 
         return n
 
