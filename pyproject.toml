@@ -201,6 +201,13 @@ create=[
     "git push --force-with-lease origin main $(git describe main --tags)",
 ]
 
+[tool.hatch.envs.changelog]
+detached=true
+dependencies=[
+    "scriv[toml]",
+]
+scripts.entry="scriv create --add --edit"
+
 [tool.scriv]
 format = "md"
 version = "command: cz bump --get-next"
