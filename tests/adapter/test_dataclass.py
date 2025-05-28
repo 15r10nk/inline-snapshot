@@ -773,9 +773,17 @@ def test_dataclass_repr_for_func():
 
     Example(
         """\
-from inline_snapshot import snapshot,Is
+from inline_snapshot import snapshot,Is,customize_repr
 from dataclasses import dataclass,field
 from collections.abc import Callable
+from types import FunctionType
+
+
+@customize_repr
+def _(f: FunctionType):
+    if f.__module__:
+        return f"{f.__module__}.{f.__qualname__}"
+    return f"{f.__qualname__}"
 
 def func():...
 
@@ -783,9 +791,6 @@ def func():...
 class container:
     a: int
     b: Callable
-
-    def __repr__(self):
-        return f"Repr {self.a} {self.b.__name__}"
 
 def test_list():
     l=container(5, func)
@@ -796,9 +801,17 @@ def test_list():
         changed_files=snapshot(
             {
                 "test_something.py": """\
-from inline_snapshot import snapshot,Is
+from inline_snapshot import snapshot,Is,customize_repr
 from dataclasses import dataclass,field
 from collections.abc import Callable
+from types import FunctionType
+
+
+@customize_repr
+def _(f: FunctionType):
+    if f.__module__:
+        return f"{f.__module__}.{f.__qualname__}"
+    return f"{f.__qualname__}"
 
 def func():...
 
@@ -807,12 +820,9 @@ class container:
     a: int
     b: Callable
 
-    def __repr__(self):
-        return f"Repr {self.a} {self.b.__name__}"
-
 def test_list():
     l=container(5, func)
-    assert l == snapshot(container("Repr 5")), "not equal"
+    assert l == snapshot(container(a=5, b=func)), "not equal"
 """
             }
         ),
