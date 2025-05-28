@@ -827,3 +827,63 @@ def test_list():
             }
         ),
     )
+
+
+def test_dataclass_repr_for_nested_func():
+
+    Example(
+        """\
+from inline_snapshot import snapshot,Is,customize_repr
+from dataclasses import dataclass,field
+from collections.abc import Callable
+from types import FunctionType
+
+
+@customize_repr
+def _(f: FunctionType):
+    if f.__module__:
+        return f"{f.__module__}.{f.__qualname__}"
+    return f"{f.__qualname__}"
+
+@dataclass
+class container:
+    a: int
+    b: Callable
+
+def test_list():
+    def func():...
+
+    l=container(5, func)
+    assert l == snapshot(l), "not equal"
+"""
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot,Is,customize_repr
+from dataclasses import dataclass,field
+from collections.abc import Callable
+from types import FunctionType
+
+
+@customize_repr
+def _(f: FunctionType):
+    if f.__module__:
+        return f"{f.__module__}.{f.__qualname__}"
+    return f"{f.__qualname__}"
+
+@dataclass
+class container:
+    a: int
+    b: Callable
+
+def test_list():
+    def func():...
+
+    l=container(5, func)
+    assert l == snapshot(container(a=5, b=HasRepr(function, "test_list.<locals>.func"))), "not equal"
+"""
+            }
+        ),
+    )
