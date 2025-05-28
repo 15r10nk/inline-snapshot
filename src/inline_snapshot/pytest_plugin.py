@@ -528,27 +528,16 @@ def pytest_sessionfinish(session, exitstatus):
                             cr,
                         )
 
-                    for external_name in used:
-                        if ":" in external_name:
-                            storage, path = external_name.split(":", 1)
-
-                        else:
-                            path = external_name
-                            storage = "hash"
-
-                        state().all_storages[storage].persist(path)
-
                 cr.fix_all()
 
             used_externals2 = _find_external.used_externals()
 
-            if state().update_flags.trim:
-                for name, storage in state().all_storages.items():
-                    num = storage.remove_unused(
-                        [e for e in used_externals2 if e.storage == name]
-                    )
-                    if num:
-                        console().print(f"removed {num} unused externals\n")
+            for name, storage in state().all_storages.items():
+                num = storage.sync_used_externals(
+                    [e for e in used_externals2 if e.storage == name]
+                )
+                if num:
+                    console().print(f"removed {num} unused externals\n")
         finally:
             capture.resume_global_capture()
 
