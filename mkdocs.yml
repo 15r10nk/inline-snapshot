@@ -53,7 +53,7 @@ nav:
   - x <= snapshot(): cmp_snapshot.md
   - x in snapshot(): in_snapshot.md
   - snapshot()[key]: getitem_snapshot.md
-  - outsource(data): outsource.md
+  - external(): external.md
   - '@customize_repr': customize_repr.md
   - types: types.md
 - Extensions:
@@ -99,6 +99,9 @@ plugins:
     ansi: required
 - replace-url
 - autorefs
+- redirects:
+    redirect_maps:
+      outsource.md: external.md#outsource
 
 
 extra:

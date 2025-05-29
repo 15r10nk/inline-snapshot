@@ -1,19 +1,27 @@
 from __future__ import annotations
 
 import contextlib
+from copy import deepcopy
 from dataclasses import dataclass
 from dataclasses import field
+from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 from typing import Generator
+
+from inline_snapshot._config import Config
+from inline_snapshot._external._format import Format
+from inline_snapshot._external._storage import StorageProtocol
 
 from ._flags import Flags
 
 if TYPE_CHECKING:
-    from ._external import DiscStorage
+    pass
 
 
 @dataclass
 class State:
+    config: Config = field(default_factory=Config)
+
     # snapshot
     missing_values: int = 0
     incorrect_values: int = 0
@@ -23,10 +31,15 @@ class State:
     active: bool = True
     files_with_snapshots: set[str] = field(default_factory=set)
 
-    # external
-    storage: DiscStorage | None = None
-
     flags: set[str] = field(default_factory=set)
+
+    format_aliases: dict[str, str] = field(default_factory=dict)
+
+    all_formats: dict[str, Format] = field(default_factory=dict)
+
+    all_storages: dict[str, StorageProtocol] = field(default_factory=dict)
+
+    default_storage: str = "hash"
 
 
 _latest_global_states: list[State] = []
@@ -42,8 +55,11 @@ def state() -> State:
 
 def enter_snapshot_context():
     global _current
+    latest = _current
     _latest_global_states.append(_current)
     _current = State()
+    _current.all_formats = dict(latest.all_formats)
+    _current.config = deepcopy(latest.config)
 
 
 def leave_snapshot_context():
@@ -53,10 +69,17 @@ def leave_snapshot_context():
 
 @contextlib.contextmanager
 def snapshot_env() -> Generator[State]:
+    from ._external._storage import HashStorage
+
+    old = _current
 
     enter_snapshot_context()
 
     try:
-        yield _current
+        with TemporaryDirectory() as dir:
+            _current.all_storages = dict(old.all_storages)
+            _current.all_storages["hash"] = HashStorage(dir)
+
+            yield _current
     finally:
         leave_snapshot_context()
