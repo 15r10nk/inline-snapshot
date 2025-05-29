@@ -115,6 +115,7 @@ class SnapshotReference:
         self._expr = expr
         node = expr.node.args[0] if expr is not None and expr.node.args else None
         self._value = UndecidedValue(value, node, context)
+        self._context = context
 
     def result(self):
         return self._value

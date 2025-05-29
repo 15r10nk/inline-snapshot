@@ -43,7 +43,7 @@ hash-length=64
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                ".inline-snapshot/external/ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb-new.txt": "a",
+                ".inline-snapshot/external/ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb.txt": "a",
                 "test_something.py": """\
 from inline_snapshot import external
 def test_a():
@@ -105,7 +105,7 @@ def test_diskstorage():
 
         with raises(
             snapshot(
-                "StorageLookupError: hash collision files=['a140c0c1eda2def2b830363ba362aa4d7d255c262960544821f556e16661b6ff-new.txt', 'a4e624d686e03ed2767c0abd85c14426b0b1157d2ce81d27bb4fe4f6f01d688a-new.txt']"
+                "StorageLookupError: hash collision files=['a140c0c1eda2def2b830363ba362aa4d7d255c262960544821f556e16661b6ff.txt', 'a4e624d686e03ed2767c0abd85c14426b0b1157d2ce81d27bb4fe4f6f01d688a.txt']"
             )
         ):
             assert outsource("test4") == external("hash:a*.txt")
@@ -310,7 +310,7 @@ def test_a():
     project.run()
 
     assert project.storage() == snapshot(
-        ["9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08-new.txt"]
+        ["9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt"]
     )
 
     project.run("--inline-snapshot=create")
@@ -368,7 +368,7 @@ def test_errors():
 
         with raises(
             snapshot(
-                "ValueError: path has to be of the form <hash>.<suffix> or <partial_hash>*.<suffix>"
+                "ValueError: path 'invalid' has to be of the form <hash>.<suffix> or <partial_hash>*.<suffix>"
             )
         ):
             external("invalid")
@@ -474,7 +474,7 @@ def test_something():
     assert project.storage() == snapshot(
         [
             "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.txt",
-            "8dc140e6fe831481a2005ae152ffe32a9974aa92a260dfbac780d6a87154bb0b-new.txt",
+            "8dc140e6fe831481a2005ae152ffe32a9974aa92a260dfbac780d6a87154bb0b.txt",
         ]
     )
 
@@ -499,7 +499,7 @@ def test_something():
     assert project.storage() == snapshot(
         [
             "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.txt",
-            "8dc140e6fe831481a2005ae152ffe32a9974aa92a260dfbac780d6a87154bb0b-new.txt",
+            "8dc140e6fe831481a2005ae152ffe32a9974aa92a260dfbac780d6a87154bb0b.txt",
         ]
     )
 

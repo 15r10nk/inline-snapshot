@@ -4,13 +4,16 @@ import contextlib
 from copy import deepcopy
 from dataclasses import dataclass
 from dataclasses import field
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
+from typing import Any
 from typing import Generator
 
 from inline_snapshot._config import Config
 from inline_snapshot._external._format import Format
 from inline_snapshot._external._storage import StorageProtocol
+from inline_snapshot._types import SnapshotBase
 
 from ._flags import Flags
 
@@ -26,10 +29,17 @@ class State:
     missing_values: int = 0
     incorrect_values: int = 0
 
-    snapshots: dict = field(default_factory=dict)
+    snapshots: dict[Any, SnapshotBase] = field(default_factory=dict)
     update_flags: Flags = field(default_factory=Flags)
     active: bool = True
-    files_with_snapshots: set[str] = field(default_factory=set)
+
+    @property
+    def files_with_snapshots(self):
+        return {
+            Path(s._context.file.filename)
+            for s in self.snapshots.values()
+            if hasattr(s, "_context")
+        }
 
     flags: set[str] = field(default_factory=set)
 

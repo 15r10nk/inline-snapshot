@@ -23,7 +23,7 @@ from . import _config
 from ._change import apply_all
 from ._code_repr import used_hasrepr
 from ._exceptions import UsageError
-from ._external import _find_external
+from ._external._external_location import ExternalLocation
 from ._external._find_external import ensure_import
 from ._external._find_external import used_externals_in
 from ._flags import Flags
@@ -303,6 +303,149 @@ def category_link(category):
     )
 
 
+def apply_changes(flag, console):
+    if flag in state().flags:
+        console().print(
+            f"These changes will be applied, because you used {category_link(flag)}",
+            highlight=False,
+        )
+        console().print()
+        return True
+    if "review" in state().flags:
+        result = Confirm.ask(
+            f"Do you want to {category_link(flag)} these snapshots?",
+            default=False,
+        )
+        console().print()
+        return result
+    else:
+        console().print("These changes are not applied.")
+        console().print(
+            f"Use [bold]--inline-snapshot={category_link(flag)} to apply them, "
+            "or use the interactive mode with [b]--inline-snapshot=[italic blue link=https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview]review[/][/]",
+            highlight=False,
+        )
+        console().print()
+        return False
+
+
+def short_report(snapshot_changes, console):
+    def report(flag, message, message_n):
+        num = snapshot_changes[flag]
+
+        if num and not getattr(state().update_flags, flag):
+            console().print(
+                message if num == 1 else message_n.format(num=num),
+                highlight=False,
+            )
+
+    report(
+        "fix",
+        "Error: one snapshot has incorrect values ([b]--inline-snapshot=fix[/])",
+        "Error: {num} snapshots have incorrect values ([b]--inline-snapshot=fix[/])",
+    )
+
+    report(
+        "trim",
+        "Info: one snapshot can be trimmed ([b]--inline-snapshot=trim[/])",
+        "Info: {num} snapshots can be trimmed ([b]--inline-snapshot=trim[/])",
+    )
+
+    report(
+        "create",
+        "Error: one snapshot is missing a value ([b]--inline-snapshot=create[/])",
+        "Error: {num} snapshots are missing values ([b]--inline-snapshot=create[/])",
+    )
+
+    report(
+        "update",
+        "Info: one snapshot changed its representation ([b]--inline-snapshot=update[/])",
+        "Info: {num} snapshots changed their representation ([b]--inline-snapshot=update[/])",
+    )
+
+    if sum(snapshot_changes.values()) != 0:
+        console().print(
+            "\nYou can also use [b]--inline-snapshot=review[/] to approve the changes interactively",
+            highlight=False,
+        )
+
+    return
+
+
+def filter_changes(changes, snapshot_changes, console):
+
+    if not is_pytest_compatible():
+        assert not any(
+            type(e).__name__ == "AssertionRewritingHook" for e in sys.meta_path
+        )
+
+    used_changes = []
+    for flag in Flags.all():
+        if not changes[flag]:
+            continue
+
+        if not {"review", "report", flag} & state().flags:
+            continue
+
+        @call_once
+        def header():
+            console().rule(f"[yellow bold]{flag.capitalize()} snapshots")
+
+        if (
+            flag == "update"
+            and not state().config.show_updates
+            and not "update" in state().flags
+        ):
+            continue
+
+        cr = ChangeRecorder()
+        apply_all(used_changes, cr)
+        cr.virtual_write()
+        apply_all(changes[flag], cr)
+
+        any_changes = False
+
+        for file in cr.files():
+            diff = file.diff()
+            if diff:
+                header()
+                name = file.filename.relative_to(Path.cwd())
+                console().print(
+                    Panel(
+                        Syntax(diff, "diff", theme="ansi_light", word_wrap=True),
+                        title=str(name),
+                        box=(
+                            box.ASCII
+                            if os.environ.get("TERM", "") == "unknown"
+                            else box.ROUNDED
+                        ),
+                    )
+                )
+                any_changes = True
+
+        for change in changes[flag]:
+            diff = change.rich_diff()
+            if diff is not None:
+                title, content = diff
+                console().print(
+                    Panel(
+                        content,
+                        title=title,
+                        box=(
+                            box.ASCII
+                            if os.environ.get("TERM", "") == "unknown"
+                            else box.ROUNDED
+                        ),
+                    )
+                )
+                any_changes = True
+
+        if any_changes and apply_changes(flag, console):
+            used_changes += changes[flag]
+
+    return used_changes
+
+
 @pytest.hookimpl(trylast=True)
 def pytest_sessionfinish(session, exitstatus):
     try:
@@ -345,31 +488,6 @@ def pytest_sessionfinish(session, exitstatus):
 
         # --inline-snapshot
 
-        def apply_changes(flag):
-            if flag in state().flags:
-                console().print(
-                    f"These changes will be applied, because you used {category_link(flag)}",
-                    highlight=False,
-                )
-                console().print()
-                return True
-            if "review" in state().flags:
-                result = Confirm.ask(
-                    f"Do you want to {category_link(flag)} these snapshots?",
-                    default=False,
-                )
-                console().print()
-                return result
-            else:
-                console().print("These changes are not applied.")
-                console().print(
-                    f"Use [bold]--inline-snapshot={category_link(flag)} to apply them, "
-                    "or use the interactive mode with [b]--inline-snapshot=[italic blue link=https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview]review[/][/]",
-                    highlight=False,
-                )
-                console().print()
-                return False
-
         # auto mode
         changes = {f: [] for f in Flags.all()}
 
@@ -386,119 +504,48 @@ def pytest_sessionfinish(session, exitstatus):
 
         capture.suspend_global_capture(in_=True)
         try:
-
             if "short-report" in state().flags:
-
-                def report(flag, message, message_n):
-                    num = snapshot_changes[flag]
-
-                    if num and not getattr(state().update_flags, flag):
-                        console().print(
-                            message if num == 1 else message.format(num=num),
-                            highlight=False,
-                        )
-
-                report(
-                    "fix",
-                    "Error: one snapshot has incorrect values ([b]--inline-snapshot=fix[/])",
-                    "Error: {num} snapshots have incorrect values ([b]--inline-snapshot=fix[/])",
-                )
-
-                report(
-                    "trim",
-                    "Info: one snapshot can be trimmed ([b]--inline-snapshot=trim[/])",
-                    "Info: {num} snapshots can be trimmed ([b]--inline-snapshot=trim[/])",
-                )
-
-                report(
-                    "create",
-                    "Error: one snapshot is missing a value ([b]--inline-snapshot=create[/])",
-                    "Error: {num} snapshots are missing values ([b]--inline-snapshot=create[/])",
-                )
-
-                report(
-                    "update",
-                    "Info: one snapshot changed its representation ([b]--inline-snapshot=update[/])",
-                    "Info: {num} snapshots changed their representation ([b]--inline-snapshot=update[/])",
-                )
-
-                if sum(snapshot_changes.values()) != 0:
-                    console().print(
-                        "\nYou can also use [b]--inline-snapshot=review[/] to approve the changes interactively",
-                        highlight=False,
-                    )
-
+                short_report(snapshot_changes, console)
                 return
 
-            if not is_pytest_compatible():
-                assert not any(
-                    type(e).__name__ == "AssertionRewritingHook" for e in sys.meta_path
-                )
+            used_changes = filter_changes(changes, snapshot_changes, console)
 
-            used_changes = []
-            for flag in Flags.all():
-                if not changes[flag]:
-                    continue
+            cr = ChangeRecorder()
+            apply_all(used_changes, cr)
+            changed_files = {Path(f.filename): f for f in cr.files()}
 
-                if not {"review", "report", flag} & state().flags:
-                    continue
+            test_dir = state().config.tests_dir
+            assert test_dir
 
-                @call_once
-                def header():
-                    console().rule(f"[yellow bold]{flag.capitalize()} snapshots")
+            all_files = {
+                *test_dir.rglob("*.py"),
+                *map(Path, state().files_with_snapshots),
+            }
 
-                if (
-                    flag == "update"
-                    and not state().config.show_updates
-                    and not "update" in state().flags
+            used = []
+
+            for file in all_files:
+                if file in changed_files:
+                    content = changed_files[file].new_code()
+                else:
+                    content = file.read_text()
+
+                for e in used_externals_in(content, check_import=False):
+                    try:
+                        location = ExternalLocation.from_name(e)
+                        used.append(location)
+                    except ValueError:
+                        pass
+
+            changes = {f: [] for f in Flags.all()}
+
+            for name, storage in state().all_storages.items():
+                for external_change in storage.sync_used_externals(
+                    [e for e in used if e.storage == name]
                 ):
-                    continue
+                    changes[external_change.flag].append(external_change)
 
-                cr = ChangeRecorder()
-                apply_all(used_changes, cr)
-                cr.virtual_write()
-                apply_all(changes[flag], cr)
-
-                any_changes = False
-
-                for file in cr.files():
-                    diff = file.diff()
-                    if diff:
-                        header()
-                        name = file.filename.relative_to(Path.cwd())
-                        console().print(
-                            Panel(
-                                Syntax(
-                                    diff, "diff", theme="ansi_light", word_wrap=True
-                                ),
-                                title=str(name),
-                                box=(
-                                    box.ASCII
-                                    if os.environ.get("TERM", "") == "unknown"
-                                    else box.ROUNDED
-                                ),
-                            )
-                        )
-                        any_changes = True
-
-                for change in changes[flag]:
-                    if hasattr(change, "rich_diff"):
-                        title, content = change.rich_diff()
-                        console().print(
-                            Panel(
-                                content,
-                                title=title,
-                                box=(
-                                    box.ASCII
-                                    if os.environ.get("TERM", "") == "unknown"
-                                    else box.ROUNDED
-                                ),
-                            )
-                        )
-                        any_changes = True
-
-                if any_changes and apply_changes(flag):
-                    used_changes += changes[flag]
+            used_changes += filter_changes(changes, snapshot_changes, console)
 
             report_problems(console)
 
@@ -530,17 +577,8 @@ def pytest_sessionfinish(session, exitstatus):
 
                 cr.fix_all()
 
-            used_externals2 = _find_external.used_externals()
-
-            for name, storage in state().all_storages.items():
-                num = storage.sync_used_externals(
-                    [e for e in used_externals2 if e.storage == name]
-                )
-                if num:
-                    console().print(f"removed {num} unused externals\n")
         finally:
             capture.resume_global_capture()
-
         return
     finally:
         leave_snapshot_context()

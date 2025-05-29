@@ -16,6 +16,7 @@ from executing.executing import EnhancedAST
 
 from inline_snapshot._external._external_location import Location
 from inline_snapshot._external._format import Format
+from inline_snapshot._external._format import get_format_handler_from_suffix
 from inline_snapshot._source_file import SourceFile
 
 from ._rewrite_code import ChangeRecorder
@@ -23,8 +24,21 @@ from ._rewrite_code import end_of
 from ._rewrite_code import start_of
 
 
+class ChangeBase:
+    flag: str
+
+    def rich_diff(self):
+        raise NotImplementedError
+
+    def apply_external_changes(self):
+        raise NotImplementedError
+
+    def apply(self, recorder: ChangeRecorder):
+        raise NotImplementedError
+
+
 @dataclass()
-class ExternalChange:
+class ExternalChange(ChangeBase):
     flag: str
 
     new_file: Path
@@ -35,7 +49,6 @@ class ExternalChange:
     format: Format
 
     def rich_diff(self):
-        pass
 
         title = str(self.new_location)
         if title != (old_name := str(self.old_location)):
@@ -58,9 +71,34 @@ class ExternalChange:
 
 
 @dataclass()
-class Change:
+class ExternalRemove(ChangeBase):
+    flag: str
+
+    old_location: Location
+
+    def rich_diff(self):
+
+        title = f"delete {self.old_location}"
+
+        with self.old_location.load() as old_file:
+            assert self.old_location.suffix
+            format = get_format_handler_from_suffix(self.old_location.suffix)
+            return title, format.rich_show(old_file)
+
+    def apply_external_changes(self):
+        self.old_location.delete()
+
+    def apply(self, recorder: ChangeRecorder):
+        pass
+
+
+@dataclass()
+class Change(ChangeBase):
     flag: str
     file: SourceFile
+
+    def rich_diff(self):
+        return None
 
     @property
     def filename(self):
