@@ -6,7 +6,12 @@ import typing
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Generator
+from typing import Iterator
+
+if TYPE_CHECKING:
+    from inline_snapshot._change import ChangeBase
 
 from ._external_location import ExternalLocation
 
@@ -35,6 +40,9 @@ class StorageProtocol:
         """
         raise NotImplementedError
 
+    def delete(self, location: ExternalLocation):
+        raise NotImplementedError
+
     def new_location(
         self, location: ExternalLocation, file_path: Path
     ) -> ExternalLocation:
@@ -46,7 +54,9 @@ class StorageProtocol:
     def cleanup(self):
         raise NotImplementedError
 
-    def sync_used_externals(self, used_externals: list[ExternalLocation]) -> int:
+    def sync_used_externals(
+        self, used_externals: list[ExternalLocation]
+    ) -> Iterator[ChangeBase]:
         raise NotImplementedError
 
 
@@ -69,6 +79,10 @@ class UuidStorage(StorageProtocol):
         snapshot_path.parent.mkdir(parents=True, exist_ok=True)
 
         shutil.copy(str(file_path), str(snapshot_path))
+
+    def delete(self, location: ExternalLocation):
+        snapshot_path = self._get_path(location)
+        snapshot_path.unlink()
 
     def new_location(
         self, location: ExternalLocation, file_path: Path
@@ -101,8 +115,10 @@ class UuidStorage(StorageProtocol):
     def cleanup(self):
         pass
 
-    def sync_used_externals(self, used_externals: list[ExternalLocation]) -> int:
-        return 0
+    def sync_used_externals(
+        self, used_externals: list[ExternalLocation]
+    ) -> Iterator[ChangeBase]:
+        return iter(())
 
 
 class HashStorage(StorageProtocol):
@@ -129,12 +145,17 @@ class HashStorage(StorageProtocol):
         with file_path.open("rb") as f:
             hash_name = file_digest(f, "sha256").hexdigest()
 
+        assert location.suffix
+
         if not (self.directory / (hash_name + location.suffix)).exists():
-            # TODO: remove -new
             shutil.copy(
                 str(file_path),
-                str(self.directory / (hash_name + "-new" + location.suffix)),
+                str(self.directory / (hash_name + location.suffix)),
             )
+
+    def delete(self, location: ExternalLocation):
+        path = self._lookup_path(location.path)
+        path.unlink()
 
     def new_location(
         self, location: ExternalLocation, file_path: Path
@@ -154,24 +175,20 @@ class HashStorage(StorageProtocol):
         for file in self.directory.glob("*-new.*"):
             file.unlink()
 
-    def sync_used_externals(self, used_externals: list[ExternalLocation]) -> int:
+    def sync_used_externals(
+        self, used_externals: list[ExternalLocation]
+    ) -> Iterator[ChangeBase]:
         unused_externals = self.list()
         for location in used_externals:
             used = self.lookup_all(location.path)
-            for u in used:
-                self.persist(u)
             unused_externals -= used
 
-        n = 0
-
+        from inline_snapshot._change import ExternalRemove
         from inline_snapshot._global_state import state
 
         if state().update_flags.trim:
             for name in unused_externals:
-                self.remove(name)
-                n += 1
-
-        return n
+                yield ExternalRemove("trim", ExternalLocation.from_name(name))
 
     def cleanup(self):
         self.prune_new_files()
@@ -182,15 +199,6 @@ class HashStorage(StorageProtocol):
             return {item.name for item in self.directory.iterdir()} - {".gitignore"}
         else:
             return set()
-
-    def persist(self, name):
-        try:
-            file = self._lookup_path(name)
-        except StorageLookupError:
-            return
-        if file.stem.endswith("-new"):
-            stem = file.stem[:-4]
-            file.rename(file.with_name(stem + file.suffix))
 
     def _lookup_path(self, name) -> Path:
         if "*" not in name:
@@ -210,6 +218,9 @@ class HashStorage(StorageProtocol):
 
     def lookup_all(self, name: str) -> set[str]:
         return {file.name for file in self.directory.glob(name)}
+
+    def lookup_all_path(self, name: str) -> set[path]:
+        return {file for file in self.directory.glob(name)}
 
     def remove(self, name):
         self._lookup_path(name).unlink()

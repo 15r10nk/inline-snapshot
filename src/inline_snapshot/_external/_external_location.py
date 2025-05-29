@@ -24,6 +24,9 @@ class Location:
     def store(self, new_file: Path):
         raise NotImplementedError
 
+    def delete(self):
+        raise NotImplementedError
+
     def exists(self):
         raise NotImplementedError
 
@@ -57,7 +60,7 @@ class ExternalLocation(Location):
             storage, path = name.split(":", 1)
         else:
             raise ValueError(
-                "path has to be of the form <hash>.<suffix> or <partial_hash>*.<suffix>"
+                f"path '{name}' has to be of the form <hash>.<suffix> or <partial_hash>*.<suffix>"
             )
 
         if "." in path:
@@ -107,6 +110,14 @@ class ExternalLocation(Location):
 
         storage = state().all_storages[self.storage]
         storage.store(self, new_file)
+
+    def delete(self):
+        from inline_snapshot._global_state import state
+
+        assert self.storage
+
+        storage = state().all_storages[self.storage]
+        storage.delete(self)
 
     def exists(self):
         return self.stem

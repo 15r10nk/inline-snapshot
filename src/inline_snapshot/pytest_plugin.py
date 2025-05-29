@@ -384,6 +384,14 @@ def pytest_sessionfinish(session, exitstatus):
             for category in all_categories:
                 snapshot_changes[category] += 1
 
+        used_externals2 = _find_external.used_externals()
+
+        for name, storage in state().all_storages.items():
+            for external_change in storage.sync_used_externals(
+                [e for e in used_externals2 if e.storage == name]
+            ):
+                changes[external_change.flag].append(external_change)
+
         capture.suspend_global_capture(in_=True)
         try:
 
@@ -482,8 +490,9 @@ def pytest_sessionfinish(session, exitstatus):
                         any_changes = True
 
                 for change in changes[flag]:
-                    if hasattr(change, "rich_diff"):
-                        title, content = change.rich_diff()
+                    diff = change.rich_diff()
+                    if diff is not None:
+                        title, content = diff
                         console().print(
                             Panel(
                                 content,
@@ -530,14 +539,6 @@ def pytest_sessionfinish(session, exitstatus):
 
                 cr.fix_all()
 
-            used_externals2 = _find_external.used_externals()
-
-            for name, storage in state().all_storages.items():
-                num = storage.sync_used_externals(
-                    [e for e in used_externals2 if e.storage == name]
-                )
-                if num:
-                    console().print(f"removed {num} unused externals\n")
         finally:
             capture.resume_global_capture()
 

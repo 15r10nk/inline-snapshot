@@ -15,7 +15,7 @@ def test_a():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                ".inline-snapshot/external/17f5ce5ea0f8711b6b20414da84373fb56176c3a3112c86c94529d3e29dacac3-new.json": """\
+                ".inline-snapshot/external/17f5ce5ea0f8711b6b20414da84373fb56176c3a3112c86c94529d3e29dacac3.json": """\
 [
   1,
   2
