@@ -15,6 +15,6 @@ Then inline-snapshot will act as usual, or you can pass alternative flags with `
 pytest -n0 --inline-snapshot=create,report
 ```
 
-## On CPython < 3.11, pytest assert rewriting can be disabled
+## On CPython < 3.11, pytest assert rewriting can be disabled [](){#pytest-assert-rewriting-is-disabled}
 
 On CPython versions before 3.11, inline-snapshot must disable pytest assert rewriting if you use any of these flags: `report`, `review`, `create`, `fix`, `trim`, or `update`.

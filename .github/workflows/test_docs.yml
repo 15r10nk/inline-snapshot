@@ -13,4 +13,4 @@ jobs:
     - run: pip install hatch
     - name: test docs
       run: |
-        hatch run docs:build
+        hatch run docs:build --strict
