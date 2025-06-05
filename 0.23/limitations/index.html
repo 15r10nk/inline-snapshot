@@ -106,7 +106,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#pytest-assert-rewriting-is-disabled" class="md-skip">
+        <a href="#only-cpython-is-supported" class="md-skip">
           Skip to content
         </a>
       
@@ -684,27 +684,27 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pytest-assert-rewriting-is-disabled" class="md-nav__link">
+  <a href="#only-cpython-is-supported" class="md-nav__link">
     <span class="md-ellipsis">
-      pytest assert rewriting is disabled
+      Only CPython is supported
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#xdist-is-not-supported" class="md-nav__link">
+  <a href="#pytest-xdist-is-not-supported" class="md-nav__link">
     <span class="md-ellipsis">
-      xdist is not supported
+      pytest-xdist is not supported
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#works-only-with-cpython" class="md-nav__link">
+  <a href="#on-cpython-311-pytest-assert-rewriting-can-be-disabled" class="md-nav__link">
     <span class="md-ellipsis">
-      works only with cpython
+      On CPython &lt; 3.11, pytest assert rewriting can be disabled
     </span>
   </a>
   
@@ -1239,27 +1239,27 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pytest-assert-rewriting-is-disabled" class="md-nav__link">
+  <a href="#only-cpython-is-supported" class="md-nav__link">
     <span class="md-ellipsis">
-      pytest assert rewriting is disabled
+      Only CPython is supported
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#xdist-is-not-supported" class="md-nav__link">
+  <a href="#pytest-xdist-is-not-supported" class="md-nav__link">
     <span class="md-ellipsis">
-      xdist is not supported
+      pytest-xdist is not supported
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#works-only-with-cpython" class="md-nav__link">
+  <a href="#on-cpython-311-pytest-assert-rewriting-can-be-disabled" class="md-nav__link">
     <span class="md-ellipsis">
-      works only with cpython
+      On CPython &lt; 3.11, pytest assert rewriting can be disabled
     </span>
   </a>
   
@@ -1286,13 +1286,18 @@
 
   <h1>Limitations</h1>
 
-<h2 id="pytest-assert-rewriting-is-disabled">pytest assert rewriting is disabled<a class="headerlink" href="#pytest-assert-rewriting-is-disabled" title="Permanent link">&para;</a></h2>
-<p>inline-snapshot must disable pytest assert-rewriting if you use <em>report/review/create/fix/trim/update</em> flags and <em>cpython&lt;3.11</em>.</p>
-<h2 id="xdist-is-not-supported">xdist is not supported<a class="headerlink" href="#xdist-is-not-supported" title="Permanent link">&para;</a></h2>
-<p>You can not use inline-snapshot in combination with <a href="https://pytest-xdist.readthedocs.io/">pytest-xdist</a>.
-xdist being active implies <code>--inline-snapshot=disable</code>.</p>
-<h2 id="works-only-with-cpython">works only with cpython<a class="headerlink" href="#works-only-with-cpython" title="Permanent link">&para;</a></h2>
-<p>inline-snapshot works currently only with cpython. <code>--inline-snapshot=disable</code> is enforced for every other implementation.</p>
+<h2 id="only-cpython-is-supported">Only CPython is supported<a class="headerlink" href="#only-cpython-is-supported" title="Permanent link">&para;</a></h2>
+<p>Currently, inline-snapshot only works with CPython.
+On other Python implementations, such as PyPy, inline-snapshot acts as if <code>--inline-snapshot=disable</code> is set, allowing tests to pass but not providing any way to update snapshots.</p>
+<h2 id="pytest-xdist-is-not-supported">pytest-xdist is not supported<a class="headerlink" href="#pytest-xdist-is-not-supported" title="Permanent link">&para;</a></h2>
+<p><a href="https://pytest-xdist.readthedocs.io/">pytest-xdist</a> splits test runs across multiple processes.
+This prevents inline-snapshot from being able to update snapshots across multiple processes, so if you have pytest-xdist installed and active, inline-snapshot will act as if <code>--inline-snapshot=disable</code> is set.</p>
+<p>If you have pytest-xdist installed and active by default in your pytest settings, you can disable it for a single test run with <a href="https://pytest-xdist.readthedocs.io/en/stable/distribution.html">its <code>-n0</code> option</a>.
+Then inline-snapshot will act as usual, or you can pass alternative flags with <code>--inline-snapshot</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pytest<span class="w"> </span>-n0<span class="w"> </span>--inline-snapshot<span class="o">=</span>create,report
+</code></pre></div>
+<h2 id="on-cpython-311-pytest-assert-rewriting-can-be-disabled">On CPython &lt; 3.11, pytest assert rewriting can be disabled<a class="headerlink" href="#on-cpython-311-pytest-assert-rewriting-can-be-disabled" title="Permanent link">&para;</a></h2>
+<p>On CPython versions before 3.11, inline-snapshot must disable pytest assert rewriting if you use any of these flags: <code>report</code>, <code>review</code>, <code>create</code>, <code>fix</code>, <code>trim</code>, or <code>update</code>.</p>
 
 
 
