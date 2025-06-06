@@ -8,7 +8,6 @@ import traceback
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
-from types import SimpleNamespace
 from typing import Set
 from unittest import mock
 
@@ -104,9 +103,10 @@ from inline_snapshot import outsource
             with snapshot_env() as state:
                 recorder = ChangeRecorder()
                 state.update_flags = flags
-                state.storage = inline_snapshot._external.DiscStorage(
+                state.all_storages["hash"] = inline_snapshot._external.HashStorage(
                     tmp_path / ".storage"
                 )
+                state.config.storage_dir = tmp_path / ".inline-snapshot"
 
                 error = False
 
@@ -258,7 +258,7 @@ class RunResult:
 
 
 @pytest.fixture
-def project(pytester):
+def project(pytester):  # pragma: no cover
     class Project:
 
         def __init__(self):
@@ -395,9 +395,12 @@ def executing_used(request, monkeypatch):
     if used:
         yield used
     else:
+        real_executing = executing.Source.executing
 
         def fake_executing(frame):
-            return SimpleNamespace(node=None)
+            result = real_executing(frame)
+            result.node = None
+            return result
 
         monkeypatch.setattr(executing.Source, "executing", fake_executing)
         yield used

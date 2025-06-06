@@ -1,6 +1,7 @@
 import ast
 from collections import defaultdict
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 from typing import DefaultDict
 from typing import Dict
@@ -13,6 +14,9 @@ from typing import cast
 from asttokens.util import Token
 from executing.executing import EnhancedAST
 
+from inline_snapshot._external._external_location import Location
+from inline_snapshot._external._format import Format
+from inline_snapshot._external._format import get_format_handler_from_suffix
 from inline_snapshot._source_file import SourceFile
 
 from ._rewrite_code import ChangeRecorder
@@ -20,10 +24,81 @@ from ._rewrite_code import end_of
 from ._rewrite_code import start_of
 
 
+class ChangeBase:
+    flag: str
+
+    def rich_diff(self):
+        raise NotImplementedError
+
+    def apply_external_changes(self):
+        raise NotImplementedError
+
+    def apply(self, recorder: ChangeRecorder):
+        raise NotImplementedError
+
+
 @dataclass()
-class Change:
+class ExternalChange(ChangeBase):
+    flag: str
+
+    new_file: Path
+
+    old_location: Location
+    new_location: Location
+
+    format: Format
+
+    def rich_diff(self):
+
+        title = str(self.new_location)
+        if title != (old_name := str(self.old_location)):
+            title = f"{old_name} → {title}"
+
+        if (
+            self.old_location.exists()
+            and self.old_location.suffix == self.new_location.suffix
+        ):
+            with self.old_location.load() as old_file:
+                return title, self.format.rich_diff(old_file, self.new_file)
+        else:
+            return title, self.format.rich_show(self.new_file)
+
+    def apply_external_changes(self):
+        self.new_location.store(self.new_file)
+
+    def apply(self, recorder: ChangeRecorder):
+        pass
+
+
+@dataclass()
+class ExternalRemove(ChangeBase):
+    flag: str
+
+    old_location: Location
+
+    def rich_diff(self):
+
+        title = f"delete {self.old_location}"
+
+        with self.old_location.load() as old_file:
+            assert self.old_location.suffix
+            format = get_format_handler_from_suffix(self.old_location.suffix)
+            return title, format.rich_show(old_file)
+
+    def apply_external_changes(self):
+        self.old_location.delete()
+
+    def apply(self, recorder: ChangeRecorder):
+        pass
+
+
+@dataclass()
+class Change(ChangeBase):
     flag: str
     file: SourceFile
+
+    def rich_diff(self):
+        return None
 
     @property
     def filename(self):
@@ -31,6 +106,9 @@ class Change:
 
     def apply(self, recorder: ChangeRecorder):
         raise NotImplementedError()
+
+    def apply_external_changes(self):
+        pass
 
 
 @dataclass()

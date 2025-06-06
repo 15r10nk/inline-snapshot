@@ -21,9 +21,7 @@ class Config:
     format_command: Optional[str] = None
     storage_dir: Optional[Path] = None
     show_updates: bool = False
-
-
-config = Config()
+    tests_dir: Optional[Path] = None
 
 
 def read_config(path: Path, config=Config()) -> Config:
@@ -67,6 +65,11 @@ def read_config(path: Path, config=Config()) -> Config:
             # Make it relative to pyproject.toml, and absolute.
             storage_dir = path.parent.joinpath(storage_dir).absolute()
         config.storage_dir = storage_dir
+
+    if (test_dir := path / "tests").exists() and test_dir.is_dir():
+        config.tests_dir = test_dir
+    else:
+        config.tests_dir = path
 
     config.format_command = tool_config.get("format-command", None)
 
