@@ -69,9 +69,33 @@ def file_digest(file: typing.BinaryIO, name: str):
 class UuidStorage(StorageProtocol):
     @contextmanager
     def load(self, location: ExternalLocation) -> Generator[Path]:
-        snapshot_path = self._get_path(location)
+        snapshot_path = self._lookup_path(location)
 
         yield snapshot_path
+
+    def _lookup_path(self, location: ExternalLocation):
+        path = self._get_path(location)
+        if path.exists():
+            return path
+
+        if not hasattr(self, "external_files"):
+            from inline_snapshot._global_state import state
+
+            self.external_files = {}
+            test_dir = state().config.tests_dir
+            assert test_dir
+
+            for folder in [
+                *test_dir.rglob("__inline_snapshot__"),
+                *[file.parent for file in state().files_with_snapshots],
+            ]:
+                for file in folder.rglob("????????-????-????-????-????????????.*"):
+                    self.external_files[file.name] = file
+
+        if location.path in self.external_files:
+            return self.external_files[location.path]
+        else:
+            raise StorageLookupError(location)
 
     def store(self, location: ExternalLocation, file_path: Path):
         snapshot_path = self._get_path(location)
@@ -180,8 +204,9 @@ class HashStorage(StorageProtocol):
     ) -> Iterator[ChangeBase]:
         unused_externals = self.list()
         for location in used_externals:
-            used = self.lookup_all(location.path)
-            unused_externals -= used
+            if location.path:
+                used = self.lookup_all(location.path)
+                unused_externals -= used
 
         from inline_snapshot._change import ExternalRemove
         from inline_snapshot._global_state import state
@@ -219,7 +244,7 @@ class HashStorage(StorageProtocol):
     def lookup_all(self, name: str) -> set[str]:
         return {file.name for file in self.directory.glob(name)}
 
-    def lookup_all_path(self, name: str) -> set[path]:
+    def lookup_all_path(self, name: str) -> set[Path]:
         return {file for file in self.directory.glob(name)}
 
     def remove(self, name):

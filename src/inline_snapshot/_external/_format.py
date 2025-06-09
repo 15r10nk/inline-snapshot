@@ -24,7 +24,10 @@ def get_format_handler(data, suffix: str | None) -> Format:
         ):
             return formatter
     else:
-        raise UsageError("data has to be of type bytes | str")
+        and_suffix = f" and suffix '{suffix}'" if suffix else ""
+        raise UsageError(
+            f"found no format handler for the given type '{type(data).__qualname__}'{and_suffix}."
+        )
 
 
 def get_format_handler_from_suffix(suffix: str) -> Format:

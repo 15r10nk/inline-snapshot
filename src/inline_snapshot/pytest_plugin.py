@@ -528,7 +528,7 @@ def pytest_sessionfinish(session, exitstatus):
                 if file in changed_files:
                     content = changed_files[file].new_code()
                 else:
-                    content = file.read_text()
+                    content = file.read_text("utf-8")
 
                 for e in used_externals_in(content, check_import=False):
                     try:

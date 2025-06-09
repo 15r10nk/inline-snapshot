@@ -160,7 +160,7 @@ class External:
         return result
 
     def _load_value(self):
-        return self._load_value_from_location(self._location)
+        return self._load_value_from_location(self._original_location)
 
     @classmethod
     def _load_value_from_location(cls, location: ExternalLocation) -> object:

@@ -48,27 +48,32 @@ class ExternalLocation(Location):
         context: AdapterContext | None = None,
         filename: Path | None = None,
     ):
-        if name is None:
-            return cls("hash", None, None, None, None)
+        from inline_snapshot._global_state import state
 
-        m = re.fullmatch(r"([0-9a-fA-F]*)\*?(\.[a-zA-Z0-9]*)", name)
-
-        if m:
-            storage = "hash"
-            path = name
-        elif ":" in name:
-            storage, path = name.split(":", 1)
-        else:
-            raise ValueError(
-                f"path '{name}' has to be of the form <hash>.<suffix> or <partial_hash>*.<suffix>"
-            )
-
-        if "." in path:
-            stem, suffix = path.split(".", 1)
-            suffix = "." + suffix
-        else:
-            stem = path
+        if not name:
+            storage = state().config.default_storage
+            stem = None
             suffix = None
+        else:
+            m = re.fullmatch(r"([0-9a-fA-F]{64}|[0-9a-fA-F]+\*)(\.[a-zA-Z0-9]+)", name)
+
+            if m:
+                storage = "hash"
+                path = name
+            elif ":" in name:
+                storage, path = name.split(":", 1)
+            else:
+                storage = state().config.default_storage
+                path = name
+
+            if "." in path:
+                stem, suffix = path.split(".", 1)
+                suffix = "." + suffix
+            elif not path:
+                stem = None
+                suffix = None
+            else:
+                raise ValueError(f"'{name}' is missing a suffix")
 
         qualname = None
         if context:

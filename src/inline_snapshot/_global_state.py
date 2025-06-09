@@ -13,7 +13,7 @@ from typing import Generator
 from inline_snapshot._config import Config
 from inline_snapshot._external._format import Format
 from inline_snapshot._external._storage import StorageProtocol
-from inline_snapshot._types import SnapshotBase
+from inline_snapshot._types import SnapshotRefBase
 
 from ._flags import Flags
 
@@ -29,7 +29,7 @@ class State:
     missing_values: int = 0
     incorrect_values: int = 0
 
-    snapshots: dict[Any, SnapshotBase] = field(default_factory=dict)
+    snapshots: dict[Any, SnapshotRefBase] = field(default_factory=dict)
     update_flags: Flags = field(default_factory=Flags)
     active: bool = True
 

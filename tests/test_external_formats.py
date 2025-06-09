@@ -15,7 +15,7 @@ def test_a():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                ".inline-snapshot/external/17f5ce5ea0f8711b6b20414da84373fb56176c3a3112c86c94529d3e29dacac3.json": """\
+                "__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.json": """\
 [
   1,
   2
@@ -25,7 +25,7 @@ def test_a():
 from inline_snapshot import external
 
 def test_a():
-    assert [1,2] == external("hash:17f5ce5ea0f8*.json")
+    assert [1,2] == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.json")
 """,
             }
         ),
@@ -50,7 +50,7 @@ def test_a():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                ".inline-snapshot/external/40aff2e9d2d8922e47afd4648e6967497158785fbd1da870e7110266bf944880.bin": b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff",
+                "__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.bin": b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff",
                 "test_something.py": """\
 from inline_snapshot import external
 
@@ -58,7 +58,7 @@ def test_a():
     data=bytes(range(256))
     if False:
         data=data.replace(b"1",b"x")
-    assert data == external("hash:40aff2e9d2d8*.bin")
+    assert data == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.bin")
 """,
             }
         ),
@@ -72,9 +72,10 @@ def test_a():
 |      if False:                                                               |
 |          data=data.replace(b"1",b"x")                                        |
 | -    assert data == external()                                               |
-| +    assert data == external("hash:40aff2e9d2d8*.bin")                       |
+| +    assert data ==                                                          |
+| external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.bin")                    |
 +------------------------------------------------------------------------------+
-+----------------------- hash: → hash:40aff2e9d2d8*.bin -----------------------+
++--------------- uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.bin ----------------+
 | 00000000: 0001 0203 0405 0607 0809 0a0b 0c0d 0e0f |................|         |
 | 00000010: 1011 1213 1415 1617 1819 1a1b 1c1d 1e1f |................|         |
 | 00000020: 2021 2223 2425 2627 2829 2a2b 2c2d 2e2f | !"#$%&'()*+,-./|         |
@@ -102,31 +103,12 @@ These changes will be applied, because you used create\
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                ".inline-snapshot/external/16277c65f7437281a96ba3683a304e888559dcb9ef85ae8b26ad220e825a8eea.bin": b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !\"#$%&'()*+,-./0x23456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff",
-                "test_something.py": """\
-from inline_snapshot import external
-
-def test_a():
-    data=bytes(range(256))
-    if True:
-        data=data.replace(b"1",b"x")
-    assert data == external("hash:16277c65f743*.bin")
-""",
+                "__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.bin": b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !\"#$%&'()*+,-./0x23456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff"
             }
         ),
         report=snapshot(
             """\
--------------------------------- Fix snapshots ---------------------------------
-+----------------------------- test_something.py ------------------------------+
-| @@ -4,4 +4,4 @@                                                              |
-|                                                                              |
-|      data=bytes(range(256))                                                  |
-|      if True:                                                                |
-|          data=data.replace(b"1",b"x")                                        |
-| -    assert data == external("hash:40aff2e9d2d8*.bin")                       |
-| +    assert data == external("hash:16277c65f743*.bin")                       |
-+------------------------------------------------------------------------------+
-+-------------- hash:40aff2e9d2d8*.bin → hash:16277c65f743*.bin ---------------+
++--------------- uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.bin ----------------+
 | @@ -1,7 +1,7 @@                                                              |
 |                                                                              |
 |  00000000: 0001 0203 0405 0607 0809 0a0b 0c0d 0e0f |................|        |
@@ -167,9 +149,10 @@ def test_a():
 |  def test_a():                                                               |
 |      data=bytes(range(256))*20                                               |
 | -    assert data == external()                                               |
-| +    assert data == external("hash:4345361085c7*.bin")                       |
+| +    assert data ==                                                          |
+| external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.bin")                    |
 +------------------------------------------------------------------------------+
-+----------------------- hash: → hash:4345361085c7*.bin -----------------------+
++--------------- uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.bin ----------------+
 | <binary file (5120 bytes)>                                                   |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used create\

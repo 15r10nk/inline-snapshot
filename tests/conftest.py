@@ -8,6 +8,7 @@ import traceback
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
+from typing import List
 from typing import Set
 from unittest import mock
 
@@ -16,6 +17,7 @@ import executing
 import pytest
 
 import inline_snapshot._external
+from inline_snapshot._change import ChangeBase
 from inline_snapshot._change import apply_all
 from inline_snapshot._flags import Flags
 from inline_snapshot._format import format_code
@@ -120,9 +122,9 @@ from inline_snapshot import outsource
 
                 number_snapshots = len(state.snapshots)
 
-                changes = []
+                changes: List[ChangeBase] = []
                 for snapshot in state.snapshots.values():
-                    changes += snapshot._changes()
+                    changes += list(snapshot._changes())
 
                 snapshot_flags = {change.flag for change in changes}
 

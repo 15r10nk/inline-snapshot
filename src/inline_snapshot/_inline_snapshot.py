@@ -1,16 +1,19 @@
 import ast
 import inspect
 from typing import Any
+from typing import Iterator
 from typing import TypeVar
 from typing import cast
 
 from executing import Source
 
 from inline_snapshot._source_file import SourceFile
+from inline_snapshot._types import SnapshotRefBase
 
 from ._adapter.adapter import AdapterContext
 from ._adapter.adapter import FrameContext
 from ._change import CallArg
+from ._change import Change
 from ._global_state import state
 from ._sentinels import undefined
 from ._snapshot.undecided_value import UndecidedValue
@@ -110,7 +113,7 @@ def snapshot(obj: Any = undefined) -> Any:
     return create_snapshot(SnapshotReference, obj, 1)
 
 
-class SnapshotReference:
+class SnapshotReference(SnapshotRefBase):
     def __init__(self, value, expr, context: AdapterContext):
         self._expr = expr
         node = expr.node.args[0] if expr is not None and expr.node.args else None
@@ -124,7 +127,7 @@ class SnapshotReference:
     def create_raw(obj, context: AdapterContext):
         return obj
 
-    def _changes(self):
+    def _changes(self) -> Iterator[Change]:
 
         if (
             self._value._old_value is undefined

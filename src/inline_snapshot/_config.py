@@ -22,6 +22,7 @@ class Config:
     storage_dir: Optional[Path] = None
     show_updates: bool = False
     tests_dir: Optional[Path] = None
+    default_storage: str = "uuid"
 
 
 def read_config(path: Path, config=Config()) -> Config:
@@ -70,6 +71,8 @@ def read_config(path: Path, config=Config()) -> Config:
         config.tests_dir = test_dir
     else:
         config.tests_dir = path
+
+    config.default_storage = tool_config.get("default-storage", "uuid")
 
     config.format_command = tool_config.get("format-command", None)
 

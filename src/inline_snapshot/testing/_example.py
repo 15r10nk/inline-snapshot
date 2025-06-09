@@ -25,6 +25,7 @@ from inline_snapshot._exceptions import UsageError
 from inline_snapshot._external._storage import HashStorage
 from inline_snapshot._problems import report_problems
 
+from .._change import ChangeBase
 from .._change import apply_all
 from .._flags import Flags
 from .._global_state import snapshot_env
@@ -92,6 +93,37 @@ def parse_outcomes(lines):
         "error": "errors",
     }
     return {to_plural.get(k, k): v for k, v in ret.items()}
+
+
+conftest_footer = """
+import uuid
+import random
+
+rd = random.Random(0)
+
+def f():
+    return uuid.UUID(int=rd.getrandbits(128), version=4)
+
+uuid.uuid4=f
+"""
+
+
+@contextmanager
+def change_file(path, map_function):
+    exists = path.exists()
+    if exists:
+        text = path.read_text()
+    else:
+        text = ""
+
+    path.write_text(map_function(text))
+
+    yield
+
+    if exists:
+        path.write_text(text)
+    else:
+        path.unlink()
 
 
 class Example:
@@ -254,9 +286,9 @@ class Example:
                 finally:
                     state.active = False
 
-                changes = []
+                changes: list[ChangeBase] = []
                 for snapshot in state.snapshots.values():
-                    changes += snapshot._changes()
+                    changes += list(snapshot._changes())
 
                 snapshot_flags = {change.flag for change in changes}
 
@@ -339,6 +371,7 @@ class Example:
 
         with TemporaryDirectory() as dir:
             tmp_path = Path(dir)
+
             self._write_files(tmp_path)
 
             cmd = [sys.executable, "-m", "pytest", *args]
@@ -357,9 +390,12 @@ class Example:
 
             command_env.update(env)
 
-            result = sp.run(
-                cmd, cwd=tmp_path, capture_output=True, env=command_env, input=stdin
-            )
+            with change_file(
+                tmp_path / "conftest.py", lambda text: text + conftest_footer
+            ):
+                result = sp.run(
+                    cmd, cwd=tmp_path, capture_output=True, env=command_env, input=stdin
+                )
 
             result_stdout = result.stdout.decode()
             result_stderr = result.stderr.decode()

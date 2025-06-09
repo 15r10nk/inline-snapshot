@@ -38,26 +38,28 @@ Example:
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-    ``` python hl_lines="6 7 10 13 14 15 18 19 20"
+    ``` python hl_lines="6 7 10 11 12 15 16 17 20 21 22"
     from inline_snapshot import external
 
 
     def test_something():
         # inline-snapshot can figure out the correct file-types
-        assert "string" == external("hash:473287f8298d*.txt")
-        assert b"bytes" == external("hash:277089d91c0b*.bin")
+        assert "string" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+        assert b"bytes" == external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.bin")
 
         # or you can specify the file type
-        assert ["json", "like", "data"] == external("hash:e790f887ceac*.json")
+        assert ["json", "like", "data"] == external(
+            "uuid:eb1167b3-67a9-4378-bc65-c1e582e2e662.json"
+        )
 
         # or the storage
         assert "other text" == external(
-            "uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt"
+            "uuid:f7c1bd87-4da5-4709-9471-3d60c8a70639.txt"
         )
 
         # or both
         assert "other text" == external(
-            "uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.json"
+            "uuid:e443df78-9558-467f-9ba9-1faf7a024204.json"
         )
     ```
 
@@ -89,7 +91,7 @@ The `external()` can be used inside other data structures.
     long text
     long text
     """,
-                external("hash:f5a956460453*.txt"),
+                external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt"),
             ]
         )
     ```
@@ -126,14 +128,16 @@ You can also use format aliases if you want to use specific file suffixes which 
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-    ``` python hl_lines="7"
+    ``` python hl_lines="7 8 9"
     from inline_snapshot import register_format_alias, external
 
     register_format_alias(".html", ".txt")
 
 
     def test():
-        assert "<html></html>" == external("hash:b633a587c652*.html")
+        assert "<html></html>" == external(
+            "uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.html"
+        )
     ```
 
 #### Buildin formats
@@ -207,7 +211,7 @@ It is also possible to define handler for your custom file formats.
 
 === "--inline-snapshot=create"
     <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-    ``` python hl_lines="34"
+    ``` python hl_lines="34 35 36"
     from dataclasses import dataclass
     from pathlib import Path
     from typing import List
@@ -241,7 +245,9 @@ It is also possible to define handler for your custom file formats.
 
 
     def test():
-        assert Array([1, 2, 3]) == external("hash:ad53e8806d17*.arr")
+        assert Array([1, 2, 3]) == external(
+            "uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.arr"
+        )
     ```
 
 `handle()` should return `True` for all datatypes which are handled by this format. You will have to use `external(".arr")` when the given value is handled by multiple formats.

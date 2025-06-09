@@ -1,15 +1,19 @@
 from pathlib import Path
+from typing import Iterator
 from typing import Union
+from typing import cast
 
+from inline_snapshot._change import ChangeBase
 from inline_snapshot._change import ExternalChange
 from inline_snapshot._external._external_location import FileLocation
 from inline_snapshot._external._format import Format
 from inline_snapshot._external._format import get_format_handler_from_suffix
 from inline_snapshot._external._tmp_path import new_tmp_path
 from inline_snapshot._global_state import state
+from inline_snapshot._types import SnapshotRefBase
 
 
-class ExternalFile:
+class ExternalFile(SnapshotRefBase):
 
     def __init__(self, filename: Path, format: Format):
         self._filename = filename
@@ -17,7 +21,7 @@ class ExternalFile:
         self._value_changed = False
         self._tmp_file = None
 
-    def _changes(self):
+    def _changes(self) -> Iterator[ChangeBase]:
 
         file_location = FileLocation(self._filename)
         if self._value_changed and state().update_flags.fix:
@@ -68,7 +72,7 @@ def external_file(path: Union[Path, str], format=None):
         new = ExternalFile(path, format)
         state().snapshots[key] = new
     else:
-        new = state().snapshots[key]
+        new = cast(ExternalFile, state().snapshots[key])
 
     assert new._format == format
 

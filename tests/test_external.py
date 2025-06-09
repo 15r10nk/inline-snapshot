@@ -43,11 +43,11 @@ hash-length=64
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                ".inline-snapshot/external/ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb.txt": "a",
+                "__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "a",
                 "test_something.py": """\
 from inline_snapshot import external
 def test_a():
-    assert "a" == external("hash:ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb.txt")
+    assert "a" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
 """,
             }
         ),
@@ -76,17 +76,20 @@ def test_a():
                 ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.bin": "test",
                 ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.log": "test",
                 ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt": "test",
+                "__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "test",
+                "__inline_snapshot__/test_something/test_a/eb1167b3-67a9-4378-bc65-c1e582e2e662.bin": "test",
+                "__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.log": "test",
                 "test_something.py": """\
 from inline_snapshot import outsource, snapshot,external,register_format_alias
 
 register_format_alias(".log",".txt")
 
 def test_a():
-    assert outsource("test") == external("hash:9f86d081884c*.txt")
+    assert outsource("test") == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
 
-    assert outsource("test", suffix=".log") == external("hash:9f86d081884c*.log")
+    assert outsource("test", suffix=".log") == external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.log")
 
-    assert outsource(b"test") == external("hash:9f86d081884c*.bin")
+    assert outsource(b"test") == external("uuid:eb1167b3-67a9-4378-bc65-c1e582e2e662.bin")
 """,
             }
         ),
@@ -359,18 +362,18 @@ def test_a():
 
 
 def test_errors():
-    with snapshot_env():
-        with raises(snapshot("ValueError: suffix has to start with a '.' like '.png'")):
+    with raises(snapshot("ValueError: suffix has to start with a '.' like '.png'")):
+        with snapshot_env():
             outsource("test", suffix="blub")
 
-        with raises(snapshot("UsageError: data has to be of type bytes | str")):
+    with raises(
+        snapshot("UsageError: found no format handler for the given type 'int'.")
+    ):
+        with snapshot_env():
             outsource(5)
 
-        with raises(
-            snapshot(
-                "ValueError: path 'invalid' has to be of the form <hash>.<suffix> or <partial_hash>*.<suffix>"
-            )
-        ):
+    with raises(snapshot("ValueError: 'invalid' is missing a suffix")):
+        with snapshot_env():
             external("invalid")
 
 
@@ -534,13 +537,14 @@ def test_something():
         changed_files=snapshot(
             {
                 ".inline-snapshot/external/2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.txt": "foo",
+                "__inline_snapshot__/test_something/test_something/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "foo",
                 "test_something.py": """\
 
 from inline_snapshot import external, snapshot,outsource
 
 def test_something():
     assert outsource("foo") == snapshot(external("hash:2c26b46b68ff*.txt"))
-    assert "foo" == external("hash:2c26b46b68ff*.txt")
+    assert "foo" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
 """,
             }
         ),
@@ -591,9 +595,9 @@ def test_a():
 |      n=3                                                                     |
 | -    assert "\\n".join(map(str,range(n))) == external()                       |
 | +    assert "\\n".join(map(str,range(n))) ==                                  |
-| external("hash:c4276dce1d59*.txt")                                           |
+| external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")                    |
 +------------------------------------------------------------------------------+
-+----------------------- hash: → hash:c4276dce1d59*.txt -----------------------+
++--------------- uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt ----------------+
 | 0                                                                            |
 | 1                                                                            |
 | 2                                                                            |
@@ -608,19 +612,7 @@ These changes will be applied, because you used create\
         ["--inline-snapshot=fix"],
         report=snapshot(
             """\
--------------------------------- Fix snapshots ---------------------------------
-+----------------------------- test_something.py ------------------------------+
-| @@ -3,5 +3,5 @@                                                              |
-|                                                                              |
-|                                                                              |
-|  def test_a():                                                               |
-|      n=5                                                                     |
-| -    assert "\\n".join(map(str,range(n))) ==                                  |
-| external("hash:c4276dce1d59*.txt")                                           |
-| +    assert "\\n".join(map(str,range(n))) ==                                  |
-| external("hash:2965d24b80b4*.txt")                                           |
-+------------------------------------------------------------------------------+
-+-------------- hash:c4276dce1d59*.txt → hash:2965d24b80b4*.txt ---------------+
++--------------- uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt ----------------+
 | @@ -1,3 +1,5 @@                                                              |
 |                                                                              |
 |  0                                                                           |
@@ -684,15 +676,36 @@ def test_unknown_suffix():
 from inline_snapshot import external
 
 def test_a():
-    assert "hi" == external("uuid:fake.blub")
+    assert "hi" == external("uuid:.blub")
     """
     ).run_pytest(
         ["--inline-snapshot=create"],
         error=snapshot(
             """\
->       assert "hi" == external("uuid:fake.blub")
->           raise UsageError(f"format '{suffix}' is unknown")
-E           inline_snapshot._exceptions.UsageError: format '.blub' is unknown
+>       assert "hi" == external("uuid:.blub")
+>           raise UsageError(
+E           inline_snapshot._exceptions.UsageError: found no format handler for the given type 'str' and suffix '.blub'.
+"""
+        ),
+        returncode=1,
+    )
+
+
+def test_unknown_type():
+    Example(
+        """
+from inline_snapshot import external
+
+def test_a():
+    assert True == external("uuid:")
+    """
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        error=snapshot(
+            """\
+>       assert True == external("uuid:")
+>           raise UsageError(
+E           inline_snapshot._exceptions.UsageError: found no format handler for the given type 'bool'.
 """
         ),
         returncode=1,
@@ -714,8 +727,8 @@ def test_a():
         error=snapshot(
             """\
 >       assert "hi" == external()
-E       assert 'hi' == external("hash:")
-E        +  where external("hash:") = external()
+E       assert 'hi' == external("uuid:")
+E        +  where external("uuid:") = external()
 """
         ),
         report=snapshot(
@@ -731,7 +744,7 @@ You can also use --inline-snapshot=review to approve the changes interactively\
             """\
 >       assert "hi" == external()
 >           raise UsageError(
-E           inline_snapshot._exceptions.UsageError: can not load external object from an non existing location 'hash:'
+E           inline_snapshot._exceptions.UsageError: can not load external object from an non existing location 'uuid:'
 """
         ),
         report=snapshot(""""""),
