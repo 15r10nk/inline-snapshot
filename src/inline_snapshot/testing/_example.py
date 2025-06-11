@@ -12,7 +12,6 @@ from argparse import ArgumentParser
 from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
-from pathlib import PurePosixPath
 from tempfile import TemporaryDirectory
 from typing import Any
 from unittest.mock import patch
@@ -326,17 +325,26 @@ class Example:
                 assert raises == None
 
             if changed_files is not None:
-                current_files = {}
-
-                for name, content in sorted(self._read_files(tmp_path).items()):
-                    if name not in self.files or self.files[name] != content:
-                        current_files[name] = content
-                assert changed_files == current_files
+                assert changed_files == self._changed_files(tmp_path)
 
             if report is not None:
                 assert report == normalize(report_output.getvalue())
 
             return Example(self._read_files(tmp_path))
+
+    def _changed_files(self, tmp_path):
+        current_files = {}
+        all_current_files = self._read_files(tmp_path)
+
+        for name, content in sorted(all_current_files.items()):
+            if name not in self.files or self.files[name] != content:
+                current_files[name] = content
+
+        for name in self.files:
+            if name not in all_current_files:
+                current_files[name] = None
+
+        return current_files
 
     def run_pytest(
         self,
@@ -462,12 +470,7 @@ class Example:
                 )
 
             if changed_files is not None:
-                current_files = {}
-
-                for name, content in sorted(self._read_files(tmp_path).items()):
-                    if name not in self.files or self.files[name] != content:
-                        current_files[str(PurePosixPath(*Path(name).parts))] = content
-                assert changed_files == current_files
+                assert changed_files == self._changed_files(tmp_path)
 
             if outcomes is not None:
                 assert outcomes == parse_outcomes(result_stdout.splitlines())

@@ -52,7 +52,7 @@ class ExternalChange(ChangeBase):
 
         title = str(self.new_location)
         if title != (old_name := str(self.old_location)) and self.old_location.stem:
-            title = f"{old_name} → {title}"
+            title = f"{old_name} -> {title}"
 
         if (
             self.old_location.exists()

@@ -67,7 +67,11 @@ def read_config(path: Path, config=Config()) -> Config:
             storage_dir = path.parent.joinpath(storage_dir).absolute()
         config.storage_dir = storage_dir
 
-    if (test_dir := path / "tests").exists() and test_dir.is_dir():
+    if test_dir := tool_config.get("test-dir", None):
+        test_dir = Path(test_dir)
+        config.tests_dir = path.parent.joinpath(test_dir)
+
+    if (test_dir := path.parent / "tests").exists() and test_dir.is_dir():
         config.tests_dir = test_dir
     else:
         config.tests_dir = path
