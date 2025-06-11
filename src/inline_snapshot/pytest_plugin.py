@@ -514,13 +514,13 @@ def pytest_sessionfinish(session, exitstatus):
             apply_all(used_changes, cr)
             changed_files = {Path(f.filename): f for f in cr.files()}
 
-            test_dir = state().config.tests_dir
-            assert test_dir
-
             all_files = {
-                *test_dir.rglob("*.py"),
                 *map(Path, state().files_with_snapshots),
             }
+
+            test_dir = state().config.tests_dir
+            if test_dir:
+                all_files |= set(test_dir.rglob("*.py"))
 
             used = []
 

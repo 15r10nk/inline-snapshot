@@ -5,6 +5,7 @@ from ._code_repr import HasRepr
 from ._code_repr import customize_repr
 from ._exceptions import UsageError
 from ._external._external import external
+from ._external._external_file import external_file
 from ._external._format import Format
 from ._external._format import register_format
 from ._external._format import register_format_alias
@@ -29,6 +30,7 @@ __all__ = [
     "Format",
     "TextDiff",
     "BinaryDiff",
+    "external_file",
 ]
 
 __version__ = "0.23.2"

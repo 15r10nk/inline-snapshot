@@ -90,10 +90,7 @@ class ExternalLocation(Location):
         return str(self)
 
     def __str__(self) -> str:
-        if self.storage:
-            return f"{self.storage}:{self.path}"
-        else:
-            return self.path
+        return f"{self.storage}:{self.path}"
 
     def with_stem(self, new_stem):
         return dataclasses.replace(self, stem=new_stem)
@@ -137,13 +134,21 @@ class FileLocation(Location):
         return self._filename.suffix
 
     def __str__(self) -> str:
-        return str(self._filename)
+        p = self._filename.resolve()
+
+        try:
+            p = p.relative_to(Path.cwd().resolve())
+        except ValueError:
+            pass
+
+        return str(p)
 
     @contextmanager
     def load(self) -> Generator[Path]:
         yield self._filename
 
     def store(self, new_file: Path):
+        self._filename.parent.mkdir(exist_ok=True, parents=True)
         shutil.copy(new_file, self._filename)
 
     def exists(self):

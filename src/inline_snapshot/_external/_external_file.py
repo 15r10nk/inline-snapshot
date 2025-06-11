@@ -29,7 +29,11 @@ class ExternalFile(SnapshotRefBase):
             yield ExternalChange(
                 "fix", self._tmp_file, file_location, file_location, self._format
             )
-        elif not self._filename.exists() and state().update_flags.create:
+        elif (
+            not self._filename.exists()
+            and state().update_flags.create
+            and self._tmp_file is not None
+        ):
             assert self._tmp_file
             yield ExternalChange(
                 "create", self._tmp_file, file_location, file_location, self._format
@@ -61,19 +65,30 @@ class ExternalFile(SnapshotRefBase):
         return self._format.decode(self._filename)
 
 
-def external_file(path: Union[Path, str], format=None):
-    path = Path(path).resolve()
+def external_file(path: Union[Path, str], format_suffix=None):
+    path = Path(path)
 
-    if format is None:
-        format = get_format_handler_from_suffix(path.suffix)
+    if not path.is_absolute():
+        from inspect import currentframe
+
+        frame = currentframe()
+        assert frame
+        frame = frame.f_back
+        assert frame
+        path = Path(frame.f_code.co_filename).parent / path
+
+    path = path.resolve()
+
+    if format_suffix is None:
+        format_suffix = get_format_handler_from_suffix(path.suffix)
 
     key = ("file", path)
     if key not in state().snapshots:
-        new = ExternalFile(path, format)
+        new = ExternalFile(path, format_suffix)
         state().snapshots[key] = new
     else:
         new = cast(ExternalFile, state().snapshots[key])
 
-    assert new._format == format
+    assert new._format == format_suffix
 
     return new

@@ -82,13 +82,14 @@ class UuidStorage(StorageProtocol):
             from inline_snapshot._global_state import state
 
             self.external_files = {}
-            test_dir = state().config.tests_dir
-            assert test_dir
 
-            for folder in [
-                *test_dir.rglob("__inline_snapshot__"),
-                *[file.parent for file in state().files_with_snapshots],
-            ]:
+            base_folders = {file.parent for file in state().files_with_snapshots}
+
+            test_dir = state().config.tests_dir
+            if test_dir:
+                base_folders |= set(test_dir.rglob("__inline_snapshot__"))
+
+            for folder in base_folders:
                 for file in folder.rglob("????????-????-????-????-????????????.*"):
                     self.external_files[file.name] = file
 

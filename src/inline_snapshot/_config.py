@@ -60,21 +60,26 @@ def read_config(path: Path, config=Config()) -> Config:
         "shortcuts", {"fix": ["create", "fix"], "review": ["review"]}
     )
 
-    if storage_dir := tool_config.get("storage-dir"):
-        storage_dir = Path(storage_dir)
-        if not storage_dir.is_absolute():
-            # Make it relative to pyproject.toml, and absolute.
-            storage_dir = path.parent.joinpath(storage_dir).absolute()
-        config.storage_dir = storage_dir
+    def read_path(name):
+        result = tool_config.get(name)
+        if result:
+            result = Path(result)
+            if not result.is_absolute():
+                # Make it relative to pyproject.toml, and absolute.
+                result = path.parent.joinpath(result).absolute()
+        return result
 
-    if test_dir := tool_config.get("test-dir", None):
-        test_dir = Path(test_dir)
-        config.tests_dir = path.parent.joinpath(test_dir)
+    config.storage_dir = read_path("storage-dir")
 
-    if (test_dir := path.parent / "tests").exists() and test_dir.is_dir():
+    config.tests_dir = read_path("test-dir")
+
+    if (
+        config.tests_dir is None
+        and path.exists()
+        and (test_dir := path.parent / "tests").exists()
+        and test_dir.is_dir()
+    ):
         config.tests_dir = test_dir
-    else:
-        config.tests_dir = path
 
     config.default_storage = tool_config.get("default-storage", "uuid")
 
