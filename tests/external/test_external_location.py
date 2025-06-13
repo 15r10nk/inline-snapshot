@@ -1,5 +1,6 @@
 from inline_snapshot._external._external_location import ExternalLocation
 from inline_snapshot._inline_snapshot import snapshot
+from inline_snapshot.testing._example import Example
 
 
 def test_external_location():
@@ -49,3 +50,36 @@ def test_external_location():
                     assert ExternalLocation.from_name(name) == results[name]
                 except Exception as e:
                     assert results[name] == f"{type(e).__name__}: {e}"
+
+
+def test_missing_suffix():
+    Example(
+        """
+from inline_snapshot import external
+
+def test_a():
+    if False:
+        assert "a" == external("a")
+    else:
+        assert "a" == external(".txt")
+    """
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "a",
+                "test_something.py": """\
+
+from inline_snapshot import external
+
+def test_a():
+    if False:
+        assert "a" == external("a")
+    else:
+        assert "a" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+    \
+""",
+            }
+        ),
+        returncode=1,
+    )

@@ -190,6 +190,11 @@ class Example:
     def replace(self, text, new_text) -> Example:
         return self.change_code(lambda code: code.replace(text, new_text))
 
+    def remove_file(self, filename):
+        return Example(
+            {name: file for name, file in self.files.items() if name != filename}
+        )
+
     def run_inline(
         self,
         args: list[str] = [],
