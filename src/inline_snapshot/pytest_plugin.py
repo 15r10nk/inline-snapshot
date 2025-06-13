@@ -527,10 +527,12 @@ def pytest_sessionfinish(session, exitstatus):
             for file in all_files:
                 if file in changed_files:
                     content = changed_files[file].new_code()
+                    check_import = False
                 else:
                     content = file.read_text("utf-8")
+                    check_import = True
 
-                for e in used_externals_in(content, check_import=False):
+                for e in used_externals_in(content, check_import=check_import):
                     try:
                         location = ExternalLocation.from_name(e)
                         used.append(location)

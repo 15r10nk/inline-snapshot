@@ -185,3 +185,84 @@ These changes will be applied, because you used create\
 #             }
 #         ),
 #     )
+
+
+def test_unknown_format():
+
+    Example(
+        {
+            "test.blub": "hi",
+            "test_a.py": """\
+from inline_snapshot import external_file
+
+def test_a():
+    assert "hi" == external_file("test.blub")
+""",
+        }
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        error=snapshot(
+            """\
+>       assert "hi" == external_file("test.blub")
+>           raise UsageError(f"format '{suffix}' is unknown")
+E           inline_snapshot._exceptions.UsageError: format '.blub' is unknown
+"""
+        ),
+        returncode=snapshot(1),
+    )
+
+
+def test_replace_format():
+
+    Example(
+        {
+            "test.blub": "hi",
+            "test_a.py": """\
+from pathlib import Path
+from inline_snapshot import external_file,register_format,TextDiff,Format
+
+@register_format(replace_handler=True)
+class BytesFormat(TextDiff, Format[bytes]):
+    suffix=".bin"
+
+    def handle(self, data: object):
+        return isinstance(data, bytes)
+
+    def encode(self, value: bytes, path: Path):
+        path.write_text(repr(value))
+
+    def decode(self, path: Path) -> bytes:
+        return eval(path.read_text())
+
+def test_a():
+    assert b"hi\\nyou" == external_file("test.bin")
+""",
+        }
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot({"test.bin": "b'hi\\nyou'"}),
+        returncode=snapshot(1),
+    ).run_inline()
+
+
+def test_replace_format_error():
+
+    Example(
+        {
+            "test.blub": "hi",
+            "test_a.py": """\
+from pathlib import Path
+from inline_snapshot import external_file,register_format,TextDiff,Format
+
+@register_format
+class BytesFormat(TextDiff, Format[bytes]):
+    suffix=".bin"
+    ...
+""",
+        }
+    ).run_pytest(
+        error=snapshot(
+            "E   inline_snapshot._exceptions.UsageError: Two format handlers cannot be registered for the same suffix '.bin'.\n"
+        ),
+        returncode=snapshot(2),
+    )

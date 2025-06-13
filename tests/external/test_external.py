@@ -9,7 +9,7 @@ from inline_snapshot._global_state import snapshot_env
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
 
-from .utils import apply_changes
+from ..utils import apply_changes
 
 
 def test_basic(check_update):
@@ -790,6 +790,10 @@ def test_a():
             }
         ),
         returncode=snapshot(1),
+    ).run_pytest(
+        ["--inline-snapshot=trim", "example1.py"],
+        changed_files=snapshot({}),
+        returncode=snapshot(0),
     ).run_pytest(
         ["--inline-snapshot=trim", "tests/example2.py"],
         changed_files=snapshot(
