@@ -200,9 +200,6 @@ def pytest_configure(config):
 
     fix_pytest_diff()
 
-    for storage in state().all_storages.values():
-        storage.cleanup()
-
 
 def is_xfail(request):
     if not "xfail" in request.keywords:

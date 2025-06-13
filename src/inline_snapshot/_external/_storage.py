@@ -51,9 +51,6 @@ class StorageProtocol:
         """
         raise NotImplementedError
 
-    def cleanup(self):
-        raise NotImplementedError
-
     def sync_used_externals(
         self, used_externals: list[ExternalLocation]
     ) -> Iterator[ChangeBase]:
@@ -73,15 +70,12 @@ class UuidStorage(StorageProtocol):
 
         yield snapshot_path
 
-    def _lookup_path(self, location: ExternalLocation):
-        path = self._get_path(location)
-        if path.exists():
-            return path
-
-        if not hasattr(self, "external_files"):
+    @property
+    def _external_files(self):
+        if not hasattr(self, "_external_files_cache"):
             from inline_snapshot._global_state import state
 
-            self.external_files = {}
+            self._external_files_cache = {}
 
             base_folders = {file.parent for file in state().files_with_snapshots}
 
@@ -91,10 +85,17 @@ class UuidStorage(StorageProtocol):
 
             for folder in base_folders:
                 for file in folder.rglob("????????-????-????-????-????????????.*"):
-                    self.external_files[file.name] = file
+                    self._external_files_cache[file.name] = file
+        return self._external_files_cache
 
-        if location.path in self.external_files:
-            return self.external_files[location.path]
+    def _lookup_path(self, location: ExternalLocation):
+        if location.filename and location.qualname:
+            path = self._get_path(location)
+            if path.exists():
+                return path
+
+        if location.path in self._external_files:
+            return self._external_files[location.path]
         else:
             raise StorageLookupError(location)
 
@@ -106,7 +107,7 @@ class UuidStorage(StorageProtocol):
         shutil.copy(str(file_path), str(snapshot_path))
 
     def delete(self, location: ExternalLocation):
-        snapshot_path = self._get_path(location)
+        snapshot_path = self._lookup_path(location)
         snapshot_path.unlink()
 
     def new_location(
@@ -137,13 +138,22 @@ class UuidStorage(StorageProtocol):
             / f"{location.stem}{location.suffix}"
         )
 
-    def cleanup(self):
-        pass
-
     def sync_used_externals(
         self, used_externals: list[ExternalLocation]
     ) -> Iterator[ChangeBase]:
-        return iter(())
+
+        used_names = [location.path for location in used_externals]
+
+        unused_externals = {
+            f.name for f in self._external_files.values() if f.name not in used_names
+        }
+
+        from inline_snapshot._change import ExternalRemove
+        from inline_snapshot._global_state import state
+
+        if state().update_flags.trim:
+            for name in unused_externals:
+                yield ExternalRemove("trim", ExternalLocation.from_name("uuid:" + name))
 
 
 class HashStorage(StorageProtocol):
@@ -196,10 +206,6 @@ class HashStorage(StorageProtocol):
 
         return location.with_stem(path)
 
-    def prune_new_files(self):
-        for file in self.directory.glob("*-new.*"):
-            file.unlink()
-
     def sync_used_externals(
         self, used_externals: list[ExternalLocation]
     ) -> Iterator[ChangeBase]:
@@ -215,9 +221,6 @@ class HashStorage(StorageProtocol):
         if state().update_flags.trim:
             for name in unused_externals:
                 yield ExternalRemove("trim", ExternalLocation.from_name(name))
-
-    def cleanup(self):
-        self.prune_new_files()
 
     def list(self) -> set[str]:
 
