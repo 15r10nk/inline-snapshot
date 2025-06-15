@@ -13,6 +13,9 @@ from inline_snapshot import external
 def test_a():
     assert "testa".upper()==external("{storage}:")
 """
+    ).run_pytest(
+        ["--inline-snapshot=report"],
+        returncode=snapshot(1),
     ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(

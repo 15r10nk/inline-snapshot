@@ -72,10 +72,11 @@ class UuidStorage(StorageProtocol):
 
     @property
     def _external_files(self):
-        if not hasattr(self, "_external_files_cache"):
-            from inline_snapshot._global_state import state
+        from inline_snapshot._global_state import state
 
-            self._external_files_cache = {}
+        if not hasattr(state(), "_external_files_cache"):
+
+            state()._external_files_cache = {}
 
             base_folders = {file.parent for file in state().files_with_snapshots}
 
@@ -85,8 +86,8 @@ class UuidStorage(StorageProtocol):
 
             for folder in base_folders:
                 for file in folder.rglob("????????-????-????-????-????????????.*"):
-                    self._external_files_cache[file.name] = file
-        return self._external_files_cache
+                    state()._external_files_cache[file.name] = file
+        return state()._external_files_cache
 
     def _lookup_path(self, location: ExternalLocation):
         if location.filename and location.qualname:
@@ -247,12 +248,6 @@ class HashStorage(StorageProtocol):
 
     def lookup_all(self, name: str) -> set[str]:
         return {file.name for file in self.directory.glob(name)}
-
-    def lookup_all_path(self, name: str) -> set[Path]:
-        return {file for file in self.directory.glob(name)}
-
-    def remove(self, name):
-        self._lookup_path(name).unlink()
 
 
 def default_storages(storage_dir: Path):

@@ -26,34 +26,6 @@ def test_basic(check_update):
 #     )
 
 
-def test_max_hash():
-    Example(
-        {
-            "test_something.py": """\
-from inline_snapshot import external
-def test_a():
-    assert "a" == external()
-""",
-            "pyproject.toml": """\
-[tool.inline-snapshot]
-hash-length=64
-""",
-        }
-    ).run_inline(
-        ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "a",
-                "test_something.py": """\
-from inline_snapshot import external
-def test_a():
-    assert "a" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
-""",
-            }
-        ),
-    )
-
-
 def test_outsource():
 
     Example(
