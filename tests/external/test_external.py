@@ -538,7 +538,7 @@ def test_something():
             """\
 >       assert "foo" == external("hash:aaaaaaaaaaaa*.txt")
 >           raise StorageLookupError(f"hash {name!r} is not found in the HashStorage")
-E           inline_snapshot._external._storage.StorageLookupError: hash 'aaaaaaaaaaaa*.txt' is not found in the HashStorage
+E           inline_snapshot._external._storage._protocol.StorageLookupError: hash 'aaaaaaaaaaaa*.txt' is not found in the HashStorage
 """
         ),
         returncode=1,
