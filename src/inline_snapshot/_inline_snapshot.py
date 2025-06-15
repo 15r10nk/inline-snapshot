@@ -1,16 +1,19 @@
 import ast
 import inspect
 from typing import Any
+from typing import Iterator
 from typing import TypeVar
 from typing import cast
 
 from executing import Source
 
 from inline_snapshot._source_file import SourceFile
+from inline_snapshot._types import SnapshotRefBase
 
 from ._adapter.adapter import AdapterContext
 from ._adapter.adapter import FrameContext
 from ._change import CallArg
+from ._change import Change
 from ._global_state import state
 from ._sentinels import undefined
 from ._snapshot.undecided_value import UndecidedValue
@@ -34,6 +37,59 @@ def repr_wrapper(func: _T) -> _T:
     return ReprWrapper(func)  # type: ignore
 
 
+def create_snapshot(Type, obj, extra_frames=0):
+
+    frame = inspect.currentframe()
+    assert frame is not None
+    frame = frame.f_back
+    assert frame is not None
+    frame = frame.f_back
+    assert frame is not None
+
+    for _ in range(extra_frames):
+        frame = frame.f_back
+        assert frame is not None
+
+    expr = Source.executing(frame)
+
+    source = cast(Source, getattr(expr, "source", None) if expr is not None else None)
+    context = AdapterContext(
+        file=SourceFile(source),
+        frame=FrameContext(globals=frame.f_globals, locals=frame.f_locals),
+        qualname=expr.code_qualname(),
+    )
+
+    if not state().active:
+        if obj is undefined:
+            raise AssertionError(
+                "your snapshot is missing a value run pytest with --inline-snapshot=create"
+            )
+        else:
+            return Type.create_raw(obj, context)
+
+    module = inspect.getmodule(frame)
+    if module is not None and module.__file__ is not None:
+        state().files_with_snapshots.add(module.__file__)
+
+    key = id(frame.f_code), frame.f_lasti
+
+    if key not in state().snapshots:
+        node = expr.node
+        if node is None:
+            # we can run without knowing of the calling expression but we will not be able to fix code
+            new = Type(obj, None, context)
+            state().snapshots[key] = Type(obj, None, context)
+        else:
+            assert isinstance(node, ast.Call)
+            new = Type(obj, expr, context)
+        state().snapshots[key] = new
+    else:
+        new = state().snapshots[key]
+        new._re_eval(obj, context)
+
+    return new.result()
+
+
 @repr_wrapper
 def snapshot(obj: Any = undefined) -> Any:
     """`snapshot()` is a placeholder for some value.
@@ -53,68 +109,25 @@ def snapshot(obj: Any = undefined) -> Any:
 
     `snapshot(value)` has general the semantic of an noop which returns `value`.
     """
-    if not state().active:
-        if obj is undefined:
-            raise AssertionError(
-                "your snapshot is missing a value run pytest with --inline-snapshot=create"
-            )
-        else:
-            return obj
 
-    frame = inspect.currentframe()
-    assert frame is not None
-    frame = frame.f_back
-    assert frame is not None
-    frame = frame.f_back
-    assert frame is not None
-
-    expr = Source.executing(frame)
-
-    source = cast(Source, getattr(expr, "source", None) if expr is not None else None)
-    context = AdapterContext(
-        file=SourceFile(source),
-        frame=FrameContext(globals=frame.f_globals, locals=frame.f_locals),
-    )
-
-    module = inspect.getmodule(frame)
-    if module is not None and module.__file__ is not None:
-        state().files_with_snapshots.add(module.__file__)
-
-    key = id(frame.f_code), frame.f_lasti
-
-    if key not in state().snapshots:
-        node = expr.node
-        if node is None:
-            # we can run without knowing of the calling expression but we will not be able to fix code
-            state().snapshots[key] = SnapshotReference(obj, None, context)
-        else:
-            assert isinstance(node, ast.Call)
-            state().snapshots[key] = SnapshotReference(obj, expr, context)
-    else:
-        state().snapshots[key]._re_eval(obj, context)
-
-    return state().snapshots[key]._value
+    return create_snapshot(SnapshotReference, obj, 1)
 
 
-def used_externals(tree):
-    return [
-        n.args[0].value
-        for n in ast.walk(tree)
-        if isinstance(n, ast.Call)
-        and isinstance(n.func, ast.Name)
-        and n.func.id == "external"
-        and n.args
-        and isinstance(n.args[0], ast.Constant)
-    ]
-
-
-class SnapshotReference:
+class SnapshotReference(SnapshotRefBase):
     def __init__(self, value, expr, context: AdapterContext):
         self._expr = expr
         node = expr.node.args[0] if expr is not None and expr.node.args else None
         self._value = UndecidedValue(value, node, context)
+        self._context = context
 
-    def _changes(self):
+    def result(self):
+        return self._value
+
+    @staticmethod
+    def create_raw(obj, context: AdapterContext):
+        return obj
+
+    def _changes(self) -> Iterator[Change]:
 
         if (
             self._value._old_value is undefined
