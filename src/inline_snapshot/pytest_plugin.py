@@ -14,8 +14,8 @@ from rich.syntax import Syntax
 from inline_snapshot._external._external import External
 from inline_snapshot._external._external_file import ExternalFile
 from inline_snapshot._external._outsource import Outsourced
-from inline_snapshot._external._storage import StorageLookupError
 from inline_snapshot._external._storage import default_storages
+from inline_snapshot._external._storage._protocol import StorageLookupError
 from inline_snapshot._unmanaged import Unmanaged
 from inline_snapshot.fix_pytest_diff import fix_pytest_diff
 

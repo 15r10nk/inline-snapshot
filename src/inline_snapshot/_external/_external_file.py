@@ -6,8 +6,8 @@ from typing import cast
 from inline_snapshot._change import ChangeBase
 from inline_snapshot._change import ExternalChange
 from inline_snapshot._external._external_location import FileLocation
-from inline_snapshot._external._format import Format
-from inline_snapshot._external._format import get_format_handler_from_suffix
+from inline_snapshot._external._format._protocol import Format
+from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
 from inline_snapshot._external._tmp_path import new_tmp_path
 from inline_snapshot._global_state import state
 from inline_snapshot._types import SnapshotRefBase

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from inline_snapshot._external._external_location import ExternalLocation
-from inline_snapshot._external._format import get_format_handler
+from inline_snapshot._external._format._protocol import get_format_handler
 from inline_snapshot._external._tmp_path import new_tmp_path
 from inline_snapshot._global_state import state
 

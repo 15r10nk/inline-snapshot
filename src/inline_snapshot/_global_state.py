@@ -11,8 +11,8 @@ from typing import Any
 from typing import Generator
 
 from inline_snapshot._config import Config
-from inline_snapshot._external._format import Format
-from inline_snapshot._external._storage import StorageProtocol
+from inline_snapshot._external._format._protocol import Format
+from inline_snapshot._external._storage._protocol import StorageProtocol
 from inline_snapshot._types import SnapshotRefBase
 
 from ._flags import Flags
@@ -79,7 +79,7 @@ def leave_snapshot_context():
 
 @contextlib.contextmanager
 def snapshot_env() -> Generator[State]:
-    from ._external._storage import HashStorage
+    from ._external._storage._hash import HashStorage
 
     old = _current
 

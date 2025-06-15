@@ -21,7 +21,7 @@ from rich.console import Console
 from inline_snapshot._config import Config
 from inline_snapshot._config import read_config
 from inline_snapshot._exceptions import UsageError
-from inline_snapshot._external._storage import HashStorage
+from inline_snapshot._external._storage._hash import HashStorage
 from inline_snapshot._problems import report_problems
 
 from .._change import ChangeBase

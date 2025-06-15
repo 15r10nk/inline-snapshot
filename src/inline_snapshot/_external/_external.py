@@ -7,8 +7,8 @@ from inline_snapshot._change import CallArg
 from inline_snapshot._change import ExternalChange
 from inline_snapshot._change import Replace
 from inline_snapshot._exceptions import UsageError
-from inline_snapshot._external._format import get_format_handler
-from inline_snapshot._external._format import get_format_handler_from_suffix
+from inline_snapshot._external._format._protocol import get_format_handler
+from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
 from inline_snapshot._external._outsource import Outsourced
 from inline_snapshot._external._tmp_path import new_tmp_path
 from inline_snapshot._global_state import state

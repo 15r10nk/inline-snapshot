@@ -21,7 +21,7 @@ from ._rewrite_code import end_of
 from ._rewrite_code import start_of
 
 if TYPE_CHECKING:
-    from inline_snapshot._external._format import Format
+    from inline_snapshot._external._format._protocol import Format
 
 
 class ChangeBase:
@@ -80,7 +80,9 @@ class ExternalRemove(ChangeBase):
 
         title = f"delete {self.old_location}"
 
-        from inline_snapshot._external._format import get_format_handler_from_suffix
+        from inline_snapshot._external._format._protocol import (
+            get_format_handler_from_suffix,
+        )
 
         with self.old_location.load() as old_file:
             assert self.old_location.suffix
