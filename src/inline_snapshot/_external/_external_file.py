@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Iterator
+from typing import Optional
 from typing import Union
 from typing import cast
 
@@ -65,7 +66,13 @@ class ExternalFile(SnapshotRefBase):
         return self._format.decode(self._filename)
 
 
-def external_file(path: Union[Path, str], format_suffix=None):
+def external_file(path: Union[Path, str], *, format: Optional[str] = None):
+    """
+    Arguments:
+        path: the path to the external file, relative to the directory of the current file.
+        format: overwrite the format handler which should be used to load and save the content.
+                It can be used to treat markdown files as text files with `format_suffix=".txt"` for example.
+    """
     path = Path(path)
 
     if not path.is_absolute():
@@ -79,16 +86,16 @@ def external_file(path: Union[Path, str], format_suffix=None):
 
     path = path.resolve()
 
-    if format_suffix is None:
-        format_suffix = get_format_handler_from_suffix(path.suffix)
+    if format is None:
+        format = get_format_handler_from_suffix(path.suffix)
 
     key = ("file", path)
     if key not in state().snapshots:
-        new = ExternalFile(path, format_suffix)
+        new = ExternalFile(path, format)
         state().snapshots[key] = new
     else:
         new = cast(ExternalFile, state().snapshots[key])
 
-    assert new._format == format_suffix
+    assert new._format == format
 
     return new

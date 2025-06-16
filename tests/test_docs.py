@@ -131,7 +131,7 @@ def map_code_blocks(file: Path, func):
 
     new_code = "\n".join(new_lines) + "\n"
 
-    assert external_file(file, format_suffix=TextFormat()) == new_code
+    assert external_file(file, format=TextFormat()) == new_code
 
 
 def test_map_code_blocks(tmp_path):

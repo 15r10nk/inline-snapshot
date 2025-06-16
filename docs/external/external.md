@@ -318,7 +318,7 @@ The custom format is then used every time an `Array` is compared with an empty e
 
 === "example pytest output"
 
-    ![](assets/number_set_output.png)
+    ![](/assets/number_set_output.png)
 
 === "example"
     <!-- inline-snapshot: create first_block outcome-failed=1 -->
