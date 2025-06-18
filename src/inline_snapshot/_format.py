@@ -3,12 +3,13 @@ import warnings
 
 from rich.markup import escape
 
-from . import _config
 from ._problems import raise_problem
 
 
 def enforce_formatting():
-    return _config.config.format_command is not None
+    from inline_snapshot._global_state import state
+
+    return state().config.format_command is not None
 
 
 def file_mode_for_path(path):
@@ -38,8 +39,10 @@ def file_mode_for_path(path):
 
 
 def format_code(text, filename):
-    if _config.config.format_command is not None:
-        format_command = _config.config.format_command.format(filename=filename)
+    from inline_snapshot._global_state import state
+
+    if state().config.format_command is not None:
+        format_command = state().config.format_command.format(filename=filename)
         result = sp.run(
             format_command, shell=True, input=text.encode("utf-8"), capture_output=True
         )
