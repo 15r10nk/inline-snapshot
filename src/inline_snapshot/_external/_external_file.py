@@ -87,15 +87,17 @@ def external_file(path: Union[Path, str], *, format: Optional[str] = None):
     path = path.resolve()
 
     if format is None:
-        format = get_format_handler_from_suffix(path.suffix)
+        format = path.suffix
+
+    format_handler = get_format_handler_from_suffix(format)
 
     key = ("file", path)
     if key not in state().snapshots:
-        new = ExternalFile(path, format)
+        new = ExternalFile(path, format_handler)
         state().snapshots[key] = new
     else:
         new = cast(ExternalFile, state().snapshots[key])
 
-    assert new._format == format
+    assert new._format.suffix == format
 
     return new

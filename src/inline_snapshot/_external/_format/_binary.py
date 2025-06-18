@@ -14,8 +14,8 @@ class BinaryFormat(BinaryDiff, Format[bytes]):
 
     suffix = ".bin"
 
-    def handle(self, data: object):
-        return isinstance(data, bytes)
+    def isHandled(self, value: object):
+        return isinstance(value, bytes)
 
     def encode(self, value: bytes, path: Path):
         path.write_bytes(value)

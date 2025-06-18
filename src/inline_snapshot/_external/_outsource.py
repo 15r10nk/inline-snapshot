@@ -14,11 +14,11 @@ class Outsourced:
     def __init__(self, data: Any, suffix: str | None):
         self.data = data
 
-        self._format = get_format_handler(data, suffix)
+        self._format = get_format_handler(data, suffix or "")
         if suffix is None:
             suffix = self._format.suffix
 
-        self._location = ExternalLocation("hash", None, suffix, None, None)
+        self._location = ExternalLocation("hash", "", suffix, None, None)
 
         tmp_path = new_tmp_path(suffix)
 

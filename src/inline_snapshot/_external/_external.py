@@ -116,7 +116,7 @@ class External:
     def _assign(self, other):
         format = get_format_handler(other, self._location.suffix)
 
-        if self._location.suffix is None:
+        if not self._location.suffix:
             self._location.suffix = format.suffix
 
         self._tmp_file = new_tmp_path(self._location.suffix)

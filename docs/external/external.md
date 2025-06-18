@@ -191,7 +191,7 @@ It is also possible to define handler for your custom file formats.
         # suffix_required = True
 
         @staticmethod
-        def handle(data: object):
+        def isHandled(data: object):
             return isinstance(data, Array)
 
         @staticmethod
@@ -230,7 +230,7 @@ It is also possible to define handler for your custom file formats.
         # suffix_required = True
 
         @staticmethod
-        def handle(data: object):
+        def isHandled(data: object):
             return isinstance(data, Array)
 
         @staticmethod
@@ -250,9 +250,9 @@ It is also possible to define handler for your custom file formats.
         )
     ```
 
-`handle()` should return `True` for all datatypes which are handled by this format. You will have to use `external(".arr")` when the given value is handled by multiple formats.
+`isHandled()` should return `True` for all datatypes which are handled by this format. You will have to use `external(".arr")` when the given value is handled by multiple formats.
 
-`suffix_required` is `False` by default and can be set to `True` if you implement a generic format which should work with all sorts of datatypes (like the `JsonFormat` does) where `handle()` returns always `True`.
+`suffix_required` is `False` by default and can be set to `True` if you implement a generic format which should work with all sorts of datatypes (like the `JsonFormat` does) where `isHandled()` returns always `True`.
 This allows you to use `assert "text" == external()` without providing an explicit `".txt"` suffix for external and requires that you use the `".json"` suffix explicit when you want to use the `JsonFormat`.
 
 
@@ -289,7 +289,7 @@ inline-snapshot needs to know how changes in your external files should be displ
         def rich_show(self, path: Path):
             return " ".join(f"[blue]{n}[/]" for n in self.decode(path).numbers)
 
-        def handle(self, data: object):
+        def isHandled(self, data: object):
             return isinstance(data, NumberSet)
 
         def encode(self, value: NumberSet, path: Path):

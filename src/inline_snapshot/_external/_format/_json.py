@@ -16,7 +16,7 @@ class JsonFormat(TextDiff, Format[object]):
     suffix = ".json"
     suffix_required = True
 
-    def handle(self, data: object):
+    def isHandled(self, value: object):
         return True
 
     def encode(self, value: object, path: Path):

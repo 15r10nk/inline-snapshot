@@ -14,8 +14,8 @@ class TextFormat(TextDiff, Format[str]):
 
     suffix = ".txt"
 
-    def handle(self, data: object):
-        return isinstance(data, str)
+    def isHandled(self, value: object):
+        return isinstance(value, str)
 
     def encode(self, value: str, path: Path):
         with path.open("w", encoding="utf-8", newline="\n") as f:

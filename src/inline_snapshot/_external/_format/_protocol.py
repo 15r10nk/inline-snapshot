@@ -10,17 +10,17 @@ from rich.console import RenderableType
 from inline_snapshot._exceptions import UsageError
 
 
-def get_format_handler(data, suffix: str | None) -> Format:
+def get_format_handler(data, suffix: str) -> Format:
     from inline_snapshot._global_state import state
 
-    if suffix is not None:
+    if suffix:
         suffix = state().format_aliases.get(suffix, suffix)
 
     for formatter in state().all_formats.values():
-        if formatter.handle(data) and (
+        if formatter.isHandled(data) and (
             suffix == formatter.suffix
             if formatter.suffix_required
-            else (suffix is None or suffix == formatter.suffix)
+            else (not suffix or suffix == formatter.suffix)
         ):
             return formatter
     else:

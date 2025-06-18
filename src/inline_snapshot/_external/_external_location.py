@@ -12,7 +12,7 @@ from inline_snapshot._adapter.adapter import AdapterContext
 
 
 class Location:
-    suffix: str | None
+    suffix: str
 
     def __str__(self) -> str:
         raise NotImplementedError
@@ -33,9 +33,9 @@ class Location:
 
 @dataclass
 class ExternalLocation(Location):
-    storage: str | None
-    stem: str | None
-    suffix: str | None
+    storage: str
+    stem: str
+    suffix: str
 
     filename: Path | None
     qualname: str | None
@@ -52,8 +52,8 @@ class ExternalLocation(Location):
 
         if not name:
             storage = state().config.default_storage
-            stem = None
-            suffix = None
+            stem = ""
+            suffix = ""
         else:
             m = re.fullmatch(r"([0-9a-fA-F]{64}|[0-9a-fA-F]+\*)(\.[a-zA-Z0-9]+)", name)
 
@@ -70,8 +70,8 @@ class ExternalLocation(Location):
                 stem, suffix = path.split(".", 1)
                 suffix = "." + suffix
             elif not path:
-                stem = None
-                suffix = None
+                stem = ""
+                suffix = ""
             else:
                 raise ValueError(f"'{name}' is missing a suffix")
 

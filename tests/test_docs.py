@@ -19,7 +19,6 @@ import pytest
 
 from inline_snapshot import snapshot
 from inline_snapshot._external._external_file import external_file
-from inline_snapshot._external._format import TextFormat
 from inline_snapshot._flags import Flags
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot.extra import raises
@@ -131,7 +130,7 @@ def map_code_blocks(file: Path, func):
 
     new_code = "\n".join(new_lines) + "\n"
 
-    assert external_file(file, format=TextFormat()) == new_code
+    assert external_file(file, format=".txt") == new_code
 
 
 def test_map_code_blocks(tmp_path):
