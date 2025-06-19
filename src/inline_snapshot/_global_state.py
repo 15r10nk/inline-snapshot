@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import TYPE_CHECKING
 from typing import Generator
+from typing import Literal
 
 from ._flags import Flags
 
@@ -27,6 +28,8 @@ class State:
     storage: DiscStorage | None = None
 
     flags: set[str] = field(default_factory=set)
+
+    disable_reason: Literal["xdist", "ci", "implementation", None] = None
 
 
 _latest_global_states: list[State] = []

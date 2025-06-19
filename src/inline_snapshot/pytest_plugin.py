@@ -111,6 +111,15 @@ def is_ci_run():
     return False
 
 
+def is_ide():
+    """
+    returns True if inline-snapshot was used with the "run test" button in pycharm or vscode
+    """
+    return bool(os.environ.get("PYCHARM_HOSTED", False)) or bool(
+        os.environ.get("VSCODE_PID", False)
+    )
+
+
 def is_implementation_supported():
     return sys.implementation.name == "cpython"
 
@@ -126,26 +135,36 @@ def pytest_configure(config):
     _config.config = _config.Config()
 
     if is_pytest_compatible():
+        # improved default flags for cpython >=3.11
+        _config.config.default_flags_ide = ["create", "report"]
         _config.config.default_flags_tui = ["create", "review"]
         _config.config.default_flags = ["report"]
 
     _config.read_config(pyproject, _config.config)
 
     console = Console()
-    if is_ci_run():
-        default_flags = {"disable"}
+    # load flags from config
+    if is_ide():
+        default_flags = _config.config.default_flags_ide
     elif console.is_terminal:
         default_flags = _config.config.default_flags_tui
+    elif is_ci_run():
+        # exclude ide because pycharm sets TEAMCITY_VERSION=LOCAL
+        default_flags = ["disable"]
+        state().disable_reason = "ci"
     else:
         default_flags = _config.config.default_flags
 
+    # load flags from env var
     env_var = "INLINE_SNAPSHOT_DEFAULT_FLAGS"
     if env_var in os.environ:
         default_flags = os.environ[env_var].split(",")
 
+    # load flags from command line argument
     if config.option.inline_snapshot is None:
         flags = set(default_flags)
     else:
+        state().disable_reason = None
         flags = config.option.inline_snapshot.split(",")
         flags = {flag for flag in flags if flag}
         if xdist_running(config) and flags - {"disable"}:
@@ -154,6 +173,7 @@ def pytest_configure(config):
             )
     state().flags = flags
 
+    # check flags
     unknown_flags = flags - categories - {"disable", "review", "report", "short-report"}
     if unknown_flags:
         raise pytest.UsageError(
@@ -165,17 +185,18 @@ def pytest_configure(config):
             f"--inline-snapshot=disable can not be combined with other flags ({', '.join(flags-{'disable'})})"
         )
 
-    if xdist_running(config) or not is_implementation_supported():
+    # if xdist_running(config) or not is_implementation_supported():
+    if xdist_running(config) and "disable" not in flags:
         state().active = False
-
+        state().disable_reason = "xdist"
+    elif not is_implementation_supported() and "disable" not in flags:
+        state().active = False
+        state().disable_reason = "implementation"
     elif flags & {"review"}:
         state().active = True
-
         state().update_flags = Flags.all()
     else:
-
         state().active = "disable" not in flags
-
         state().update_flags = Flags(flags & categories)
 
     external_storage = (
@@ -317,27 +338,22 @@ def pytest_sessionfinish(session, exitstatus):
 
             return con
 
-        if xdist_running(config):
-            if state().flags != {"disable"}:
-                console().print(
-                    "INFO: inline-snapshot was disabled because you used xdist\n"
-                )
-            return
+        if state().disable_reason == "xdist":
+            console().print(
+                "INFO: inline-snapshot was disabled because you used xdist\n"
+            )
 
-        if env_var := is_ci_run():
-            if state().flags == {"disable"}:
-                console().print(
-                    f'INFO: CI run was detected because environment variable "{env_var}" was defined.\n'
-                    + "INFO: inline-snapshot runs with --inline-snapshot=disable by default in CI.\n"
-                )
-                return
+        if state().disable_reason == "ci":
+            env_var = is_ci_run()
+            console().print(
+                f'INFO: CI run was detected because environment variable "{env_var}" was defined.\n'
+                + "INFO: inline-snapshot runs with --inline-snapshot=disable by default in CI.\n"
+            )
 
-        if not is_implementation_supported():
-            if state().flags != {"disable"}:
-                console().print(
-                    f"INFO: inline-snapshot was disabled because {sys.implementation.name} is not supported\n"
-                )
-            return
+        if state().disable_reason == "implementation":
+            console().print(
+                f"INFO: inline-snapshot was disabled because {sys.implementation.name} is not supported\n"
+            )
 
         if not state().active:
             return
