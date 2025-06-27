@@ -75,169 +75,168 @@ Other types are converted with a [customizable](customize_repr.md) `repr()` into
 
 ### dirty-equals
 
-!!! note
-    Use the optional *dirty-equals* dependency to install the version that works best in combination with inline-snapshot.
-    ``` sh
-    pip install inline-snapshot[dirty-equals]
-    ```
+[dirty-equals](https://dirty-equals.helpmanual.io/latest/) is a library of special objects for comparing types declaratively in unit tests.
+inline-snapshot supports dirty-equals expressions inside snapshots, making it easier to write snapshots that contain data that varies between test runs, such as timestamps, database IDs, or other runtime values.
 
-It might be, that larger snapshots with many lists and dictionaries contain some values which change frequently and are not relevant for the test.
-They might be part of larger data structures and be difficult to normalize.
+To use dirty-equals with inline-snapshot, pull in a compatible version with the ``dirty-equals`` extra dependency.
+For example, with Pip:
 
-Example:
+``` sh
+pip install inline-snapshot[dirty-equals]
+```
 
-=== "original code"
-    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
-    ``` python
-    from inline_snapshot import snapshot
-    import datetime
+Then you can start using dirty-equals expressions inside snapshots.
+
+For example, say you have a function that returns a dictionary that contains a variable `datetime`.
+You could initialize a test like this:
+
+<!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+``` python
+from inline_snapshot import snapshot
+import datetime
 
 
-    def get_data():
-        return {
-            "date": datetime.datetime.utcnow(),
+def get_data():
+    return {
+        "date": datetime.datetime.utcnow(),
+        "payload": "some data",
+    }
+
+
+def test_function():
+    assert get_data() == snapshot()
+```
+
+If you use `--inline-snapshot=create`, inline-snapshot will record the current `datetime` in the snapshot:
+
+<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+``` python hl_lines="13 14 15"
+from inline_snapshot import snapshot
+import datetime
+
+
+def get_data():
+    return {
+        "date": datetime.datetime.utcnow(),
+        "payload": "some data",
+    }
+
+
+def test_function():
+    assert get_data() == snapshot(
+        {"date": datetime.datetime(2024, 3, 14, 0, 0), "payload": "some data"}
+    )
+```
+
+To avoid the test failing in future runs, replace the the `datetime` with [dirty-equals' `IsDatetime()`](https://dirty-equals.helpmanual.io/latest/types/datetime/#dirty_equals.IsDatetime):
+
+<!-- inline-snapshot: first_block outcome-passed=1 -->
+``` python
+from inline_snapshot import snapshot
+from dirty_equals import IsDatetime
+import datetime
+
+
+def get_data():
+    return {
+        "date": datetime.datetime.utcnow(),
+        "payload": "some data",
+    }
+
+
+def test_function():
+    assert get_data() == snapshot(
+        {
+            "date": IsDatetime(),
             "payload": "some data",
         }
+    )
+```
+
+Say a different part of the return data changes, such as the `payload` value:
+
+<!-- inline-snapshot: outcome-failed=1 outcome-errors=1 -->
+``` python hl_lines="9"
+from inline_snapshot import snapshot
+from dirty_equals import IsDatetime
+import datetime
 
 
-    def test_function():
-        assert get_data() == snapshot()
-    ```
-
-=== "--inline-snapshot=create"
-    <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-    ``` python hl_lines="13 14 15"
-    from inline_snapshot import snapshot
-    import datetime
+def get_data():
+    return {
+        "date": datetime.datetime.utcnow(),
+        "payload": "data changed for some good reason",
+    }
 
 
-    def get_data():
-        return {
-            "date": datetime.datetime.utcnow(),
+def test_function():
+    assert get_data() == snapshot(
+        {
+            "date": IsDatetime(),
             "payload": "some data",
         }
+    )
+```
+
+Re-running the test with `--inline-snapshot=fix` will update the snapshot to match the new value of `payload`, while keeping the `date` as a dirty-equals expression:
+
+<!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
+``` python hl_lines="17"
+from inline_snapshot import snapshot
+from dirty_equals import IsDatetime
+import datetime
 
 
-    def test_function():
-        assert get_data() == snapshot(
-            {"date": datetime.datetime(2024, 3, 14, 0, 0), "payload": "some data"}
-        )
-    ```
-
-The date can be replaced with the [dirty-equals](https://dirty-equals.helpmanual.io/latest/) expression `IsDatetime()`.
+def get_data():
+    return {
+        "date": datetime.datetime.utcnow(),
+        "payload": "data changed for some good reason",
+    }
 
 
-Example:
-
-=== "using IsDatetime()"
-    <!-- inline-snapshot: first_block outcome-passed=1 -->
-    ``` python
-    from inline_snapshot import snapshot
-    from dirty_equals import IsDatetime
-    import datetime
-
-
-    def get_data():
-        return {
-            "date": datetime.datetime.utcnow(),
-            "payload": "some data",
-        }
-
-
-    def test_function():
-        assert get_data() == snapshot(
-            {
-                "date": IsDatetime(),
-                "payload": "some data",
-            }
-        )
-    ```
-
-=== "changed payload"
-    <!-- inline-snapshot: outcome-failed=1 outcome-errors=1 -->
-    ``` python hl_lines="9"
-    from inline_snapshot import snapshot
-    from dirty_equals import IsDatetime
-    import datetime
-
-
-    def get_data():
-        return {
-            "date": datetime.datetime.utcnow(),
+def test_function():
+    assert get_data() == snapshot(
+        {
+            "date": IsDatetime(),
             "payload": "data changed for some good reason",
         }
+    )
+```
+
+#### `snapshot()` inside dirty-equals expressions
+
+`snapshot()` can also be used inside dirty-equals containers, such as with [`IsJson()`](https://dirty-equals.helpmanual.io/latest/types/other/#dirty_equals.IsJson):
+
+<!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+``` python
+from dirty_equals import IsJson
+from inline_snapshot import snapshot
 
 
-    def test_function():
-        assert get_data() == snapshot(
-            {
-                "date": IsDatetime(),
-                "payload": "some data",
-            }
-        )
-    ```
+def test_foo():
+    assert {"json_data": '{"value": 1}'} == snapshot(
+        {"json_data": IsJson(snapshot())}
+    )
+```
+
+Running this test with `--inline-snapshot=create` will record the snapshot value inside the `IsJson()` call:
+
+<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+``` python hl_lines="7"
+from dirty_equals import IsJson
+from inline_snapshot import snapshot
 
 
-=== "--inline-snapshot=fix"
-    <!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
-    ``` python hl_lines="17"
-    from inline_snapshot import snapshot
-    from dirty_equals import IsDatetime
-    import datetime
+def test_foo():
+    assert {"json_data": '{"value": 1}'} == snapshot(
+        {"json_data": IsJson(snapshot({"value": 1}))}
+    )
+```
 
-
-    def get_data():
-        return {
-            "date": datetime.datetime.utcnow(),
-            "payload": "data changed for some good reason",
-        }
-
-
-    def test_function():
-        assert get_data() == snapshot(
-            {
-                "date": IsDatetime(),
-                "payload": "data changed for some good reason",
-            }
-        )
-    ```
-
-`snapshot()` can also be used inside dirty-equals expressions.
-One useful example is `IsJson()`:
-
-
-=== "using IsJson()"
-    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
-    ``` python
-    from dirty_equals import IsJson
-    from inline_snapshot import snapshot
-
-
-    def test_foo():
-        assert {"json_data": '{"value": 1}'} == snapshot(
-            {"json_data": IsJson(snapshot())}
-        )
-    ```
-
-
-=== "--inline-snapshot=create"
-    <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-    ``` python hl_lines="7"
-    from dirty_equals import IsJson
-    from inline_snapshot import snapshot
-
-
-    def test_foo():
-        assert {"json_data": '{"value": 1}'} == snapshot(
-            {"json_data": IsJson(snapshot({"value": 1}))}
-        )
-    ```
-
-The general rule is that functions to which you pass a *snapshot* as an argument can only use `==` (or other snapshot operations) on this argument.
+The general rule is that functions to which you pass a snapshot can only use `==` (or other snapshot operations) on the value.
 
 !!! important
-    You cannot use a *snapshot* for every dirty equals argument, but only for those that also support dirty equals expressions.
-
+    You cannot use a snapshot for every dirty-equals argument, but only for those that also support dirty equals values.
 
 ### Is(...)
 
