@@ -849,6 +849,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="dirty-equals">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#snapshot-inside-dirty-equals-expressions" class="md-nav__link">
+    <span class="md-ellipsis">
+      snapshot() inside dirty-equals expressions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1330,6 +1345,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="dirty-equals">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#snapshot-inside-dirty-equals-expressions" class="md-nav__link">
+    <span class="md-ellipsis">
+      snapshot() inside dirty-equals expressions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1489,19 +1519,16 @@ The value can later be changed with <code>--inline-snapshot=fix</code> if the va
 
 <p>Other types are converted with a <a href="../customize_repr/">customizable</a> <code>repr()</code> into code. It is not possible to use unmanaged snapshot values within these objects.</p>
 <h3 id="dirty-equals">dirty-equals<a class="headerlink" href="#dirty-equals" title="Permanent link">&para;</a></h3>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Use the optional <em>dirty-equals</em> dependency to install the version that works best in combination with inline-snapshot.
+<p><a href="https://dirty-equals.helpmanual.io/latest/">dirty-equals</a> is a library of special objects for comparing types declaratively in unit tests.
+inline-snapshot supports dirty-equals expressions inside snapshots, making it easier to write snapshots that contain data that varies between test runs, such as timestamps, database IDs, or other runtime values.</p>
+<p>To use dirty-equals with inline-snapshot, pull in a compatible version with the <code>dirty-equals</code> extra dependency.
+For example, with Pip:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span>inline-snapshot<span class="o">[</span>dirty-equals<span class="o">]</span>
-</code></pre></div></p>
-</div>
-<p>It might be, that larger snapshots with many lists and dictionaries contain some values which change frequently and are not relevant for the test.
-They might be part of larger data structures and be difficult to normalize.</p>
-<p>Example:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">original code</label><label for="__tabbed_2_2">--inline-snapshot=create</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p><!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+</code></pre></div>
+<p>Then you can start using dirty-equals expressions inside snapshots.</p>
+<p>For example, say you have a function that returns a dictionary that contains a variable <code>datetime</code>.
+You could initialize a test like this:</p>
+<!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
@@ -1515,10 +1542,9 @@ They might be part of larger data structures and be difficult to normalize.</p>
 <a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
 <a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_function</span><span class="p">():</span>
 <a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>    <span class="k">assert</span> <span class="n">get_data</span><span class="p">()</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">()</span>
-</code></pre></div></p>
-</div>
-<div class="tabbed-block">
-<p><!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+</code></pre></div>
+<p>If you use <code>--inline-snapshot=create</code>, inline-snapshot will record the current <code>datetime</code> in the snapshot:</p>
+<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
@@ -1534,16 +1560,9 @@ They might be part of larger data structures and be difficult to normalize.</p>
 <a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="hll">    <span class="k">assert</span> <span class="n">get_data</span><span class="p">()</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
 </span><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="hll">        <span class="p">{</span><span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="s2">&quot;some data&quot;</span><span class="p">}</span>
 </span><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="hll">    <span class="p">)</span>
-</span></code></pre></div></p>
-</div>
-</div>
-</div>
-<p>The date can be replaced with the <a href="https://dirty-equals.helpmanual.io/latest/">dirty-equals</a> expression <code>IsDatetime()</code>.</p>
-<p>Example:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">using IsDatetime()</label><label for="__tabbed_3_2">changed payload</label><label for="__tabbed_3_3">--inline-snapshot=fix</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p><!-- inline-snapshot: first_block outcome-passed=1 -->
+</span></code></pre></div>
+<p>To avoid the test failing in future runs, replace the the <code>datetime</code> with <a href="https://dirty-equals.helpmanual.io/latest/types/datetime/#dirty_equals.IsDatetime">dirty-equals' <code>IsDatetime()</code></a>:</p>
+<!-- inline-snapshot: first_block outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dirty_equals</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsDatetime</span>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
@@ -1563,10 +1582,9 @@ They might be part of larger data structures and be difficult to normalize.</p>
 <a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>            <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="s2">&quot;some data&quot;</span><span class="p">,</span>
 <a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>        <span class="p">}</span>
 <a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>    <span class="p">)</span>
-</code></pre></div></p>
-</div>
-<div class="tabbed-block">
-<p><!-- inline-snapshot: outcome-failed=1 outcome-errors=1 -->
+</code></pre></div>
+<p>Say a different part of the return data changes, such as the <code>payload</code> value:</p>
+<!-- inline-snapshot: outcome-failed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dirty_equals</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsDatetime</span>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
@@ -1586,10 +1604,9 @@ They might be part of larger data structures and be difficult to normalize.</p>
 <a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>            <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="s2">&quot;some data&quot;</span><span class="p">,</span>
 <a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>        <span class="p">}</span>
 <a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>    <span class="p">)</span>
-</code></pre></div></p>
-</div>
-<div class="tabbed-block">
-<p><!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
+</code></pre></div>
+<p>Re-running the test with <code>--inline-snapshot=fix</code> will update the snapshot to match the new value of <code>payload</code>, while keeping the <code>date</code> as a dirty-equals expression:</p>
+<!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dirty_equals</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsDatetime</span>
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
@@ -1609,16 +1626,10 @@ They might be part of larger data structures and be difficult to normalize.</p>
 <a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="hll">            <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="s2">&quot;data changed for some good reason&quot;</span><span class="p">,</span>
 </span><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>        <span class="p">}</span>
 <a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>    <span class="p">)</span>
-</code></pre></div></p>
-</div>
-</div>
-</div>
-<p><code>snapshot()</code> can also be used inside dirty-equals expressions.
-One useful example is <code>IsJson()</code>:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">using IsJson()</label><label for="__tabbed_4_2">--inline-snapshot=create</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p><!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+</code></pre></div>
+<h4 id="snapshot-inside-dirty-equals-expressions"><code>snapshot()</code> inside dirty-equals expressions<a class="headerlink" href="#snapshot-inside-dirty-equals-expressions" title="Permanent link">&para;</a></h4>
+<p><code>snapshot()</code> can also be used inside dirty-equals containers, such as with <a href="https://dirty-equals.helpmanual.io/latest/types/other/#dirty_equals.IsJson"><code>IsJson()</code></a>:</p>
+<!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dirty_equals</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsJson</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
@@ -1627,10 +1638,9 @@ One useful example is <code>IsJson()</code>:</p>
 <a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="k">assert</span> <span class="p">{</span><span class="s2">&quot;json_data&quot;</span><span class="p">:</span> <span class="s1">&#39;{&quot;value&quot;: 1}&#39;</span><span class="p">}</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
 <a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        <span class="p">{</span><span class="s2">&quot;json_data&quot;</span><span class="p">:</span> <span class="n">IsJson</span><span class="p">(</span><span class="n">snapshot</span><span class="p">())}</span>
 <a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="p">)</span>
-</code></pre></div></p>
-</div>
-<div class="tabbed-block">
-<p><!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+</code></pre></div>
+<p>Running this test with <code>--inline-snapshot=create</code> will record the snapshot value inside the <code>IsJson()</code> call:</p>
+<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dirty_equals</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsJson</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
@@ -1639,14 +1649,11 @@ One useful example is <code>IsJson()</code>:</p>
 <a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="k">assert</span> <span class="p">{</span><span class="s2">&quot;json_data&quot;</span><span class="p">:</span> <span class="s1">&#39;{&quot;value&quot;: 1}&#39;</span><span class="p">}</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
 <a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="hll">        <span class="p">{</span><span class="s2">&quot;json_data&quot;</span><span class="p">:</span> <span class="n">IsJson</span><span class="p">(</span><span class="n">snapshot</span><span class="p">({</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}))}</span>
 </span><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>    <span class="p">)</span>
-</code></pre></div></p>
-</div>
-</div>
-</div>
-<p>The general rule is that functions to which you pass a <em>snapshot</em> as an argument can only use <code>==</code> (or other snapshot operations) on this argument.</p>
+</code></pre></div>
+<p>The general rule is that functions to which you pass a snapshot can only use <code>==</code> (or other snapshot operations) on the value.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>You cannot use a <em>snapshot</em> for every dirty equals argument, but only for those that also support dirty equals expressions.</p>
+<p>You cannot use a snapshot for every dirty-equals argument, but only for those that also support dirty equals values.</p>
 </div>
 <h3 id="is">Is(...)<a class="headerlink" href="#is" title="Permanent link">&para;</a></h3>
 <p><code>Is()</code> can be used to put runtime values inside snapshots.
@@ -1668,7 +1675,7 @@ It tells inline-snapshot that the developer wants control over some part of the 
 </code></pre></div>
 <p>The snapshot does not need to be fixed when <code>current_version</code> changes in the future, but <code>"page data"</code> will still be fixed if it changes.</p>
 <p><code>Is()</code> can also be used when the snapshot is evaluated multiple times, which is useful in loops or parametrized tests.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">original code</label><label for="__tabbed_5_2">--inline-snapshot=fix</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">original code</label><label for="__tabbed_2_2">--inline-snapshot=fix</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p><!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
@@ -1699,7 +1706,7 @@ It tells inline-snapshot that the developer wants control over some part of the 
 <p>This is useful to describe version specific parts of snapshots by replacing the specific part with <code class="highlight"><span class="n">snapshot</span><span class="p">()</span> <span class="k">if</span> <span class="n">some_condition</span> <span class="k">else</span> <span class="n">snapshot</span><span class="p">()</span></code>.
 The test has to be executed in each specific condition to fill the snapshots.</p>
 <p>The following example shows how this can be used to run a tests with two different library versions:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">my_lib.py v1</label><label for="__tabbed_6_2">my_lib.py v2</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">my_lib.py v1</label><label for="__tabbed_3_2">my_lib.py v2</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p><!-- inline-snapshot-lib: my_lib.py -->
