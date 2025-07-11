@@ -33,6 +33,7 @@ The following example shows how you can use the `Example` class to test what inl
         ).run_pytest(  # run with create flag and check the changed files
             ["--inline-snapshot=create"],
             changed_files=snapshot(),
+            returncode=snapshot(),
         )
     ```
 
@@ -69,6 +70,7 @@ The following example shows how you can use the `Example` class to test what inl
         ).run_pytest(  # run with create flag and check the changed files
             ["--inline-snapshot=create"],
             changed_files=snapshot(),
+            returncode=snapshot(1),
         )
     ```
 
