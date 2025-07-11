@@ -411,6 +411,7 @@ def set_time(freezer):
 
                 linenum = 1
                 hl_lines = ""
+
                 if last_code is not None and "first_block" not in options:
                     changed_lines = []
                     alignment = align(last_code.split("\n"), new_code.split("\n"))

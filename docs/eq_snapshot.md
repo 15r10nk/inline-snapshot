@@ -128,7 +128,7 @@ def test_function():
     )
 ```
 
-To avoid the test failing in future runs, replace the the `datetime` with [dirty-equals' `IsDatetime()`](https://dirty-equals.helpmanual.io/latest/types/datetime/#dirty_equals.IsDatetime):
+To avoid the test failing in future runs, replace the `datetime` with [dirty-equals' `IsDatetime()`](https://dirty-equals.helpmanual.io/latest/types/datetime/#dirty_equals.IsDatetime):
 
 <!-- inline-snapshot: first_block outcome-passed=1 -->
 ``` python

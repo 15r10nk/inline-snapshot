@@ -8,7 +8,7 @@ from ._problems import raise_problem
 
 
 def enforce_formatting():
-    return _config.config.format_command is not None
+    return bool(_config.config.format_command)
 
 
 def file_mode_for_path(path):
@@ -38,7 +38,7 @@ def file_mode_for_path(path):
 
 
 def format_code(text, filename):
-    if _config.config.format_command is not None:
+    if _config.config.format_command:
         format_command = _config.config.format_command.format(filename=filename)
         result = sp.run(
             format_command, shell=True, input=text.encode("utf-8"), capture_output=True

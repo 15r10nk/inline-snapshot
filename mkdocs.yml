@@ -56,6 +56,8 @@ nav:
   - outsource(data): outsource.md
   - '@customize_repr': customize_repr.md
   - types: types.md
+- HowTo:
+  - pytest parametrize: howto/parametrize.md
 - Extensions:
   - first-party (extra): extra.md
   - third-party: third_party.md
