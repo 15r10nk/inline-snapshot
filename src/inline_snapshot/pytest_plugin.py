@@ -224,19 +224,22 @@ def snapshot_check(request):
     missing_values = state().missing_values
     incorrect_values = state().incorrect_values
 
+    extra = "\nIf you just created this value with --snapshot=create, the value is now created and you can ignore this message."
+
     if missing_values != 0:
         pytest.fail(
             (
                 "your snapshot is missing one value."
                 if missing_values == 1
                 else f"your snapshot is missing {missing_values} values."
-            ),
+            )
+            + extra,
             pytrace=False,
         )
 
     if incorrect_values != 0:
         pytest.fail(
-            "some snapshots in this test have incorrect values.",
+            "some snapshots in this test have incorrect values." + extra,
             pytrace=False,
         )
 

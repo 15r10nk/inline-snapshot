@@ -592,6 +592,7 @@ ERROR test_file.py::test_sub_snapshot - Failed: your snapshot is missing one val
 ============================================================================ ERRORS ============================================================================
 ____________________________________________________________ ERROR at teardown of test_sub_snapshot ____________________________________________________________
 your snapshot is missing one value.
+If you just created this value with --snapshot=create, the value is now created and you can ignore this message.
 =================================================================== short test summary info ====================================================================
 ERROR test_file.py::test_sub_snapshot - Failed: your snapshot is missing one value.
 ================================================================== 1 passed, 1 error in <time> ==================================================================
