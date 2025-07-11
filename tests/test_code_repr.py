@@ -378,3 +378,30 @@ assert Thing() == snapshot(HasRepr(Thing, "+++"))
 """
         )
     )
+
+
+def test_function_type():
+
+    Example(
+        """\
+from inline_snapshot import snapshot
+from types import FunctionType
+def func():...
+def test():
+    assert func == snapshot()
+"""
+    ).run_pytest(  # run with create flag and check the changed files
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot
+from types import FunctionType
+def func():...
+def test():
+    assert func == snapshot(func)
+"""
+            }
+        ),
+        returncode=snapshot(1),
+    )
