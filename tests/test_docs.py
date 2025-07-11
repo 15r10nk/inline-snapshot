@@ -293,6 +293,9 @@ def file_test(
 
     std_files = {
         "pyproject.toml": f"""
+[tool.inline-snapshot]
+format-command="black --stdin-filename {{filename}} -"
+
 [tool.black]
 line-length={width}
 """,
@@ -448,4 +451,4 @@ if __name__ == "__main__":  # pragma: no cover
 
     nosubtests = SimpleNamespace(test=test)
 
-    file_test(file, nosubtests, fix_files=True, width=60, use_hl_lines=False)
+    file_test(file, nosubtests, fix_files=True, width=60, use_hl_lines=True)
