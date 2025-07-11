@@ -33,7 +33,11 @@ def test_a():
     result = project.run("-n=auto")
 
     assert result.report == snapshot(
-        "INFO: inline-snapshot was disabled because you used xdist"
+        """\
+INFO: inline-snapshot was disabled because you used xdist. This means that tests
+with snapshots will continue to run, but snapshot(x) will only return x and
+inline-snapshot will not be able to fix snapshots or generate reports.
+"""
     )
 
     assert result.ret == 0
@@ -77,7 +81,11 @@ default-flags = ["fix"]
     result = project.run("-n=auto")
 
     assert result.report == snapshot(
-        "INFO: inline-snapshot was disabled because you used xdist"
+        """\
+INFO: inline-snapshot was disabled because you used xdist. This means that tests
+with snapshots will continue to run, but snapshot(x) will only return x and
+inline-snapshot will not be able to fix snapshots or generate reports.
+"""
     )
 
     assert result.stderr.lines == snapshot([])

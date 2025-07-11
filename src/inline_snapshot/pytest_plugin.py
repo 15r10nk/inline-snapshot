@@ -317,25 +317,27 @@ def pytest_sessionfinish(session, exitstatus):
 
             return con
 
+        disable_info = "This means that tests with snapshots will continue to run, but snapshot(x) will only return x and inline-snapshot will not be able to fix snapshots or generate reports."
+
         if xdist_running(config):
             if state().flags != {"disable"}:
                 console().print(
-                    "INFO: inline-snapshot was disabled because you used xdist\n"
+                    f"INFO: inline-snapshot was disabled because you used xdist. {disable_info}\n"
                 )
             return
 
         if env_var := is_ci_run():
             if state().flags == {"disable"}:
                 console().print(
-                    f'INFO: CI run was detected because environment variable "{env_var}" was defined.\n'
-                    + "INFO: inline-snapshot runs with --inline-snapshot=disable by default in CI.\n"
+                    f'INFO: CI run was detected because environment variable "{env_var}" was defined. '
+                    f"inline-snapshot runs with --inline-snapshot=disable by default in CI. {disable_info} You can change this by using --inline-snasphot=report for example.\n"
                 )
                 return
 
         if not is_implementation_supported():
             if state().flags != {"disable"}:
                 console().print(
-                    f"INFO: inline-snapshot was disabled because {sys.implementation.name} is not supported\n"
+                    f"INFO: inline-snapshot was disabled because {sys.implementation.name} is not supported. {disable_info}\n"
                 )
             return
 

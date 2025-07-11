@@ -168,8 +168,8 @@ yes | run pytest test_something.py --inline-snapshot=review
 
 ## --inline-snapshot=disable
 
-Disables all the snapshot logic. `snapshot(x)` will just return `x`.
-This can be used if you think exclude that snapshot logic causes a problem in your tests, or if you want to speedup your CI.
+Disables all the snapshot logic. `snapshot(x)` will just return `x` and inline-snapshot will not be able to fix snapshots or to generate reports.
+This can be used if you think that snapshot logic causes a problem in your tests. It is also the default for CI runs.
 
 !!! info "deprecation"
     This option was previously called `--inline-snapshot-disable`
