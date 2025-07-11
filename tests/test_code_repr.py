@@ -378,3 +378,42 @@ assert Thing() == snapshot(HasRepr(Thing, "+++"))
 """
         )
     )
+
+
+def test_function_type():
+
+    Example(
+        """\
+from inline_snapshot import snapshot
+from types import FunctionType
+def func():...
+def test():
+    assert func == snapshot()
+"""
+    ).run_inline(  # run without flags
+        reported_categories=snapshot(["create"]),
+    ).run_pytest(
+        ["--inline-snapshot=short-report"],  # check the pytest report
+        changed_files=snapshot({}),
+        report=snapshot(
+            """\
+Error: one snapshot is missing a value (--inline-snapshot=create)
+You can also use --inline-snapshot=review to approve the changes interactively\
+"""
+        ),
+        returncode=snapshot(1),
+    ).run_pytest(  # run with create flag and check the changed files
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot
+from types import FunctionType
+def func():...
+def test():
+    assert func == snapshot(func)
+"""
+            }
+        ),
+        returncode=snapshot(1),
+    )
