@@ -105,6 +105,7 @@ dependencies = [
   "mike",
   "mkdocstrings[python]>=0.19.0",
   "mkdocs-autorefs",
+  "mkdocs-llmstxt",
   "replace-url @ {root:uri}/docs/plugins",
   "black",
   "commitizen"
