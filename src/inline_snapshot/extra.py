@@ -14,7 +14,10 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
-from inline_snapshot._types import Snapshot
+from inline_snapshot._code_repr import code_repr
+
+from ._types import Snapshot
+from ._unmanaged import declare_unmanaged
 
 
 @contextlib.contextmanager
@@ -40,7 +43,7 @@ def raises(exception: Snapshot[str]):
     === "--inline-snapshot=create"
 
         <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-        ``` python hl_lines="6"
+        ``` python hl_lines="6 7 8"
         from inline_snapshot import snapshot
         from inline_snapshot.extra import raises
 
@@ -91,7 +94,7 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
     === "--inline-snapshot=create"
 
         <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-        ``` python hl_lines="7 8 9"
+        ``` python hl_lines="7 8 9 10"
         from inline_snapshot import snapshot
         from inline_snapshot.extra import prints
         import sys
@@ -99,7 +102,8 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
 
         def test_prints():
             with prints(
-                stdout=snapshot("hello world\\n"), stderr=snapshot("some error\\n")
+                stdout=snapshot("hello world\\n"),
+                stderr=snapshot("some error\\n"),
             ):
                 print("hello world")
                 print("some error", file=sys.stderr)
@@ -107,8 +111,8 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
 
     === "ignore stdout"
 
-        <!-- inline-snapshot: outcome-passed=1 -->
-        ``` python hl_lines="3 9 10"
+        <!-- inline-snapshot: outcome-errors=1 -->
+        ``` python hl_lines="3 9"
         from inline_snapshot import snapshot
         from inline_snapshot.extra import prints
         from dirty_equals import IsStr
@@ -175,14 +179,17 @@ def warns(
     === "--inline-snapshot=create"
 
         <!-- inline-snapshot: create fix outcome-passed=1 outcome-errors=1 -->
-        ``` python hl_lines="7"
+        ``` python hl_lines="7 8 9 10"
         from inline_snapshot import snapshot
         from inline_snapshot.extra import warns
         from warnings import warn
 
 
         def test_warns():
-            with warns(snapshot([(8, "UserWarning: some problem")]), include_line=True):
+            with warns(
+                snapshot([(8, "UserWarning: some problem")]),
+                include_line=True,
+            ):
                 warn("some problem")
         ```
     """
@@ -204,3 +211,194 @@ def warns(
         return message
 
     assert [make_warning(w) for w in result] == expected_warnings
+
+
+@declare_unmanaged
+class IsTransformed:
+    """
+    `IsTransformed` allows you to transform your can be used to Transform a object inside a snapshot like in the following example:
+
+    === "original"
+        <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+        ``` python
+        from random import shuffle
+        from inline_snapshot import snapshot
+        from inline_snapshot.extra import IsTransformed
+
+
+        def request():
+            data = [1, 8, 18748, 493]
+            shuffle(data)
+            return {"name": "example", "data": data}
+
+
+        def test_request():
+            assert request() == snapshot(
+                {"name": "example", "data": IsTransformed(sorted, snapshot())}
+            )
+        ```
+
+    === "--inline-snapshot=create"
+        <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+        ``` python hl_lines="14 15 16 17 18 19"
+        from random import shuffle
+        from inline_snapshot import snapshot
+        from inline_snapshot.extra import IsTransformed
+
+
+        def request():
+            data = [1, 8, 18748, 493]
+            shuffle(data)
+            return {"name": "example", "data": data}
+
+
+        def test_request():
+            assert request() == snapshot(
+                {
+                    "name": "example",
+                    "data": IsTransformed(sorted, snapshot([1, 8, 493, 18748])),
+                }
+            )
+        ```
+
+    This is useful when you work with non-deterministic data.
+
+    """
+
+    def __init__(self, func, value) -> None:
+        self._func = func
+        self._value = value
+        self._last_transformed_value = None
+
+    def __eq__(self, other) -> bool:
+        self._last_transformed_value = self._func(other)
+        return self._last_transformed_value == self._value
+
+    def __repr__(self):
+        if self._last_transformed_value == self._value:
+            return f"IsTransformed({code_repr(self._func)},{self._value})"
+        else:
+            return f"IsTransformed({code_repr(self._func)}, {self._value}, should_be={self._last_transformed_value!r})"
+
+
+def transformation(func):
+    """
+    `IsTransformed` allows you to transform your can be used to Transform a object inside a snapshot like in the following example:
+
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
+    from inline_snapshot.extra import transformation
+    from inline_snapshot import snapshot
+    import re
+
+
+    class Thing:
+        def __repr__(self):
+            return "<Thing with some random id 152897513>"
+
+
+    def test_text_with_objects():
+
+        text = f"text can contain {Thing()}"
+
+        assert {"logs": [text]} == snapshot()
+    ```
+
+    The problem is that your text contains a random id which might change in the real world with every test run and cause your tests to fail.
+
+    <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+    ``` python hl_lines="15 16 17 18 19 20 21"
+    from inline_snapshot.extra import transformation
+    from inline_snapshot import snapshot
+    import re
+
+
+    class Thing:
+        def __repr__(self):
+            return "<Thing with some random id 152897513>"
+
+
+    def test_text_with_objects():
+
+        text = f"text can contain {Thing()}"
+
+        assert {"logs": [text]} == snapshot(
+            {"logs": ["text can contain <Thing with some random id 152897513>"]}
+        )
+    ```
+
+    You can solve this problem by creating a transformation `without_ids` and replacing your the value with `without_ids(snapshot())`
+
+    <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+    ``` python
+    from inline_snapshot.extra import transformation
+    from inline_snapshot import snapshot
+    import re
+
+
+    class Thing:
+        def __repr__(self):
+            return "<Thing with some random id 152897513>"
+
+
+    @transformation
+    def without_ids(text):
+        return re.sub(r"<([^0-9]*)[^>]+>", lambda m: f"<{m[1]} ...>", text)
+
+
+    def test_text_with_objects():
+
+        text = f"text can contain {Thing()}"
+
+        assert {"logs": [text]} == snapshot({"logs": [without_ids(snapshot())]})
+    ```
+
+    inline-snapshot will then transform this value with `IsTransformed` before it is stored inside the snapshot.
+
+    <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+    ``` python hl_lines="13 14 15 22 23 24 25 26 27 28 29 30 31 32"
+    from inline_snapshot.extra import transformation
+    from inline_snapshot import snapshot
+    import re
+
+
+    class Thing:
+        def __repr__(self):
+            return "<Thing with some random id 152897513>"
+
+
+    @transformation
+    def without_ids(text):
+        return re.sub(r"<([^0-9]*)[^>]+>", lambda m: f"<{m[1]} ...>", text)
+
+
+    def test_text_with_objects():
+
+        text = f"text can contain {Thing()}"
+
+        assert {"logs": [text]} == snapshot(
+            {
+                "logs": [
+                    without_ids(
+                        snapshot(
+                            "text can contain <Thing with some random id  ...>"
+                        )
+                    )
+                ]
+            }
+        )
+    ```
+
+
+
+
+
+    This is useful when you work with non-deterministic data.
+
+
+    """
+
+    def f(value):
+        return IsTransformed(func, value)
+
+    return f
