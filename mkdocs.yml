@@ -61,6 +61,8 @@ nav:
     - '@register_format()': external/register_format.md
   - '@customize_repr': customize_repr.md
   - types: types.md
+- HowTo:
+  - pytest parametrize: howto/parametrize.md
 - Extensions:
   - first-party (extra): extra.md
   - third-party: third_party.md
@@ -107,6 +109,29 @@ plugins:
 - redirects:
     redirect_maps:
       outsource.md: external/external.md#outsource
+- llmstxt:
+    sections:
+      Overview:
+      - index.md
+      - configuration.md
+      - pytest.md
+      - categories.md
+      - code_generation.md
+      - limitations.md
+      Core Reference:
+      - fix_assert.md
+      - eq_snapshot.md
+      - cmp_snapshot.md
+      - in_snapshot.md
+      - getitem_snapshot.md
+      - outsource.md
+      - customize_repr.md
+      - types.md
+      HowTo:
+      - howto/*.md
+      Extensions:
+      - extra.md
+      - third-party.md
 
 
 extra:

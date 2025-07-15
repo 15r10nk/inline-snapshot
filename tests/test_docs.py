@@ -301,6 +301,9 @@ def file_test(
 
     std_files = {
         "pyproject.toml": f"""
+[tool.inline-snapshot]
+format-command="black --stdin-filename {{filename}} -"
+
 [tool.black]
 line-length={width}
 """,
@@ -428,6 +431,7 @@ uuid.uuid4=f
 
                 linenum = 1
                 hl_lines = ""
+
                 if last_code is not None and "first_block" not in options:
                     changed_lines = []
                     alignment = align(last_code.split("\n"), new_code.split("\n"))
@@ -468,4 +472,4 @@ if __name__ == "__main__":  # pragma: no cover
 
     nosubtests = SimpleNamespace(test=test)
 
-    file_test(file, nosubtests, width=60, use_hl_lines=False)
+    file_test(file, nosubtests, width=60, use_hl_lines=True)

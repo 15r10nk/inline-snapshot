@@ -35,6 +35,10 @@ class SourceFile:
         return self._format(tokenize.untokenize(tokens)).strip()
 
     def _value_to_code(self, value):
+        if value == "":
+            # https://github.com/15r10nk/inline-snapshot/issues/258
+            # this would otherwise cause a triple-quoted-string because black would format it as a docstring at the beginning of the code
+            return '""'
         return self._token_to_code(value_to_token(value))
 
     def _token_of_node(self, node):

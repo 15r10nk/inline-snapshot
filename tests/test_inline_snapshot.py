@@ -689,6 +689,40 @@ assert s["keyb"]==5
     )
 
 
+def test_sub_snapshot_empty_string():
+
+    Example(
+        """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert ""==snapshot()[5]
+    assert "a"==snapshot()[5]
+
+def test_b():
+    assert 42==snapshot()[""]
+    assert 42==snapshot()["a"]
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert ""==snapshot({5: ""})[5]
+    assert "a"==snapshot({5: "a"})[5]
+
+def test_b():
+    assert 42==snapshot({"": 42})[""]
+    assert 42==snapshot({"a": 42})["a"]
+"""
+            }
+        ),
+    )
+
+
 def test_different_snapshot_name(check_update):
 
     assert (

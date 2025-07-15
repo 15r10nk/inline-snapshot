@@ -12,7 +12,13 @@ def test_pypy():
     no_cpython = sys.implementation.name != "cpython"
 
     report = (
-        snapshot("INFO: inline-snapshot was disabled because pypy is not supported")
+        snapshot(
+            """\
+INFO: inline-snapshot was disabled because pypy is not supported. This means
+that tests with snapshots will continue to run, but snapshot(x) will only return
+x and inline-snapshot will not be able to fix snapshots or generate reports.\
+"""
+        )
         if sys.implementation.name == "pypy"
         else snapshot(
             """\

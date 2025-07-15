@@ -18,7 +18,7 @@ class Config:
     default_flags: List[str] = field(default_factory=lambda: ["short-report"])
     default_flags_tui: List[str] = field(default_factory=lambda: ["short-report"])
     shortcuts: Dict[str, List[str]] = field(default_factory=dict)
-    format_command: Optional[str] = None
+    format_command: str = ""
     storage_dir: Optional[Path] = None
     show_updates: bool = False
     tests_dir: Optional[Path] = None
@@ -83,6 +83,6 @@ def read_config(path: Path, config=Config()) -> Config:
 
     config.default_storage = tool_config.get("default-storage", "uuid")
 
-    config.format_command = tool_config.get("format-command", None)
+    config.format_command = tool_config.get("format-command", "")
 
     return config

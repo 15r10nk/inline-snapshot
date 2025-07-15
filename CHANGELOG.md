@@ -1,4 +1,25 @@
 
+<a id='changelog-0.24.0'></a>
+# 0.24.0 — 2025-07-15
+
+## Added
+
+- Add/fix reproducible standard repr for functions
+
+- added `llms.txt` to make the documentation for llms more accessible.
+
+## Changed
+
+- Improved the explanation of what it means when snapshots are disabled in CI runs (#226).
+
+- Added extra information to the reported failure when snapshots are fixed or created (#240).
+
+## Fixed
+
+- fixed the representation of empty strings in sub-snapshots from triple-quotes to single-quotes `assert ""==snapshot({5: ""})[5]` (#258).
+
+- fix: changed format-command default to `""` (#256).
+
 <a id='changelog-0.23.2'></a>
 # 0.23.2 — 2025-05-28
 

@@ -42,7 +42,9 @@ def used_externals_in(source: Union[str, ast.Module], check_import=True) -> Set[
     return {
         u.args[0].value
         for u in usages
-        if u.args and isinstance(u.args[0], ast.Constant)
+        if u.args
+        and isinstance(u.args[0], ast.Constant)
+        and isinstance(u.args[0].value, str)
     }
 
 

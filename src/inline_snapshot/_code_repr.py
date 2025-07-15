@@ -2,6 +2,7 @@ import ast
 from enum import Enum
 from enum import Flag
 from functools import singledispatch
+from types import FunctionType
 from unittest import mock
 
 real_repr = repr
@@ -152,4 +153,9 @@ def _(value: frozenset):
 
 @customize_repr
 def _(value: type):
+    return value.__qualname__
+
+
+@customize_repr
+def _(value: FunctionType):
     return value.__qualname__

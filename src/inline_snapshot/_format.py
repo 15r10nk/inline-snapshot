@@ -9,7 +9,7 @@ from ._problems import raise_problem
 def enforce_formatting():
     from inline_snapshot._global_state import state
 
-    return state().config.format_command is not None
+    return bool(state().config.format_command)
 
 
 def file_mode_for_path(path):
@@ -41,7 +41,7 @@ def file_mode_for_path(path):
 def format_code(text, filename):
     from inline_snapshot._global_state import state
 
-    if state().config.format_command is not None:
+    if state().config.format_command:
         format_command = state().config.format_command.format(filename=filename)
         result = sp.run(
             format_command, shell=True, input=text.encode("utf-8"), capture_output=True

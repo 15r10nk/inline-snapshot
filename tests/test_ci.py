@@ -17,7 +17,10 @@ def test_something():
         report=snapshot(
             """\
 INFO: CI run was detected because environment variable "CI" was defined.
-INFO: inline-snapshot runs with --inline-snapshot=disable by default in CI.\
+inline-snapshot runs with --inline-snapshot=disable by default in CI. This means
+that tests with snapshots will continue to run, but snapshot(x) will only return
+x and inline-snapshot will not be able to fix snapshots or generate reports. You
+can change this by using --inline-snasphot=report for example.\
 """
         ),
     )
