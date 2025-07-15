@@ -1,10 +1,18 @@
 """The following types are for type checking only."""
 
+from typing import Iterator
 from typing import Literal
 from typing import Protocol
 from typing import TypeVar
 
+from inline_snapshot._change import ChangeBase
+
 T = TypeVar("T", covariant=True)
+
+
+class SnapshotRefBase:
+    def _changes(self) -> Iterator[ChangeBase]:
+        raise NotImplementedError
 
 
 class SnapshotBase:

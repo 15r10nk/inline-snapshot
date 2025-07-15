@@ -1,29 +1,108 @@
+from __future__ import annotations
+
 import ast
 from collections import defaultdict
 from dataclasses import dataclass
+from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import DefaultDict
-from typing import Dict
-from typing import List
-from typing import Optional
 from typing import Tuple
-from typing import Union
 from typing import cast
 
 from asttokens.util import Token
 from executing.executing import EnhancedAST
 
+from inline_snapshot._external._external_location import Location
 from inline_snapshot._source_file import SourceFile
 
 from ._rewrite_code import ChangeRecorder
 from ._rewrite_code import end_of
 from ._rewrite_code import start_of
 
+if TYPE_CHECKING:
+    from inline_snapshot._external._format._protocol import Format
+
+
+class ChangeBase:
+    flag: str
+
+    def rich_diff(self):
+        raise NotImplementedError
+
+    def apply_external_changes(self):
+        raise NotImplementedError
+
+    def apply(self, recorder: ChangeRecorder):
+        raise NotImplementedError
+
 
 @dataclass()
-class Change:
+class ExternalChange(ChangeBase):
+    flag: str
+
+    new_file: Path
+
+    old_location: Location
+    new_location: Location
+
+    format: Format
+
+    def rich_diff(self):
+
+        title = str(self.new_location)
+        if title != (old_name := str(self.old_location)) and self.old_location.stem:
+            title = f"{old_name} -> {title}"
+
+        if (
+            self.old_location.exists()
+            and self.old_location.suffix == self.new_location.suffix
+        ):
+            with self.old_location.load() as old_file:
+                return title, self.format.rich_diff(old_file, self.new_file)
+        else:
+            return title, self.format.rich_show(self.new_file)
+
+    def apply_external_changes(self):
+        self.new_location.store(self.new_file)
+
+    def apply(self, recorder: ChangeRecorder):
+        pass
+
+
+@dataclass()
+class ExternalRemove(ChangeBase):
+    flag: str
+
+    old_location: Location
+
+    def rich_diff(self):
+
+        title = f"delete {self.old_location}"
+
+        from inline_snapshot._external._format._protocol import (
+            get_format_handler_from_suffix,
+        )
+
+        with self.old_location.load() as old_file:
+            assert self.old_location.suffix
+            format = get_format_handler_from_suffix(self.old_location.suffix)
+            return title, format.rich_show(old_file)
+
+    def apply_external_changes(self):
+        self.old_location.delete()
+
+    def apply(self, recorder: ChangeRecorder):
+        pass
+
+
+@dataclass()
+class Change(ChangeBase):
     flag: str
     file: SourceFile
+
+    def rich_diff(self):
+        return None
 
     @property
     def filename(self):
@@ -31,6 +110,9 @@ class Change:
 
     def apply(self, recorder: ChangeRecorder):
         raise NotImplementedError()
+
+    def apply_external_changes(self):
+        pass
 
 
 @dataclass()
@@ -43,8 +125,8 @@ class Delete(Change):
 class AddArgument(Change):
     node: ast.Call
 
-    position: Optional[int]
-    name: Optional[str]
+    position: int | None
+    name: str | None
 
     new_code: str
     new_value: Any
@@ -55,8 +137,8 @@ class ListInsert(Change):
     node: ast.List
     position: int
 
-    new_code: List[str]
-    new_values: List[Any]
+    new_code: list[str]
+    new_values: list[Any]
 
 
 @dataclass()
@@ -64,8 +146,8 @@ class DictInsert(Change):
     node: ast.Dict
     position: int
 
-    new_code: List[Tuple[str, str]]
-    new_values: List[Tuple[Any, Any]]
+    new_code: list[tuple[str, str]]
+    new_values: list[tuple[Any, Any]]
 
 
 @dataclass()
@@ -84,9 +166,9 @@ class Replace(Change):
 
 @dataclass()
 class CallArg(Change):
-    node: Optional[ast.Call]
-    arg_pos: Optional[int]
-    arg_name: Optional[str]
+    node: ast.Call | None
+    arg_pos: int | None
+    arg_name: str | None
 
     new_code: str
     new_value: Any
@@ -102,10 +184,10 @@ def brace_tokens(source, node) -> TokenRange:
 
 def generic_sequence_update(
     source: SourceFile,
-    parent: Union[ast.List, ast.Tuple, ast.Dict, ast.Call],
+    parent: ast.List | ast.Tuple | ast.Dict | ast.Call,
     brace_tokens: TokenRange,
-    parent_elements: List[Union[TokenRange, None]],
-    to_insert: Dict[int, List[str]],
+    parent_elements: list[TokenRange | None],
+    to_insert: dict[int, list[str]],
     recorder: ChangeRecorder,
 ):
     rec = recorder.new_change()
@@ -163,11 +245,11 @@ def generic_sequence_update(
         )
 
 
-def apply_all(all_changes: List[Change], recorder: ChangeRecorder):
-    by_parent: Dict[
-        EnhancedAST, List[Union[Delete, DictInsert, ListInsert, CallArg]]
-    ] = defaultdict(list)
-    sources: Dict[EnhancedAST, SourceFile] = {}
+def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
+    by_parent: dict[EnhancedAST, list[Delete | DictInsert | ListInsert | CallArg]] = (
+        defaultdict(list)
+    )
+    sources: dict[EnhancedAST, SourceFile] = {}
 
     for change in all_changes:
         if isinstance(change, Delete):
