@@ -101,6 +101,29 @@ plugins:
     ansi: required
 - replace-url
 - autorefs
+- llmstxt:
+    sections:
+      Overview:
+      - index.md
+      - configuration.md
+      - pytest.md
+      - categories.md
+      - code_generation.md
+      - limitations.md
+      Core Reference:
+      - fix_assert.md
+      - eq_snapshot.md
+      - cmp_snapshot.md
+      - in_snapshot.md
+      - getitem_snapshot.md
+      - outsource.md
+      - customize_repr.md
+      - types.md
+      HowTo:
+      - howto/*.md
+      Extensions:
+      - extra.md
+      - third-party.md
 
 
 extra:
