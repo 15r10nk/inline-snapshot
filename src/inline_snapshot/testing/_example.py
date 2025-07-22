@@ -2,23 +2,29 @@ from __future__ import annotations
 
 import os
 import platform
+import random
 import re
 import subprocess as sp
 import sys
 import traceback
+import uuid
 from argparse import ArgumentParser
+from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
-from pathlib import PurePosixPath
 from tempfile import TemporaryDirectory
 from typing import Any
+from unittest.mock import patch
 
 from rich.console import Console
 
+from inline_snapshot._config import Config
+from inline_snapshot._config import read_config
 from inline_snapshot._exceptions import UsageError
-from inline_snapshot._external import DiscStorage
+from inline_snapshot._external._storage._hash import HashStorage
 from inline_snapshot._problems import report_problems
 
+from .._change import ChangeBase
 from .._change import apply_all
 from .._flags import Flags
 from .._global_state import snapshot_env
@@ -51,6 +57,17 @@ def normalize(text):
     return text
 
 
+@contextmanager
+def deterministic_uuid():
+    rd = random.Random(0)
+
+    def f():
+        return uuid.UUID(int=rd.getrandbits(128), version=4)
+
+    with patch("uuid.uuid4", new=f):
+        yield
+
+
 # this code is copied from pytest
 
 # Regex to match the session duration string in the summary: "74.34s".
@@ -77,8 +94,41 @@ def parse_outcomes(lines):
     return {to_plural.get(k, k): v for k, v in ret.items()}
 
 
+conftest_footer = """
+import uuid
+import random
+
+rd = random.Random(0)
+
+def f():
+    return uuid.UUID(int=rd.getrandbits(128), version=4)
+
+uuid.uuid4=f
+"""
+
+
+@contextmanager
+def change_file(path, map_function):
+    exists = path.exists()
+    if exists:
+        text = path.read_text()
+    else:
+        text = ""
+
+    path.write_text(map_function(text))
+
+    yield
+
+    if exists:
+        path.write_text(text)
+    else:
+        path.unlink()
+
+
 class Example:
-    def __init__(self, files: str | dict[str, str]):
+    files: dict[str, str | bytes]
+
+    def __init__(self, files: str | dict[str, str | bytes]):
         """
         Parameters:
             files: a collection of files where inline-snapshot operates on,
@@ -89,35 +139,63 @@ class Example:
 
         self.files = files
 
-        self.dump_files()
-
     def dump_files(self):
+        from rich.panel import Panel
+        from rich.text import Text
+
+        console = Console()
+
         for name, content in self.files.items():
-            print(f"file: {name}")
-            print(content)
-            print()
+            if isinstance(content, bytes):
+                content = repr(content)
+            console.print(Panel(Text(content), title=name))
 
     def _write_files(self, dir: Path):
         for name, content in self.files.items():
             filename = dir / name
             filename.parent.mkdir(exist_ok=True, parents=True)
-            filename.write_text(content)
+            if isinstance(content, str):
+                filename.write_text(content)
+            else:
+                filename.write_bytes(content)
 
     def _read_files(self, dir: Path):
-        storage_dir = dir / ".inline-snapshot"
+
+        def try_read(path: Path):
+            try:
+                return path.read_text("utf-8")
+            except UnicodeDecodeError:
+                return path.read_bytes()
+
+        def normalize_path(path):
+            return str(path.relative_to(dir)).replace("\\", "/")
 
         return {
-            str(p.relative_to(dir)): p.read_text()
-            for p in [*dir.iterdir(), *dir.rglob("*.py"), *storage_dir.rglob("*")]
+            normalize_path(p): try_read(p)
+            for p in dir.rglob("*")
             if p.is_file()
+            and p.name != ".gitignore"
+            and p.suffix != ".pyc"
+            and ".pytest_cache" not in p.parts
         }
 
-    def with_files(self, extra_files):
-        return Example(self.files | extra_files)
+    def with_files(self, extra_files: dict[str, str | bytes]) -> Example:
+        return Example({**self.files, **extra_files})
 
-    def code_change(self, src, dest):
+    def read_text(self, name: str) -> str:
+        text = self.files[name]
+        assert isinstance(text, str)
+        return text
+
+    def change_code(self, func) -> Example:
+        return Example({name: func(text) for name, text in self.files.items()})
+
+    def replace(self, text, new_text) -> Example:
+        return self.change_code(lambda code: code.replace(text, new_text))
+
+    def remove_file(self, filename):
         return Example(
-            {name: file.replace(src, dest) for name, file in self.files.items()}
+            {name: file for name, file in self.files.items() if name != filename}
         )
 
     def run_inline(
@@ -163,6 +241,7 @@ class Example:
         )
         parsed_args = parser.parse_args(args)
         flags = (parsed_args.inline_snapshot or "").split(",")
+        self.dump_files()
 
         with TemporaryDirectory() as dir:
             tmp_path = Path(dir)
@@ -170,15 +249,26 @@ class Example:
             self._write_files(tmp_path)
 
             raised_exception = []
-            with snapshot_env() as state:
+
+            with snapshot_env() as state, deterministic_uuid():
+
                 recorder = ChangeRecorder()
                 state.update_flags = Flags({*flags})
-                state.storage = DiscStorage(tmp_path / ".storage")
+                state.all_storages["hash"] = HashStorage(
+                    tmp_path / ".inline-snapshot" / "external"
+                )
+                state.config = Config()
+                read_config(tmp_path / "pyproject.toml", state.config)
+                if state.config.storage_dir is None:
+                    state.config.storage_dir = tmp_path / ".inline_snapshot"
+                else:
+                    pass  # pragma: no cover
+
                 try:
                     tests_found = False
                     for filename in tmp_path.glob("*.py"):
                         globals: dict[str, Any] = {}
-                        print("run> pytest", filename)
+                        print("run> pytest-inline", filename)
                         exec(
                             compile(filename.read_text("utf-8"), filename, "exec"),
                             globals,
@@ -204,9 +294,9 @@ class Example:
                 finally:
                     state.active = False
 
-                changes = []
+                changes: list[ChangeBase] = []
                 for snapshot in state.snapshots.values():
-                    changes += snapshot._changes()
+                    changes += list(snapshot._changes())
 
                 snapshot_flags = {change.flag for change in changes}
 
@@ -219,6 +309,10 @@ class Example:
                     recorder,
                 )
                 recorder.fix_all()
+
+                for change in changes:
+                    if change.flag in state.update_flags.to_set():
+                        change.apply_external_changes()
 
                 report_output = StringIO()
                 console = Console(file=report_output, width=80)
@@ -240,17 +334,26 @@ class Example:
                 assert raises == None
 
             if changed_files is not None:
-                current_files = {}
-
-                for name, content in sorted(self._read_files(tmp_path).items()):
-                    if name not in self.files or self.files[name] != content:
-                        current_files[name] = content
-                assert changed_files == current_files
+                assert changed_files == self._changed_files(tmp_path)
 
             if report is not None:
                 assert report == normalize(report_output.getvalue())
 
             return Example(self._read_files(tmp_path))
+
+    def _changed_files(self, tmp_path):
+        current_files = {}
+        all_current_files = self._read_files(tmp_path)
+
+        for name, content in sorted(all_current_files.items()):
+            if name not in self.files or self.files[name] != content:
+                current_files[name] = content
+
+        for name in self.files:
+            if name not in all_current_files:
+                current_files[name] = None
+
+        return current_files
 
     def run_pytest(
         self,
@@ -282,9 +385,11 @@ class Example:
         Returns:
             A new Example instance which contains the changed files.
         """
+        self.dump_files()
 
         with TemporaryDirectory() as dir:
             tmp_path = Path(dir)
+
             self._write_files(tmp_path)
 
             cmd = [sys.executable, "-m", "pytest", *args]
@@ -303,9 +408,12 @@ class Example:
 
             command_env.update(env)
 
-            result = sp.run(
-                cmd, cwd=tmp_path, capture_output=True, env=command_env, input=stdin
-            )
+            with change_file(
+                tmp_path / "conftest.py", lambda text: text + conftest_footer
+            ):
+                result = sp.run(
+                    cmd, cwd=tmp_path, capture_output=True, env=command_env, input=stdin
+                )
 
             result_stdout = result.stdout.decode()
             result_stderr = result.stderr.decode()
@@ -372,12 +480,7 @@ class Example:
                 )
 
             if changed_files is not None:
-                current_files = {}
-
-                for name, content in sorted(self._read_files(tmp_path).items()):
-                    if name not in self.files or self.files[name] != content:
-                        current_files[str(PurePosixPath(*Path(name).parts))] = content
-                assert changed_files == current_files
+                assert changed_files == self._changed_files(tmp_path)
 
             if outcomes is not None:
                 assert outcomes == parse_outcomes(result_stdout.splitlines())

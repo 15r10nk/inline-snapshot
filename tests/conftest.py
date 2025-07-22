@@ -8,7 +8,7 @@ import traceback
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
-from types import SimpleNamespace
+from typing import List
 from typing import Set
 from unittest import mock
 
@@ -17,6 +17,7 @@ import executing
 import pytest
 
 import inline_snapshot._external
+from inline_snapshot._change import ChangeBase
 from inline_snapshot._change import apply_all
 from inline_snapshot._flags import Flags
 from inline_snapshot._format import format_code
@@ -104,9 +105,10 @@ from inline_snapshot import outsource
             with snapshot_env() as state:
                 recorder = ChangeRecorder()
                 state.update_flags = flags
-                state.storage = inline_snapshot._external.DiscStorage(
+                state.all_storages["hash"] = inline_snapshot._external.HashStorage(
                     tmp_path / ".storage"
                 )
+                state.config.storage_dir = tmp_path / ".inline-snapshot"
 
                 error = False
 
@@ -120,9 +122,9 @@ from inline_snapshot import outsource
 
                 number_snapshots = len(state.snapshots)
 
-                changes = []
+                changes: List[ChangeBase] = []
                 for snapshot in state.snapshots.values():
-                    changes += snapshot._changes()
+                    changes += list(snapshot._changes())
 
                 snapshot_flags = {change.flag for change in changes}
 
@@ -258,7 +260,7 @@ class RunResult:
 
 
 @pytest.fixture
-def project(pytester):
+def project(pytester):  # pragma: no cover
     class Project:
 
         def __init__(self):
@@ -395,9 +397,12 @@ def executing_used(request, monkeypatch):
     if used:
         yield used
     else:
+        real_executing = executing.Source.executing
 
         def fake_executing(frame):
-            return SimpleNamespace(node=None)
+            result = real_executing(frame)
+            result.node = None
+            return result
 
         monkeypatch.setattr(executing.Source, "executing", fake_executing)
         yield used

@@ -52,8 +52,7 @@ class UndecidedValue(GenericValue):
                         new_value=self._old_value,
                     )
 
-        if self._file._source is not None:
-            yield from handle(self._ast_node, self._old_value)
+        yield from handle(self._ast_node, self._old_value)
 
     # functions which determine the type
 

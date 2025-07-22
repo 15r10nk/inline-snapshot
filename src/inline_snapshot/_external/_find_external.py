@@ -1,13 +1,12 @@
 import ast
-import pathlib
 from typing import Set
+from typing import Union
 
 from executing import Source
 
-from ._global_state import state
-from ._rewrite_code import ChangeRecorder
-from ._rewrite_code import end_of
-from ._rewrite_code import start_of
+from .._rewrite_code import ChangeRecorder
+from .._rewrite_code import end_of
+from .._rewrite_code import start_of
 
 
 def contains_import(tree, module, name):
@@ -21,10 +20,13 @@ def contains_import(tree, module, name):
     return False
 
 
-def used_externals_in(source) -> Set[str]:
-    tree = ast.parse(source)
+def used_externals_in(source: Union[str, ast.Module], check_import=True) -> Set[str]:
+    if isinstance(source, str):
+        tree = ast.parse(source)
+    else:
+        tree = source
 
-    if not contains_import(tree, "inline_snapshot", "external"):
+    if check_import and not contains_import(tree, "inline_snapshot", "external"):
         return set()
 
     usages = []
@@ -44,24 +46,6 @@ def used_externals_in(source) -> Set[str]:
         and isinstance(u.args[0], ast.Constant)
         and isinstance(u.args[0].value, str)
     }
-
-
-def used_externals() -> Set[str]:
-    result = set()
-    for filename in state().files_with_snapshots:
-        result |= used_externals_in(pathlib.Path(filename).read_text("utf-8"))
-
-    return result
-
-
-def unused_externals() -> Set[str]:
-    storage = state().storage
-    assert storage is not None
-    unused_externals = storage.list()
-    for name in used_externals():
-        unused_externals -= storage.lookup_all(name)
-
-    return unused_externals
 
 
 def ensure_import(filename, imports, recorder: ChangeRecorder):

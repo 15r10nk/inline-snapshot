@@ -12,6 +12,7 @@ theme:
   - toc.follow
   - content.code.annotate
   - navigation.tabs
+  - navigation.expand
 
   palette:
   - media: (prefers-color-scheme)
@@ -49,11 +50,16 @@ nav:
   - Changelog: changelog.md
 - Core:
   - assert x == ...: fix_assert.md
-  - x == snapshot(): eq_snapshot.md
-  - x <= snapshot(): cmp_snapshot.md
-  - x in snapshot(): in_snapshot.md
-  - snapshot()[key]: getitem_snapshot.md
-  - outsource(data): outsource.md
+  - snapshot:
+    - x == snapshot(): eq_snapshot.md
+    - x <= snapshot(): cmp_snapshot.md
+    - x in snapshot(): in_snapshot.md
+    - snapshot()[key]: getitem_snapshot.md
+  - external:
+    - external(): external/external.md
+    - external_file(): external/external_file.md
+    - outsource(): external/outsource.md
+    - '@register_format()': external/register_format.md
   - '@customize_repr': customize_repr.md
   - types: types.md
 - HowTo:
@@ -101,6 +107,9 @@ plugins:
     ansi: required
 - replace-url
 - autorefs
+- redirects:
+    redirect_maps:
+      outsource.md: external/outsource.md
 - llmstxt:
     sections:
       Overview:
@@ -116,7 +125,7 @@ plugins:
       - cmp_snapshot.md
       - in_snapshot.md
       - getitem_snapshot.md
-      - outsource.md
+      - external/*.md
       - customize_repr.md
       - types.md
       HowTo:
@@ -125,6 +134,8 @@ plugins:
       - extra.md
       - third-party.md
 
+extra_css:
+- styles/extra.css
 
 extra:
   social:

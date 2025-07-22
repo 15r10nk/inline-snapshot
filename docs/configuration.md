@@ -7,6 +7,7 @@ default-flags=["report"]
 default-flags-tui=["create", "review"]
 format-command=""
 show-updates=false
+default-storage="uuid"
 
 [tool.inline-snapshot.shortcuts]
 review=["review"]
@@ -36,24 +37,45 @@ fix=["create","fix"]
 * **shortcuts:** allows you to define custom commands to simplify your workflows.
     `--fix` and `--review` are defined by default, but this configuration can be changed to fit your needs.
 
-* **storage-dir:** allows you to define the directory where inline-snapshot stores data files such as external snapshots.
+* **storage-dir:** allows you to define the directory where inline-snapshot stores data files such as external snapshots stored with the `hash:` protocol.
     By default, it will be `<pytest_config_dir>/.inline-snapshot`,
     where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
     External snapshots will be stored in the `external` subfolder of the storage directory.
 * **format-command:[](){#format-command}** allows you to specify a custom command which is used to format the python code after code is changed.
-   ``` toml
-   [tool.inline-snapshot]
-   format-command="ruff format --stdin-filename {filename}"
-   ```
-   The placeholder `{filename}` can be used to specify the filename if it is needed to find the correct formatting options for this file.
+
+    === "ruff format"
+        ``` toml
+        [tool.inline-snapshot]
+        format-command="ruff format --stdin-filename {filename}"
+        ```
+
+    === "ruff format & lint"
+        ``` toml
+        [tool.inline-snapshot]
+        format-command="ruff check --fix-only --stdin-filename {filename} | ruff format --stdin-filename {filename}"
+        ```
+
+    === "black"
+        ``` toml
+        [tool.inline-snapshot]
+        format-command="black --stdin-filename {filename} -"
+        ```
+
+    === "no command (default)"
+        inline-snapshot will format only the snapshot values with black when you specified no format command but needs black installed with `inline-snapshot[black]`.
+
+    The placeholder `{filename}` can be used to specify the filename if it is needed to find the correct formatting options for this file.
 
     !!! important
         The command should **not** format the file on disk. The current file content (with the new code changes) is passed to *stdin* and the formatted content should be written to *stdout*.
 
-    You can also use a `|` if you want to use multiple commands.
-    ``` toml
-    [tool.inline-snapshot]
-    format-command="ruff check --fix-only --stdin-filename {filename} | ruff format --stdin-filename {filename}"
-    ```
-
 * **show-updates:**[](){#show-updates} shows updates in reviews and reports.
+
+
+* **default-storage:**[](){#default-storage} defines the default storage protocol to be used when creating snapshots without an explicit storage protocol (e.g. like `external()`).
+    Possible values are `hash` and `uuid`.
+    external snapshots created by `outsource()` do not currently support this setting due to some internal limitations and will always use the old `hash` protocol.
+
+* **tests-dir:** can be used to define where your tests are located.
+    The default is `<pytest_config_dir>/tests` if it exists or `<pytest_config_dir>` if you have no tests directory,
+    where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.

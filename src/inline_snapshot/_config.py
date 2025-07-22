@@ -6,6 +6,8 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
+from inline_snapshot._exceptions import UsageError
+
 if sys.version_info >= (3, 11):
     from tomllib import loads
 else:
@@ -21,9 +23,8 @@ class Config:
     format_command: str = ""
     storage_dir: Optional[Path] = None
     show_updates: bool = False
-
-
-config = Config()
+    tests_dir: Optional[Path] = None
+    default_storage: str = "uuid"
 
 
 def read_config(path: Path, config=Config()) -> Config:
@@ -61,12 +62,41 @@ def read_config(path: Path, config=Config()) -> Config:
         "shortcuts", {"fix": ["create", "fix"], "review": ["review"]}
     )
 
-    if storage_dir := tool_config.get("storage-dir"):
-        storage_dir = Path(storage_dir)
-        if not storage_dir.is_absolute():
-            # Make it relative to pyproject.toml, and absolute.
-            storage_dir = path.parent.joinpath(storage_dir).absolute()
-        config.storage_dir = storage_dir
+    def read_path(name):
+        result = tool_config.get(name)
+        if result:
+            result = Path(result)
+            if not result.is_absolute():
+                # Make it relative to pyproject.toml, and absolute.
+                result = path.parent.joinpath(result).absolute()
+        return result
+
+    config.storage_dir = read_path("storage-dir")
+
+    config.tests_dir = read_path("test-dir")
+
+    if (
+        config.tests_dir is None
+        and path.exists()
+        and (test_dir := path.parent / "tests").exists()
+        and test_dir.is_dir()
+    ):
+        config.tests_dir = test_dir
+
+    if (
+        config.tests_dir is None
+        and path.exists()
+        and (test_dir := path.parent).exists()
+        and test_dir.is_dir()
+    ):
+        config.tests_dir = test_dir
+
+    config.default_storage = tool_config.get("default-storage", "uuid")
+
+    if config.default_storage not in ("uuid", "hash"):
+        raise UsageError(
+            f'default-storage has to be uuid or hash but is "{config.default_storage}"'
+        )
 
     config.format_command = tool_config.get("format-command", "")
 

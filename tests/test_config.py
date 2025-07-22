@@ -90,3 +90,19 @@ def test_a():
         ),
         returncode=1,
     )
+
+
+def test_incorrect_storage():
+    Example(
+        {
+            "pyproject.toml": """
+[tool.inline-snapshot]
+default-storage="incorrect"
+    """
+        }
+    ).run_pytest(
+        stderr=snapshot(
+            'ERROR: default-storage has to be uuid or hash but is "incorrect"\n'
+        ),
+        returncode=snapshot(4),
+    )
