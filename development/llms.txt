@@ -17,8 +17,11 @@
 - [assert x == ...](https://15r10nk.github.io/inline-snapshot/development/fix_assert/index.md)
 - [snapshot()[key]](https://15r10nk.github.io/inline-snapshot/development/getitem_snapshot/index.md)
 - [x in snapshot()](https://15r10nk.github.io/inline-snapshot/development/in_snapshot/index.md)
-- [outsource(data)](https://15r10nk.github.io/inline-snapshot/development/outsource/index.md)
 - [types](https://15r10nk.github.io/inline-snapshot/development/types/index.md)
+- [external()](https://15r10nk.github.io/inline-snapshot/development/external/external/index.md)
+- [external_file()](https://15r10nk.github.io/inline-snapshot/development/external/external_file/index.md)
+- [outsource()](https://15r10nk.github.io/inline-snapshot/development/external/outsource/index.md)
+- [@register_format()](https://15r10nk.github.io/inline-snapshot/development/external/register_format/index.md)
 
 ## HowTo
 

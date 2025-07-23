@@ -8,28 +8,28 @@
       
       
       
-        <link rel="canonical" href="https://15r10nk.github.io/inline-snapshot/development/customize_repr/">
+        <link rel="canonical" href="https://15r10nk.github.io/inline-snapshot/development/external/external/">
       
       
-        <link rel="prev" href="../external/register_format/">
+        <link rel="prev" href="../../getitem_snapshot/">
       
       
-        <link rel="next" href="../types/">
+        <link rel="next" href="../external_file/">
       
       
-      <link rel="icon" href="../assets/favicon.svg">
+      <link rel="icon" href="../../assets/favicon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
-        <title>@customize_repr - inline-snapshot</title>
+        <title>external() - inline-snapshot</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -48,15 +48,15 @@
       
     
     
-      <link rel="stylesheet" href="../assets/_markdown_exec_pyodide.css">
+      <link rel="stylesheet" href="../../assets/_markdown_exec_pyodide.css">
     
-      <link rel="stylesheet" href="../assets/_markdown_exec_ansi.css">
+      <link rel="stylesheet" href="../../assets/_markdown_exec_ansi.css">
     
-      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../styles/extra.css">
+      <link rel="stylesheet" href="../../styles/extra.css">
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -65,11 +65,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="@customize_repr - inline-snapshot" >
+        <meta  property="og:title"  content="external() - inline-snapshot" >
       
         <meta  property="og:description"  content="None" >
       
-        <meta  property="og:image"  content="https://15r10nk.github.io/inline-snapshot/development/assets/images/social/customize_repr.png" >
+        <meta  property="og:image"  content="https://15r10nk.github.io/inline-snapshot/development/assets/images/social/external/external.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -77,15 +77,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://15r10nk.github.io/inline-snapshot/development/customize_repr/" >
+        <meta  property="og:url"  content="https://15r10nk.github.io/inline-snapshot/development/external/external/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="@customize_repr - inline-snapshot" >
+        <meta  name="twitter:title"  content="external() - inline-snapshot" >
       
         <meta  name="twitter:description"  content="None" >
       
-        <meta  name="twitter:image"  content="https://15r10nk.github.io/inline-snapshot/development/assets/images/social/customize_repr.png" >
+        <meta  name="twitter:image"  content="https://15r10nk.github.io/inline-snapshot/development/assets/images/social/external/external.png" >
       
     
     
@@ -108,7 +108,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#built-in-data-types" class="md-skip">
+        <a href="#storage-protocols" class="md-skip">
           Skip to content
         </a>
       
@@ -190,12 +190,12 @@
             <div class="md-banner__inner md-grid md-typeset">
               
   You're not viewing the latest version.
-  <a href="../..">
+  <a href="../../..">
     <strong>Click here to go to latest.</strong>
   </a>
 
             </div>
-            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL(".."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
           </aside>
         
       </div>
@@ -205,9 +205,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="inline-snapshot" class="md-header__button md-logo" aria-label="inline-snapshot" data-md-component="logo">
+    <a href="../.." title="inline-snapshot" class="md-header__button md-logo" aria-label="inline-snapshot" data-md-component="logo">
       
-  <img src="../assets/favicon.svg" alt="logo">
+  <img src="../../assets/favicon.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -224,7 +224,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              @customize_repr
+              external()
             
           </span>
         </div>
@@ -335,7 +335,7 @@
     
     
       <li class="md-tabs__item">
-        <a href=".." class="md-tabs__link">
+        <a href="../.." class="md-tabs__link">
           
   
   
@@ -357,7 +357,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../fix_assert/" class="md-tabs__link">
+        <a href="../../fix_assert/" class="md-tabs__link">
           
   
   
@@ -377,7 +377,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../howto/parametrize/" class="md-tabs__link">
+        <a href="../../howto/parametrize/" class="md-tabs__link">
           
   
   
@@ -397,7 +397,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../extra/" class="md-tabs__link">
+        <a href="../../extra/" class="md-tabs__link">
           
   
   
@@ -415,7 +415,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../insiders/" class="md-tabs__link">
+      <a href="../../insiders/" class="md-tabs__link">
         
   
   
@@ -436,7 +436,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../testing/" class="md-tabs__link">
+        <a href="../../testing/" class="md-tabs__link">
           
   
   
@@ -470,9 +470,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="inline-snapshot" class="md-nav__button md-logo" aria-label="inline-snapshot" data-md-component="logo">
+    <a href="../.." title="inline-snapshot" class="md-nav__button md-logo" aria-label="inline-snapshot" data-md-component="logo">
       
-  <img src="../assets/favicon.svg" alt="logo">
+  <img src="../../assets/favicon.svg" alt="logo">
 
     </a>
     inline-snapshot
@@ -542,7 +542,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -565,7 +565,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configuration/" class="md-nav__link">
+      <a href="../../configuration/" class="md-nav__link">
         
   
   
@@ -588,7 +588,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../pytest/" class="md-nav__link">
+      <a href="../../pytest/" class="md-nav__link">
         
   
   
@@ -611,7 +611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../categories/" class="md-nav__link">
+      <a href="../../categories/" class="md-nav__link">
         
   
   
@@ -634,7 +634,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../code_generation/" class="md-nav__link">
+      <a href="../../code_generation/" class="md-nav__link">
         
   
   
@@ -657,7 +657,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../limitations/" class="md-nav__link">
+      <a href="../../limitations/" class="md-nav__link">
         
   
   
@@ -680,7 +680,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../alternatives/" class="md-nav__link">
+      <a href="../../alternatives/" class="md-nav__link">
         
   
   
@@ -703,7 +703,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../changelog/" class="md-nav__link">
+      <a href="../../changelog/" class="md-nav__link">
         
   
   
@@ -779,7 +779,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../fix_assert/" class="md-nav__link">
+      <a href="../../fix_assert/" class="md-nav__link">
         
   
   
@@ -845,7 +845,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../eq_snapshot/" class="md-nav__link">
+      <a href="../../eq_snapshot/" class="md-nav__link">
         
   
   
@@ -868,7 +868,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cmp_snapshot/" class="md-nav__link">
+      <a href="../../cmp_snapshot/" class="md-nav__link">
         
   
   
@@ -891,7 +891,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../in_snapshot/" class="md-nav__link">
+      <a href="../../in_snapshot/" class="md-nav__link">
         
   
   
@@ -914,7 +914,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getitem_snapshot/" class="md-nav__link">
+      <a href="../../getitem_snapshot/" class="md-nav__link">
         
   
   
@@ -942,8 +942,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -952,13 +954,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" checked>
         
           
           <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
@@ -974,7 +974,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_3">
             <span class="md-nav__icon md-icon"></span>
             external
@@ -985,10 +985,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../external/external/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    external()
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -999,6 +1019,75 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#storage-protocols" class="md-nav__link">
+    <span class="md-ellipsis">
+      Storage Protocols
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Storage Protocols">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uuid" class="md-nav__link">
+    <span class="md-ellipsis">
+      UUID
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hash
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Formats
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pytest-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      pytest Options
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1011,7 +1100,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../external/external_file/" class="md-nav__link">
+      <a href="../external_file/" class="md-nav__link">
         
   
   
@@ -1034,7 +1123,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../external/outsource/" class="md-nav__link">
+      <a href="../outsource/" class="md-nav__link">
         
   
   
@@ -1057,7 +1146,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../external/register_format/" class="md-nav__link">
+      <a href="../register_format/" class="md-nav__link">
         
   
   
@@ -1085,30 +1174,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    @customize_repr
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../customize_repr/" class="md-nav__link">
         
   
   
@@ -1119,42 +1188,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#built-in-data-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      built-in data types
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#customize-recursive-repr" class="md-nav__link">
-    <span class="md-ellipsis">
-      customize recursive repr
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1167,7 +1200,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../types/" class="md-nav__link">
+      <a href="../../types/" class="md-nav__link">
         
   
   
@@ -1240,7 +1273,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../howto/parametrize/" class="md-nav__link">
+      <a href="../../howto/parametrize/" class="md-nav__link">
         
   
   
@@ -1313,7 +1346,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../extra/" class="md-nav__link">
+      <a href="../../extra/" class="md-nav__link">
         
   
   
@@ -1336,7 +1369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../third_party/" class="md-nav__link">
+      <a href="../../third_party/" class="md-nav__link">
         
   
   
@@ -1366,7 +1399,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../insiders/" class="md-nav__link">
+      <a href="../../insiders/" class="md-nav__link">
         
   
   
@@ -1431,7 +1464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../testing/" class="md-nav__link">
+      <a href="../../testing/" class="md-nav__link">
         
   
   
@@ -1454,7 +1487,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../contributing/" class="md-nav__link">
+      <a href="../../contributing/" class="md-nav__link">
         
   
   
@@ -1502,18 +1535,51 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#built-in-data-types" class="md-nav__link">
+  <a href="#storage-protocols" class="md-nav__link">
     <span class="md-ellipsis">
-      built-in data types
+      Storage Protocols
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Storage Protocols">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uuid" class="md-nav__link">
+    <span class="md-ellipsis">
+      UUID
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hash
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Formats
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#customize-recursive-repr" class="md-nav__link">
+  <a href="#pytest-options" class="md-nav__link">
     <span class="md-ellipsis">
-      customize recursive repr
+      pytest Options
     </span>
   </a>
   
@@ -1538,103 +1604,179 @@
   
 
 
-  <h1>@customize_repr</h1>
+  <h1>external()</h1>
 
-<p><code>repr()</code> can be used to convert a python object into a source code representation of the object, but this does not work for every type.
-Here are some examples:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="nb">repr</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="go">&quot;&lt;class &#39;int&#39;&gt;&quot;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">E</span> <span class="o">=</span> <span class="n">Enum</span><span class="p">(</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">])</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="gp">&gt;&gt;&gt; </span><span class="nb">repr</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="go">&#39;&lt;E.a: 1&gt;&#39;</span>
-</code></pre></div>
-<p><code>customize_repr</code> can be used to overwrite the default <code>repr()</code> behaviour.</p>
-<p>The implementation for <code>Enum</code> looks like this:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nd">@customize_repr</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Enum</span><span class="p">):</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
-</code></pre></div>
-<p>This implementation is then used by inline-snapshot if <code>repr()</code> is called during the code generation, but not in normal code.</p>
-<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_enum</span><span class="p">():</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">E</span> <span class="o">=</span> <span class="n">Enum</span><span class="p">(</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">])</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="c1"># normal repr</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="k">assert</span> <span class="nb">repr</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;&lt;E.a: 1&gt;&quot;</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="c1"># the special implementation to convert the Enum into a code</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="k">assert</span> <span class="n">E</span><span class="o">.</span><span class="n">a</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
-</code></pre></div>
-<h2 id="built-in-data-types">built-in data types<a class="headerlink" href="#built-in-data-types" title="Permanent link">&para;</a></h2>
-<p>inline-snapshot comes with a special implementation for the following types:</p>
+<p>Storing snapshots in the source code is the main feature of inline snapshots.
+This has the advantage that you can easily see changes in code reviews. However, it also has some drawbacks:</p>
 <ul>
-<li><code>builtins.frozenset</code></li>
-<li><code>builtins.function</code></li>
-<li><code>builtins.set</code></li>
-<li><code>builtins.type</code></li>
-<li><code>enum.Enum</code></li>
-<li><code>enum.Flag</code></li>
+<li>It is problematic to snapshot a large amount of data, as it consumes significant space in your tests.</li>
+<li>Binary data or images are not human-readable in your tests.</li>
 </ul>
-<p>Please open an <a href="https://github.com/15r10nk/inline-snapshot/issues">issue</a> if you found a built-in type which is not supported by inline-snapshot.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Container types like <code>dict</code>, <code>list</code>, <code>tuple</code> or <code>dataclass</code> are handled in a different way, because inline-snapshot also needs to inspect these types to implement <a href="../eq_snapshot/#unmanaged-snapshot-values">unmanaged</a> snapshot values.</p>
-</div>
-<h2 id="customize-recursive-repr">customize recursive repr<a class="headerlink" href="#customize-recursive-repr" title="Permanent link">&para;</a></h2>
-<p>You can also use <code>repr()</code> inside <code>__repr__()</code>, if you want to make your own type compatible with inline-snapshot.</p>
-<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<p><code>external()</code> solves this problem and integrates nicely with inline snapshots.
+It stores a reference to the external data in a special <code>external()</code> object, which can be used like <code>snapshot()</code>.</p>
+<p>There are different storage protocols, such as <a href="#hash"><em>hash</em></a> or <a href="#uuid"><em>uuid</em></a>, and different file formats, such as <em>.txt</em>, <em>.bin</em>, and <em>.json</em>. It is also possible to implement <a href="../register_format/"><em>custom</em></a> file formats.</p>
+<p>Example:</p>
+<!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">external</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="c1"># inline-snapshot can determine the correct file types</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">assert</span> <span class="s2">&quot;string&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">()</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">assert</span> <span class="sa">b</span><span class="s2">&quot;bytes&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">()</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="c1"># Data structures with lists and dictionaries are stored as JSON</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="k">assert</span> <span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="s2">&quot;like&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">external</span><span class="p">()</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="c1"># You can also explicitly specify the storage protocol</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="k">assert</span> <span class="s2">&quot;other text&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="c1"># And the format (.json instead of the default .txt in this case)</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="k">assert</span> <span class="s2">&quot;other text&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:.json&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>inline-snapshot will then fill in the missing parts when you create your snapshots. It will keep your specified protocols and file types and generate names for your snapshots.</p>
+<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">external</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="c1"># inline-snapshot can determine the correct file types</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="hll">    <span class="k">assert</span> <span class="s2">&quot;string&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="hll">    <span class="k">assert</span> <span class="sa">b</span><span class="s2">&quot;bytes&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.bin&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="c1"># Data structures with lists and dictionaries are stored as JSON</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="hll">    <span class="k">assert</span> <span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="s2">&quot;like&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span>
+</span><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="hll">        <span class="s2">&quot;uuid:eb1167b3-67a9-4378-bc65-c1e582e2e662.json&quot;</span>
+</span><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="hll">    <span class="p">)</span>
+</span><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="c1"># You can also explicitly specify the storage protocol</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="hll">    <span class="k">assert</span> <span class="s2">&quot;other text&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span>
+</span><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="hll">        <span class="s2">&quot;uuid:f7c1bd87-4da5-4709-9471-3d60c8a70639.txt&quot;</span>
+</span><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="hll">    <span class="p">)</span>
+</span><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="c1"># And the format (.json instead of the default .txt in this case)</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="hll">    <span class="k">assert</span> <span class="s2">&quot;other text&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span>
+</span><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="hll">        <span class="s2">&quot;uuid:e443df78-9558-467f-9ba9-1faf7a024204.json&quot;</span>
+</span><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="hll">    <span class="p">)</span>
+</span></code></pre></div>
+<p>The <code>external()</code> function can also be used inside other data structures.</p>
+<!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">external</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">Pair</span><span class="p">:</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="c1"># this would not work</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="c1"># return f&quot;Pair({self.a!r}, {self.b!r})&quot;</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="c1"># you have to use repr()</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Pair(</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Pair</span><span class="p">):</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>            <span class="k">return</span> <span class="bp">NotImplemented</span>
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">a</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">b</span>
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>
-<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_enum</span><span class="p">():</span>
-<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>    <span class="n">E</span> <span class="o">=</span> <span class="n">Enum</span><span class="p">(</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">])</span>
-<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>
-<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>    <span class="c1"># the special repr implementation is used recursive here</span>
-<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>    <span class="c1"># to convert every Enum to the correct representation</span>
-<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>    <span class="k">assert</span> <span class="n">Pair</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="p">[</span><span class="n">E</span><span class="o">.</span><span class="n">b</span><span class="p">])</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="n">Pair</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="p">[</span><span class="n">E</span><span class="o">.</span><span class="n">b</span><span class="p">]))</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">assert</span> <span class="p">[</span><span class="s2">&quot;long text</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="n">times</span> <span class="k">for</span> <span class="n">times</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1000</span><span class="p">]]</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">external</span><span class="p">()]</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="p">)</span>
 </code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>using <code class="highlight"><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">obj</span><span class="si">!r}</span><span class="s2">&quot;</span></code> or <code class="highlight"><span class="n">PyObject_Repr</span><span class="p">()</span></code> will not work, because inline-snapshot replaces <code class="highlight"><span class="n">builtins</span><span class="o">.</span><span class="n">repr</span></code> during the code generation. The only way to use the custom repr implementation is to use the <code>repr()</code> function.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This implementation allows inline-snapshot to use the custom <code>repr()</code> recursively, but it does not allow you to use <a href="../eq_snapshot/#unmanaged-snapshot-values">unmanaged</a> snapshot values like <code class="highlight"><span class="n">Pair</span><span class="p">(</span><span class="n">Is</span><span class="p">(</span><span class="n">some_var</span><span class="p">),</span><span class="mi">5</span><span class="p">)</span></code></p>
-</div>
-<p>you can also customize the representation of data types in other libraries:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">customize_repr</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">other_lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">SomeType</span>
+<!-- inline-snapshot: create fix outcome-passed=1 outcome-errors=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">external</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="nd">@customize_repr</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">SomeType</span><span class="p">):</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;SomeType(x=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="k">assert</span> <span class="p">[</span><span class="s2">&quot;long text</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="n">times</span> <span class="k">for</span> <span class="n">times</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1000</span><span class="p">]]</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="hll">        <span class="p">[</span>
+</span><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="hll">            <span class="s2">&quot;long text</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="hll"><span class="w">            </span><span class="sd">&quot;&quot;&quot;\</span>
+</span><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="hll"><span class="sd">long text</span>
+</span><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="hll"><span class="sd">long text</span>
+</span><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="hll"><span class="sd">&quot;&quot;&quot;</span><span class="p">,</span>
+</span><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="hll">            <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt&quot;</span><span class="p">),</span>
+</span><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="hll">        <span class="p">]</span>
+</span><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="p">)</span>
 </code></pre></div>
+<h2 id="storage-protocols">Storage Protocols<a class="headerlink" href="#storage-protocols" title="Permanent link">&para;</a></h2>
+<h3 id="uuid">UUID<a class="headerlink" href="#uuid" title="Permanent link">&para;</a></h3>
+<p>The <code>uuid:</code> storage protocol is the default protocol and stores the external files relative to the test files in <code>__inline_snapshot__/&lt;test_file&gt;/&lt;qualname&gt;/&lt;uuid&gt;.suffix</code>.</p>
+<ul>
+<li><span class="twemoji green"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg></span> Files are co-located with the file/function where your value is used.</li>
+<li><span class="twemoji green"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg></span> The use of a UUID allows inline-snapshot to find the external file even if file or function names of a test function have changed.</li>
+<li><span class="twemoji red"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13H5v-2h14z"/></svg></span> Distinguishing multiple external snapshots in the same function remains challenging.</li>
+</ul>
+<h3 id="hash">Hash<a class="headerlink" href="#hash" title="Permanent link">&para;</a></h3>
+<p>The <code>hash:</code> storage can be used to store snapshot files based on the hash of their content. This was the first storage protocol supported by inline-snapshot and can still be useful in some cases. It also preserves backward compatibility with older inline-snapshot versions.</p>
+<p>The external data is by default stored inside <code>&lt;pytest_config_dir&gt;/.inline-snapshot/external</code>,
+where <code>&lt;pytest_config_dir&gt;</code> is replaced by the directory containing the Pytest configuration file, if any.
+To store data in a different location, set the <code>storage-dir</code> option in pyproject.toml.</p>
+<ul>
+<li><span class="twemoji green"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg></span> Value changes cause source code changes because the hash changes.</li>
+<li><span class="twemoji red"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13H5v-2h14z"/></svg></span> GitHub/GitLab web UIs cannot be used to view the diffs, because the filename changes.</li>
+</ul>
+<h2 id="formats">Formats<a class="headerlink" href="#formats" title="Permanent link">&para;</a></h2>
+<p>inline-snapshot supports several built-in formats for external snapshots. The format used is determined by the given data type: bytes are stored in a <code>.bin</code> file, and strings are stored in a <code>.txt</code> file by default. More complex data types are stored in a <code>.json</code> file.</p>
+<!--[[[cog
+from inline_snapshot._global_state import state
+import cog
+
+cog.out("|Suffix|Priority|Description|\n")
+cog.out("|---|---|---|\n")
+for format in sorted(state().all_formats.values(),key=lambda f:-f.priority):
+    cog.out(f"| `{format.suffix}` | {format.priority}| {format.__doc__}|\n")
+
+]]]-->
+<table>
+<thead>
+<tr>
+<th>Suffix</th>
+<th>Priority</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.bin</code></td>
+<td>0</td>
+<td>Stores bytes in <code>.bin</code> files and shows them as a hexdump.</td>
+</tr>
+<tr>
+<td><code>.txt</code></td>
+<td>0</td>
+<td>Stores strings in <code>.txt</code> files.</td>
+</tr>
+<tr>
+<td><code>.json</code></td>
+<td>-10</td>
+<td>Stores the data with <code>json.dump()</code>.</td>
+</tr>
+</tbody>
+</table>
+<!--[[[end]]]-->
+
+<p><a href="../register_format/">Custom formats</a> are also supported.</p>
+<p>You can also use format aliases if you want to use specific file suffixes that have the same handling as existing formats.
+You must specify the suffix in this case.</p>
+<!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_format_alias</span><span class="p">,</span> <span class="n">external</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">register_format_alias</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test</span><span class="p">():</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="k">assert</span> <span class="s2">&quot;&lt;html&gt;&lt;/html&gt;&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>inline-snapshot uses the given suffix to create an external snapshot.</p>
+<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_format_alias</span><span class="p">,</span> <span class="n">external</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">register_format_alias</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test</span><span class="p">():</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="hll">    <span class="k">assert</span> <span class="s2">&quot;&lt;html&gt;&lt;/html&gt;&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span>
+</span><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="hll">        <span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.html&quot;</span>
+</span><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="hll">    <span class="p">)</span>
+</span></code></pre></div>
+<div class="admonition important">
+<p class="admonition-title">Breaking Change</p>
+<p><code>register_format_alias()</code> is required if you used <code>outsource(value, suffix="html")</code> and are migrating from inline-snapshot prior to version 0.24.</p>
+</div>
+<h2 id="pytest-options">pytest Options<a class="headerlink" href="#pytest-options" title="Permanent link">&para;</a></h2>
+<p>It interacts with the following <code>--inline-snapshot</code> flags:</p>
+<ul>
+<li><code>create</code>: Creates new external files.</li>
+<li><code>fix</code>: Changes external files.</li>
+<li><code>trim</code>: Removes all snapshots from the storage that are not referenced with <code>external(...)</code> in the code.</li>
+</ul>
 
 
 
@@ -1714,12 +1856,12 @@ Here are some examples:</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": ["toc.follow", "content.code.annotate", "navigation.tabs", "navigation.expand"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": ["latest", "development"], "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["toc.follow", "content.code.annotate", "navigation.tabs", "navigation.expand"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": ["latest", "development"], "provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
-        <script src="../assets/_markdown_exec_pyodide.js"></script>
+        <script src="../../assets/_markdown_exec_pyodide.js"></script>
       
     
   </body>
