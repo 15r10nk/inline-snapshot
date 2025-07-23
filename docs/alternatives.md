@@ -1,4 +1,4 @@
-inline-snapshot is not the only snapshot library for python.
+inline-snapshot is not the only snapshot testing library for python.
 There are several others to:
 
 * [syrupy](https://github.com/syrupy-project/syrupy)
@@ -13,7 +13,7 @@ If you miss a feature that is available in other libraries, please let me know.
 <iframe
     src="https://pypacktrends.com/embed?packages=inline-snapshot&packages=snapshottest&packages=syrupy&packages=pytest-snapshot&packages=pytest-insta&time_range=2years"
     width="100%"
-    height="480"
+    height="520"
     frameborder="0"
 >
 </iframe>

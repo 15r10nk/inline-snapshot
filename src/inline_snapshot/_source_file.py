@@ -19,7 +19,7 @@ class SourceFile:
         self._source = source
 
     @property
-    def filename(self):
+    def filename(self) -> str:
         return self._source.filename
 
     def _format(self, text):

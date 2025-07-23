@@ -29,6 +29,7 @@ dependencies = [
   "rich>=13.7.1",
   "tomli>=2.0.0; python_version < '3.11'",
   "pytest>=8.3.4",
+  "uuid7>=0.1.0",
 ]
 description = "golden master/snapshot/approval testing library which puts the values right into your source code"
 keywords = []
@@ -108,7 +109,8 @@ dependencies = [
   "mkdocs-llmstxt",
   "replace-url @ {root:uri}/docs/plugins",
   "black",
-  "commitizen"
+  "commitizen",
+  "mkdocs-redirects"
 ]
 [tool.hatch.envs.default]
 installer="uv"
@@ -128,7 +130,7 @@ serve = "mkdocs serve"
 
 [tool.hatch.envs.cog]
 dependencies=["cogapp","lxml","requests"]
-scripts.update="cog -r docs/**.md"
+scripts.update="cog -r docs/**/*.md docs/*.md"
 
 [tool.hatch.envs.gen]
 dependencies=["pysource-minimize"]
@@ -153,7 +155,7 @@ extra-dependencies = [
   "pyright>=1.1.359",
   "pytest-subtests>=0.11.0",
   "pytest-freezer>=0.4.8",
-  "pytest-mock>=3.14.0"
+  "pytest-mock>=3.14.0",
 ]
 env-vars.TOP = "{root}"
 

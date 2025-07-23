@@ -18,7 +18,9 @@ from typing import TypeVar
 import pytest
 
 from inline_snapshot import snapshot
+from inline_snapshot._external._external_file import external_file
 from inline_snapshot._flags import Flags
+from inline_snapshot._global_state import snapshot_env
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
 
@@ -31,7 +33,7 @@ class Block:
     line: int
 
 
-def map_code_blocks(file: Path, func, fix: bool = False):
+def map_code_blocks(file: Path, func):
 
     block_start = re.compile("( *)``` *python(.*)")
     block_end = re.compile("```.*")
@@ -128,11 +130,7 @@ def map_code_blocks(file: Path, func, fix: bool = False):
 
     new_code = "\n".join(new_lines) + "\n"
 
-    if fix:
-        file.write_text(new_code)
-    else:
-        assert current_code.splitlines() == new_code.splitlines()
-        assert current_code == new_code
+    assert external_file(file, format=".txt") == new_code
 
 
 def test_map_code_blocks(tmp_path):
@@ -158,9 +156,20 @@ def test_map_code_blocks(tmp_path):
                 recorded_blocks.append(block)
                 return block
 
-            map_code_blocks(file, test_block, True)
+            with snapshot_env() as state:
+                state.update_flags.fix = True
+                state.active = True
+
+                map_code_blocks(file, test_block)
+
+                for snapshot in state.snapshots.values():
+                    for change in snapshot._changes():
+                        change.apply_external_changes()
+
             assert recorded_blocks == blocks
-            map_code_blocks(file, test_block, False)
+
+            with snapshot_env():
+                map_code_blocks(file, test_block)
 
         recorded_markdown_code = file.read_text()
         if recorded_markdown_code != markdown_code:
@@ -277,7 +286,6 @@ class Store(Generic[T]):
 def file_test(
     file: Path,
     subtests,
-    fix_files: bool = False,
     width: int = 80,
     use_hl_lines: bool = True,
 ):
@@ -318,6 +326,18 @@ def _(value:FakeDate):
 def set_time(freezer):
         freezer.move_to(datetime.datetime(2024, 3, 14, 0, 0, 0, 0))
         yield
+
+import uuid
+import random
+
+rd = random.Random(0)
+
+def f():
+    return uuid.UUID(int=rd.getrandbits(128), version=4)
+
+uuid.uuid4=f
+
+
 """,
     }
 
@@ -331,11 +351,16 @@ def set_time(freezer):
             extra_files[block.code_header.split()[1]].append(block.code)
             return block
 
+        if block.code_header.startswith("inline-snapshot-lib-set:"):
+            extra_files[block.code_header.split()[1]] = [block.code]
+            return block
+
         if block.code_header.startswith("todo-inline-snapshot:"):
             return block
 
         nonlocal last_code
         with subtests.test(line=block.line):
+            print(f"test block line {block.line}")
 
             code = block.code
 
@@ -345,7 +370,7 @@ def set_time(freezer):
             #    return block
 
             if "requires_assert" in options:
-                # wen can not test the docs in the no insider version
+                # we can not test the features of the insider version
                 return block
 
             flags = options & Flags.all().to_set()
@@ -371,6 +396,7 @@ def set_time(freezer):
                 for files in itertools.product(*all_files):
                     example = example.with_files(dict(files))
 
+                    print("run with")
                     example = example.run_pytest(
                         args, error=errors, outcomes=outcomes, returncode=returncode
                     )
@@ -384,7 +410,7 @@ def set_time(freezer):
 
             new_code = code
             if flags:
-                new_code = example.files["test_example.py"]
+                new_code = example.read_text("test_example.py")
             new_code.replace("\n\n", "\n")
 
             if "show_error" in options:
@@ -436,7 +462,7 @@ def set_time(freezer):
             last_code = code
         return block
 
-    map_code_blocks(file, test_block, fix_files)
+    map_code_blocks(file, test_block)
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -452,4 +478,4 @@ if __name__ == "__main__":  # pragma: no cover
 
     nosubtests = SimpleNamespace(test=test)
 
-    file_test(file, nosubtests, fix_files=True, width=60, use_hl_lines=True)
+    file_test(file, nosubtests, width=60, use_hl_lines=True)

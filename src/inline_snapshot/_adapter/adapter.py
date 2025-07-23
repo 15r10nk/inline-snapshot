@@ -49,6 +49,7 @@ class FrameContext:
 class AdapterContext:
     file: SourceFile
     frame: FrameContext | None
+    qualname: str
 
     def eval(self, node):
         assert self.frame is not None
