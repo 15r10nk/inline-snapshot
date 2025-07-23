@@ -1,4 +1,28 @@
 
+<a id='changelog-0.25.0'></a>
+# 0.25.0 — 2025-07-23
+
+## Added
+
+- New `external()` implementation with support for different data formats.
+- Ability to declare custom external formats with `@register_format`.
+- `external()` can now be used without `snapshot()`, such as `assert "long text" == external()` or inside snapshots like dirty-equals.
+
+## Changed
+
+- **BREAKING CHANGE**: You now have to declare format aliases if you used `outsource()` with a different suffix than `.txt` or `.bin` in the past.
+
+    ``` python
+    from inline_snapshot import register_format_alias, external
+
+    # Can be declared in conftest.py
+    register_format_alias(".html", ".txt")
+
+
+    def test_html():
+        assert outsource("<html></html>", suffix=".html") == snapshot()
+    ```
+
 <a id='changelog-0.24.0'></a>
 # 0.24.0 — 2025-07-15
 
