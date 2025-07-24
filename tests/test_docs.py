@@ -410,7 +410,7 @@ uuid.uuid4=f
 
             new_code = code
             if flags:
-                new_code = example.read_text("test_example.py")
+                new_code = example.read_file("test_example.py")
             new_code.replace("\n\n", "\n")
 
             if "show_error" in options:
