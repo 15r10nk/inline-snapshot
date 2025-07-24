@@ -103,3 +103,19 @@ def test_a():
 
 """
     ).run_inline(["--inline-snapshot=create"], changed_files=snapshot({})).run_inline()
+
+
+def test_register_format_alias():
+
+    Example(
+        f"""\
+from inline_snapshot import external_file,register_format_alias
+
+register_format_alias(".html",".txt")
+
+def test_bar():
+    assert "text" ==external_file("a.html")
+    """
+    ).run_inline(
+        ["--inline-snapshot=create"], changed_files=snapshot({"a.html": "text"})
+    )

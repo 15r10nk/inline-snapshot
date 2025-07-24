@@ -98,6 +98,6 @@ def external_file(path: Union[Path, str], *, format: Optional[str] = None):
     else:
         new = cast(ExternalFile, state().snapshots[key])
 
-    assert new._format.suffix == format
+    assert new._format.suffix == format_handler.suffix
 
     return new
