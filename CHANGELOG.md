@@ -1,4 +1,15 @@
 
+<a id='changelog-0.25.1'></a>
+# 0.25.1 — 2025-07-24
+
+## Changed
+
+- Removed unnecessary uuid7 dependency introduced in 0.25.0
+
+## Fixed
+
+- `external_file()` now follows the aliases defined by `register_format_alias()`.
+
 <a id='changelog-0.25.0'></a>
 # 0.25.0 — 2025-07-23
 
