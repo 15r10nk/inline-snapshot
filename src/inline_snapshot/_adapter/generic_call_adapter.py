@@ -9,12 +9,13 @@ from dataclasses import fields
 from dataclasses import is_dataclass
 from typing import Any
 
+from inline_snapshot._customize import CustomCall
+
 from .._change import CallArg
 from .._change import Delete
 from ..syntax_warnings import InlineSnapshotSyntaxWarning
 from .adapter import Adapter
 from .adapter import Item
-from .adapter import adapter_map
 
 
 def get_adapter_for_type(value_type):
@@ -28,15 +29,6 @@ def get_adapter_for_type(value_type):
     return options[0]
 
 
-class Argument:
-    value: Any
-    is_default: bool = False
-
-    def __init__(self, value, is_default=False):
-        self.value = value
-        self.is_default = is_default
-
-
 class GenericCallAdapter(Adapter):
 
     @classmethod
@@ -44,7 +36,7 @@ class GenericCallAdapter(Adapter):
         raise NotImplementedError(cls)
 
     @classmethod
-    def arguments(cls, value) -> tuple[list[Argument], dict[str, Argument]]:
+    def arguments(cls, value) -> CustomCall:
         raise NotImplementedError(cls)
 
     @classmethod
@@ -54,30 +46,24 @@ class GenericCallAdapter(Adapter):
     @classmethod
     def repr(cls, value):
 
-        args, kwargs = cls.arguments(value)
+        call = cls.arguments(value)
 
-        arguments = [repr(value.value) for value in args] + [
-            f"{key}={repr(value.value)}"
-            for key, value in kwargs.items()
-            if not value.is_default
+        arguments = [repr(value) for value in call.args] + [
+            f"{key}={repr(value)}" for key, value in call.kwargs.items()
         ]
 
         return f"{repr(type(value))}({', '.join(arguments)})"
 
     @classmethod
     def map(cls, value, map_function):
-        new_args, new_kwargs = cls.arguments(value)
-        return type(value)(
-            *[adapter_map(arg.value, map_function) for arg in new_args],
-            **{
-                k: adapter_map(kwarg.value, map_function)
-                for k, kwarg in new_kwargs.items()
-            },
-        )
+        return cls.arguments(value).map(map_function)
 
     @classmethod
     def items(cls, value, node):
-        new_args, new_kwargs = cls.arguments(value)
+
+        args = cls.arguments(value)
+        new_args = args.args
+        new_kwargs = args.kwargs
 
         if node is not None:
             assert isinstance(node, ast.Call)
@@ -96,12 +82,8 @@ class GenericCallAdapter(Adapter):
                 return None
 
         return [
-            Item(value=arg.value, node=pos_arg_node(i))
-            for i, arg in enumerate(new_args)
-        ] + [
-            Item(value=kw.value, node=kw_arg_node(name))
-            for name, kw in new_kwargs.items()
-        ]
+            Item(value=arg, node=pos_arg_node(i)) for i, arg in enumerate(new_args)
+        ] + [Item(value=kw, node=kw_arg_node(name)) for name, kw in new_kwargs.items()]
 
     def assign(self, old_value, old_node, new_value):
         if old_node is None or not isinstance(old_node, ast.Call):
@@ -136,7 +118,9 @@ class GenericCallAdapter(Adapter):
                 )
                 return old_value
 
-        new_args, new_kwargs = self.arguments(new_value)
+        call = self.arguments(new_value)
+        new_args = call.args
+        new_kwargs = call.kwargs
 
         # positional arguments
 
@@ -166,15 +150,16 @@ class GenericCallAdapter(Adapter):
                     node=old_node,
                     arg_pos=insert_pos,
                     arg_name=None,
-                    new_code=self.context.file._value_to_code(value.value),
-                    new_value=value.value,
+                    new_code=self.context.file._value_to_code(value),
+                    new_value=value,
                 )
 
         # keyword arguments
         result_kwargs = {}
         for kw in old_node.keywords:
-            if kw.arg not in new_kwargs or new_kwargs[kw.arg].is_default:
+            if kw.arg not in new_kwargs:
                 # delete entries
+                print("delete")
                 yield Delete(
                     (
                         "update"
@@ -183,7 +168,7 @@ class GenericCallAdapter(Adapter):
                         else "fix"
                     ),
                     self.context.file._source,
-                    kw.value,
+                    kw,
                     self.argument(old_value, kw.arg),
                 )
 
@@ -192,20 +177,18 @@ class GenericCallAdapter(Adapter):
         to_insert = []
         insert_pos = 0
         for key, new_value_element in new_kwargs.items():
-            if new_value_element.is_default:
-                continue
             if key not in old_node_kwargs:
                 # add new values
-                to_insert.append((key, new_value_element.value))
-                result_kwargs[key] = new_value_element.value
+                to_insert.append((key, new_value_element))
+                result_kwargs[key] = new_value_element
             else:
                 node = old_node_kwargs[key]
 
                 # check values with same keys
                 old_value_element = self.argument(old_value, key)
                 result_kwargs[key] = yield from self.get_adapter(
-                    old_value_element, new_value_element.value
-                ).assign(old_value_element, node, new_value_element.value)
+                    old_value_element, new_value_element
+                ).assign(old_value_element, node, new_value_element)
 
                 if to_insert:
                     for key, value in to_insert:
@@ -236,7 +219,6 @@ class GenericCallAdapter(Adapter):
                     new_code=self.context.file._value_to_code(value),
                     new_value=value,
                 )
-
         return type(old_value)(*result_args, **result_kwargs)
 
 
@@ -265,9 +247,10 @@ class DataclassAdapter(GenericCallAdapter):
                 ):
                     is_default = True
 
-                kwargs[field.name] = Argument(value=field_value, is_default=is_default)
+                if not is_default:
+                    kwargs[field.name] = field_value
 
-        return ([], kwargs)
+        return CustomCall(type(value), *[], **kwargs)
 
     def argument(self, value, pos_or_name):
         if isinstance(pos_or_name, str):
@@ -314,12 +297,10 @@ else:
                         if default_value == field_value:
 
                             is_default = True
+                    if not is_default:
+                        kwargs[field.name] = field_value
 
-                    kwargs[field.name] = Argument(
-                        value=field_value, is_default=is_default
-                    )
-
-            return ([], kwargs)
+            return CustomCall(type(value), **kwargs)
 
         def argument(self, value, pos_or_name):
             assert isinstance(pos_or_name, str)
@@ -376,9 +357,10 @@ else:
                     ):
                         is_default = True
 
-                    kwargs[name] = Argument(value=field_value, is_default=is_default)
+                    if not is_default:
+                        kwargs[name] = field_value
 
-            return ([], kwargs)
+            return CustomCall(type(value), **kwargs)
 
         @classmethod
         def argument(cls, value, pos_or_name):
@@ -412,10 +394,10 @@ class NamedTupleAdapter(GenericCallAdapter):
     @classmethod
     def arguments(cls, value: IsNamedTuple):
 
-        return (
-            [],
-            {
-                field: Argument(value=getattr(value, field))
+        return CustomCall(
+            type(value),
+            **{
+                field: getattr(value, field)
                 for field in value._fields
                 if field not in value._field_defaults
                 or getattr(value, field) != value._field_defaults[field]
@@ -435,9 +417,9 @@ class DefaultDictAdapter(GenericCallAdapter):
     @classmethod
     def arguments(cls, value: defaultdict):
 
-        return (
-            [Argument(value=value.default_factory), Argument(value=dict(value))],
-            {},
+        return CustomCall(
+            type(value),
+            *[value.default_factory, dict(value)],
         )
 
     def argument(self, value, pos_or_name):
