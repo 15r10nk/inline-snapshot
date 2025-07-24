@@ -29,7 +29,6 @@ dependencies = [
   "rich>=13.7.1",
   "tomli>=2.0.0; python_version < '3.11'",
   "pytest>=8.3.4",
-  "uuid7>=0.1.0",
 ]
 description = "golden master/snapshot/approval testing library which puts the values right into your source code"
 keywords = []
