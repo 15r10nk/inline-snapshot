@@ -22,6 +22,8 @@ def contains_import(tree, module, name):
 
 def used_externals_in(source: Union[str, ast.Module], check_import=True) -> Set[str]:
     if isinstance(source, str):
+        if "external" not in source:
+            return set()
         tree = ast.parse(source)
     else:
         tree = source

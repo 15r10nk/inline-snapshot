@@ -357,9 +357,12 @@ def test_errors():
 def test_uses_external():
     assert used_externals_in(
         ast.parse("[external('hash:111*.txt')]"), check_import=False
-    )
+    ) == snapshot({"hash:111*.txt"})
     assert not used_externals_in(ast.parse("[external()]"), check_import=False)
     assert not used_externals_in(ast.parse("[external]"), check_import=False)
+    assert used_externals_in(
+        ast.parse("[external('hash:111*.txt')]"), check_import=True
+    ) == snapshot(set())
 
 
 def test_no_imports(project):
