@@ -22,3 +22,4 @@ jobs:
         git config user.email "15r10nk@users.noreply.github.com"
         git fetch origin gh-pages --depth=1
         hatch run docs:mike deploy -u --push ${INLINE_SNAPSHOT_VERSION} latest
+        hatch run docs:mike deploy -u --push development

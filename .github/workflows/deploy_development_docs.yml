@@ -2,6 +2,8 @@ name: deploy development docs
 on:
   push:
     branches: [main]
+    tags-ignore:
+    - v[0-9]+.[0-9]+.[0-9]+
 
 jobs:
   build:
