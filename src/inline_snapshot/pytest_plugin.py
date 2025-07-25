@@ -508,7 +508,15 @@ def pytest_sessionfinish(session, exitstatus):
             for category in all_categories:
                 snapshot_changes[category] += 1
 
-        capture.suspend_global_capture(in_=True)
+        suspend_capture = (
+            capture._global_capturing is not None
+            and capture._global_capturing.in_ is not None
+            and capture._global_capturing.in_._state == "started"
+        )
+
+        if suspend_capture:
+            capture._global_capturing.in_.suspend()
+
         try:
             if "short-report" in state().flags:
                 short_report(snapshot_changes, console)
@@ -586,7 +594,8 @@ def pytest_sessionfinish(session, exitstatus):
                 cr.fix_all()
 
         finally:
-            capture.resume_global_capture()
+            if suspend_capture:
+                capture._global_capturing.in_.resume()
         return
     finally:
         leave_snapshot_context()
