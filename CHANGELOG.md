@@ -1,4 +1,14 @@
 
+<a id='changelog-0.25.2'></a>
+# 0.25.2 — 2025-07-25
+
+## Fixed
+
+- Terminal with is preserved (#212)
+- solved incompatibility with pytest\_pretty (#265)
+
+- improved performance by checking for `"external"` in the code string before parsing the code and checking the AST (#272).
+
 <a id='changelog-0.25.1'></a>
 # 0.25.1 — 2025-07-24
 
