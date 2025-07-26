@@ -9,6 +9,7 @@ from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
+from uuid import uuid4
 
 from inline_snapshot._config import Config
 from inline_snapshot._external._format._protocol import Format
@@ -49,13 +50,20 @@ class State:
 
     all_storages: dict[str, StorageProtocol] = field(default_factory=dict)
 
-    default_storage: str = "hash"
+    default_storage: str = "uuid"
+
+    tmp_dir: TemporaryDirectory | None = field(
+        default_factory=lambda: TemporaryDirectory(prefix="inline-snapshot-")
+    )
+
+    def new_tmp_path(self, suffix: str) -> Path:
+        assert self.tmp_dir is not None
+        return Path(self.tmp_dir.name) / f"tmp-path-{uuid4()}{suffix}"
 
 
 _latest_global_states: list[State] = []
 
-_current: State = State()
-_current.active = False
+_current: State = State(active=False, tmp_dir=None)
 
 
 def state() -> State:
@@ -74,6 +82,7 @@ def enter_snapshot_context():
 
 def leave_snapshot_context():
     global _current
+    _current.tmp_dir.cleanup()
     _current = _latest_global_states.pop()
 
 

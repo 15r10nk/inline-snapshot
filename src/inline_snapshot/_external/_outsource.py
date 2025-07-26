@@ -4,7 +4,6 @@ from typing import Any
 
 from inline_snapshot._external._external_location import ExternalLocation
 from inline_snapshot._external._format._protocol import get_format_handler
-from inline_snapshot._external._tmp_path import new_tmp_path
 from inline_snapshot._global_state import state
 
 from .._snapshot.generic_value import GenericValue
@@ -20,7 +19,7 @@ class Outsourced:
 
         self._location = ExternalLocation("hash", "", suffix, None, None)
 
-        tmp_path = new_tmp_path(suffix)
+        tmp_path = state().new_tmp_path(suffix)
 
         self._format.encode(data, tmp_path)
 

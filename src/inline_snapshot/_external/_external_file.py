@@ -9,7 +9,6 @@ from inline_snapshot._change import ExternalChange
 from inline_snapshot._external._external_location import FileLocation
 from inline_snapshot._external._format._protocol import Format
 from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
-from inline_snapshot._external._tmp_path import new_tmp_path
 from inline_snapshot._global_state import state
 from inline_snapshot._types import SnapshotRefBase
 
@@ -45,7 +44,7 @@ class ExternalFile(SnapshotRefBase):
             state().missing_values += 1
 
             if state().update_flags.create:
-                self._tmp_file = new_tmp_path(self._filename.suffix)
+                self._tmp_file = state().new_tmp_path(self._filename.suffix)
                 self._format.encode(other, self._tmp_file)
                 return True
             return False
@@ -54,7 +53,7 @@ class ExternalFile(SnapshotRefBase):
             state().incorrect_values += 1
 
             if state().update_flags.fix:
-                self._tmp_file = new_tmp_path(self._filename.suffix)
+                self._tmp_file = state().new_tmp_path(self._filename.suffix)
                 self._format.encode(other, self._tmp_file)
                 self._value_changed = True
                 return True

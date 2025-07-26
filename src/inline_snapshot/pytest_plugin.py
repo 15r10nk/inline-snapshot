@@ -452,150 +452,151 @@ def filter_changes(changes, snapshot_changes, console):
 
 @pytest.hookimpl(trylast=True)
 def pytest_sessionfinish(session, exitstatus):
+    config = session.config
+
+    @call_once
+    def console():
+        con = Console(highlight=False)
+        con.print("\n")
+        con.rule("[blue]inline-snapshot", characters="═")
+
+        return con
+
+    disable_info = "This means that tests with snapshots will continue to run, but snapshot(x) will only return x and inline-snapshot will not be able to fix snapshots or generate reports."
+
+    if xdist_running(config):
+        if state().flags != {"disable"}:
+            console().print(
+                f"INFO: inline-snapshot was disabled because you used xdist. {disable_info}\n"
+            )
+        return
+
+    if env_var := is_ci_run():
+        if state().flags == {"disable"}:
+            console().print(
+                f'INFO: CI run was detected because environment variable "{env_var}" was defined. '
+                f"inline-snapshot runs with --inline-snapshot=disable by default in CI. {disable_info} You can change this by using --inline-snasphot=report for example.\n"
+            )
+            return
+
+    if not is_implementation_supported():
+        if state().flags != {"disable"}:
+            console().print(
+                f"INFO: inline-snapshot was disabled because {sys.implementation.name} is not supported. {disable_info}\n"
+            )
+        return
+
+    if not state().active:
+        return
+
+    capture = config.pluginmanager.getplugin("capturemanager")
+
+    # --inline-snapshot
+
+    # auto mode
+    changes = {f: [] for f in Flags.all()}
+
+    snapshot_changes = {f: 0 for f in Flags.all()}
+
+    for snapshot in state().snapshots.values():
+        all_categories = set()
+        for change in snapshot._changes():
+            changes[change.flag].append(change)
+            all_categories.add(change.flag)
+
+        for category in all_categories:
+            snapshot_changes[category] += 1
+
+    suspend_capture = (
+        capture._global_capturing is not None
+        and capture._global_capturing.in_ is not None
+        and capture._global_capturing.in_._state == "started"
+    )
+
+    if suspend_capture:
+        capture._global_capturing.in_.suspend()
+
     try:
-        config = session.config
-
-        @call_once
-        def console():
-            con = Console(highlight=False)
-            con.print("\n")
-            con.rule("[blue]inline-snapshot", characters="═")
-
-            return con
-
-        disable_info = "This means that tests with snapshots will continue to run, but snapshot(x) will only return x and inline-snapshot will not be able to fix snapshots or generate reports."
-
-        if xdist_running(config):
-            if state().flags != {"disable"}:
-                console().print(
-                    f"INFO: inline-snapshot was disabled because you used xdist. {disable_info}\n"
-                )
+        if "short-report" in state().flags:
+            short_report(snapshot_changes, console)
             return
 
-        if env_var := is_ci_run():
-            if state().flags == {"disable"}:
-                console().print(
-                    f'INFO: CI run was detected because environment variable "{env_var}" was defined. '
-                    f"inline-snapshot runs with --inline-snapshot=disable by default in CI. {disable_info} You can change this by using --inline-snasphot=report for example.\n"
-                )
-                return
+        used_changes = filter_changes(changes, snapshot_changes, console)
 
-        if not is_implementation_supported():
-            if state().flags != {"disable"}:
-                console().print(
-                    f"INFO: inline-snapshot was disabled because {sys.implementation.name} is not supported. {disable_info}\n"
-                )
-            return
+        cr = ChangeRecorder()
+        apply_all(used_changes, cr)
+        changed_files = {Path(f.filename): f for f in cr.files()}
 
-        if not state().active:
-            return
+        all_files = {
+            *map(Path, state().files_with_snapshots),
+        }
 
-        capture = config.pluginmanager.getplugin("capturemanager")
+        test_dir = state().config.tests_dir
+        if test_dir:
+            all_files |= set(test_dir.rglob("*.py"))
 
-        # --inline-snapshot
+        used = []
 
-        # auto mode
+        for file in all_files:
+            if file in changed_files:
+                content = changed_files[file].new_code()
+                check_import = False
+            else:
+                content = file.read_text("utf-8")
+                check_import = True
+
+            for e in used_externals_in(content, check_import=check_import):
+                try:
+                    location = ExternalLocation.from_name(e)
+                    used.append(location)
+                except ValueError:
+                    pass
+
         changes = {f: [] for f in Flags.all()}
 
-        snapshot_changes = {f: 0 for f in Flags.all()}
+        for name, storage in state().all_storages.items():
+            for external_change in storage.sync_used_externals(
+                [e for e in used if e.storage == name]
+            ):
+                changes[external_change.flag].append(external_change)
 
-        for snapshot in state().snapshots.values():
-            all_categories = set()
-            for change in snapshot._changes():
-                changes[change.flag].append(change)
-                all_categories.add(change.flag)
+        used_changes += filter_changes(changes, snapshot_changes, console)
 
-            for category in all_categories:
-                snapshot_changes[category] += 1
+        report_problems(console)
 
-        suspend_capture = (
-            capture._global_capturing is not None
-            and capture._global_capturing.in_ is not None
-            and capture._global_capturing.in_._state == "started"
-        )
-
-        if suspend_capture:
-            capture._global_capturing.in_.suspend()
-
-        try:
-            if "short-report" in state().flags:
-                short_report(snapshot_changes, console)
-                return
-
-            used_changes = filter_changes(changes, snapshot_changes, console)
-
+        if used_changes:
             cr = ChangeRecorder()
             apply_all(used_changes, cr)
-            changed_files = {Path(f.filename): f for f in cr.files()}
 
-            all_files = {
-                *map(Path, state().files_with_snapshots),
-            }
+            for change in used_changes:
+                change.apply_external_changes()
 
-            test_dir = state().config.tests_dir
-            if test_dir:
-                all_files |= set(test_dir.rglob("*.py"))
+            for test_file in cr.files():
+                tree = ast.parse(test_file.new_code())
+                used = used_externals_in(tree, check_import=False)
 
-            used = []
+                required_imports = []
 
-            for file in all_files:
-                if file in changed_files:
-                    content = changed_files[file].new_code()
-                    check_import = False
-                else:
-                    content = file.read_text("utf-8")
-                    check_import = True
+                if used:
+                    required_imports.append("external")
 
-                for e in used_externals_in(content, check_import=check_import):
-                    try:
-                        location = ExternalLocation.from_name(e)
-                        used.append(location)
-                    except ValueError:
-                        pass
+                if used_hasrepr(tree):
+                    required_imports.append("HasRepr")
 
-            changes = {f: [] for f in Flags.all()}
+                if required_imports:
+                    ensure_import(
+                        test_file.filename,
+                        {"inline_snapshot": required_imports},
+                        cr,
+                    )
 
-            for name, storage in state().all_storages.items():
-                for external_change in storage.sync_used_externals(
-                    [e for e in used if e.storage == name]
-                ):
-                    changes[external_change.flag].append(external_change)
+            cr.fix_all()
 
-            used_changes += filter_changes(changes, snapshot_changes, console)
-
-            report_problems(console)
-
-            if used_changes:
-                cr = ChangeRecorder()
-                apply_all(used_changes, cr)
-
-                for change in used_changes:
-                    change.apply_external_changes()
-
-                for test_file in cr.files():
-                    tree = ast.parse(test_file.new_code())
-                    used = used_externals_in(tree, check_import=False)
-
-                    required_imports = []
-
-                    if used:
-                        required_imports.append("external")
-
-                    if used_hasrepr(tree):
-                        required_imports.append("HasRepr")
-
-                    if required_imports:
-                        ensure_import(
-                            test_file.filename,
-                            {"inline_snapshot": required_imports},
-                            cr,
-                        )
-
-                cr.fix_all()
-
-        finally:
-            if suspend_capture:
-                capture._global_capturing.in_.resume()
-        return
     finally:
-        leave_snapshot_context()
+        if suspend_capture:
+            capture._global_capturing.in_.resume()
+    return
+
+
+def pytest_unconfigure(config):
+    leave_snapshot_context()
