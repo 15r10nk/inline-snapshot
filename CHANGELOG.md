@@ -1,4 +1,11 @@
 
+<a id='changelog-0.25.3'></a>
+# 0.25.3 — 2025-07-27
+
+## Fixed
+
+- cleanup temporary path
+
 <a id='changelog-0.25.2'></a>
 # 0.25.2 — 2025-07-25
 
