@@ -10,7 +10,6 @@ from inline_snapshot._exceptions import UsageError
 from inline_snapshot._external._format._protocol import get_format_handler
 from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
 from inline_snapshot._external._outsource import Outsourced
-from inline_snapshot._external._tmp_path import new_tmp_path
 from inline_snapshot._global_state import state
 from inline_snapshot._inline_snapshot import create_snapshot
 from inline_snapshot._unmanaged import declare_unmanaged
@@ -118,7 +117,7 @@ class External:
         if not self._location.suffix:
             self._location.suffix = format.suffix
 
-        self._tmp_file = new_tmp_path(self._location.suffix)
+        self._tmp_file = state().new_tmp_path(self._location.suffix)
 
         format.encode(other, self._tmp_file)
         self._location = self.storage.new_location(self._location, self._tmp_file)
