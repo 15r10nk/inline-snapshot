@@ -83,14 +83,6 @@ def read_config(path: Path, config=Config()) -> Config:
     ):
         config.tests_dir = test_dir
 
-    if (
-        config.tests_dir is None
-        and path.exists()
-        and (test_dir := path.parent).exists()
-        and test_dir.is_dir()
-    ):
-        config.tests_dir = test_dir
-
     config.default_storage = tool_config.get("default-storage", "uuid")
 
     if config.default_storage not in ("uuid", "hash"):

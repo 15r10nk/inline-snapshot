@@ -22,7 +22,7 @@ def test_something():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass
 
@@ -64,7 +64,7 @@ def test_something():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass
 
@@ -102,7 +102,7 @@ def test_something():
         ["--inline-snapshot=update"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 
@@ -141,7 +141,7 @@ def test_something():
         ["--inline-snapshot=update"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 
@@ -181,7 +181,7 @@ def test_something():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 import attrs
 
@@ -203,7 +203,7 @@ def test_something():
         ["--inline-snapshot=update"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 import attrs
 
@@ -241,7 +241,7 @@ def test_something():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 import attrs
 
@@ -277,7 +277,7 @@ def test():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 import attrs
 
@@ -403,7 +403,7 @@ def test_something():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 from dataclasses import dataclass
 
@@ -495,7 +495,7 @@ def test_L3():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 from inline_snapshot._adapter.generic_call_adapter import GenericCallAdapter,Argument
@@ -557,7 +557,7 @@ def test_tuple():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 from collections import namedtuple
 
@@ -588,7 +588,7 @@ def test_tuple():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 from collections import defaultdict
 
@@ -623,7 +623,7 @@ def test():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 from dataclasses import dataclass,field
 
@@ -659,7 +659,7 @@ def test_list():
         ["--inline-snapshot=update"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 

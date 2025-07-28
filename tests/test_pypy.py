@@ -23,7 +23,7 @@ x and inline-snapshot will not be able to fix snapshots or generate reports.\
         else snapshot(
             """\
 -------------------------------- Fix snapshots ---------------------------------
-+----------------------------- test_something.py ------------------------------+
++-------------------------- tests/test_something.py ---------------------------+
 | @@ -1,6 +1,6 @@                                                              |
 |                                                                              |
 |  from inline_snapshot import snapshot                                        |

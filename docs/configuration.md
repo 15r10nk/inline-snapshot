@@ -62,7 +62,7 @@ fix=["create","fix"]
         ```
 
     === "no command (default)"
-        inline-snapshot will format only the snapshot values with black when you specified no format command but needs black installed with `inline-snapshot[black]`.
+        inline-snapshot will format only the snapshot values with black when you specify no format command, but requires black to be installed with `inline-snapshot[black]`.
 
     The placeholder `{filename}` can be used to specify the filename if it is needed to find the correct formatting options for this file.
 
@@ -71,11 +71,12 @@ fix=["create","fix"]
 
 * **show-updates:**[](){#show-updates} shows updates in reviews and reports.
 
-
-* **default-storage:**[](){#default-storage} defines the default storage protocol to be used when creating snapshots without an explicit storage protocol (e.g. like `external()`).
+* **default-storage:**[](){#default-storage} defines the default storage protocol to be used when creating snapshots without an explicit storage protocol, such as `external()`.
     Possible values are `hash` and `uuid`.
-    external snapshots created by `outsource()` do not currently support this setting due to some internal limitations and will always use the old `hash` protocol.
+    External snapshots created by `outsource()` do not currently support this setting due to some internal limitations and will always use the old `hash` protocol.
 
-* **tests-dir:** can be used to define where your tests are located.
-    The default is `<pytest_config_dir>/tests` if it exists or `<pytest_config_dir>` if you have no tests directory,
+* **test-dir:** can be used to define where your tests are located.
+    The default is `<pytest_config_dir>/tests` if it exists,
     where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
+    This directory is used to search through all test files for `external()` calls and to check whether the currently saved external objects are still used in the source.
+    It is therefore required if you want to *trim* unused externals.

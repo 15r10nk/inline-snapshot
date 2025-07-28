@@ -125,20 +125,43 @@ def is_implementation_supported():
     return sys.implementation.name == "cpython"
 
 
-def pytest_configure(config):
-    enter_snapshot_context()
+def is_relative_to(base, relative):
+    try:
+        relative.relative_to(base)
+    except ValueError:
+        return False
+    return True
 
-    directory = config.rootpath
-    while not (pyproject := directory / "pyproject.toml").exists():
+
+def find_pyproject(pytest_root, cwd):
+    if is_relative_to(pytest_root, Path.cwd()):
+        directory = Path.cwd()
+    else:
+        directory = pytest_root
+
+    while not (pyproject_pytest := directory / "pyproject.toml").exists():
         if directory == directory.parent:
             break
         directory = directory.parent
+    else:
+        return pyproject_pytest
+
+
+def pytest_configure(config):
+    enter_snapshot_context()
+
+    pyproject = find_pyproject(config.rootpath, Path.cwd())
 
     if is_pytest_compatible():
         state().config.default_flags_tui = ["create", "review"]
         state().config.default_flags = ["report"]
 
-    _config.read_config(pyproject, state().config)
+    if pyproject is not None:
+        _config.read_config(pyproject, state().config)
+
+    if state().config.tests_dir is None:
+        if (tests_dir := Path.cwd() / "tests").exists() and tests_dir.is_dir():
+            state().config.tests_dir = tests_dir
 
     console = Console()
     if is_ci_run():
@@ -417,7 +440,7 @@ def filter_changes(changes, snapshot_changes, console):
                 console().print(
                     Panel(
                         Syntax(diff, "diff", theme="ansi_light", word_wrap=True),
-                        title=str(name),
+                        title=name.as_posix(),
                         box=(
                             box.ASCII
                             if os.environ.get("TERM", "") == "unknown"
@@ -527,40 +550,47 @@ def pytest_sessionfinish(session, exitstatus):
         apply_all(used_changes, cr)
         changed_files = {Path(f.filename): f for f in cr.files()}
 
-        all_files = {
-            *map(Path, state().files_with_snapshots),
-        }
-
         test_dir = state().config.tests_dir
-        if test_dir:
-            all_files |= set(test_dir.rglob("*.py"))
+        if not test_dir:
+            console().print(
+                "INFO: inline-snasphot can not trim your external snapshots,"
+                " because there is no [i]tests/[/] folder in your repository root"
+                " and no [i]test-dir[/] defined in your pyproject.toml."
+            )
+        else:
 
-        used = []
+            all_files = {
+                *map(Path, state().files_with_snapshots),
+                *test_dir.rglob("*.py"),
+            }
 
-        for file in all_files:
-            if file in changed_files:
-                content = changed_files[file].new_code()
-                check_import = False
-            else:
-                content = file.read_text("utf-8")
-                check_import = True
+            used = []
 
-            for e in used_externals_in(content, check_import=check_import):
-                try:
-                    location = ExternalLocation.from_name(e)
-                    used.append(location)
-                except ValueError:
-                    pass
+            for file in all_files:
+                if file in changed_files:
+                    content = changed_files[file].new_code()
+                    check_import = False
+                else:
+                    content = file.read_text("utf-8")
+                    check_import = True
 
-        changes = {f: [] for f in Flags.all()}
+                for e in used_externals_in(content, check_import=check_import):
+                    try:
+                        location = ExternalLocation.from_name(e)
+                    except ValueError:
+                        pass
+                    else:
+                        used.append(location)
 
-        for name, storage in state().all_storages.items():
-            for external_change in storage.sync_used_externals(
-                [e for e in used if e.storage == name]
-            ):
-                changes[external_change.flag].append(external_change)
+            changes = {f: [] for f in Flags.all()}
 
-        used_changes += filter_changes(changes, snapshot_changes, console)
+            for name, storage in state().all_storages.items():
+                for external_change in storage.sync_used_externals(
+                    [e for e in used if e.storage == name]
+                ):
+                    changes[external_change.flag].append(external_change)
+
+            used_changes += filter_changes(changes, snapshot_changes, console)
 
         report_problems(console)
 

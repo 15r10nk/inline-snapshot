@@ -20,10 +20,10 @@ not equal\
         )
     ).run_pytest(
         ["--inline-snapshot=create"],
-        changed_files=snapshot({"test.txt": "TEST1"}),
+        changed_files=snapshot({"tests/test.txt": "TEST1"}),
         report=snapshot(
             """\
-+---------------------------------- test.txt ----------------------------------+
++------------------------------- tests/test.txt -------------------------------+
 | TEST1                                                                        |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used create\
@@ -41,10 +41,10 @@ not equal\
         )
     ).run_pytest(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot({"test.txt": "TEST2"}),
+        changed_files=snapshot({"tests/test.txt": "TEST2"}),
         report=snapshot(
             """\
-+---------------------------------- test.txt ----------------------------------+
++------------------------------- tests/test.txt -------------------------------+
 | @@ -1 +1 @@                                                                  |
 |                                                                              |
 | -TEST1                                                                       |
@@ -68,7 +68,8 @@ def test_a():
     assert "test1" == external_file("test.txt"), "not equal"
 """
     ).run_inline(
-        ["--inline-snapshot=create"], changed_files=snapshot({"test.txt": "test1"})
+        ["--inline-snapshot=create"],
+        changed_files=snapshot({"tests/test.txt": "test1"}),
     ).run_inline()
 
 
@@ -117,5 +118,5 @@ def test_bar():
     assert "text" ==external_file("a.html")
     """
     ).run_inline(
-        ["--inline-snapshot=create"], changed_files=snapshot({"a.html": "text"})
+        ["--inline-snapshot=create"], changed_files=snapshot({"tests/a.html": "text"})
     )

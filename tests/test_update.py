@@ -22,7 +22,7 @@ print(text,end="")
 format-command="{executable} fmt_cmd.py {{filename}}"
 show-updates=true
 """,
-            "test_a.py": """\
+            "tests/test_a.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -32,5 +32,5 @@ def test_a():
     ).run_pytest(
         ["--inline-snapshot=report"],
         changed_files=snapshot({}),
-        report=snapshot(""),
+        report=snapshot(""""""),
     )

@@ -21,8 +21,8 @@ def test_a():
         changed_files=snapshot(
             {
                 "uuid": {
-                    "__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "TESTA",
-                    "test_something.py": """\
+                    "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "TESTA",
+                    "tests/test_something.py": """\
 from inline_snapshot import external
 
 def test_a():
@@ -31,7 +31,7 @@ def test_a():
                 },
                 "hash": {
                     ".inline-snapshot/external/8b95fa6246dc4446718de0b06cbf083677e4b1ec3bace1599d4daf84768f67ee.txt": "TESTA",
-                    "test_something.py": """\
+                    "tests/test_something.py": """\
 from inline_snapshot import external
 
 def test_a():
@@ -47,11 +47,11 @@ def test_a():
         changed_files=snapshot(
             {
                 "uuid": {
-                    "__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "TESTB"
+                    "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "TESTB"
                 },
                 "hash": {
                     ".inline-snapshot/external/78e8a8fafad325dcf5ba036e127b88ed56131b8daaf6fcd925722bc3dccead72.txt": "TESTB",
-                    "test_something.py": """\
+                    "tests/test_something.py": """\
 from inline_snapshot import external
 
 def test_a():
@@ -73,7 +73,7 @@ These changes will be applied, because you used fix\
 """,
                 "hash": """\
 -------------------------------- Fix snapshots ---------------------------------
-+----------------------------- test_something.py ------------------------------+
++-------------------------- tests/test_something.py ---------------------------+
 | @@ -1,4 +1,4 @@                                                              |
 |                                                                              |
 |  from inline_snapshot import external                                        |

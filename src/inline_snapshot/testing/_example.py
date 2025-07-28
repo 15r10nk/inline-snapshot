@@ -135,7 +135,7 @@ class Example:
                    or just a string which will be saved as *test_something.py*.
         """
         if isinstance(files, str):
-            files = {"test_something.py": files}
+            files = {"tests/test_something.py": files}
 
         self.files = files
 
@@ -266,7 +266,7 @@ class Example:
 
                 try:
                     tests_found = False
-                    for filename in tmp_path.glob("*.py"):
+                    for filename in tmp_path.rglob("test_*.py"):
                         globals: dict[str, Any] = {}
                         print("run> pytest-inline", filename)
                         exec(

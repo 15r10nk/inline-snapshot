@@ -16,7 +16,7 @@ def test_list():
         ["--inline-snapshot=update"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 
 def test_list():

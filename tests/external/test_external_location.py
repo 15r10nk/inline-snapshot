@@ -73,8 +73,8 @@ def test_a():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "a",
-                "test_something.py": """\
+                "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "a",
+                "tests/test_something.py": """\
 
 from inline_snapshot import external
 

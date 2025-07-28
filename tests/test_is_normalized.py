@@ -17,7 +17,7 @@ def test_a():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 from tests._is_normalized import IsNormalized
 

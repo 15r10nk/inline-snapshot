@@ -17,9 +17,9 @@ def test_a():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "__inline_snapshot__/test_something/__module__/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt": "blub",
-                "__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "value",
-                "test_something.py": """\
+                "tests/__inline_snapshot__/test_something/__module__/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt": "blub",
+                "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "value",
+                "tests/test_something.py": """\
 
 from inline_snapshot import external
 
@@ -42,7 +42,7 @@ def test_a():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "new_value"
+                "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "new_value"
             }
         ),
     ).run_inline(
