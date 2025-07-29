@@ -58,6 +58,31 @@ These types are:
 * [snapshots](#inner-snapshots) inside snapshots and
 * [f-strings](#f-strings).
 
+You can also create your own unmanaged types with `@declare_unmanaged`
+
+<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
+``` python
+from inline_snapshot import declare_unmanaged, snapshot
+
+
+@declare_unmanaged
+class AllEqual:
+    def __init__(self, value):
+        self.value = value
+
+    def __eq__(self, other):
+        return all(o == self.value for o in other)
+
+
+def test_all_equal():
+    assert {"text": "hello", "values": [1, 1, 1]} == snapshot(
+        {"text": "hello", "values": AllEqual(snapshot(1))}
+    )
+```
+
+You have to put `AllEqual` manually into the snapshot and inline-snapshot will not touch it in the future when it has to fix the code, but it will change the value in the snapshot argument of `AllEqual`, because this is another snapshot.
+This allows you to specify what should be under your control and which code should be controlled and changed by inline-snapshot.
+
 inline-snapshot is able to handle these types within the following containers:
 
 * list

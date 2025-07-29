@@ -14,6 +14,7 @@ from ._inline_snapshot import snapshot
 from ._is import Is
 from ._types import Category
 from ._types import Snapshot
+from ._unmanaged import declare_unmanaged
 
 __all__ = [
     "snapshot",
@@ -31,6 +32,7 @@ __all__ = [
     "TextDiff",
     "BinaryDiff",
     "external_file",
+    "declare_unmanaged",
 ]
 
 __version__ = "0.26.0"
