@@ -1527,7 +1527,7 @@
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<p>inline-snapshot will format only the snapshot values with black when you specified no format command but needs black installed with <code>inline-snapshot[black]</code>.</p>
+<p>inline-snapshot will format only the snapshot values with black when you specify no format command, but requires black to be installed with <code>inline-snapshot[black]</code>.</p>
 </div>
 </div>
 </div>
@@ -1541,14 +1541,16 @@
 <p><strong>show-updates:</strong><a href="" id="show-updates"></a> shows updates in reviews and reports.</p>
 </li>
 <li>
-<p><strong>default-storage:</strong><a href="" id="default-storage"></a> defines the default storage protocol to be used when creating snapshots without an explicit storage protocol (e.g. like <code>external()</code>).
+<p><strong>default-storage:</strong><a href="" id="default-storage"></a> defines the default storage protocol to be used when creating snapshots without an explicit storage protocol, such as <code>external()</code>.
     Possible values are <code>hash</code> and <code>uuid</code>.
-    external snapshots created by <code>outsource()</code> do not currently support this setting due to some internal limitations and will always use the old <code>hash</code> protocol.</p>
+    External snapshots created by <code>outsource()</code> do not currently support this setting due to some internal limitations and will always use the old <code>hash</code> protocol.</p>
 </li>
 <li>
-<p><strong>tests-dir:</strong> can be used to define where your tests are located.
-    The default is <code>&lt;pytest_config_dir&gt;/tests</code> if it exists or <code>&lt;pytest_config_dir&gt;</code> if you have no tests directory,
-    where <code>&lt;pytest_config_dir&gt;</code> is replaced by the directory containing the Pytest configuration file, if any.</p>
+<p><strong>test-dir:</strong> can be used to define where your tests are located.
+    The default is <code>&lt;pytest_config_dir&gt;/tests</code> if it exists,
+    where <code>&lt;pytest_config_dir&gt;</code> is replaced by the directory containing the Pytest configuration file, if any.
+    This directory is used to search through all test files for <code>external()</code> calls and to check whether the currently saved external objects are still used in the source.
+    It is therefore required if you want to <em>trim</em> unused externals.</p>
 </li>
 </ul>
 
