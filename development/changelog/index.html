@@ -5462,11 +5462,11 @@
 <h2 id="exec-1--0260-2025-07-31">0.26.0 — 2025-07-31<a class="headerlink" href="#exec-1--0260-2025-07-31" title="Permanent link">&para;</a></h2>
 <h3 id="exec-1--changed">Changed<a class="headerlink" href="#exec-1--changed" title="Permanent link">&para;</a></h3>
 <ul>
-<li>You now have to specify <code>test-dir</code> in your pyproject.toml when you save your tests in a folder other than <code>tests/</code> in your project root (#272).</li>
+<li>You now have to specify <code>test-dir</code> in your pyproject.toml when you save your tests in a folder other than <code>tests/</code> in your project root (<a href="https://github.com/15r10nk/inline-snapshot/issues/272">#272</a>).</li>
 </ul>
 <h3 id="exec-1--fixed">Fixed<a class="headerlink" href="#exec-1--fixed" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>pyproject.toml</code> is now also located based on the current directory and the <code>pytest-root</code>, which solves problems when you use inline-snapshot with uv-workspaces (#272).</li>
+<li><code>pyproject.toml</code> is now also located based on the current directory and the <code>pytest-root</code>, which solves problems when you use inline-snapshot with uv-workspaces (<a href="https://github.com/15r10nk/inline-snapshot/issues/272">#272</a>).</li>
 </ul>
 <p><a id='changelog-0.25.3'></a></p>
 <h2 id="exec-1--0253-2025-07-27">0.25.3 — 2025-07-27<a class="headerlink" href="#exec-1--0253-2025-07-27" title="Permanent link">&para;</a></h2>
@@ -5478,12 +5478,12 @@
 <h2 id="exec-1--0252-2025-07-25">0.25.2 — 2025-07-25<a class="headerlink" href="#exec-1--0252-2025-07-25" title="Permanent link">&para;</a></h2>
 <h3 id="exec-1--fixed_2">Fixed<a class="headerlink" href="#exec-1--fixed_2" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Terminal with is preserved (#212)</li>
+<li>Terminal with is preserved (<a href="https://github.com/15r10nk/inline-snapshot/issues/212">#212</a>)</li>
 <li>
-<p>solved incompatibility with pytest_pretty (#265)</p>
+<p>solved incompatibility with pytest_pretty (<a href="https://github.com/15r10nk/inline-snapshot/issues/265">#265</a>)</p>
 </li>
 <li>
-<p>improved performance by checking for <code>"external"</code> in the code string before parsing the code and checking the AST (#272).</p>
+<p>improved performance by checking for <code>"external"</code> in the code string before parsing the code and checking the AST (<a href="https://github.com/15r10nk/inline-snapshot/issues/272">#272</a>).</p>
 </li>
 </ul>
 <p><a id='changelog-0.25.1'></a></p>
@@ -5533,19 +5533,19 @@
 <h3 id="exec-1--changed_3">Changed<a class="headerlink" href="#exec-1--changed_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p>Improved the explanation of what it means when snapshots are disabled in CI runs (#226).</p>
+<p>Improved the explanation of what it means when snapshots are disabled in CI runs (<a href="https://github.com/15r10nk/inline-snapshot/issues/226">#226</a>).</p>
 </li>
 <li>
-<p>Added extra information to the reported failure when snapshots are fixed or created (#240).</p>
+<p>Added extra information to the reported failure when snapshots are fixed or created (<a href="https://github.com/15r10nk/inline-snapshot/issues/240">#240</a>).</p>
 </li>
 </ul>
 <h3 id="exec-1--fixed_4">Fixed<a class="headerlink" href="#exec-1--fixed_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p>fixed the representation of empty strings in sub-snapshots from triple-quotes to single-quotes <code>assert ""==snapshot({5: ""})[5]</code> (#258).</p>
+<p>fixed the representation of empty strings in sub-snapshots from triple-quotes to single-quotes <code>assert ""==snapshot({5: ""})[5]</code> (<a href="https://github.com/15r10nk/inline-snapshot/issues/258">#258</a>).</p>
 </li>
 <li>
-<p>fix: changed format-command default to <code>""</code> (#256).</p>
+<p>fix: changed format-command default to <code>""</code> (<a href="https://github.com/15r10nk/inline-snapshot/issues/256">#256</a>).</p>
 </li>
 </ul>
 <p><a id='changelog-0.23.2'></a></p>
@@ -5562,13 +5562,13 @@
 </ul>
 <h3 id="exec-1--fixed_6">Fixed<a class="headerlink" href="#exec-1--fixed_6" title="Permanent link">&para;</a></h3>
 <ul>
-<li>command line flags work again in CI (#242)</li>
+<li>command line flags work again in CI (<a href="https://github.com/15r10nk/inline-snapshot/issues/242">#242</a>)</li>
 </ul>
 <p><a id='changelog-0.23.0'></a></p>
 <h2 id="exec-1--0230-2025-04-25">0.23.0 — 2025-04-25<a class="headerlink" href="#exec-1--0230-2025-04-25" title="Permanent link">&para;</a></h2>
 <h3 id="exec-1--changed_5">Changed<a class="headerlink" href="#exec-1--changed_5" title="Permanent link">&para;</a></h3>
 <ul>
-<li>snapshot updates are now disabled by default. They be enabled with <code>show-updates=true</code> in your config. This is done because they can confuse new inline-snapshot users and does not fit the way how most users work with inline-snapshot. updates will become much more useful when (#177) is implemented.</li>
+<li>snapshot updates are now disabled by default. They be enabled with <code>show-updates=true</code> in your config. This is done because they can confuse new inline-snapshot users and does not fit the way how most users work with inline-snapshot. updates will become much more useful when (<a href="https://github.com/15r10nk/inline-snapshot/issues/177">#177</a>) is implemented.</li>
 </ul>
 <p><a id='changelog-0.22.3'></a></p>
 <h2 id="exec-1--0223-2025-04-14">0.22.3 — 2025-04-14<a class="headerlink" href="#exec-1--0223-2025-04-14" title="Permanent link">&para;</a></h2>
@@ -5580,7 +5580,7 @@
 <h2 id="exec-1--0222-2025-04-14">0.22.2 — 2025-04-14<a class="headerlink" href="#exec-1--0222-2025-04-14" title="Permanent link">&para;</a></h2>
 <h3 id="exec-1--fixed_8">Fixed<a class="headerlink" href="#exec-1--fixed_8" title="Permanent link">&para;</a></h3>
 <ul>
-<li>show correct diff when <code>pytest --inline-snapshot=report -vv</code> is used (#231)</li>
+<li>show correct diff when <code>pytest --inline-snapshot=report -vv</code> is used (<a href="https://github.com/15r10nk/inline-snapshot/issues/231">#231</a>)</li>
 </ul>
 <p><a id='changelog-0.22.1'></a></p>
 <h2 id="exec-1--0221-2025-04-11">0.22.1 — 2025-04-11<a class="headerlink" href="#exec-1--0221-2025-04-11" title="Permanent link">&para;</a></h2>
@@ -5610,7 +5610,7 @@
 <h2 id="exec-1--0212-2025-03-31">0.21.2 — 2025-03-31<a class="headerlink" href="#exec-1--0212-2025-03-31" title="Permanent link">&para;</a></h2>
 <h3 id="exec-1--fixed_11">Fixed<a class="headerlink" href="#exec-1--fixed_11" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>repr(Is(x))</code> returns the same value as <code>repr(x)</code> to provide nice pytest outputs (#217)</li>
+<li><code>repr(Is(x))</code> returns the same value as <code>repr(x)</code> to provide nice pytest outputs (<a href="https://github.com/15r10nk/inline-snapshot/issues/217">#217</a>)</li>
 </ul>
 <p><a id='changelog-0.21.1'></a></p>
 <h2 id="exec-1--0211-2025-03-29">0.21.1 — 2025-03-29<a class="headerlink" href="#exec-1--0211-2025-03-29" title="Permanent link">&para;</a></h2>
@@ -5709,14 +5709,14 @@
 <h3 id="exec-1--fixed_19">Fixed<a class="headerlink" href="#exec-1--fixed_19" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Use the black API directly to format python code.
-  This solves issues with the upcoming click 8.2.0 (#202) and problems in multithreading (https://github.com/15r10nk/inline-snapshot/pull/193#issuecomment-2660393512).</li>
+  This solves issues with the upcoming click 8.2.0 (<a href="https://github.com/15r10nk/inline-snapshot/issues/202">#202</a>) and problems in multithreading (https://github.com/15r10nk/inline-snapshot/pull/193#issuecomment-2660393512).</li>
 </ul>
 <p><a id='changelog-0.20.2'></a></p>
 <h2 id="exec-1--0202-2025-02-13">0.20.2 — 2025-02-13<a class="headerlink" href="#exec-1--0202-2025-02-13" title="Permanent link">&para;</a></h2>
 <h3 id="exec-1--fixed_20">Fixed<a class="headerlink" href="#exec-1--fixed_20" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p>snapshots inside tests which are marked as xfail are now ignored (#184)</p>
+<p>snapshots inside tests which are marked as xfail are now ignored (<a href="https://github.com/15r10nk/inline-snapshot/issues/184">#184</a>)</p>
 </li>
 <li>
 <p>Fixed a crash caused by the following code:</p>
@@ -5730,7 +5730,7 @@
 <h2 id="exec-1--0201-2025-02-04">0.20.1 — 2025-02-04<a class="headerlink" href="#exec-1--0201-2025-02-04" title="Permanent link">&para;</a></h2>
 <h3 id="exec-1--fixed_21">Fixed<a class="headerlink" href="#exec-1--fixed_21" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Fixed a windows bug with the readline module (#189)</li>
+<li>Fixed a windows bug with the readline module (<a href="https://github.com/15r10nk/inline-snapshot/issues/189">#189</a>)</li>
 </ul>
 <p><a id='changelog-0.20.0'></a></p>
 <h2 id="exec-1--0200-2025-02-01">0.20.0 — 2025-02-01<a class="headerlink" href="#exec-1--0200-2025-02-01" title="Permanent link">&para;</a></h2>
@@ -5827,14 +5827,14 @@
 </ul>
 <h3 id="exec-1--fixed_27">Fixed<a class="headerlink" href="#exec-1--fixed_27" title="Permanent link">&para;</a></h3>
 <ul>
-<li>use '.model_fields' on pydantic model class and not instance. This fixes a deprecation warning in the upcoming pydantic v2.11 (#169)</li>
+<li>use '.model_fields' on pydantic model class and not instance. This fixes a deprecation warning in the upcoming pydantic v2.11 (<a href="https://github.com/15r10nk/inline-snapshot/issues/169">#169</a>)</li>
 </ul>
 <p><a id='changelog-0.18.1'></a></p>
 <h2 id="exec-1--0181-2024-12-22">0.18.1 — 2024-12-22<a class="headerlink" href="#exec-1--0181-2024-12-22" title="Permanent link">&para;</a></h2>
 <h3 id="exec-1--fixed_28">Fixed<a class="headerlink" href="#exec-1--fixed_28" title="Permanent link">&para;</a></h3>
 <ul>
 <li>uv is now only used during test time if you run the inline-snapshot tests with <code>pytest --use-uv</code>
-  This solves a problem if you want to package inline-snapshot in distributions (#165)</li>
+  This solves a problem if you want to package inline-snapshot in distributions (<a href="https://github.com/15r10nk/inline-snapshot/issues/165">#165</a>)</li>
 </ul>
 <p><a id='changelog-0.18.0'></a></p>
 <h2 id="exec-1--0180-2024-12-21">0.18.0 — 2024-12-21<a class="headerlink" href="#exec-1--0180-2024-12-21" title="Permanent link">&para;</a></h2>
@@ -5911,7 +5911,7 @@
 <h2 id="exec-1--0151-2024-12-10">0.15.1 — 2024-12-10<a class="headerlink" href="#exec-1--0151-2024-12-10" title="Permanent link">&para;</a></h2>
 <h3 id="exec-1--fixed_31">Fixed<a class="headerlink" href="#exec-1--fixed_31" title="Permanent link">&para;</a></h3>
 <ul>
-<li>solved a bug caused by a variable inside a snapshot (#148)</li>
+<li>solved a bug caused by a variable inside a snapshot (<a href="https://github.com/15r10nk/inline-snapshot/issues/148">#148</a>)</li>
 </ul>
 <p><a id='changelog-0.15.0'></a></p>
 <h2 id="exec-1--0150-2024-12-10">0.15.0 — 2024-12-10<a class="headerlink" href="#exec-1--0150-2024-12-10" title="Permanent link">&para;</a></h2>
@@ -5960,19 +5960,19 @@
 <h2 id="exec-1--0142-2024-12-07">0.14.2 — 2024-12-07<a class="headerlink" href="#exec-1--0142-2024-12-07" title="Permanent link">&para;</a></h2>
 <h3 id="exec-1--fixed_33">Fixed<a class="headerlink" href="#exec-1--fixed_33" title="Permanent link">&para;</a></h3>
 <ul>
-<li>do not crash when handling raw f-strings (<code>rf""</code>,<code>RF""</code>,...) (#143)</li>
+<li>do not crash when handling raw f-strings (<code>rf""</code>,<code>RF""</code>,...) (<a href="https://github.com/15r10nk/inline-snapshot/issues/143">#143</a>)</li>
 </ul>
 <p><a id='changelog-0.14.1'></a></p>
 <h2 id="exec-1--0141-2024-12-04">0.14.1 — 2024-12-04<a class="headerlink" href="#exec-1--0141-2024-12-04" title="Permanent link">&para;</a></h2>
 <h3 id="exec-1--fixed_34">Fixed<a class="headerlink" href="#exec-1--fixed_34" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p>Don't crash for snapshots like <code>snapshot(f"")</code> (#139)
+<p>Don't crash for snapshots like <code>snapshot(f"")</code> (<a href="https://github.com/15r10nk/inline-snapshot/issues/139">#139</a>)
   It first appeared with pytest-8.3.4, but already existed before for cpython-3.11.
   f-strings in snapshots are currently not official supported, but they should not lead to crashes.</p>
 </li>
 <li>
-<p>skip formatting if black returns an error (#138)</p>
+<p>skip formatting if black returns an error (<a href="https://github.com/15r10nk/inline-snapshot/issues/138">#138</a>)</p>
 </li>
 </ul>
 <p><a id='changelog-0.14.0'></a></p>
@@ -5995,13 +5995,13 @@
 <h2 id="exec-1--0134-2024-11-07">0.13.4 — 2024-11-07<a class="headerlink" href="#exec-1--0134-2024-11-07" title="Permanent link">&para;</a></h2>
 <h3 id="exec-1--changed_14">Changed<a class="headerlink" href="#exec-1--changed_14" title="Permanent link">&para;</a></h3>
 <ul>
-<li>use tomli instead of toml (#130)</li>
+<li>use tomli instead of toml (<a href="https://github.com/15r10nk/inline-snapshot/issues/130">#130</a>)</li>
 </ul>
 <p><a id='changelog-0.13.3'></a></p>
 <h2 id="exec-1--0133-2024-09-24">0.13.3 — 2024-09-24<a class="headerlink" href="#exec-1--0133-2024-09-24" title="Permanent link">&para;</a></h2>
 <h3 id="exec-1--fixed_35">Fixed<a class="headerlink" href="#exec-1--fixed_35" title="Permanent link">&para;</a></h3>
 <ul>
-<li>removed non-optional dirty-equals dependency (#118)</li>
+<li>removed non-optional dirty-equals dependency (<a href="https://github.com/15r10nk/inline-snapshot/issues/118">#118</a>)</li>
 </ul>
 <p><a id='changelog-0.13.2'></a></p>
 <h2 id="exec-1--0132-2024-09-24">0.13.2 — 2024-09-24<a class="headerlink" href="#exec-1--0132-2024-09-24" title="Permanent link">&para;</a></h2>
@@ -6038,7 +6038,7 @@
 <h3 id="exec-1--v0121-2024-08-05">v0.12.1 (2024-08-05)<a class="headerlink" href="#exec-1--v0121-2024-08-05" title="Permanent link">&para;</a></h3>
 <h4 id="exec-1--fix_1">Fix<a class="headerlink" href="#exec-1--fix_1" title="Permanent link">&para;</a></h4>
 <ul>
-<li>add license to project metadata and some other fixes in pyproject.toml (#104)</li>
+<li>add license to project metadata and some other fixes in pyproject.toml (<a href="https://github.com/15r10nk/inline-snapshot/issues/104">#104</a>)</li>
 </ul>
 <h3 id="exec-1--v0120-2024-07-22">v0.12.0 (2024-07-22)<a class="headerlink" href="#exec-1--v0120-2024-07-22" title="Permanent link">&para;</a></h3>
 <h4 id="exec-1--feat_1">Feat<a class="headerlink" href="#exec-1--feat_1" title="Permanent link">&para;</a></h4>
@@ -6050,12 +6050,12 @@
 <h4 id="exec-1--feat_2">Feat<a class="headerlink" href="#exec-1--feat_2" title="Permanent link">&para;</a></h4>
 <ul>
 <li>check if the result of copy.deepcopy() is equal to the copied value</li>
-<li>support for <code>enum.Enum</code>, <code>enum.Flag</code>, <code>type</code> and omitting of default values (#73)</li>
+<li>support for <code>enum.Enum</code>, <code>enum.Flag</code>, <code>type</code> and omitting of default values (<a href="https://github.com/15r10nk/inline-snapshot/issues/73">#73</a>)</li>
 </ul>
 <h3 id="exec-1--v0102-2024-05-28">v0.10.2 (2024-05-28)<a class="headerlink" href="#exec-1--v0102-2024-05-28" title="Permanent link">&para;</a></h3>
 <h4 id="exec-1--fix_2">Fix<a class="headerlink" href="#exec-1--fix_2" title="Permanent link">&para;</a></h4>
 <ul>
-<li>changed how --inline-snapshot=disable works in combination with xdist (#90)</li>
+<li>changed how --inline-snapshot=disable works in combination with xdist (<a href="https://github.com/15r10nk/inline-snapshot/issues/90">#90</a>)</li>
 <li>fix typo, rename 'theme' with 'them'</li>
 </ul>
 <h3 id="exec-1--v0101-2024-05-26">v0.10.1 (2024-05-26)<a class="headerlink" href="#exec-1--v0101-2024-05-26" title="Permanent link">&para;</a></h3>
@@ -6088,8 +6088,8 @@
 <h3 id="exec-1--v082-2024-04-24">v0.8.2 (2024-04-24)<a class="headerlink" href="#exec-1--v082-2024-04-24" title="Permanent link">&para;</a></h3>
 <h4 id="exec-1--fix_5">Fix<a class="headerlink" href="#exec-1--fix_5" title="Permanent link">&para;</a></h4>
 <ul>
-<li>removed restriction that the snapshot functions has to be called snapshot (#72)</li>
-<li>report error in tear down for sub-snapshots with missing values (#70)</li>
+<li>removed restriction that the snapshot functions has to be called snapshot (<a href="https://github.com/15r10nk/inline-snapshot/issues/72">#72</a>)</li>
+<li>report error in tear down for sub-snapshots with missing values (<a href="https://github.com/15r10nk/inline-snapshot/issues/70">#70</a>)</li>
 <li>element access in sub-snapshots does not create new values</li>
 </ul>
 <h3 id="exec-1--v081-2024-04-22">v0.8.1 (2024-04-22)<a class="headerlink" href="#exec-1--v081-2024-04-22" title="Permanent link">&para;</a></h3>
