@@ -4,11 +4,11 @@
 
 ## Changed
 
-- You now have to specify `test-dir` in your pyproject.toml when you save your tests in a folder other than `tests/` in your project root (#272).
+- You now have to specify `test-dir` in your pyproject.toml when you save your tests in a folder other than `tests/` in your project root ([#272](https://github.com/15r10nk/inline-snapshot/issues/272)).
 
 ## Fixed
 
-- `pyproject.toml` is now also located based on the current directory and the `pytest-root`, which solves problems when you use inline-snapshot with uv-workspaces (#272).
+- `pyproject.toml` is now also located based on the current directory and the `pytest-root`, which solves problems when you use inline-snapshot with uv-workspaces ([#272](https://github.com/15r10nk/inline-snapshot/issues/272)).
 
 <a id='changelog-0.25.3'></a>
 # 0.25.3 — 2025-07-27
@@ -22,10 +22,10 @@
 
 ## Fixed
 
-- Terminal with is preserved (#212)
-- solved incompatibility with pytest\_pretty (#265)
+- Terminal with is preserved ([#212](https://github.com/15r10nk/inline-snapshot/issues/212))
+- solved incompatibility with pytest\_pretty ([#265](https://github.com/15r10nk/inline-snapshot/issues/265))
 
-- improved performance by checking for `"external"` in the code string before parsing the code and checking the AST (#272).
+- improved performance by checking for `"external"` in the code string before parsing the code and checking the AST ([#272](https://github.com/15r10nk/inline-snapshot/issues/272)).
 
 <a id='changelog-0.25.1'></a>
 # 0.25.1 — 2025-07-24
@@ -73,15 +73,15 @@
 
 ## Changed
 
-- Improved the explanation of what it means when snapshots are disabled in CI runs (#226).
+- Improved the explanation of what it means when snapshots are disabled in CI runs ([#226](https://github.com/15r10nk/inline-snapshot/issues/226)).
 
-- Added extra information to the reported failure when snapshots are fixed or created (#240).
+- Added extra information to the reported failure when snapshots are fixed or created ([#240](https://github.com/15r10nk/inline-snapshot/issues/240)).
 
 ## Fixed
 
-- fixed the representation of empty strings in sub-snapshots from triple-quotes to single-quotes `assert ""==snapshot({5: ""})[5]` (#258).
+- fixed the representation of empty strings in sub-snapshots from triple-quotes to single-quotes `assert ""==snapshot({5: ""})[5]` ([#258](https://github.com/15r10nk/inline-snapshot/issues/258)).
 
-- fix: changed format-command default to `""` (#256).
+- fix: changed format-command default to `""` ([#256](https://github.com/15r10nk/inline-snapshot/issues/256)).
 
 <a id='changelog-0.23.2'></a>
 # 0.23.2 — 2025-05-28
@@ -99,14 +99,14 @@
 
 ## Fixed
 
-- command line flags work again in CI (#242)
+- command line flags work again in CI ([#242](https://github.com/15r10nk/inline-snapshot/issues/242))
 
 <a id='changelog-0.23.0'></a>
 # 0.23.0 — 2025-04-25
 
 ## Changed
 
-- snapshot updates are now disabled by default. They be enabled with `show-updates=true` in your config. This is done because they can confuse new inline-snapshot users and does not fit the way how most users work with inline-snapshot. updates will become much more useful when (#177) is implemented.
+- snapshot updates are now disabled by default. They be enabled with `show-updates=true` in your config. This is done because they can confuse new inline-snapshot users and does not fit the way how most users work with inline-snapshot. updates will become much more useful when ([#177](https://github.com/15r10nk/inline-snapshot/issues/177)) is implemented.
 
 <a id='changelog-0.22.3'></a>
 # 0.22.3 — 2025-04-14
@@ -120,7 +120,7 @@
 
 ## Fixed
 
-- show correct diff when `pytest --inline-snapshot=report -vv` is used (#231)
+- show correct diff when `pytest --inline-snapshot=report -vv` is used ([#231](https://github.com/15r10nk/inline-snapshot/issues/231))
 
 <a id='changelog-0.22.1'></a>
 # 0.22.1 — 2025-04-11
@@ -151,7 +151,7 @@
 
 ## Fixed
 
-- `repr(Is(x))` returns the same value as `repr(x)` to provide nice pytest outputs (#217)
+- `repr(Is(x))` returns the same value as `repr(x)` to provide nice pytest outputs ([#217](https://github.com/15r10nk/inline-snapshot/issues/217))
 
 <a id='changelog-0.21.1'></a>
 # 0.21.1 — 2025-03-29
@@ -257,14 +257,14 @@
 ## Fixed
 
 - Use the black API directly to format python code.
-  This solves issues with the upcoming click 8.2.0 (#202) and problems in multithreading (https://github.com/15r10nk/inline-snapshot/pull/193#issuecomment-2660393512).
+  This solves issues with the upcoming click 8.2.0 ([#202](https://github.com/15r10nk/inline-snapshot/issues/202)) and problems in multithreading (https://github.com/15r10nk/inline-snapshot/pull/193#issuecomment-2660393512).
 
 <a id='changelog-0.20.2'></a>
 # 0.20.2 — 2025-02-13
 
 ## Fixed
 
-- snapshots inside tests which are marked as xfail are now ignored (#184)
+- snapshots inside tests which are marked as xfail are now ignored ([#184](https://github.com/15r10nk/inline-snapshot/issues/184))
 
 - Fixed a crash caused by the following code:
 
@@ -279,7 +279,7 @@
 
 ## Fixed
 
-- Fixed a windows bug with the readline module (#189)
+- Fixed a windows bug with the readline module ([#189](https://github.com/15r10nk/inline-snapshot/issues/189))
 
 <a id='changelog-0.20.0'></a>
 # 0.20.0 — 2025-02-01
@@ -376,7 +376,7 @@
 
 ## Fixed
 
-- use '.model_fields' on pydantic model class and not instance. This fixes a deprecation warning in the upcoming pydantic v2.11 (#169)
+- use '.model_fields' on pydantic model class and not instance. This fixes a deprecation warning in the upcoming pydantic v2.11 ([#169](https://github.com/15r10nk/inline-snapshot/issues/169))
 
 <a id='changelog-0.18.1'></a>
 # 0.18.1 — 2024-12-22
@@ -384,7 +384,7 @@
 ## Fixed
 
 - uv is now only used during test time if you run the inline-snapshot tests with `pytest --use-uv`
-  This solves a problem if you want to package inline-snapshot in distributions (#165)
+  This solves a problem if you want to package inline-snapshot in distributions ([#165](https://github.com/15r10nk/inline-snapshot/issues/165))
 
 <a id='changelog-0.18.0'></a>
 # 0.18.0 — 2024-12-21
@@ -467,7 +467,7 @@
 
 ## Fixed
 
-- solved a bug caused by a variable inside a snapshot (#148)
+- solved a bug caused by a variable inside a snapshot ([#148](https://github.com/15r10nk/inline-snapshot/issues/148))
 
 <a id='changelog-0.15.0'></a>
 # 0.15.0 — 2024-12-10
@@ -515,18 +515,18 @@
 
 ## Fixed
 
-- do not crash when handling raw f-strings (`rf""`,`RF""`,...) (#143)
+- do not crash when handling raw f-strings (`rf""`,`RF""`,...) ([#143](https://github.com/15r10nk/inline-snapshot/issues/143))
 
 <a id='changelog-0.14.1'></a>
 # 0.14.1 — 2024-12-04
 
 ## Fixed
 
-- Don't crash for snapshots like `snapshot(f"")` (#139)
+- Don't crash for snapshots like `snapshot(f"")` ([#139](https://github.com/15r10nk/inline-snapshot/issues/139))
   It first appeared with pytest-8.3.4, but already existed before for cpython-3.11.
   f-strings in snapshots are currently not official supported, but they should not lead to crashes.
 
-- skip formatting if black returns an error (#138)
+- skip formatting if black returns an error ([#138](https://github.com/15r10nk/inline-snapshot/issues/138))
 
 <a id='changelog-0.14.0'></a>
 # 0.14.0 — 2024-11-10
@@ -550,14 +550,14 @@
 
 ## Changed
 
-- use tomli instead of toml (#130)
+- use tomli instead of toml ([#130](https://github.com/15r10nk/inline-snapshot/issues/130))
 
 <a id='changelog-0.13.3'></a>
 # 0.13.3 — 2024-09-24
 
 ## Fixed
 
-- removed non-optional dirty-equals dependency (#118)
+- removed non-optional dirty-equals dependency ([#118](https://github.com/15r10nk/inline-snapshot/issues/118))
 
 <a id='changelog-0.13.2'></a>
 # 0.13.2 — 2024-09-24
@@ -598,7 +598,7 @@
 
 ### Fix
 
-- add license to project metadata and some other fixes in pyproject.toml (#104)
+- add license to project metadata and some other fixes in pyproject.toml ([#104](https://github.com/15r10nk/inline-snapshot/issues/104))
 
 ## v0.12.0 (2024-07-22)
 
@@ -612,13 +612,13 @@
 ### Feat
 
 - check if the result of copy.deepcopy() is equal to the copied value
-- support for `enum.Enum`, `enum.Flag`, `type` and omitting of default values (#73)
+- support for `enum.Enum`, `enum.Flag`, `type` and omitting of default values ([#73](https://github.com/15r10nk/inline-snapshot/issues/73))
 
 ## v0.10.2 (2024-05-28)
 
 ### Fix
 
-- changed how --inline-snapshot=disable works in combination with xdist (#90)
+- changed how --inline-snapshot=disable works in combination with xdist ([#90](https://github.com/15r10nk/inline-snapshot/issues/90))
 - fix typo, rename 'theme' with 'them'
 
 ## v0.10.1 (2024-05-26)
@@ -655,8 +655,8 @@
 
 ### Fix
 
-- removed restriction that the snapshot functions has to be called snapshot (#72)
-- report error in tear down for sub-snapshots with missing values (#70)
+- removed restriction that the snapshot functions has to be called snapshot ([#72](https://github.com/15r10nk/inline-snapshot/issues/72))
+- report error in tear down for sub-snapshots with missing values ([#70](https://github.com/15r10nk/inline-snapshot/issues/70))
 - element access in sub-snapshots does not create new values
 
 ## v0.8.1 (2024-04-22)
