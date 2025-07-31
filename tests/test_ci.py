@@ -20,7 +20,7 @@ INFO: CI run was detected because environment variable "CI" was defined.
 inline-snapshot runs with --inline-snapshot=disable by default in CI. This means
 that tests with snapshots will continue to run, but snapshot(x) will only return
 x and inline-snapshot will not be able to fix snapshots or generate reports. You
-can change this by using --inline-snasphot=report for example.\
+can change this by using --inline-snapshot=report for example.\
 """
         ),
     )

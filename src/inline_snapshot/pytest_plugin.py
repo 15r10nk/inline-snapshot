@@ -498,7 +498,7 @@ def pytest_sessionfinish(session, exitstatus):
         if state().flags == {"disable"}:
             console().print(
                 f'INFO: CI run was detected because environment variable "{env_var}" was defined. '
-                f"inline-snapshot runs with --inline-snapshot=disable by default in CI. {disable_info} You can change this by using --inline-snasphot=report for example.\n"
+                f"inline-snapshot runs with --inline-snapshot=disable by default in CI. {disable_info} You can change this by using --inline-snapshot=report for example.\n"
             )
             return
 
@@ -553,7 +553,7 @@ def pytest_sessionfinish(session, exitstatus):
         test_dir = state().config.tests_dir
         if not test_dir:
             console().print(
-                "INFO: inline-snasphot can not trim your external snapshots,"
+                "INFO: inline-snapshot can not trim your external snapshots,"
                 " because there is no [i]tests/[/] folder in your repository root"
                 " and no [i]test-dir[/] defined in your pyproject.toml."
             )
