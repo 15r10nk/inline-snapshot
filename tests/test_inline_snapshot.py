@@ -707,7 +707,7 @@ def test_b():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -843,7 +843,7 @@ def test_thing():
     assert result.report == snapshot(
         """\
 ------------------------------- Create snapshots -------------------------------
-+-------------------------------- test_file.py --------------------------------+
++----------------------------- tests/test_file.py -----------------------------+
 | @@ -19,4 +19,9 @@                                                            |
 |                                                                              |
 |                                                                              |
@@ -863,7 +863,7 @@ These changes will be applied, because you used create
 
     result = project.run("--inline-snapshot=report")
 
-    assert result.report == snapshot("")
+    assert result.report == snapshot("""""")
 
 
 @dataclass
@@ -949,7 +949,7 @@ def test_Is():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 
 from inline_snapshot import snapshot,Is
 
@@ -964,7 +964,7 @@ def test_Is():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 
 from inline_snapshot import snapshot,Is
 
@@ -991,7 +991,7 @@ def test_a():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():

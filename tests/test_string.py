@@ -208,7 +208,7 @@ def test_a():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "test_something.py": '''\
+                "tests/test_something.py": '''\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -234,7 +234,7 @@ def test_a():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "test_something.py": '''\
+                "tests/test_something.py": '''\
 from inline_snapshot import snapshot
 
 def test_a():

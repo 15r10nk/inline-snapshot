@@ -14,7 +14,7 @@ def test_a():
 """
     ).run_pytest(
         ["--inline-snapshot=fix"],
-        report=snapshot(""),
+        report=snapshot(""""""),
         returncode=snapshot(0),
         stderr=snapshot(""),
         changed_files=snapshot({}),
@@ -33,7 +33,7 @@ def test_a():
 """
     ).run_pytest(
         ["--inline-snapshot=fix"],
-        report=snapshot(""),
+        report=snapshot(""""""),
         returncode=snapshot(0),
         stderr=snapshot(""),
         changed_files=snapshot({}),
@@ -55,7 +55,7 @@ def test_a():
         report=snapshot(
             """\
 -------------------------------- Fix snapshots ---------------------------------
-+----------------------------- test_something.py ------------------------------+
++-------------------------- tests/test_something.py ---------------------------+
 | @@ -3,4 +3,4 @@                                                              |
 |                                                                              |
 |                                                                              |
@@ -71,7 +71,7 @@ These changes will be applied, because you used fix\
         stderr=snapshot(""),
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 import pytest
 from inline_snapshot import snapshot
 

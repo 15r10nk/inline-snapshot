@@ -73,7 +73,7 @@ def test_thing():
         returncode=snapshot(1),
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 from inline_snapshot import HasRepr
@@ -231,7 +231,7 @@ def test():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from enum import Enum
 from inline_snapshot import snapshot
 
@@ -394,7 +394,7 @@ def test():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 from types import FunctionType
 def func():...

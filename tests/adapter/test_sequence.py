@@ -19,7 +19,7 @@ def test_list():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 from dirty_equals import IsInt
 
@@ -48,7 +48,7 @@ def test_list():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 from dirty_equals import IsInt
 
@@ -94,7 +94,7 @@ def test_list():
         ["--inline-snapshot=update"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 
 def test_list():

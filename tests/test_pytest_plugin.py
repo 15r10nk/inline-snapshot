@@ -40,7 +40,7 @@ You can also use --inline-snapshot=review to approve the changes interactively
     assert result.report == snapshot(
         """\
 ------------------------------- Create snapshots -------------------------------
-+-------------------------------- test_file.py --------------------------------+
++----------------------------- tests/test_file.py -----------------------------+
 | @@ -4,4 +4,4 @@                                                              |
 |                                                                              |
 |                                                                              |
@@ -87,7 +87,7 @@ You can also use --inline-snapshot=review to approve the changes interactively
     assert result.report == snapshot(
         """\
 -------------------------------- Fix snapshots ---------------------------------
-+-------------------------------- test_file.py --------------------------------+
++----------------------------- tests/test_file.py -----------------------------+
 | @@ -4,4 +4,4 @@                                                              |
 |                                                                              |
 |                                                                              |
@@ -136,7 +136,7 @@ You can also use --inline-snapshot=review to approve the changes interactively
     assert result.report == snapshot(
         """\
 ------------------------------- Update snapshots -------------------------------
-+-------------------------------- test_file.py --------------------------------+
++----------------------------- tests/test_file.py -----------------------------+
 | @@ -4,4 +4,4 @@                                                              |
 |                                                                              |
 |                                                                              |
@@ -181,7 +181,7 @@ You can also use --inline-snapshot=review to approve the changes interactively
     assert result.report == snapshot(
         """\
 -------------------------------- Trim snapshots --------------------------------
-+-------------------------------- test_file.py --------------------------------+
++----------------------------- tests/test_file.py -----------------------------+
 | @@ -4,4 +4,4 @@                                                              |
 |                                                                              |
 |                                                                              |
@@ -240,7 +240,7 @@ You can also use --inline-snapshot=review to approve the changes interactively
     assert result.report == snapshot(
         """\
 -------------------------------- Fix snapshots ---------------------------------
-+-------------------------------- test_file.py --------------------------------+
++----------------------------- tests/test_file.py -----------------------------+
 | @@ -6,4 +6,4 @@                                                              |
 |                                                                              |
 |  def test_a():                                                               |
@@ -251,7 +251,7 @@ You can also use --inline-snapshot=review to approve the changes interactively
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used fix
 -------------------------------- Trim snapshots --------------------------------
-+-------------------------------- test_file.py --------------------------------+
++----------------------------- tests/test_file.py -----------------------------+
 | @@ -5,5 +5,5 @@                                                              |
 |                                                                              |
 |                                                                              |
@@ -317,7 +317,7 @@ show-updates=true
     assert result.report == snapshot(
         """\
 -------------------------------- Fix snapshots ---------------------------------
-+-------------------------------- test_file.py --------------------------------+
++----------------------------- tests/test_file.py -----------------------------+
 | @@ -6,4 +6,4 @@                                                              |
 |                                                                              |
 |  def test_a():                                                               |
@@ -330,7 +330,7 @@ These changes are not applied.
 Use --inline-snapshot=fix to apply them, or use the interactive mode with
 --inline-snapshot=review
 -------------------------------- Trim snapshots --------------------------------
-+-------------------------------- test_file.py --------------------------------+
++----------------------------- tests/test_file.py -----------------------------+
 | @@ -5,5 +5,5 @@                                                              |
 |                                                                              |
 |                                                                              |
@@ -342,7 +342,7 @@ Use --inline-snapshot=fix to apply them, or use the interactive mode with
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used trim
 ------------------------------- Update snapshots -------------------------------
-+-------------------------------- test_file.py --------------------------------+
++----------------------------- tests/test_file.py -----------------------------+
 | @@ -4,6 +4,6 @@                                                              |
 |                                                                              |
 |                                                                              |
@@ -538,7 +538,7 @@ def test_something():
     assert result.report == snapshot(
         """\
 -------------------------------- Fix snapshots ---------------------------------
-+-------------------------------- test_file.py --------------------------------+
++----------------------------- tests/test_file.py -----------------------------+
 | @@ -4,4 +4,4 @@                                                              |
 |                                                                              |
 |                                                                              |
@@ -597,7 +597,7 @@ ____________________________________________________________ ERROR at teardown o
 your snapshot is missing one value.
 If you just created this value with --snapshot=create, the value is now created and you can ignore this message.
 =================================================================== short test summary info ====================================================================
-ERROR test_file.py::test_sub_snapshot - Failed: your snapshot is missing one value.
+ERROR tests/test_file.py::test_sub_snapshot - Failed: your snapshot is missing one value.
 ================================================================== 1 passed, 1 error in <time> ==================================================================
 """
         )
@@ -639,13 +639,13 @@ def test_diff_multiple_files():
 
     Example(
         {
-            "test_a.py": """
+            "tests/test_a.py": """
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1==snapshot(2)
     """,
-            "test_b.py": """
+            "tests/test_b.py": """
 from inline_snapshot import snapshot
 
 def test_b():
@@ -656,19 +656,19 @@ def test_b():
         ["--inline-snapshot=create,fix"],
         changed_files=snapshot(
             {
-                "test_b.py": """\
-
-from inline_snapshot import snapshot
-
-def test_b():
-    assert 1==snapshot(1)
-    \
-""",
-                "test_a.py": """\
+                "tests/test_a.py": """\
 
 from inline_snapshot import snapshot
 
 def test_a():
+    assert 1==snapshot(1)
+    \
+""",
+                "tests/test_b.py": """\
+
+from inline_snapshot import snapshot
+
+def test_b():
     assert 1==snapshot(1)
     \
 """,
@@ -677,7 +677,7 @@ def test_a():
         report=snapshot(
             """\
 ------------------------------- Create snapshots -------------------------------
-+--------------------------------- test_b.py ----------------------------------+
++------------------------------ tests/test_b.py -------------------------------+
 | @@ -2,5 +2,5 @@                                                              |
 |                                                                              |
 |  from inline_snapshot import snapshot                                        |
@@ -688,7 +688,7 @@ def test_a():
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used create
 -------------------------------- Fix snapshots ---------------------------------
-+--------------------------------- test_a.py ----------------------------------+
++------------------------------ tests/test_a.py -------------------------------+
 | @@ -2,5 +2,5 @@                                                              |
 |                                                                              |
 |  from inline_snapshot import snapshot                                        |
@@ -891,6 +891,39 @@ def test_something():
     )
 
 
+def test_find_pyproject_in_workspace_project():
+
+    Example(
+        {
+            "sub_project/pyproject.toml": """\
+[tool.inline-snapshot]
+hash-length=2
+""",
+            "pyproject.toml": "[tool.pytest.ini_options]",
+            "sub_project/test_something.py": """\
+from inline_snapshot import outsource,snapshot,external
+
+def test_something():
+    assert outsource("test") == snapshot()
+""",
+        }
+    ).run_pytest(
+        ["--rootdir", "./sub_project", "--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "sub_project/.inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt": "test",
+                "sub_project/test_something.py": """\
+from inline_snapshot import outsource,snapshot,external
+
+def test_something():
+    assert outsource("test") == snapshot(external("hash:9f*.txt"))
+""",
+            }
+        ),
+        returncode=1,
+    )
+
+
 @pytest.mark.xfail(
     not is_pytest_compatible(), reason="this works only for cpython >=3.11"
 )
@@ -908,7 +941,7 @@ def test_a():
         report=snapshot(
             """\
 -------------------------------- Fix snapshots ---------------------------------
-+----------------------------- test_something.py ------------------------------+
++-------------------------- tests/test_something.py ---------------------------+
 | @@ -2,4 +2,4 @@                                                              |
 |                                                                              |
 |  from inline_snapshot import snapshot                                        |
@@ -945,7 +978,7 @@ def test_a():
         report=snapshot(
             """\
 -------------------------------- Fix snapshots ---------------------------------
-+----------------------------- test_something.py ------------------------------+
++-------------------------- tests/test_something.py ---------------------------+
 | @@ -2,4 +2,4 @@                                                              |
 |                                                                              |
 |  from inline_snapshot import snapshot                                        |
@@ -961,7 +994,7 @@ Do you want to fix these snapshots? [y/n] (n):\
         stderr=snapshot(""),
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 import pytest
 from inline_snapshot import snapshot
 

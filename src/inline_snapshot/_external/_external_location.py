@@ -143,7 +143,7 @@ class FileLocation(Location):
         except ValueError:
             pass
 
-        return str(p)
+        return p.as_posix()
 
     @contextmanager
     def load(self) -> Generator[Path]:

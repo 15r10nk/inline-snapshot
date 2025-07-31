@@ -48,10 +48,10 @@ def test_a():
                 ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.bin": "test",
                 ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.log": "test",
                 ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt": "test",
-                "__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "test",
-                "__inline_snapshot__/test_something/test_a/eb1167b3-67a9-4378-bc65-c1e582e2e662.bin": "test",
-                "__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.log": "test",
-                "test_something.py": """\
+                "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "test",
+                "tests/__inline_snapshot__/test_something/test_a/eb1167b3-67a9-4378-bc65-c1e582e2e662.bin": "test",
+                "tests/__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.log": "test",
+                "tests/test_something.py": """\
 from inline_snapshot import outsource, snapshot,external,register_format_alias
 
 register_format_alias(".log",".txt")
@@ -108,7 +108,7 @@ def test_something():
             changed_files=snapshot(
                 {
                     ".inline-snapshot/external/2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.txt": "foo",
-                    "test_something.py": """\
+                    "tests/test_something.py": """\
 from inline_snapshot import outsource,snapshot
 
 from inline_snapshot import external
@@ -128,7 +128,7 @@ def test_something():
             reported_categories=snapshot(["update"]),
             changed_files=snapshot(
                 {
-                    "test_something.py": """\
+                    "tests/test_something.py": """\
 from inline_snapshot import outsource,snapshot
 
 from inline_snapshot import external
@@ -266,7 +266,7 @@ def test_a():
         ]
     )
 
-    assert result.report == snapshot("")
+    assert result.report == snapshot("""""")
 
     result = project.run("--inline-snapshot=trim")
 
@@ -517,8 +517,8 @@ def test_something():
         changed_files=snapshot(
             {
                 ".inline-snapshot/external/2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.txt": "foo",
-                "__inline_snapshot__/test_something/test_something/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "foo",
-                "test_something.py": """\
+                "tests/__inline_snapshot__/test_something/test_something/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "foo",
+                "tests/test_something.py": """\
 
 from inline_snapshot import external, snapshot,outsource
 
@@ -567,7 +567,7 @@ def test_a():
         report=snapshot(
             """\
 ------------------------------- Create snapshots -------------------------------
-+----------------------------- test_something.py ------------------------------+
++-------------------------- tests/test_something.py ---------------------------+
 | @@ -3,5 +3,5 @@                                                              |
 |                                                                              |
 |                                                                              |

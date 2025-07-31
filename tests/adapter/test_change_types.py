@@ -49,6 +49,8 @@ def test_change():
     Example(code(a, b)).run_inline(
         ["--inline-snapshot=fix,update"],
         changed_files=(
-            {"test_something.py": code(a, code_repr(a))} if code_repr(a) != b else {}
+            {"tests/test_something.py": code(a, code_repr(a))}
+            if code_repr(a) != b
+            else {}
         ),
     )

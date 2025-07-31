@@ -320,7 +320,9 @@ def set_time(freezer):
 
         @property
         def _filename(self):
-            return pytester.path / "test_file.py"
+            (pytester.path / "tests").mkdir(exist_ok=True)
+
+            return pytester.path / "tests" / "test_file.py"
 
         def is_formatted(self):
             code = self._filename.read_text("utf-8")

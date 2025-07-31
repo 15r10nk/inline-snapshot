@@ -17,7 +17,7 @@ def test_thing():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 

@@ -28,7 +28,7 @@ def test_something():
         ["--inline-snapshot=fix,create"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_something():
@@ -134,7 +134,7 @@ sys.exit(1)
 [tool.inline-snapshot]
 format-command="{executable} fmt_cmd.py {{filename}}"
 """,
-            "test_a.py": """
+            "tests/test_a.py": """
 from inline_snapshot import snapshot
 
 def test_a():
@@ -146,7 +146,7 @@ def test_a():
         term_columns=200,
         changed_files=snapshot(
             {
-                "test_a.py": """\
+                "tests/test_a.py": """\
 
 from inline_snapshot import snapshot
 
@@ -159,7 +159,7 @@ def test_a():
             snapshot(
                 """\
 -------------------------------------------------------------------------------------------- Fix snapshots ---------------------------------------------------------------------------------------------
-+--------------------------------------------------------------------------------------------- test_a.py ----------------------------------------------------------------------------------------------+
++------------------------------------------------------------------------------------------ tests/test_a.py -------------------------------------------------------------------------------------------+
 | @@ -2,4 +2,4 @@                                                                                                                                                                                      |
 |                                                                                                                                                                                                      |
 |  from inline_snapshot import snapshot                                                                                                                                                                |

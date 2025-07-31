@@ -4,14 +4,14 @@ from inline_snapshot.testing._example import Example
 
 def test_use_snapshot_updates():
 
-    expected_report = snapshot("")
+    expected_report = snapshot("""""")
 
     Example(
         {
             "pyproject.toml": f"""\
 [tool.inline-snapshot]
 """,
-            "test_a.py": """\
+            "tests/test_a.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -26,7 +26,7 @@ def test_a():
         ["--inline-snapshot=update"],
         changed_files=snapshot(
             {
-                "test_a.py": """\
+                "tests/test_a.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -37,7 +37,7 @@ def test_a():
         report=snapshot(
             """\
 ------------------------------- Update snapshots -------------------------------
-+--------------------------------- test_a.py ----------------------------------+
++------------------------------ tests/test_a.py -------------------------------+
 | @@ -1,4 +1,4 @@                                                              |
 |                                                                              |
 |  from inline_snapshot import snapshot                                        |

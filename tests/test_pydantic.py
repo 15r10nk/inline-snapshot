@@ -24,7 +24,7 @@ def test_pydantic():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 
 from pydantic import BaseModel
 from inline_snapshot import snapshot
@@ -67,7 +67,7 @@ def test():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 from pydantic import BaseModel,Field
 
@@ -105,7 +105,7 @@ def test_something():
         ["--inline-snapshot=update"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 from pydantic import BaseModel,Field
@@ -162,7 +162,7 @@ def test_something():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import snapshot
 from pydantic import BaseModel
 

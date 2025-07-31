@@ -50,7 +50,7 @@ def test():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 
 from dirty_equals import IsStr
 from inline_snapshot import snapshot
@@ -146,7 +146,7 @@ def test_number():
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from dirty_equals import IsInt
 from inline_snapshot import snapshot
 
