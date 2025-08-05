@@ -44,6 +44,7 @@ def test_enum():
 
 inline-snapshot comes with a special implementation for the following types:
 
+- `builtins.builtin_function_or_method`
 - `builtins.frozenset`
 - `builtins.function`
 - `builtins.set`
