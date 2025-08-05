@@ -4,7 +4,7 @@ from inline_snapshot.testing._example import Example
 
 def test_use_snapshot_updates():
 
-    expected_report = snapshot("""""")
+    expected_report = snapshot("")
 
     Example(
         {

@@ -3,8 +3,8 @@ import re
 import sys
 
 from inline_snapshot import snapshot
+from inline_snapshot.extra import transformation
 from inline_snapshot.testing import Example
-from tests._is_normalized import normalization
 
 executable = sys.executable.replace("\\", "\\\\")
 
@@ -108,7 +108,7 @@ def test_a():
 
 def test_format_command_fail():
 
-    @normalization
+    @transformation
     def NoPaths(text):
         path_re = "/[^ ]*/" if platform.system() != "Windows" else r".:\\[^ ]*\\"
         text = re.sub(
