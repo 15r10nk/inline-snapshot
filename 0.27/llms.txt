@@ -1,0 +1,33 @@
+# inline-snapshot
+
+## Overview
+
+- [Introduction](https://15r10nk.github.io/inline-snapshot/0.27/index.md)
+- [Categories](https://15r10nk.github.io/inline-snapshot/0.27/categories/index.md)
+- [Code generation](https://15r10nk.github.io/inline-snapshot/0.27/code_generation/index.md)
+- [Configuration](https://15r10nk.github.io/inline-snapshot/0.27/configuration/index.md)
+- [Limitations](https://15r10nk.github.io/inline-snapshot/0.27/limitations/index.md)
+- [pytest integration](https://15r10nk.github.io/inline-snapshot/0.27/pytest/index.md)
+
+## Core Reference
+
+- [x <= snapshot()](https://15r10nk.github.io/inline-snapshot/0.27/cmp_snapshot/index.md)
+- [@customize_repr](https://15r10nk.github.io/inline-snapshot/0.27/customize_repr/index.md)
+- [x == snapshot()](https://15r10nk.github.io/inline-snapshot/0.27/eq_snapshot/index.md)
+- [assert x == ...](https://15r10nk.github.io/inline-snapshot/0.27/fix_assert/index.md)
+- [snapshot()[key]](https://15r10nk.github.io/inline-snapshot/0.27/getitem_snapshot/index.md)
+- [x in snapshot()](https://15r10nk.github.io/inline-snapshot/0.27/in_snapshot/index.md)
+- [types](https://15r10nk.github.io/inline-snapshot/0.27/types/index.md)
+- [external()](https://15r10nk.github.io/inline-snapshot/0.27/external/external/index.md)
+- [external_file()](https://15r10nk.github.io/inline-snapshot/0.27/external/external_file/index.md)
+- [outsource()](https://15r10nk.github.io/inline-snapshot/0.27/external/outsource/index.md)
+- [@register_format()](https://15r10nk.github.io/inline-snapshot/0.27/external/register_format/index.md)
+
+## HowTo
+
+- [pytest parametrize](https://15r10nk.github.io/inline-snapshot/0.27/howto/parametrize/index.md)
+
+## Extensions
+
+- [first-party (extra)](https://15r10nk.github.io/inline-snapshot/0.27/extra/index.md)
+
