@@ -1,4 +1,13 @@
 
+<a id='changelog-0.27.0'></a>
+# 0.27.0 — 2025-08-05
+
+## Added
+
+- Added [`inline_snapshot.extra.Transformed`](https://15r10nk.github.io/inline-snapshot/latest/extra/#inline_snapshot.extra.Transformed) and [`inline_snapshot.extra.transformation`](https://15r10nk.github.io/inline-snapshot/latest/extra/#inline_snapshot.extra.transformation) which can be used to transform values inside of snapshots.
+
+- exposed `@declare_unmanaged` which allows you to create your own unmanaged types.
+
 <a id='changelog-0.26.0'></a>
 # 0.26.0 — 2025-07-31
 
