@@ -164,20 +164,25 @@ def pytest_configure(config):
             state().config.tests_dir = tests_dir
 
     console = Console()
+    # load flags from config
     if is_ci_run():
         default_flags = {"disable"}
+        state().disable_reason = "ci"
     elif console.is_terminal:
         default_flags = state().config.default_flags_tui
     else:
         default_flags = state().config.default_flags
 
+    # load flags from env var
     env_var = "INLINE_SNAPSHOT_DEFAULT_FLAGS"
     if env_var in os.environ:
         default_flags = os.environ[env_var].split(",")
 
+    # load flags from command line argument
     if config.option.inline_snapshot is None:
         flags = set(default_flags)
     else:
+        state().disable_reason = None
         flags = config.option.inline_snapshot.split(",")
         flags = {flag for flag in flags if flag}
         if xdist_running(config) and flags - {"disable"}:
@@ -186,6 +191,7 @@ def pytest_configure(config):
             )
     state().flags = flags
 
+    # check flags
     unknown_flags = flags - categories - {"disable", "review", "report", "short-report"}
     if unknown_flags:
         raise pytest.UsageError(
@@ -197,17 +203,17 @@ def pytest_configure(config):
             f"--inline-snapshot=disable can not be combined with other flags ({', '.join(flags-{'disable'})})"
         )
 
-    if xdist_running(config) or not is_implementation_supported():
+    if xdist_running(config) and "disable" not in flags:
         state().active = False
-
+        state().disable_reason = "xdist"
+    elif not is_implementation_supported() and "disable" not in flags:
+        state().active = False
+        state().disable_reason = "implementation"
     elif flags & {"review"}:
         state().active = True
-
         state().update_flags = Flags.all()
     else:
-
         state().active = "disable" not in flags
-
         state().update_flags = Flags(flags & categories)
 
     if state().config.storage_dir is None:
@@ -485,31 +491,26 @@ def pytest_sessionfinish(session, exitstatus):
 
         return con
 
-    disable_info = "This means that tests with snapshots will continue to run, but snapshot(x) will only return x and inline-snapshot will not be able to fix snapshots or generate reports."
-
-    if xdist_running(config):
-        if state().flags != {"disable"}:
+    if not state().active:
+        disable_info = "This means that tests with snapshots will continue to run, but snapshot(x) will only return x and inline-snapshot will not be able to fix snapshots or generate reports."
+        if state().disable_reason == "xdist":
             console().print(
                 f"INFO: inline-snapshot was disabled because you used xdist. {disable_info}\n"
             )
-        return
 
-    if env_var := is_ci_run():
-        if state().flags == {"disable"}:
+        elif state().disable_reason == "ci":
+            env_var = is_ci_run()
             console().print(
                 f'INFO: CI run was detected because environment variable "{env_var}" was defined. '
-                f"inline-snapshot runs with --inline-snapshot=disable by default in CI. {disable_info} You can change this by using --inline-snapshot=report for example.\n"
+                f"inline-snapshot runs with --inline-snapshot=disable by default in CI. {disable_info}"
+                " You can change this by using --inline-snapshot=report for example.\n"
             )
-            return
 
-    if not is_implementation_supported():
-        if state().flags != {"disable"}:
+        elif state().disable_reason == "implementation":
             console().print(
                 f"INFO: inline-snapshot was disabled because {sys.implementation.name} is not supported. {disable_info}\n"
             )
-        return
 
-    if not state().active:
         return
 
     capture = config.pluginmanager.getplugin("capturemanager")

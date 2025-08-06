@@ -25,7 +25,7 @@ fix=["create","fix"]
     This feature requires *cpython>=3.11*
 
 !!! note
-    The default flags are different if you use *cpython<3.11* due to some [technical limitations](limitations.md#pytest-assert-rewriting-is-disabled):
+    The default flags are different if you use *cpython<3.11* due to [technical limitations](limitations.md#pytest-assert-rewriting-is-disabled):
     ``` toml
     [tool.inline-snapshot]
     default-flags=["short-report"]
