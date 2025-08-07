@@ -47,7 +47,7 @@ class Outsourced:
         return self.data
 
 
-def outsource(data, suffix: str | None = None):
+def outsource(data: Any, suffix: str | None = None) -> Any:
     if suffix and suffix[0] != ".":
         raise ValueError("suffix has to start with a '.' like '.png'")
 
