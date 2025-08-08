@@ -1,4 +1,11 @@
 
+<a id='changelog-0.27.1'></a>
+# 0.27.1 — 2025-08-08
+
+## Fixed
+
+- Added explicit type hints to the `outsource()` function
+
 <a id='changelog-0.27.0'></a>
 # 0.27.0 — 2025-08-05
 
