@@ -132,7 +132,7 @@ plugins:
       - howto/*.md
       Extensions:
       - extra.md
-      - third-party.md
+      - third_party.md
 
 extra_css:
 - styles/extra.css

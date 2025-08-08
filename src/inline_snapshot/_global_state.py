@@ -9,6 +9,7 @@ from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
+from typing import Literal
 from uuid import uuid4
 
 from inline_snapshot._config import Config
@@ -59,6 +60,8 @@ class State:
     def new_tmp_path(self, suffix: str) -> Path:
         assert self.tmp_dir is not None
         return Path(self.tmp_dir.name) / f"tmp-path-{uuid4()}{suffix}"
+
+    disable_reason: Literal["xdist", "ci", "implementation", None] = None
 
 
 _latest_global_states: list[State] = []
