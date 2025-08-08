@@ -35,7 +35,7 @@ keywords = []
 name = "inline-snapshot"
 readme = "README.md"
 requires-python = ">=3.8"
-version = "0.27.1"
+dynamic=["version"]
 
 [project.optional-dependencies]
 black = [
@@ -77,7 +77,7 @@ Repository = "https://github.com/15r10nk/inline-snapshot/"
 major_version_zero = true
 tag_format = "v$major.$minor.$patch$prerelease"
 version_files = [
-  "src/inline_snapshot/__init__.py:__version__"
+  "src/inline_snapshot/version.py:__version__"
 ]
 version_provider = "pep621"
 
@@ -86,7 +86,14 @@ inline_snapshot = ["src/inline_snapshot", "*/inline_snapshot/src/inline_snapshot
 tests = ["tests", "*/inline_snapshot/tests"]
 
 [tool.coverage.report]
-exclude_lines = ["assert False", "raise NotImplemented", "# pragma: no cover", "if TYPE_CHECKING:"]
+exclude_lines = [
+    "assert False",
+    "raise NotImplemented",
+    "# pragma: no cover",
+    "if TYPE_CHECKING:",
+    "if is_insider",
+]
+
 
 [tool.coverage.run]
 branch = true
@@ -96,6 +103,10 @@ omit = [
 ]
 parallel = true
 source_pkgs = ["inline_snapshot", "tests"]
+
+[tool.hatch.version]
+source="code"
+path="src/inline_snapshot/version.py"
 
 [tool.hatch.envs.docs]
 dependencies = [

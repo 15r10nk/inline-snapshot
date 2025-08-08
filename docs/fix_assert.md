@@ -11,7 +11,7 @@ The `snapshot()` function provides a lot of flexibility, but there is a easier w
 You can write a normal assertion and use `...` where inline-snapshot should create the new value, like in the following example.
 
 === "original code"
-    <!-- inline-snapshot: requires_assert first_block outcome-failed=1 outcome-errors=1 -->
+    <!-- inline-snapshot: first_block requires_assert outcome-failed=1 outcome-errors=1 -->
     ``` python
     def test_assert():
         assert 1 + 1 == ...
@@ -29,7 +29,7 @@ inline-snapshot will detect these failures and will replace `...` with the corre
 It is also possible to fix existing values.
 
 === "original code"
-    <!-- inline-snapshot: requires_assert first_block outcome-failed=1 outcome-errors=1 -->
+    <!-- inline-snapshot: first_block requires_assert outcome-failed=1 outcome-errors=1 -->
     ``` python
     def test_assert():
         assert 1 + 1 == 5

@@ -6,6 +6,7 @@ on:
 jobs:
   build:
     name: Deploy development docs
+    if: "!contains(github.repository, '-insiders/')"
     runs-on: ubuntu-latest
     steps:
     - name: Checkout main

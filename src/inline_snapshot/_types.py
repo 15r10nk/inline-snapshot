@@ -74,5 +74,5 @@ class Snapshot(Protocol[T]):
     def __eq__(self, other: object, /) -> bool: ...  # pragma: no cover
 
 
-Category = Literal["update", "fix", "create", "trim"]
+Category = Literal["update", "fix", "create", "trim", "fix-assert"]
 """See [categories](categories.md)"""
