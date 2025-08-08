@@ -21,7 +21,7 @@ fix=["create","fix"]
 
 Note
 
-The default flags are different if you use *cpython\<3.11* due to some [technical limitations](../limitations/#pytest-assert-rewriting-is-disabled):
+The default flags are different if you use *cpython\<3.11* due to [technical limitations](../limitations/#pytest-assert-rewriting-is-disabled):
 
 ```
 [tool.inline-snapshot]

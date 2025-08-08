@@ -3,25 +3,25 @@
 ## Overview
 
 - [Introduction](https://15r10nk.github.io/inline-snapshot/development/index.md)
+- [Configuration](https://15r10nk.github.io/inline-snapshot/development/configuration/index.md)
+- [pytest integration](https://15r10nk.github.io/inline-snapshot/development/pytest/index.md)
 - [Categories](https://15r10nk.github.io/inline-snapshot/development/categories/index.md)
 - [Code generation](https://15r10nk.github.io/inline-snapshot/development/code_generation/index.md)
-- [Configuration](https://15r10nk.github.io/inline-snapshot/development/configuration/index.md)
 - [Limitations](https://15r10nk.github.io/inline-snapshot/development/limitations/index.md)
-- [pytest integration](https://15r10nk.github.io/inline-snapshot/development/pytest/index.md)
 
 ## Core Reference
 
-- [x <= snapshot()](https://15r10nk.github.io/inline-snapshot/development/cmp_snapshot/index.md)
-- [@customize_repr](https://15r10nk.github.io/inline-snapshot/development/customize_repr/index.md)
-- [x == snapshot()](https://15r10nk.github.io/inline-snapshot/development/eq_snapshot/index.md)
 - [assert x == ...](https://15r10nk.github.io/inline-snapshot/development/fix_assert/index.md)
-- [snapshot()[key]](https://15r10nk.github.io/inline-snapshot/development/getitem_snapshot/index.md)
+- [x == snapshot()](https://15r10nk.github.io/inline-snapshot/development/eq_snapshot/index.md)
+- [x <= snapshot()](https://15r10nk.github.io/inline-snapshot/development/cmp_snapshot/index.md)
 - [x in snapshot()](https://15r10nk.github.io/inline-snapshot/development/in_snapshot/index.md)
-- [types](https://15r10nk.github.io/inline-snapshot/development/types/index.md)
+- [snapshot()[key]](https://15r10nk.github.io/inline-snapshot/development/getitem_snapshot/index.md)
 - [external()](https://15r10nk.github.io/inline-snapshot/development/external/external/index.md)
 - [external_file()](https://15r10nk.github.io/inline-snapshot/development/external/external_file/index.md)
 - [outsource()](https://15r10nk.github.io/inline-snapshot/development/external/outsource/index.md)
 - [@register_format()](https://15r10nk.github.io/inline-snapshot/development/external/register_format/index.md)
+- [@customize_repr](https://15r10nk.github.io/inline-snapshot/development/customize_repr/index.md)
+- [types](https://15r10nk.github.io/inline-snapshot/development/types/index.md)
 
 ## HowTo
 
@@ -30,4 +30,5 @@
 ## Extensions
 
 - [first-party (extra)](https://15r10nk.github.io/inline-snapshot/development/extra/index.md)
+- [third-party](https://15r10nk.github.io/inline-snapshot/development/third_party/index.md)
 
