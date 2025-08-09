@@ -15,6 +15,7 @@ from ._is import Is
 from ._types import Category
 from ._types import Snapshot
 from ._unmanaged import declare_unmanaged
+from .version import __version__
 
 __all__ = [
     "snapshot",
@@ -33,6 +34,5 @@ __all__ = [
     "BinaryDiff",
     "external_file",
     "declare_unmanaged",
+    "__version__",
 ]
-
-__version__ = "0.27.1"

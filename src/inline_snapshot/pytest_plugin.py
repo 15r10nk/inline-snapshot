@@ -26,6 +26,7 @@ from ._exceptions import UsageError
 from ._external._external_location import ExternalLocation
 from ._external._find_external import ensure_import
 from ._external._find_external import used_externals_in
+from ._fix_assert import fix_assert
 from ._flags import Flags
 from ._global_state import enter_snapshot_context
 from ._global_state import leave_snapshot_context
@@ -35,6 +36,7 @@ from ._problems import report_problems
 from ._rewrite_code import ChangeRecorder
 from ._snapshot.generic_value import GenericValue
 from .pydantic_fix import pydantic_fix
+from .version import is_insider
 
 pytest.register_assert_rewrite("inline_snapshot.extra")
 pytest.register_assert_rewrite("inline_snapshot.testing._example")
@@ -63,7 +65,8 @@ def pytest_addoption(parser, pluginmanager):
         "create: creates snapshots which are currently not defined\n"
         "update: update snapshots even if they are defined\n"
         "trim: changes the snapshot in a way which will make the snapshot more precise.\n"
-        "fix: change snapshots which currently break your tests\n",
+        "fix: change snapshots which currently break your tests\n"
+        "fix-assert: fix assertions which currently break your tests (insider only)\n",
     )
 
     config_path = Path("pyproject.toml")
@@ -297,6 +300,17 @@ def unwrap(value):
 
 def pytest_assertrepr_compare(config, op, left, right):
 
+    if is_insider and state().active:
+        import inspect
+
+        frame = inspect.currentframe()
+        frame = frame.f_back
+
+        while inspect.getmodule(frame).__name__.startswith(("pluggy.", "_pytest.")):
+            frame = frame.f_back
+
+        fix_assert(frame, left, right)
+
     results = []
     left, left_unwrapped = unwrap(left)
     right, right_unwrapped = unwrap(right)
@@ -345,10 +359,17 @@ def apply_changes(flag, console):
         console().print()
         return True
     if "review" in state().flags:
-        result = Confirm.ask(
-            f"Do you want to {category_link(flag)} these snapshots?",
-            default=False,
-        )
+        if is_insider and flag == "fix-assert":
+            result = Confirm.ask(
+                f"Do you want to {link('fix','https://15r10nk.github.io/inline-snapshot/fix_assert/')} these assertions?",
+                default=False,
+            )
+        else:
+            result = Confirm.ask(
+                f"Do you want to {category_link(flag)} these snapshots?",
+                default=False,
+            )
+
         console().print()
         return result
     else:
@@ -422,7 +443,11 @@ def filter_changes(changes, snapshot_changes, console):
 
         @call_once
         def header():
-            console().rule(f"[yellow bold]{flag.capitalize()} snapshots")
+            if is_insider and flag == "fix-assert":
+                caption = "fix-assert"
+            else:
+                caption = flag.capitalize() + " snapshots"
+            console().rule(f"[yellow bold]{caption}")
 
         if (
             flag == "update"
@@ -487,7 +512,10 @@ def pytest_sessionfinish(session, exitstatus):
     def console():
         con = Console(highlight=False)
         con.print("\n")
-        con.rule("[blue]inline-snapshot", characters="═")
+        con.rule(
+            "[blue]inline-snapshot" + (" (insider version)" if is_insider else ""),
+            characters="═",
+        )
 
         return con
 

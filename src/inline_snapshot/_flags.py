@@ -17,18 +17,21 @@ class Flags:
     def __init__(self, flags: set[Category] = set()):
         self.create = "create" in flags
         self.fix = "fix" in flags
+        self.fix_assert = "fix-assert" in flags
         self.trim = "trim" in flags
         self.update = "update" in flags
 
     def to_set(self) -> set[Category]:
-        return cast(Set[Category], {k for k, v in self.__dict__.items() if v})
+        return cast(
+            Set[Category], {k.replace("_", "-") for k, v in self.__dict__.items() if v}
+        )
 
     def __iter__(self):
-        return (k for k, v in self.__dict__.items() if v)
+        return (k.replace("_", "-") for k, v in self.__dict__.items() if v)
 
     def __repr__(self):
         return f"Flags({self.to_set()})"
 
     @staticmethod
     def all() -> Flags:
-        return Flags({"fix", "create", "update", "trim"})
+        return Flags({"fix", "create", "update", "trim", "fix-assert"})

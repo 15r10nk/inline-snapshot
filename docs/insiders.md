@@ -11,7 +11,7 @@ But there are some features which require no new API and provide you a lot of va
 Fixing raw assertions like the following is one of them:
 
 === "original code"
-    <!-- inline-snapshot: first_block outcome-failed=1 -->
+    <!-- inline-snapshot: requires_assert first_block outcome-failed=1 outcome-errors=1 -->
     ``` python
     def test_assert():
         assert 1 + 1 == 5
