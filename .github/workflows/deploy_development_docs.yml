@@ -2,8 +2,6 @@ name: deploy development docs
 on:
   push:
     branches: [main]
-    tags-ignore:
-    - v[0-9]+.[0-9]+.[0-9]+
 
 jobs:
   build:
@@ -12,6 +10,11 @@ jobs:
     steps:
     - name: Checkout main
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+    - name: Set up documentation mutex
+      uses: ben-z/gh-action-mutex@v1.0.0-alpha.10
+      with:
+        branch: docs-mutex
 
     - run: pip install hatch
     - name: publish docs
