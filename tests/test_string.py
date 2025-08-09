@@ -247,3 +247,52 @@ c   \\
             }
         ),
     )
+
+
+def test_fix_remove_triple_quotes():
+    Example(
+        """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert "" == snapshot('''
+a
+b\
+''')
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert "" == snapshot("")
+"""
+            }
+        ),
+    )
+
+
+def test_update_remove_triple_quotes():
+    Example(
+        """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert "" == snapshot(\"\"\"\"\"\")
+"""
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert "" == snapshot("")
+"""
+            }
+        ),
+    )
