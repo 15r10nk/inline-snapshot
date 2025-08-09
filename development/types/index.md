@@ -1,6 +1,6 @@
 # `inline_snapshot`
 
-## `Category = Literal['update', 'fix', 'create', 'trim']`
+## `Category = Literal['update', 'fix', 'create', 'trim', 'fix-assert']`
 
 See [categories](../categories/)
 
