@@ -12,7 +12,6 @@ from typing import List
 @dataclass
 class Array:
     numbers: List[int]
-
 ```
 
 conftest.py
@@ -41,7 +40,6 @@ class ArrayFormat(TextDiff, Format[Array]):
     def decode(path: Path) -> Array:
         with path.open("r", encoding="utf-8", newline="\n") as f:
             return Array(list(map(int, f.read().splitlines())))
-
 ```
 
 You can then use `external()` to save this type into an external file.
@@ -53,7 +51,6 @@ from inline_snapshot import external
 
 def test_array():
     assert Array([1, 2, 3]) == external()
-
 ```
 
 inline-snapshot will check if the type matches by using `is_format_for()` and create a file with the given suffix.
@@ -67,7 +64,6 @@ def test_array():
     assert Array([1, 2, 3]) == external(
         "uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.arr"
     )
-
 ```
 
 ### Report
@@ -111,7 +107,6 @@ class NumberSetFormat(Format[NumberSet]):
     def decode(self, path: Path) -> NumberSet:
         with path.open("r", encoding="utf-8", newline="\n") as f:
             return NumberSet(set(map(int, f.read().splitlines())))
-
 ```
 
 number_set.py
@@ -124,7 +119,6 @@ from typing import Set
 @dataclass
 class NumberSet:
     numbers: Set[int]
-
 ```
 
 The custom format is then used every time a `NumberSet` is compared with an empty external.
@@ -137,7 +131,6 @@ from number_set import NumberSet
 def test():
     assert NumberSet([1, 2, 5]) == external("hash:b85198032326*.numberset")
     assert NumberSet([1, 2, 8]) == external("hash:f8a68eb0c510*.numberset")
-
 ```
 
 ## Reference
@@ -195,7 +188,6 @@ This function is used to find the correct format handler when no suffix is provi
 
 ```
 assert value == external()
-
 ```
 
 Parameters:
@@ -254,14 +246,12 @@ This function can also be used as a decorator:
 ```
 @register_format
 class MyFormat: ...
-
 ```
 
 which is equivalent to:
 
 ```
 register_format(MyFormat())
-
 ```
 
 Parameters:

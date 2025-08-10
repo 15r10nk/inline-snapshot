@@ -19,7 +19,6 @@ def something():
 
 def test_something():
     assert something() == snapshot()
-
 ```
 
 ```
@@ -51,7 +50,6 @@ def test_something():
             "bytes": b"byte abc\n\x16",
         }
     )
-
 ```
 
 The code is generated in the following way:
@@ -78,7 +76,6 @@ The code is generated in the following way:
            """first line
    second line"""
        )
-
    ```
 
    ```
@@ -92,7 +89,6 @@ The code is generated in the following way:
    second line\
    """
        )
-
    ```
 
 1. The new code fragments are formatted with black if it is installed.
@@ -103,7 +99,6 @@ The code is generated in the following way:
 
    ```
    pip install inline-snapshot[black]
-
    ```
 
 1. The whole file is formatted

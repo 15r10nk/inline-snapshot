@@ -19,7 +19,6 @@ def check_captcha(input_data):
 
 def test_captcha():
     assert check_captcha("abc") == snapshot()
-
 ```
 
 inline-snapshot always generates an external object in this case.
@@ -51,7 +50,6 @@ def test_captcha():
             "picture": external("hash:0da2cc316111*.png"),
         }
     )
-
 ```
 
 `outsource()` was the only way to create external objects until inline-snapshot 0.24. External objects can now also be created with `external()` and used like `snapshot()`.

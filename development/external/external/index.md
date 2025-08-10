@@ -26,7 +26,6 @@ def test_something():
 
     # And the format (.json instead of the default .txt in this case)
     assert "other text" == external("uuid:.json")
-
 ```
 
 inline-snapshot will then fill in the missing parts when you create your snapshots. It will keep your specified protocols and file types and generate names for your snapshots.
@@ -54,7 +53,6 @@ def test_something():
     assert "other text" == external(
         "uuid:e443df78-9558-467f-9ba9-1faf7a024204.json"
     )
-
 ```
 
 The `external()` function can also be used inside other data structures.
@@ -67,7 +65,6 @@ def test_something():
     assert ["long text\n" * times for times in [1, 2, 1000]] == snapshot(
         [..., ..., external()]
     )
-
 ```
 
 ```
@@ -85,7 +82,6 @@ long text
             external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt"),
         ]
     )
-
 ```
 
 ## Storage Protocols
@@ -129,7 +125,6 @@ register_format_alias(".html", ".txt")
 
 def test():
     assert "<html></html>" == external(".html")
-
 ```
 
 inline-snapshot uses the given suffix to create an external snapshot.
@@ -144,7 +139,6 @@ def test():
     assert "<html></html>" == external(
         "uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.html"
     )
-
 ```
 
 Breaking Change

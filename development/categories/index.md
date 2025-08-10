@@ -32,7 +32,6 @@ def test_something():
 
     s = snapshot()
     assert 5 == s["key"]
-
 ```
 
 ```
@@ -48,7 +47,6 @@ def test_something():
 
     s = snapshot({"key": 5})
     assert 5 == s["key"]
-
 ```
 
 ### Fix
@@ -68,7 +66,6 @@ def test_something():
 
     s = snapshot({"key": 5})
     assert 8 == s["key"]
-
 ```
 
 ```
@@ -84,7 +81,6 @@ def test_something():
 
     s = snapshot({"key": 8})
     assert 8 == s["key"]
-
 ```
 
 Info
@@ -106,7 +102,6 @@ def test_something():
 
     s = snapshot({"key1": 1, "key2": 2})
     assert 2 == s["key2"]
-
 ```
 
 ```
@@ -120,7 +115,6 @@ def test_something():
 
     s = snapshot({"key2": 2})
     assert 2 == s["key2"]
-
 ```
 
 There might be problems in cases where you use the same snapshot in different tests, run only one test and trim the snapshot with `pytest -k test_a --inline-snapshot=trim` in this case:
@@ -137,7 +131,6 @@ def test_a():
 
 def test_b():
     assert 5 <= s
-
 ```
 
 ```
@@ -152,7 +145,6 @@ def test_a():
 
 def test_b():
     assert 5 <= s
-
 ```
 
 The value of the snapshot is reduced to `2`, because `test_a()` was the only test running and inline-snapshot does not know about `5 <= s`. It is recommended to use trim only if you run your complete test suite.
@@ -186,7 +178,6 @@ def test_something():
     assert 5 == snapshot(4 + 1)
 
     assert Vector(1, 2) == snapshot(Vector(x=1, y=2))
-
 ```
 
 ```
@@ -220,7 +211,6 @@ c
     assert 5 == snapshot(5)
 
     assert Vector(1, 2) == snapshot(Vector(1, 2))
-
 ```
 
 The approval of this type of changes is easier, because inline-snapshot assures that the value has not changed.

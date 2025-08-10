@@ -17,7 +17,6 @@ def test_something():
 
     for v in ["a", "b"]:
         assert v in s
-
 ```
 
 ```
@@ -33,7 +32,6 @@ def test_something():
 
     for v in ["a", "b"]:
         assert v in s
-
 ```
 
 ## pytest options

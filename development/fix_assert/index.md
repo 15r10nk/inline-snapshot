@@ -9,13 +9,11 @@ The `snapshot()` function provides a lot of flexibility, but there is a easier w
 ```
 def test_assert():
     assert 1 + 1 == ...
-
 ```
 
 ```
 def test_assert():
     assert 1 + 1 == 2
-
 ```
 
 inline-snapshot will detect these failures and will replace `...` with the correct value.
@@ -25,13 +23,11 @@ It is also possible to fix existing values.
 ```
 def test_assert():
     assert 1 + 1 == 5
-
 ```
 
 ```
 def test_assert():
     assert 1 + 1 == 2
-
 ```
 
 This is especially useful to fix values in existing codebases where `snapshot()` is currently not used.

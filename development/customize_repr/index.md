@@ -8,7 +8,6 @@
 >>> E = Enum("E", ["a", "b"])
 >>> repr(E.a)
 '<E.a: 1>'
-
 ```
 
 `customize_repr` can be used to overwrite the default `repr()` behaviour.
@@ -19,7 +18,6 @@ The implementation for `Enum` looks like this:
 @customize_repr
 def _(value: Enum):
     return f"{type(value).__qualname__}.{value.name}"
-
 ```
 
 This implementation is then used by inline-snapshot if `repr()` is called during the code generation, but not in normal code.
@@ -37,7 +35,6 @@ def test_enum():
 
     # the special implementation to convert the Enum into a code
     assert E.a == snapshot(E.a)
-
 ```
 
 ## built-in data types
@@ -91,7 +88,6 @@ def test_enum():
     # the special repr implementation is used recursive here
     # to convert every Enum to the correct representation
     assert Pair(E.a, [E.b]) == snapshot(Pair(E.a, [E.b]))
-
 ```
 
 Note
@@ -112,5 +108,4 @@ from other_lib import SomeType
 @customize_repr
 def _(value: SomeType):
     return f"SomeType(x={repr(value.x)})"
-
 ```

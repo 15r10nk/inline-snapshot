@@ -51,7 +51,6 @@ def test_container():
     check_container([1, 2], value_repr=snapshot("[1, 2]"), length=snapshot(2))
 
     check_container({1, 1}, length=snapshot(1))
-
 ```
 
 Source code in `src/inline_snapshot/_types.py`
@@ -110,5 +109,4 @@ class Snapshot(Protocol[T]):
     """
 
     def __eq__(self, other: object, /) -> bool: ...  # pragma: no cover
-
 ````

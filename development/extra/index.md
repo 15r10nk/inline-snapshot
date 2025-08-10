@@ -17,7 +17,6 @@ def test_transform():
     numbers = [1, 8, 3, 7, 5]
     assert sorted(numbers) == snapshot()
     assert numbers == Transformed(sorted, snapshot())
-
 ```
 
 Both assertions create the same snapshots.
@@ -31,7 +30,6 @@ def test_transform():
     numbers = [1, 8, 3, 7, 5]
     assert sorted(numbers) == snapshot([1, 3, 5, 7, 8])
     assert numbers == Transformed(sorted, snapshot([1, 3, 5, 7, 8]))
-
 ```
 
 `Transformed` is more flexible to use because you can also use it deep inside data structures. The following example shows how `Transformed` is used inside a dictionary.
@@ -55,7 +53,6 @@ def test_request():
             "data": Transformed(sorted, snapshot([1, 8, 493, 18748])),
         }
     )
-
 ```
 
 Or to normalize strings.
@@ -86,7 +83,6 @@ def test_text_with_objects():
             )
         }
     )
-
 ```
 
 Tip
@@ -211,7 +207,6 @@ class Transformed:
             return f"Transformed({code_repr(self._func)}, {self._value})"
         else:
             return f"Transformed({code_repr(self._func)}, {self._value}, should_be={self._last_transformed_value!r})"
-
 ````
 
 ### `__init__(func, value, should_be=None)`
@@ -239,7 +234,6 @@ def __init__(
     self._func = func
     self._value = value
     self._last_transformed_value = None
-
 ```
 
 ## `prints(*, stdout='', stderr='')`
@@ -263,7 +257,6 @@ def test_prints():
     with prints(stdout=snapshot(), stderr=snapshot()):
         print("hello world")
         print("some error", file=sys.stderr)
-
 ```
 
 ```
@@ -278,7 +271,6 @@ def test_prints():
     ):
         print("hello world")
         print("some error", file=sys.stderr)
-
 ```
 
 ```
@@ -295,7 +287,6 @@ def test_prints():
     ):
         print("hello world")
         print("some error", file=sys.stderr)
-
 ```
 
 Source code in `src/inline_snapshot/extra.py`
@@ -369,7 +360,6 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
 
     assert stderr_io.getvalue() == stderr
     assert stdout_io.getvalue() == stdout
-
 ````
 
 ## `raises(exception)`
@@ -390,7 +380,6 @@ from inline_snapshot.extra import raises
 def test_raises():
     with raises(snapshot()):
         1 / 0
-
 ```
 
 ```
@@ -401,7 +390,6 @@ from inline_snapshot.extra import raises
 def test_raises():
     with raises(snapshot("ZeroDivisionError: division by zero")):
         1 / 0
-
 ```
 
 Source code in `src/inline_snapshot/extra.py`
@@ -451,7 +439,6 @@ def raises(exception: Snapshot[str]):
             assert f"{type(ex).__name__}: {ex}" == exception
     else:
         assert "<no exception>" == exception
-
 ````
 
 ## `transformation(func)`
@@ -488,7 +475,6 @@ def test_text_with_objects():
             ]
         }
     )
-
 ```
 
 Tip
@@ -545,7 +531,6 @@ def transformation(func):
         return Transformed(func, value)
 
     return f
-
 ````
 
 ## `warns(expected_warnings, /, include_line=False, include_file=False)`
@@ -576,7 +561,6 @@ from warnings import warn
 def test_warns():
     with warns(snapshot(), include_line=True):
         warn("some problem")
-
 ```
 
 ```
@@ -588,7 +572,6 @@ from warnings import warn
 def test_warns():
     with warns(snapshot([(8, "UserWarning: some problem")]), include_line=True):
         warn("some problem")
-
 ```
 
 Source code in `src/inline_snapshot/extra.py`
@@ -662,5 +645,4 @@ def warns(
         return message
 
     assert [make_warning(w) for w in result] == expected_warnings
-
 ````

@@ -14,7 +14,6 @@ from inline_snapshot import snapshot
 )
 def test_param(a, b, result):
     assert a + b == result
-
 ```
 
 and the missing value will be created for each run.
@@ -33,5 +32,4 @@ from inline_snapshot import snapshot
 )
 def test_param(a, b, result):
     assert a + b == result
-
 ```

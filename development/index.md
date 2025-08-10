@@ -20,7 +20,6 @@ The first feature is that inline-snapshot can now also fix normal assertions whi
 
 ```
 assert 1 + 1 == 3
-
 ```
 
 You can learn [here](fix_assert/) more about this feature.
@@ -39,7 +38,6 @@ def something():
 
 def test_something():
     assert something() == snapshot()
-
 ```
 
 ```
@@ -52,7 +50,6 @@ def something():
 
 def test_something():
     assert something() == snapshot(28620972)
-
 ```
 
 Your tests will break, if you change your code by adding `// 18`. Maybe that is correct and you should fix your code, or your code is correct and you want to update your test results.
@@ -67,7 +64,6 @@ def something():
 
 def test_something():
     assert something() == snapshot(28620972)
-
 ```
 
 ```
@@ -80,7 +76,6 @@ def something():
 
 def test_something():
     assert something() == snapshot(1590054)
-
 ```
 
 Please verify the new results. `git diff` will give you a good overview over all changed results. Use `pytest -k test_something --inline-snapshot=fix` if you only want to change one test.
@@ -111,7 +106,6 @@ def test_something():
 # Error:
 # >       assert 5 == s
 # E       TypeError: This snapshot cannot be use with `==`, because it was previously used with `x <= snapshot`
-
 ```
 
 ## Supported usage
@@ -137,7 +131,6 @@ def test_something():
 def test_something_again():
     ...
     assert something() == result
-
 ```
 
 ```
@@ -159,7 +152,6 @@ def test_something():
 def test_something_again():
     ...
     assert something() == result
-
 ```
 
 `snapshot()` can also be used in loops:
@@ -171,7 +163,6 @@ from inline_snapshot import snapshot
 def test_loop():
     for name in ["Mia", "Eva", "Leo"]:
         assert len(name) == snapshot()
-
 ```
 
 ```
@@ -181,7 +172,6 @@ from inline_snapshot import snapshot
 def test_loop():
     for name in ["Mia", "Eva", "Leo"]:
         assert len(name) == snapshot(3)
-
 ```
 
 or passed as an argument to a function:
@@ -198,7 +188,6 @@ def test_string_len():
     check_string_len("abc", snapshot())
     check_string_len("1234", snapshot())
     check_string_len(".......", snapshot())
-
 ```
 
 ```
@@ -213,7 +202,6 @@ def test_string_len():
     check_string_len("abc", snapshot(3))
     check_string_len("1234", snapshot(4))
     check_string_len(".......", snapshot(7))
-
 ```
 
 ## Feedback

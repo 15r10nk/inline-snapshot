@@ -10,7 +10,6 @@ If you have pytest-xdist installed and active by default in your pytest settings
 
 ```
 pytest -n0 --inline-snapshot=create,report
-
 ```
 
 ## On CPython < 3.11, pytest assert rewriting can be disabled

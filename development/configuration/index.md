@@ -12,7 +12,6 @@ default-storage="uuid"
 [tool.inline-snapshot.shortcuts]
 review=["review"]
 fix=["create","fix"]
-
 ```
 
 - **hash-length:** specifies the length of the hash used by `external()` in the code representation. This does not affect the hash length used to store the data. The hash should be long enough to avoid hash collisions.
@@ -27,7 +26,6 @@ The default flags are different if you use *cpython\<3.11* due to [technical lim
 [tool.inline-snapshot]
 default-flags=["short-report"]
 default-flags-tui=["short-report"]
-
 ```
 
 - **shortcuts:** allows you to define custom commands to simplify your workflows. `--fix` and `--review` are defined by default, but this configuration can be changed to fit your needs.
@@ -39,19 +37,16 @@ default-flags-tui=["short-report"]
   ```
   [tool.inline-snapshot]
   format-command="ruff format --stdin-filename {filename}"
-
   ```
 
   ```
   [tool.inline-snapshot]
   format-command="ruff check --fix-only --stdin-filename {filename} | ruff format --stdin-filename {filename}"
-
   ```
 
   ```
   [tool.inline-snapshot]
   format-command="black --stdin-filename {filename} -"
-
   ```
 
   inline-snapshot will format only the snapshot values with black when you specify no format command, but requires black to be installed with `inline-snapshot[black]`.
