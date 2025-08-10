@@ -7,9 +7,7 @@ import re
 
 new_changes = list(Path.cwd().glob("changelog.d/*.md"))
 next_version = (
-    run(["cz", "bump", "--get-next"], capture_output=True)
-    .stdout.decode()
-    .strip()
+    run(["hatch", "version"], capture_output=True).stdout.decode().strip()
 )
 
 if new_changes:
