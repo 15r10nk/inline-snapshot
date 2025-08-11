@@ -1,4 +1,27 @@
 
+<a id='changelog-0.27.2'></a>
+# 0.27.2 — 2025-08-11
+
+## Changed
+
+- Improved documentation for `inline_snapshot.testing.Example`.
+
+## Fixed
+
+- inline-snapshot generates no longer triple quoted strings when it fixes cases like this ([#281](https://github.com/15r10nk/inline-snapshot/issues/281)):
+    ``` python
+    from inline_snapshot import snapshot
+
+
+    def test_a():
+        assert "" == snapshot(
+            """
+    a
+    b\
+    """
+        )
+    ```
+
 <a id='changelog-0.27.1'></a>
 # 0.27.1 — 2025-08-08
 
