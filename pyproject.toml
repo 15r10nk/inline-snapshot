@@ -79,7 +79,7 @@ tag_format = "v$major.$minor.$patch$prerelease"
 version_files = [
   "src/inline_snapshot/version.py:__version__"
 ]
-version_provider = "pep621"
+version_provider = "scm"
 
 [tool.coverage.paths]
 inline_snapshot = ["src/inline_snapshot", "*/inline_snapshot/src/inline_snapshot"]
