@@ -9,7 +9,7 @@ The code can be tested with [hatch](https://hatch.pypa.io/latest/tutorials/testi
 * `hatch test -py 3.10 -- --sw` runs pytest for python 3.10 with the `--sw` argument.
 
 The preferred way to test inline-snapshot is by using [`inline-snapshot.texting.Example`](https://15r10nk.github.io/inline-snapshot/latest/testing/).
-You will see some other fixtures which are used inside the tests, but these are old ways to write the tests and I try to use the new `Example` class to write new tests.
+You will see some other fixtures which are used inside the tests (`project`, `source`, `check_code`), but these are old ways to write the tests and I try to use the new `Example` class to write new tests.
 
 
 # Coverage

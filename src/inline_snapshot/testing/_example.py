@@ -14,6 +14,7 @@ from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
+from typing import Callable
 from unittest.mock import patch
 
 from rich.console import Console
@@ -103,7 +104,7 @@ rd = random.Random(0)
 def f():
     return uuid.UUID(int=rd.getrandbits(128), version=4)
 
-uuid.uuid4=f
+uuid.uuid4 = f
 """
 
 
@@ -131,8 +132,8 @@ class Example:
     def __init__(self, files: str | dict[str, str | bytes]):
         """
         Parameters:
-            files: a collection of files where inline-snapshot operates on,
-                   or just a string which will be saved as *test_something.py*.
+            files: a collection of files which are used as your example project,
+                   or just a string which will be saved as *tests/test_something.py*.
         """
         if isinstance(files, str):
             files = {"tests/test_something.py": files}
@@ -180,20 +181,58 @@ class Example:
         }
 
     def with_files(self, extra_files: dict[str, str | bytes]) -> Example:
+        """
+        Adds extra files to the example.
+
+        Arguments:
+            extra_files: dictionary of filenames and file contents.
+        """
         return Example({**self.files, **extra_files})
 
-    def read_text(self, name: str) -> str:
-        text = self.files[name]
+    def read_file(self, filename: str) -> str:
+        """
+        Reads a file from the example.
+
+        Arguments:
+            filename: the filename.
+        """
+        text = self.files[filename]
         assert isinstance(text, str)
         return text
 
-    def change_code(self, func) -> Example:
-        return Example({name: func(text) for name, text in self.files.items()})
+    read_text = read_file
 
-    def replace(self, text, new_text) -> Example:
-        return self.change_code(lambda code: code.replace(text, new_text))
+    def change_code(self, mapping: Callable[[str], str]) -> Example:
+        """
+        Changes example tests by mapping every file with the given function.
 
-    def remove_file(self, filename):
+        Arguments:
+            mapping: function to apply to each file's content.
+        """
+        return Example(
+            {
+                name: mapping(text) if isinstance(text, str) else text
+                for name, text in self.files.items()
+            }
+        )
+
+    def replace(self, old_text: str, new_text: str) -> Example:
+        """
+        Changes example tests by replacing old_text with new_text.
+
+        Arguments:
+            old_text: the text to be replaced.
+            new_text: the new text to use instead.
+        """
+        return self.change_code(lambda code: code.replace(old_text, new_text))
+
+    def remove_file(self, filename: str) -> Example:
+        """
+        Removes a file from the example.
+
+        Arguments:
+            filename: the file to be removed.
+        """
         return Example(
             {name: file for name, file in self.files.items() if name != filename}
         )
@@ -213,14 +252,14 @@ class Example:
         This is useful for fast test execution.
 
         Parameters:
-            args: inline-snapshot arguments (supports only "--inline-snapshot=fix|create|..." ).
+            args: inline-snapshot arguments (supports only "--inline-snapshot=fix|create|...").
             reported_categories: snapshot of categories which inline-snapshot thinks could be applied.
             changed_files: snapshot of files which are changed by this run.
-            raises: snapshot of the exception which is raised during the test execution.
-                    It is required if your code raises an exception.
+            raises: snapshot of the exception raised during test execution.
+                    Required if your code raises an exception.
 
         Returns:
-            A new Example instance which contains the changed files.
+            A new Example instance containing the changed files.
         """
 
         parser = ArgumentParser()
@@ -369,21 +408,21 @@ class Example:
         stdin: bytes = b"",
         outcomes: Snapshot[dict[str, int]] | None = None,
     ) -> Example:
-        """Run pytest with the given args and env variables in an separate
+        """Run pytest with the given args and environment variables in a separate
         process.
 
-        It can be used to test the interaction between your code and pytest, but it is a bit slower than `run_inline`
+        It can be used to test the interaction between your code and pytest, but it is a bit slower than `run_inline`.
 
         Parameters:
             args: pytest arguments like "--inline-snapshot=fix"
             env: dict of environment variables
-            changed_files: snapshot of files which are changed by this run.
+            changed_files: snapshot of files changed by this run.
             report: snapshot of the report at the end of the pytest run.
             stderr: pytest stderr output
-            returncode: snapshot of the pytest returncode.
+            returncode: snapshot of the pytest return code.
 
         Returns:
-            A new Example instance which contains the changed files.
+            A new Example instance containing the changed files.
         """
         self.dump_files()
 
