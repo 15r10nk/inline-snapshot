@@ -5,7 +5,6 @@ You can use it to generate files in your project.
 ```
 def test_generate_doc():
     assert generate_features_doc() == external_file("all_features.md")
-
 ```
 
 inline-snapshot checks whether your documentation is up to date and displays a diff that you can approve if necessary.
@@ -22,7 +21,6 @@ def test_files():
         correct_text = eval_code_blocks(current_text)
 
         assert correct_text == external_file(file)
-
 ```
 
 ### `external_file(path, *, format=None)`

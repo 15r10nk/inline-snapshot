@@ -27,7 +27,6 @@ def test_gcd():
 
     assert result == snapshot()
     assert iterations <= snapshot()
-
 ```
 
 ```
@@ -53,7 +52,6 @@ def test_gcd():
 
     assert result == snapshot(6)
     assert iterations <= snapshot(12)
-
 ```
 
 ```
@@ -74,7 +72,6 @@ def test_gcd():
 
     assert result == snapshot(6)
     assert iterations <= snapshot(12)
-
 ```
 
 ```
@@ -95,7 +92,6 @@ def test_gcd():
 
     assert result == snapshot(6)
     assert iterations <= snapshot(3)
-
 ```
 
 Warning
@@ -113,7 +109,6 @@ def test_something():
 
     assert 5 <= value
     assert 6 <= value
-
 ```
 
 ```
@@ -125,7 +120,6 @@ def test_something():
 
     assert 5 <= value
     assert 6 <= value
-
 ```
 
 ## pytest options

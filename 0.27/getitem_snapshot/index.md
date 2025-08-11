@@ -13,7 +13,6 @@ def test_something():
 
     assert s["a"] == 4
     assert s["b"] == 5
-
 ```
 
 ```
@@ -25,7 +24,6 @@ def test_something():
 
     assert s["a"] == 4
     assert s["b"] == 5
-
 ```
 
 `s[key]` can be used with every normal snapshot operation including `s[key1][key2]`.

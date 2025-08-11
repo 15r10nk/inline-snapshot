@@ -1450,6 +1450,42 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#inline_snapshot.testing.Example.change_code" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;change_code
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline_snapshot.testing.Example.read_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;read_file
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline_snapshot.testing.Example.remove_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;remove_file
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline_snapshot.testing.Example.replace" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;replace
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#inline_snapshot.testing.Example.run_inline" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;run_inline
@@ -1462,6 +1498,15 @@
   <a href="#inline_snapshot.testing.Example.run_pytest" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;run_pytest
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline_snapshot.testing.Example.with_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;with_files
     </span>
   </a>
   
@@ -1570,6 +1615,42 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#inline_snapshot.testing.Example.change_code" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;change_code
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline_snapshot.testing.Example.read_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;read_file
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline_snapshot.testing.Example.remove_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;remove_file
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline_snapshot.testing.Example.replace" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;replace
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#inline_snapshot.testing.Example.run_inline" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;run_inline
@@ -1582,6 +1663,15 @@
   <a href="#inline_snapshot.testing.Example.run_pytest" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;run_pytest
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline_snapshot.testing.Example.with_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;with_files
     </span>
   </a>
   
@@ -1618,13 +1708,10 @@
 
   <h1>Testing</h1>
 
-<p><code>inline_snapshot.testing</code> provides tools which can be used to test inline-snapshot workflows.
+<p><code>inline_snapshot.testing</code> provides tools that can be used to test inline-snapshot workflows.
 This might be useful if you want to build your own libraries based on inline-snapshot.</p>
-<p>The following example shows how you can use the <code>Example</code> class to test what inline-snapshot would do with given the source code. The snapshots in the argument are asserted inside the <code>run_*</code> methods, but only when they are provided.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">original</label><label for="__tabbed_1_2">--inline-snapshot=create</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p><!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+<p>The following example shows how you can use the <code>Example</code> class to test what inline-snapshot would do with the given source code. The snapshots in the argument are asserted inside the <code>run_*</code> methods. Some arguments are optional, and some are required. Please see the reference below for details.</p>
+<!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Example</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -1639,22 +1726,14 @@ This might be useful if you want to build your own libraries based on inline-sna
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="s2">    assert 1+1 == snapshot()</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="s2">&quot;&quot;&quot;</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        <span class="p">}</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="p">)</span><span class="o">.</span><span class="n">run_inline</span><span class="p">(</span>  <span class="c1"># run without flags</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="n">reported_categories</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(),</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="p">)</span><span class="o">.</span><span class="n">run_pytest</span><span class="p">(</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>        <span class="p">[</span><span class="s2">&quot;--inline-snapshot=short-report&quot;</span><span class="p">],</span>  <span class="c1"># check the pytest report</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>        <span class="n">changed_files</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(),</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>        <span class="n">report</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(),</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        <span class="n">returncode</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(),</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="p">)</span><span class="o">.</span><span class="n">run_pytest</span><span class="p">(</span>  <span class="c1"># run with create flag and check the changed files</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>        <span class="p">[</span><span class="s2">&quot;--inline-snapshot=create&quot;</span><span class="p">],</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>        <span class="n">changed_files</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(),</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>        <span class="n">returncode</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(),</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="p">)</span>
-</code></pre></div></p>
-</div>
-<div class="tabbed-block">
-<p><!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="p">)</span><span class="o">.</span><span class="n">run_pytest</span><span class="p">(</span>  <span class="c1"># run with the create flag and check the changed files</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        <span class="p">[</span><span class="s2">&quot;--inline-snapshot=create&quot;</span><span class="p">],</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>        <span class="n">changed_files</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(),</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>        <span class="n">returncode</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(),</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="p">)</span>
+</code></pre></div>
+<p>Inline-snapshot will then populate the empty snapshots.</p>
+<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Example</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
@@ -1669,35 +1748,116 @@ This might be useful if you want to build your own libraries based on inline-sna
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="s2">    assert 1+1 == snapshot()</span>
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="s2">&quot;&quot;&quot;</span>
 <a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="p">}</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="p">)</span><span class="o">.</span><span class="n">run_inline</span><span class="p">(</span>  <span class="c1"># run without flags</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="hll">        <span class="n">reported_categories</span><span class="o">=</span><span class="n">snapshot</span><span class="p">([</span><span class="s2">&quot;create&quot;</span><span class="p">]),</span>
-</span><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    <span class="p">)</span><span class="o">.</span><span class="n">run_pytest</span><span class="p">(</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="p">[</span><span class="s2">&quot;--inline-snapshot=short-report&quot;</span><span class="p">],</span>  <span class="c1"># check the pytest report</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="hll">        <span class="n">changed_files</span><span class="o">=</span><span class="n">snapshot</span><span class="p">({}),</span>
-</span><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="hll">        <span class="n">report</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span>
-</span><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="hll"><span class="w">            </span><span class="sd">&quot;&quot;&quot;\</span>
-</span><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="hll"><span class="sd">Error: one snapshot is missing a value (--inline-snapshot=create)</span>
-</span><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="hll"><span class="sd">You can also use --inline-snapshot=review to approve the changes interactively\</span>
-</span><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="hll"><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="p">)</span><span class="o">.</span><span class="n">run_pytest</span><span class="p">(</span>  <span class="c1"># run with the create flag and check the changed files</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="p">[</span><span class="s2">&quot;--inline-snapshot=create&quot;</span><span class="p">],</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="hll">        <span class="n">changed_files</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span>
+</span><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="hll">            <span class="p">{</span>
+</span><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="hll">                <span class="s2">&quot;test_a.py&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+</span><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="hll"><span class="s2">from inline_snapshot import snapshot</span>
+</span><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="hll"><span class="s2">def test_a():</span>
+</span><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="hll"><span class="s2">    assert 1+1 == snapshot(2)</span>
+</span><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="hll"><span class="s2">&quot;&quot;&quot;</span>
+</span><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="hll">            <span class="p">}</span>
 </span><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="hll">        <span class="p">),</span>
 </span><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="hll">        <span class="n">returncode</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
-</span><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>    <span class="p">)</span><span class="o">.</span><span class="n">run_pytest</span><span class="p">(</span>  <span class="c1"># run with create flag and check the changed files</span>
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>        <span class="p">[</span><span class="s2">&quot;--inline-snapshot=create&quot;</span><span class="p">],</span>
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="hll">        <span class="n">changed_files</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span>
-</span><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="hll">            <span class="p">{</span>
-</span><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="hll">                <span class="s2">&quot;test_a.py&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
-</span><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="hll"><span class="s2">from inline_snapshot import snapshot</span>
-</span><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="hll"><span class="s2">def test_a():</span>
-</span><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="hll"><span class="s2">    assert 1+1 == snapshot(2)</span>
-</span><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="hll"><span class="s2">&quot;&quot;&quot;</span>
-</span><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="hll">            <span class="p">}</span>
-</span><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="hll">        <span class="p">),</span>
-</span><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a><span class="hll">        <span class="n">returncode</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
-</span><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>    <span class="p">)</span>
-</code></pre></div></p>
-</div>
-</div>
-</div>
+</span><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>    <span class="p">)</span>
+</code></pre></div>
+<p>The <code>Example</code> object is immutable and not connected to any directory.
+A temporary directory is only created when you call a <code>run_*</code> method.
+The result of the <code>run_*</code> method is always a new <code>Example</code> object with the updated files.
+This means that you can create an <code>Example</code> and call the <code>run_*</code> methods on it in any order you want, with the arguments that are useful for your test case.</p>
+<p>This allows for more complex tests where you create one example and perform multiple test runs on it. Every test run will work on the changed files from the previous one.</p>
+<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Example</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">Example</span><span class="p">(</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="p">{</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>            <span class="s2">&quot;test_a.py&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="s2">from inline_snapshot import snapshot</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="s2">def test_a():</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="s2">    assert 1+1 == snapshot()</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="s2">    assert 1+5 == snapshot(2)</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>        <span class="p">}</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    <span class="p">)</span><span class="o">.</span><span class="n">run_pytest</span><span class="p">(</span>  <span class="c1"># run with the create flag and check the changed files</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>        <span class="p">[</span><span class="s2">&quot;--inline-snapshot=create&quot;</span><span class="p">],</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>        <span class="n">changed_files</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>            <span class="p">{</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>                <span class="s2">&quot;test_a.py&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="s2">from inline_snapshot import snapshot</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="s2">def test_a():</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="s2">    assert 1+1 == snapshot(2)</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="s2">    assert 1+5 == snapshot(2)</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>            <span class="p">}</span>
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>        <span class="p">),</span>
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>        <span class="n">returncode</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>    <span class="p">)</span><span class="o">.</span><span class="n">run_pytest</span><span class="p">(</span>  <span class="c1"># run with the create flag and check the changed files</span>
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>        <span class="p">[</span><span class="s2">&quot;--inline-snapshot=fix&quot;</span><span class="p">],</span>
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>        <span class="n">changed_files</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>            <span class="p">{</span>
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>                <span class="s2">&quot;test_a.py&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a><span class="s2">from inline_snapshot import snapshot</span>
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="s2">def test_a():</span>
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span class="s2">    assert 1+1 == snapshot(2)</span>
+<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a><span class="s2">    assert 1+5 == snapshot(6)</span>
+<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a>            <span class="p">}</span>
+<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a>        <span class="p">),</span>
+<a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a>        <span class="n">returncode</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+<a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a>    <span class="p">)</span>
+</code></pre></div>
+<p>You can also use the same example multiple times and call different methods on it.</p>
+<!-- inline-snapshot: create fix first_block outcome-failed=1 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Example</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">e</span> <span class="o">=</span> <span class="n">Example</span><span class="p">(</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="p">{</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>            <span class="s2">&quot;test_a.py&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="s2">from inline_snapshot import snapshot</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="s2">def test_a():</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="s2">    assert 1+1 == snapshot()</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="s2">    assert 1+5 == snapshot(2)</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>        <span class="p">}</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>    <span class="p">)</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>    <span class="n">e</span><span class="o">.</span><span class="n">run_inline</span><span class="p">(</span>  <span class="c1"># run without flags</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>        <span class="n">reported_categories</span><span class="o">=</span><span class="n">snapshot</span><span class="p">([</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="s2">&quot;fix&quot;</span><span class="p">]),</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>    <span class="p">)</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>    <span class="n">e</span><span class="o">.</span><span class="n">run_pytest</span><span class="p">(</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>        <span class="p">[</span><span class="s2">&quot;--inline-snapshot=short-report&quot;</span><span class="p">],</span>  <span class="c1"># check the pytest report</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>        <span class="n">changed_files</span><span class="o">=</span><span class="n">snapshot</span><span class="p">({}),</span>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>        <span class="n">report</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;\</span>
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="sd">Error: one snapshot is missing a value (--inline-snapshot=create)</span>
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="sd">You can also use --inline-snapshot=review to approve the changes interactively\</span>
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>        <span class="p">),</span>
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a>        <span class="n">returncode</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a>    <span class="p">)</span>
+<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a>    <span class="n">e</span><span class="o">.</span><span class="n">run_pytest</span><span class="p">(</span>  <span class="c1"># run with the create flag and check the changed files</span>
+<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>        <span class="p">[</span><span class="s2">&quot;--inline-snapshot=create&quot;</span><span class="p">],</span>
+<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a>        <span class="n">changed_files</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>            <span class="p">{</span>
+<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>                <span class="s2">&quot;test_a.py&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a><span class="s2">from inline_snapshot import snapshot</span>
+<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a><span class="s2">def test_a():</span>
+<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a><span class="s2">    assert 1+1 == snapshot(2)</span>
+<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a>            <span class="p">}</span>
+<a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a>        <span class="p">),</span>
+<a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a>        <span class="n">returncode</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+<a id="__codelineno-3-44" name="__codelineno-3-44" href="#__codelineno-3-44"></a>    <span class="p">)</span>
+</code></pre></div>
 <h2 id="api">API<a class="headerlink" href="#api" title="Permanent link">&para;</a></h2>
 
 
@@ -1767,8 +1927,220 @@ This might be useful if you want to build your own libraries based on inline-sna
             </td>
             <td>
               <div class="doc-md-description">
-                <p>a collection of files where inline-snapshot operates on,
-   or just a string which will be saved as <em>test_something.py</em>.</p>
+                <p>a collection of files which are used as your example project,
+   or just a string which will be saved as <em>tests/test_something.py</em>.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="inline_snapshot.testing.Example.change_code" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">change_code</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span></code>
+
+<a href="#inline_snapshot.testing.Example.change_code" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Changes example tests by mapping every file with the given function.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>mapping</code>
+            </td>
+            <td>
+                  <code><span title="typing.Callable">Callable</span>[[<span title="str">str</span>], <span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>function to apply to each file's content.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="inline_snapshot.testing.Example.read_file" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">read_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></code>
+
+<a href="#inline_snapshot.testing.Example.read_file" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Reads a file from the example.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>filename</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>the filename.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="inline_snapshot.testing.Example.remove_file" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">remove_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></code>
+
+<a href="#inline_snapshot.testing.Example.remove_file" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Removes a file from the example.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>filename</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>the file to be removed.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="inline_snapshot.testing.Example.replace" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">replace</span><span class="p">(</span><span class="n">old_text</span><span class="p">,</span> <span class="n">new_text</span><span class="p">)</span></code>
+
+<a href="#inline_snapshot.testing.Example.replace" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Changes example tests by replacing old_text with new_text.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>old_text</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>the text to be replaced.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>new_text</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>the new text to use instead.</p>
               </div>
             </td>
             <td>
@@ -1819,7 +2191,7 @@ function.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>inline-snapshot arguments (supports only "--inline-snapshot=fix|create|..." ).</p>
+                <p>inline-snapshot arguments (supports only "--inline-snapshot=fix|create|...").</p>
               </div>
             </td>
             <td>
@@ -1831,7 +2203,7 @@ function.</p>
                 <code>reported_categories</code>
             </td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="            Snapshot (inline_snapshot._types.Snapshot)" href="../types/#inline_snapshot.Snapshot">Snapshot</a>[<span title="list">list</span>[<a class="autorefs autorefs-internal" title="            Category = Literal['update', 'fix', 'create', 'trim']
+                  <code><a class="autorefs autorefs-internal" title="            Snapshot (inline_snapshot._types.Snapshot)" href="../types/#inline_snapshot.Snapshot">Snapshot</a>[<span title="list">list</span>[<a class="autorefs autorefs-internal" title="            Category = Literal['update', 'fix', 'create', 'trim', 'fix-assert']
 
   
       module-attribute
@@ -1871,8 +2243,8 @@ function.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>snapshot of the exception which is raised during the test execution.
-    It is required if your code raises an exception.</p>
+                <p>snapshot of the exception raised during test execution.
+    Required if your code raises an exception.</p>
               </div>
             </td>
             <td>
@@ -1898,7 +2270,7 @@ function.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>A new Example instance which contains the changed files.</p>
+                <p>A new Example instance containing the changed files.</p>
               </div>
             </td>
           </tr>
@@ -1921,9 +2293,9 @@ function.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Run pytest with the given args and env variables in an separate
+        <p>Run pytest with the given args and environment variables in a separate
 process.</p>
-<p>It can be used to test the interaction between your code and pytest, but it is a bit slower than <code>run_inline</code></p>
+<p>It can be used to test the interaction between your code and pytest, but it is a bit slower than <code>run_inline</code>.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -1978,7 +2350,7 @@ process.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>snapshot of files which are changed by this run.</p>
+                <p>snapshot of files changed by this run.</p>
               </div>
             </td>
             <td>
@@ -2026,7 +2398,7 @@ process.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>snapshot of the pytest returncode.</p>
+                <p>snapshot of the pytest return code.</p>
               </div>
             </td>
             <td>
@@ -2052,8 +2424,57 @@ process.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>A new Example instance which contains the changed files.</p>
+                <p>A new Example instance containing the changed files.</p>
               </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="inline_snapshot.testing.Example.with_files" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">with_files</span><span class="p">(</span><span class="n">extra_files</span><span class="p">)</span></code>
+
+<a href="#inline_snapshot.testing.Example.with_files" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Adds extra files to the example.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>extra_files</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="str">str</span> | <span title="bytes">bytes</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>dictionary of filenames and file contents.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
             </td>
           </tr>
       </tbody>

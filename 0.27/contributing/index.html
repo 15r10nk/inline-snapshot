@@ -1476,7 +1476,7 @@ Please create an issue before writing a pull request so we can discuss what need
 <li><code>hatch test -py 3.10 -- --sw</code> runs pytest for python 3.10 with the <code>--sw</code> argument.</li>
 </ul>
 <p>The preferred way to test inline-snapshot is by using <a href="https://15r10nk.github.io/inline-snapshot/latest/testing/"><code>inline-snapshot.texting.Example</code></a>.
-You will see some other fixtures which are used inside the tests, but these are old ways to write the tests and I try to use the new <code>Example</code> class to write new tests.</p>
+You will see some other fixtures which are used inside the tests (<code>project</code>, <code>source</code>, <code>check_code</code>), but these are old ways to write the tests and I try to use the new <code>Example</code> class to write new tests.</p>
 <h1 id="coverage">Coverage<a class="headerlink" href="#coverage" title="Permanent link">&para;</a></h1>
 <p>This project has a hard coverage requirement of 100% (which is checked in CI).
 You can also check the coverage locally with <code>hatch test -acp</code>.
