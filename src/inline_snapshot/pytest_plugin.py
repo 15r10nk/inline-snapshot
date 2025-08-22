@@ -11,12 +11,7 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
 
-from inline_snapshot._external._external import External
-from inline_snapshot._external._external_file import ExternalFile
-from inline_snapshot._external._outsource import Outsourced
 from inline_snapshot._external._storage import default_storages
-from inline_snapshot._external._storage._protocol import StorageLookupError
-from inline_snapshot._unmanaged import Unmanaged
 from inline_snapshot.fix_pytest_diff import fix_pytest_diff
 
 from . import _config
@@ -28,13 +23,13 @@ from ._external._find_external import ensure_import
 from ._external._find_external import used_externals_in
 from ._fix_assert import fix_assert
 from ._flags import Flags
+from ._get_snapshot_value import unwrap
 from ._global_state import enter_snapshot_context
 from ._global_state import leave_snapshot_context
 from ._global_state import snapshot_env
 from ._global_state import state
 from ._problems import report_problems
 from ._rewrite_code import ChangeRecorder
-from ._snapshot.generic_value import GenericValue
 from .pydantic_fix import pydantic_fix
 from .version import is_insider
 
@@ -280,22 +275,6 @@ def snapshot_check(request):
             "some snapshots in this test have incorrect values." + extra,
             pytrace=False,
         )
-
-
-def unwrap(value):
-    if isinstance(value, GenericValue):
-        return unwrap(value._visible_value())[0], True
-
-    if isinstance(value, (External, Outsourced, ExternalFile)):
-        try:
-            return unwrap(value._load_value())[0], True
-        except (UsageError, StorageLookupError):
-            return (None, False)
-
-    if isinstance(value, Unmanaged):
-        return unwrap(value.value)[0], True
-
-    return value, False
 
 
 def pytest_assertrepr_compare(config, op, left, right):
