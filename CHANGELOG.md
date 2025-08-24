@@ -1,4 +1,11 @@
 
+<a id='changelog-0.28.0'></a>
+# 0.28.0 — 2025-08-24
+
+## Added
+
+- Added [`get_snapshot_value()`](https://15r10nk.github.io/inline-snapshot/latest/get_snapshot_value/), which removes all snapshot-specific wrappers and returns only the value of the snapshot.
+
 <a id='changelog-0.27.2'></a>
 # 0.27.2 — 2025-08-11
 
