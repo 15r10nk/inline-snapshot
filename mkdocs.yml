@@ -62,6 +62,7 @@ nav:
     - '@register_format()': external/register_format.md
   - '@customize_repr': customize_repr.md
   - types: types.md
+  - get_snapshot_value(): get_snapshot_value.md
 - HowTo:
   - pytest parametrize: howto/parametrize.md
 - Extensions:
