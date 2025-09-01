@@ -15,7 +15,7 @@ repos:
   - id: check-json
   - id: end-of-file-fixer
   repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v5.0.0
+  rev: v6.0.0
 - hooks:
   - args:
     - --in-place
@@ -87,7 +87,7 @@ repos:
   - id: validate-pyproject
 
 - repo: https://github.com/henryiii/validate-pyproject-schema-store
-  rev: 2025.04.28
+  rev: 2025.08.29
   hooks:
   - id: validate-pyproject
 
