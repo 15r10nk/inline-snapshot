@@ -1005,3 +1005,24 @@ def test_a():
         ),
         stdin=b"y\n",
     )
+
+
+def test_pytest_configure_exception():
+
+    Example(
+        {
+            "conftest.py": """
+import pytest
+def pytest_configure(config: pytest.Config) -> None:
+
+    pytest.exit(
+        reason="failed",
+        returncode=pytest.ExitCode.INTERRUPTED,
+    )
+""",
+            "test_a.py": """
+def test_a():
+    pass
+             """,
+        }
+    ).run_pytest(stderr=snapshot("Exit: failed"), returncode=snapshot(2))
