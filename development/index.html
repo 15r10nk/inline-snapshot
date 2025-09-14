@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.19">
     
     
       
@@ -639,9 +639,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#bronze-sponsor" class="md-nav__link">
+  <a href="#silver-sponsor" class="md-nav__link">
     <span class="md-ellipsis">
-      Bronze sponsor 🥉
+      Silver sponsor 🥈
     </span>
   </a>
   
@@ -1626,9 +1626,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#bronze-sponsor" class="md-nav__link">
+  <a href="#silver-sponsor" class="md-nav__link">
     <span class="md-ellipsis">
-      Bronze sponsor 🥉
+      Silver sponsor 🥈
     </span>
   </a>
   
@@ -1909,15 +1909,27 @@ The following code will not work:
 <p>inline-snapshot provides some advanced ways to work with snapshots.</p>
 <p>I would like to know how these features are used to further improve this small library.
 Let me know if you've found interesting use cases for this library via <a href="https://twitter.com/15r10nk">twitter</a>, <a href="https://fosstodon.org/deck/@15r10nk">fosstodon</a> or in the github <a href="https://github.com/15r10nk/inline-snapshot/discussions/new?category=show-and-tell">discussions</a>.</p>
+<!--[[[cog
+import requests,cog
+
+url = "https://raw.githubusercontent.com/15r10nk/sponsors/refs/heads/main/sponsors_readme.md"
+response = requests.get(url)
+response.raise_for_status()  # Raise an exception for bad status codes
+cog.out(response.text)
+]]]-->
 <h2 id="sponsors">Sponsors<a class="headerlink" href="#sponsors" title="Permanent link">&para;</a></h2>
 <p>I would like to thank my sponsors. Without them, I would not be able to invest so much time in my projects.</p>
-<h3 id="bronze-sponsor">Bronze sponsor 🥉<a class="headerlink" href="#bronze-sponsor" title="Permanent link">&para;</a></h3>
+<h3 id="silver-sponsor">Silver sponsor 🥈<a class="headerlink" href="#silver-sponsor" title="Permanent link">&para;</a></h3>
 <p align="center">
   <a href="https://pydantic.dev/logfire">
-    <img src="https://pydantic.dev/assets/for-external/pydantic_logfire_logo_endorsed_lithium_rgb.svg" alt="pydantic logfire" width="300"/>
+    <img src="https://pydantic.dev/assets/for-external/pydantic_logfire_logo_endorsed_lithium_rgb.svg" alt="logfire" width="300"/>
   </a>
 </p>
+<!--[[[end]]]-->
 
+<p>I have also started to offer <a href="https://15r10nk.github.io/inline-snapshot/latest/insiders/">insider</a> features for inline-snapshot. I will only release features as insider features if they will not cause problems for you when used in an open source project.
+I hope sponsoring will allow me to spend more time working on open source projects.
+Thank you for using inline-snapshot, the future will be 🚀.</p>
 <h2 id="issues">Issues<a class="headerlink" href="#issues" title="Permanent link">&para;</a></h2>
 <p>If you encounter any problems, please <a href="https://github.com/15r10nk/inline-snapshot/issues">report an issue</a> along with a detailed description.</p>
 
