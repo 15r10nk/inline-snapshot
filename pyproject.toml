@@ -140,7 +140,7 @@ serve = "mkdocs serve"
 
 [tool.hatch.envs.cog]
 dependencies=["cogapp","lxml","requests"]
-scripts.update="cog -r docs/**/*.md docs/*.md"
+scripts.update="cog -r docs/**/*.md docs/*.md *.md"
 
 [tool.hatch.envs.gen]
 dependencies=["pysource-minimize"]

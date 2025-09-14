@@ -1,0 +1,36 @@
+name: Weekly Cog Update
+
+on:
+  schedule:
+  - cron: 0 8 * * 5      # Every Friday at 08:00 UTC
+  workflow_dispatch:
+
+jobs:
+  update-cog:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Hatch
+      run: pip install hatch
+
+    - name: Run cog update
+      run: hatch run cog:update
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        commit-message: 'chore: weekly cog update'
+        title: 'chore: weekly cog update'
+        body: Automated cog update via scheduled workflow.
+        branch: chore/weekly-cog-update
+        delete-branch: true
+        reviewers: 15r10nk
