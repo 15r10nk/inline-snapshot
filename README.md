@@ -190,6 +190,7 @@ cog.out(response.text)
 ## Sponsors
 
 I would like to thank my sponsors. Without them, I would not be able to invest so much time in my projects.
+If you want, you can also support my work.
 
 ### Silver sponsor 🥈
 
