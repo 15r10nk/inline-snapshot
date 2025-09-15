@@ -1,0 +1,131 @@
+## General
+
+A snapshot can be compared against any value with `<=` or `>=`. This can be used to create a upper/lower bound for some result. The snapshot value can be trimmed to the lowest/largest valid value.
+
+Example:
+
+```
+from inline_snapshot import snapshot
+
+
+def gcd(x, y):
+    iterations = 0
+    if x > y:
+        small = y
+    else:
+        small = x
+    for i in range(1, small + 1):
+        iterations += 1
+        if (x % i == 0) and (y % i == 0):
+            gcd = i
+
+    return gcd, iterations
+
+
+def test_gcd():
+    result, iterations = gcd(12, 18)
+
+    assert result == snapshot()
+    assert iterations <= snapshot()
+```
+
+```
+from inline_snapshot import snapshot
+
+
+def gcd(x, y):
+    iterations = 0
+    if x > y:
+        small = y
+    else:
+        small = x
+    for i in range(1, small + 1):
+        iterations += 1
+        if (x % i == 0) and (y % i == 0):
+            gcd = i
+
+    return gcd, iterations
+
+
+def test_gcd():
+    result, iterations = gcd(12, 18)
+
+    assert result == snapshot(6)
+    assert iterations <= snapshot(12)
+```
+
+```
+from inline_snapshot import snapshot
+
+
+def gcd(x, y):
+    # use Euclidean Algorithm
+    iterations = 0
+    while y:
+        iterations += 1
+        x, y = y, x % y
+    return abs(x), iterations
+
+
+def test_gcd():
+    result, iterations = gcd(12, 18)
+
+    assert result == snapshot(6)
+    assert iterations <= snapshot(12)
+```
+
+```
+from inline_snapshot import snapshot
+
+
+def gcd(x, y):
+    # use Euclidean Algorithm
+    iterations = 0
+    while y:
+        iterations += 1
+        x, y = y, x % y
+    return abs(x), iterations
+
+
+def test_gcd():
+    result, iterations = gcd(12, 18)
+
+    assert result == snapshot(6)
+    assert iterations <= snapshot(3)
+```
+
+Warning
+
+This should not be used to check for any flaky values like the runtime of some code, because it will randomly break your tests.
+
+The same snapshot value can also be used in multiple assertions.
+
+```
+from inline_snapshot import snapshot
+
+
+def test_something():
+    value = snapshot()
+
+    assert 5 <= value
+    assert 6 <= value
+```
+
+```
+from inline_snapshot import snapshot
+
+
+def test_something():
+    value = snapshot(6)
+
+    assert 5 <= value
+    assert 6 <= value
+```
+
+## pytest options
+
+It interacts with the following `--inline-snapshot` flags:
+
+- `create` create a new value if the snapshot value is undefined.
+- `fix` record the new value and store it in the source code if it is contradicts the comparison.
+- `trim` record the new value and store it in the source code if it is more strict than the old one.
