@@ -1,4 +1,11 @@
 
+<a id='changelog-0.29.0'></a>
+# 0.29.0 — 2025-09-15
+
+## Fixed
+
+- handle in cases where `pytest_unconfigure` is called but not `pytest_configure` ([#293](https://github.com/15r10nk/inline-snapshot/issues/293))
+
 <a id='changelog-0.28.0'></a>
 # 0.28.0 — 2025-08-24
 
