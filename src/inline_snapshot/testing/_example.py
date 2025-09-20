@@ -293,6 +293,7 @@ class Example:
 
                 recorder = ChangeRecorder()
                 state.update_flags = Flags({*flags})
+                state.active = "disable" not in flags
                 state.all_storages["hash"] = HashStorage(
                     tmp_path / ".inline-snapshot" / "external"
                 )

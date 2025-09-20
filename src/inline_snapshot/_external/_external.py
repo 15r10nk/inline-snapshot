@@ -4,17 +4,15 @@ import ast
 
 from inline_snapshot._adapter.adapter import AdapterContext
 from inline_snapshot._change import CallArg
-from inline_snapshot._change import ExternalChange
 from inline_snapshot._change import Replace
 from inline_snapshot._exceptions import UsageError
+from inline_snapshot._external._external_base import ExternalBase
 from inline_snapshot._external._format._protocol import get_format_handler
 from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
-from inline_snapshot._external._outsource import Outsourced
 from inline_snapshot._global_state import state
 from inline_snapshot._inline_snapshot import create_snapshot
 from inline_snapshot._unmanaged import declare_unmanaged
 
-from .._snapshot.generic_value import GenericValue
 from ._external_location import ExternalLocation
 
 
@@ -23,7 +21,7 @@ def external(name: str | None = None):
 
 
 @declare_unmanaged
-class External:
+class External(ExternalBase):
     def __init__(self, name: str, expr, context: AdapterContext):
         """External objects are used to move some data outside the source code.
         You should not instantiate this class directly, but by using `external()` instead.
@@ -42,7 +40,7 @@ class External:
         self._location = ExternalLocation.from_name(name, context=context)
         self._original_location = ExternalLocation.from_name(name, context=context)
 
-        self._value_changed = False
+        super().__init__()
 
     def result(self):
         return self
@@ -52,6 +50,10 @@ class External:
         return cls._load_value_from_location(
             ExternalLocation.from_name(obj, context=context)
         )
+
+    @property
+    def _format(self):
+        return get_format_handler_from_suffix(self._location.suffix or "")
 
     def _changes(self):
         if self._expr is None:
@@ -77,7 +79,7 @@ class External:
                 yield Replace(
                     (
                         ("fix" if self._original_location.stem else "create")
-                        if self._value_changed
+                        if self._tmp_file is not None
                         else "update"
                     ),
                     self._context.file,
@@ -87,14 +89,10 @@ class External:
                     new_name,
                 )
 
-        if self._value_changed:
-            yield ExternalChange(
-                "fix" if self._original_location.stem else "create",
-                self._tmp_file,
-                self._original_location,
-                self._location,
-                get_format_handler_from_suffix(self._location.suffix or ""),
-            )
+        yield from super()._changes()
+
+    def _is_empty(self):
+        return not self._original_location.stem
 
     def __repr__(self):
         """Returns the representation of the external object.
@@ -121,41 +119,6 @@ class External:
 
         format.encode(other, self._tmp_file)
         self._location = self.storage.new_location(self._location, self._tmp_file)
-
-        self._value_changed = True
-
-    def __eq__(self, other):
-        """Two external objects are equal if they have the same value"""
-
-        if isinstance(other, Outsourced):
-            self._location.suffix = other._location.suffix
-            other = other.data
-
-        if isinstance(other, External):
-            raise UsageError("you can not compare external(...) with external(...)")
-
-        if isinstance(other, GenericValue):
-            raise UsageError("you can not compare external(...) with snapshot(...)")
-
-        if not self._original_location.stem:
-            self._assign(other)
-            state().missing_values += 1
-            if state().update_flags.create:
-                return True
-            return False
-
-        assert self._location.stem
-
-        value = self._load_value()
-        result = value == other
-
-        if state().update_flags.fix or state().update_flags.update:
-            if not result:
-                self._assign(other)
-                state().incorrect_values += 1
-            return True
-
-        return result
 
     def _load_value(self):
         return self._load_value_from_location(self._original_location)

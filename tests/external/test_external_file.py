@@ -33,12 +33,13 @@ These changes will be applied, because you used create\
     ).replace(
         "test1", "test2"
     ).run_inline(
+        ["--inline-snapshot=disable"],
         raises=snapshot(
             """\
 AssertionError:
 not equal\
 """
-        )
+        ),
     ).run_pytest(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({"tests/test.txt": "TEST2"}),
@@ -119,4 +120,71 @@ def test_bar():
     """
     ).run_inline(
         ["--inline-snapshot=create"], changed_files=snapshot({"tests/a.html": "text"})
+    )
+
+
+def test_report():
+    # see https://github.com/15r10nk/inline-snapshot/issues/298
+
+    Example(
+        """\
+
+from inline_snapshot import external_file
+
+
+def test_example():
+    n=5
+    assert sorted([n, 2]) == external_file("stored.json")
+
+
+"""
+    ).run_pytest(
+        ["--inline-snapshot=report"],
+        report=snapshot(
+            """\
++----------------------------- tests/stored.json ------------------------------+
+| [                                                                            |
+|   2,                                                                         |
+|   5                                                                          |
+| ]                                                                            |
++------------------------------------------------------------------------------+
+These changes are not applied.
+Use --inline-snapshot=create to apply them, or use the interactive mode with
+--inline-snapshot=review\
+"""
+        ),
+        returncode=snapshot(1),
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/stored.json": """\
+[
+  2,
+  5
+]\
+"""
+            }
+        ),
+    ).replace(
+        "n=5", "n=8"
+    ).run_pytest(
+        ["--inline-snapshot=report"],
+        report=snapshot(
+            """\
++----------------------------- tests/stored.json ------------------------------+
+| @@ -1,4 +1,4 @@                                                              |
+|                                                                              |
+|  [                                                                           |
+|    2,                                                                        |
+| -  5                                                                         |
+| +  8                                                                         |
+|  ]                                                                           |
++------------------------------------------------------------------------------+
+These changes are not applied.
+Use --inline-snapshot=fix to apply them, or use the interactive mode with
+--inline-snapshot=review\
+"""
+        ),
+        returncode=snapshot(1),
     )

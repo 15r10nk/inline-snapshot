@@ -35,7 +35,7 @@ def test_a():
     ).replace(
         '"value"', '"new_value"'
     ).run_inline(
-        ["--inline-snapshot=create"],
+        ["--inline-snapshot=disable"],
         changed_files=snapshot({}),
         raises=snapshot("AssertionError:\n"),
     ).run_inline(
