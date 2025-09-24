@@ -1,68 +1,45 @@
 from pathlib import Path
-from typing import Iterator
 from typing import Optional
 from typing import Union
 from typing import cast
 
-from inline_snapshot._change import ChangeBase
-from inline_snapshot._change import ExternalChange
 from inline_snapshot._external._external_location import FileLocation
 from inline_snapshot._external._format._protocol import Format
 from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
+from inline_snapshot._external._storage._protocol import StorageLookupError
 from inline_snapshot._global_state import state
 from inline_snapshot._types import SnapshotRefBase
 
+from ._external_base import ExternalBase
 
-class ExternalFile(SnapshotRefBase):
+
+class ExternalFile(ExternalBase, SnapshotRefBase):
 
     def __init__(self, filename: Path, format: Format):
         self._filename = filename
         self._format = format
-        self._value_changed = False
         self._tmp_file = None
 
-    def _changes(self) -> Iterator[ChangeBase]:
+        self._location = FileLocation(self._filename)
+        self._original_location = self._location
+        super().__init__()
 
-        file_location = FileLocation(self._filename)
-        if self._value_changed and state().update_flags.fix:
-            assert self._tmp_file
-            yield ExternalChange(
-                "fix", self._tmp_file, file_location, file_location, self._format
-            )
-        elif (
-            not self._filename.exists()
-            and state().update_flags.create
-            and self._tmp_file is not None
-        ):
-            assert self._tmp_file
-            yield ExternalChange(
-                "create", self._tmp_file, file_location, file_location, self._format
-            )
+    def _is_empty(self):
+        return not self._filename.exists()
 
-    def __eq__(self, other):
-        if not self._filename.exists():
-            state().missing_values += 1
+    def _assign(self, other):
 
-            if state().update_flags.create:
-                self._tmp_file = state().new_tmp_path(self._filename.suffix)
-                self._format.encode(other, self._tmp_file)
-                return True
-            return False
+        self._tmp_file = state().new_tmp_path(self._location.suffix)
+        self._format.encode(other, self._tmp_file)
 
-        if self._load_value() != other:
-            state().incorrect_values += 1
-
-            if state().update_flags.fix:
-                self._tmp_file = state().new_tmp_path(self._filename.suffix)
-                self._format.encode(other, self._tmp_file)
-                self._value_changed = True
-                return True
-            return False
-
-        return True
+    def __repr__(self):
+        return f"external_file({str(self._filename)!r})"
 
     def _load_value(self):
-        return self._format.decode(self._filename)
+        try:
+            return self._format.decode(self._filename)
+        except FileNotFoundError:
+            raise StorageLookupError(f"can not read {self._filename}")
 
 
 def external_file(path: Union[Path, str], *, format: Optional[str] = None):
@@ -89,6 +66,9 @@ def external_file(path: Union[Path, str], *, format: Optional[str] = None):
         format = path.suffix
 
     format_handler = get_format_handler_from_suffix(format)
+
+    if not state().active:
+        return format_handler.decode(path)
 
     key = ("file", path)
     if key not in state().snapshots:

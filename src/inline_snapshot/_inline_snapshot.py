@@ -67,10 +67,6 @@ def create_snapshot(Type, obj, extra_frames=0):
         else:
             return Type.create_raw(obj, context)
 
-    module = inspect.getmodule(frame)
-    if module is not None and module.__file__ is not None:
-        state().files_with_snapshots.add(module.__file__)
-
     key = id(frame.f_code), frame.f_lasti
 
     if key not in state().snapshots:

@@ -1,4 +1,5 @@
 import ast
+import sys
 
 from inline_snapshot import external
 from inline_snapshot import outsource
@@ -186,15 +187,24 @@ def test_a():
         """
     )
 
-    result = project.run()
+    result = project.run("--inline-snapshot=create")
 
-    assert result.errorLines() == snapshot(
-        """\
+    assert result.errorLines() == (
+        snapshot(
+            """\
 >       assert outsource(b"test2") == snapshot(
 E       AssertionError: assert b'test2' == b'test'
 E         \n\
 E         Use -v to get more diff
 """
+        )
+        if sys.version_info >= (3, 11)
+        else snapshot(
+            """\
+>       assert outsource(b"test2") == snapshot(
+E       AssertionError
+"""
+        )
     )
 
 
@@ -621,8 +631,7 @@ def test_a():
         error=snapshot(
             """\
 >       assert "hi" == external(".json") == external(".txt")
->           raise UsageError("you can not compare external(...) with external(...)")
-E           inline_snapshot._exceptions.UsageError: you can not compare external(...) with external(...)
+E       inline_snapshot._exceptions.UsageError: you can not compare external(...) with external(...)
 """
         ),
         returncode=1,
@@ -642,8 +651,7 @@ def test_a():
         error=snapshot(
             """\
 >       assert "hi" == external(".json") == snapshot(".txt")
->           raise UsageError("you can not compare external(...) with snapshot(...)")
-E           inline_snapshot._exceptions.UsageError: you can not compare external(...) with snapshot(...)
+E       inline_snapshot._exceptions.UsageError: you can not compare external(...) with snapshot(...)
 """
         ),
         returncode=1,
@@ -784,4 +792,93 @@ def test_a():
             }
         ),
         returncode=snapshot(0),
+    )
+
+
+def test_report():
+    # see https://github.com/15r10nk/inline-snapshot/issues/298
+
+    Example(
+        """\
+
+from inline_snapshot import external
+
+
+def test_example():
+    n=5
+    assert sorted([n, 2]) == external()
+
+
+"""
+    ).run_pytest(
+        ["--inline-snapshot=report"],
+        report=snapshot(
+            """\
+------------------------------- Create snapshots -------------------------------
++-------------------------- tests/test_something.py ---------------------------+
+| @@ -4,6 +4,6 @@                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_example():                                                         |
+|      n=5                                                                     |
+| -    assert sorted([n, 2]) == external()                                     |
+| +    assert sorted([n, 2]) ==                                                |
+| external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.json")                   |
++------------------------------------------------------------------------------+
++--------------- uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.json ---------------+
+| [                                                                            |
+|   2,                                                                         |
+|   5                                                                          |
+| ]                                                                            |
++------------------------------------------------------------------------------+
+These changes are not applied.
+Use --inline-snapshot=create to apply them, or use the interactive mode with
+--inline-snapshot=review\
+"""
+        ),
+        returncode=snapshot(1),
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/__inline_snapshot__/test_something/test_example/e3e70682-c209-4cac-a29f-6fbed82c07cd.json": """\
+[
+  2,
+  5
+]\
+""",
+                "tests/test_something.py": """\
+
+from inline_snapshot import external
+
+
+def test_example():
+    n=5
+    assert sorted([n, 2]) == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.json")
+
+
+""",
+            }
+        ),
+    ).replace(
+        "n=5", "n=8"
+    ).run_pytest(
+        ["--inline-snapshot=report"],
+        report=snapshot(
+            """\
++--------------- uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.json ---------------+
+| @@ -1,4 +1,4 @@                                                              |
+|                                                                              |
+|  [                                                                           |
+|    2,                                                                        |
+| -  5                                                                         |
+| +  8                                                                         |
+|  ]                                                                           |
++------------------------------------------------------------------------------+
+These changes are not applied.
+Use --inline-snapshot=fix to apply them, or use the interactive mode with
+--inline-snapshot=review\
+"""
+        ),
+        returncode=snapshot(1),
     )
