@@ -587,18 +587,92 @@
   
   
   
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Integrations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            Integrations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../pytest/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    pytest integration
+    Pytest
     
   </span>
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pycharm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PyCharm
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1585,44 +1659,29 @@
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>The following feature is available for <a href="../insiders/">insider</a> <img alt="❤" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/2764.svg" title=":heart:" /> only
-and requires cpython&gt;=3.11.</p>
+and requires cpython&gt;=3.11 to generate code. The generated code can be used with every python version.</p>
 </div>
 <p>The <code>snapshot()</code> function provides a lot of flexibility, but there is a easier way for simple assertion.
 You can write a normal assertion and use <code>...</code> where inline-snapshot should create the new value, like in the following example.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">original code</label><label for="__tabbed_1_2">--inline-snapshot=create</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p><!-- inline-snapshot: first_block requires_assert outcome-failed=1 outcome-errors=1 -->
+<!-- inline-snapshot: first_block requires_assert outcome-failed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_assert</span><span class="p">():</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">assert</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="o">...</span>
-</code></pre></div></p>
-</div>
-<div class="tabbed-block">
-<p><!-- inline-snapshot: create requires_assert outcome-failed=1 outcome-errors=1 -->
+</code></pre></div>
+<p>You can then run <code>pytest</code> to create the value or use the "run test" button in <a href="../pycharm/">PyCharm</a>, which replaces <code>...</code> by default with the correct value.</p>
+<!-- inline-snapshot: create requires_assert outcome-failed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_assert</span><span class="p">():</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="hll">    <span class="k">assert</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">2</span>
-</span></code></pre></div></p>
-</div>
-</div>
-</div>
-<p>inline-snapshot will detect these failures and will replace <code>...</code> with the correct value.</p>
+</span></code></pre></div>
 <p>It is also possible to fix existing values.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">original code</label><label for="__tabbed_2_2">--inline-snapshot=fix-assert</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p><!-- inline-snapshot: first_block requires_assert outcome-failed=1 outcome-errors=1 -->
+<!-- inline-snapshot: first_block requires_assert outcome-failed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_assert</span><span class="p">():</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="k">assert</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">5</span>
-</code></pre></div></p>
-</div>
-<div class="tabbed-block">
-<p><!-- inline-snapshot: requires_assert outcome-passed=1 -->
+</code></pre></div>
+<p>Fixing existing assertions can only be done by running <code>pytest</code> and not the "run test" button.</p>
+<!-- inline-snapshot: requires_assert outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_assert</span><span class="p">():</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="hll">    <span class="k">assert</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">2</span>
-</span></code></pre></div></p>
-</div>
-</div>
-</div>
+</span></code></pre></div>
 <p>This is especially useful to fix values in existing codebases where <code>snapshot()</code> is currently not used.</p>
 <p>The logic to create/fix the assertions is the same like for snapshots, but there are rules which specify which side of the <code>==</code> should be fixed.
 This allows assertions like <code class="highlight"><span class="k">assert</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span></code> to be fixed and prevents inline-snapshot to try to fix code like <code class="highlight"><span class="k">assert</span> <span class="n">f1</span><span class="p">()</span> <span class="o">==</span> <span class="n">f2</span><span class="p">()</span></code>.</p>

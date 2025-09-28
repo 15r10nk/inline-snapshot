@@ -4,7 +4,7 @@
 
 - [Introduction](https://15r10nk.github.io/inline-snapshot/0.29/index.md)
 - [Configuration](https://15r10nk.github.io/inline-snapshot/0.29/configuration/index.md)
-- [pytest integration](https://15r10nk.github.io/inline-snapshot/0.29/pytest/index.md)
+- [Pytest](https://15r10nk.github.io/inline-snapshot/0.29/pytest/index.md)
 - [Categories](https://15r10nk.github.io/inline-snapshot/0.29/categories/index.md)
 - [Code generation](https://15r10nk.github.io/inline-snapshot/0.29/code_generation/index.md)
 - [Limitations](https://15r10nk.github.io/inline-snapshot/0.29/limitations/index.md)

@@ -593,18 +593,92 @@
   
   
   
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Integrations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            Integrations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../pytest/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    pytest integration
+    Pytest
     
   </span>
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pycharm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PyCharm
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1489,20 +1563,31 @@
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">hash-length</span><span class="o">=</span><span class="mi">15</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">default-flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report&quot;</span><span class="p">]</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">default-flags-tui</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;review&quot;</span><span class="p">]</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">format-command</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">show-updates</span><span class="o">=</span><span class="kc">false</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">default-storage</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="k">[tool.inline-snapshot.shortcuts]</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">review</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;review&quot;</span><span class="p">]</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">fix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span><span class="s2">&quot;fix&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">default-flags-ide</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;report&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">format-command</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">show-updates</span><span class="o">=</span><span class="kc">false</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">default-storage</span><span class="o">=</span><span class="s2">&quot;uuid&quot;</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="k">[tool.inline-snapshot.shortcuts]</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">review</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;review&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">fix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;create&quot;</span><span class="p">,</span><span class="s2">&quot;fix&quot;</span><span class="p">]</span>
 </code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The default flags are different if you use <em>cpython&lt;3.11</em> due to <a href="../limitations/#pytest-assert-rewriting-is-disabled">technical limitations</a>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[tool.inline-snapshot]</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">default-flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;short-report&quot;</span><span class="p">]</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">default-flags-tui</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;short-report&quot;</span><span class="p">]</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">default-flags-ide</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;short-report&quot;</span><span class="p">]</span>
+</code></pre></div></p>
+<p>Changing these flags will disable pytest assert rewriting for older python versions.</p>
+</div>
 <ul>
 <li><strong>hash-length:</strong> specifies the length of the hash used by <code>external()</code> in the code representation.
     This does not affect the hash length used to store the data.
     The hash should be long enough to avoid hash collisions.</li>
 <li>
-<p><strong>default-flags:</strong> defines which flags should be used if there are no flags specified with <code>--inline-snapshot=...</code>.
+<p><strong>default-flags:</strong> defines which flags should be used if there are no flags specified with <code>--inline-snapshot=...</code> and <em>default-flags-ide</em> or <em>default-flags-tui</em> are note used.
     You can also use the environment variable <code>INLINE_SNAPSHOT_DEFAULT_FLAGS=...</code> to specify the flags and to override those in the configuration file.</p>
 </li>
 <li>
@@ -1510,16 +1595,16 @@
     inline-snapshot creates all snapshots by default in this case and asks when there are values to change.
     This feature requires <em>cpython&gt;=3.11</em></p>
 </li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The default flags are different if you use <em>cpython&lt;3.11</em> due to <a href="../limitations/#pytest-assert-rewriting-is-disabled">technical limitations</a>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[tool.inline-snapshot]</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">default-flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;short-report&quot;</span><span class="p">]</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">default-flags-tui</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;short-report&quot;</span><span class="p">]</span>
-</code></pre></div></p>
+<li>
+<p><strong>default-flags-ide:</strong> <a href="../insiders/">(insider only)</a> defines which flags should be used if you run your tests with the "run test" button in <a href="../pycharm/">PyCharm</a>.
+    inline-snapshot creates in this case all snapshots by default and reports other changes.
+    The <em>review</em> flag is not supported here because inline-snapshot is not able to read user input.</p>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p>You can use <code>["create","fix"]</code> if this fits your work flow, but keep in mind that this will change your snapshot values every time you press the "run test" button and you will have to undo these changes if they are incorrect.</p>
+<p>What you can do instead is to replace the incorrect values with <code>...</code> and run your test again. The change from <code>...</code> to the new value is part of the <em>create</em> category, which is enabled by default.</p>
 </div>
-<ul>
+</li>
 <li>
 <p><strong>shortcuts:</strong> allows you to define custom commands to simplify your workflows.
     <code>--fix</code> and <code>--review</code> are defined by default, but this configuration can be changed to fit your needs.</p>

@@ -2,106 +2,110 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/alternatives/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/categories/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/changelog/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/cmp_snapshot/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/code_generation/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/configuration/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/contributing/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/customize_repr/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/eq_snapshot/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/extra/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/fix_assert/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/get_snapshot_value/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/getitem_snapshot/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/in_snapshot/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/insiders/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/limitations/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
+    </url>
+    <url>
+         <loc>https://15r10nk.github.io/inline-snapshot/0.29/pycharm/</loc>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/pytest/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/testing/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/third_party/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/types/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/external/external/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/external/external_file/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/external/outsource/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/external/register_format/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
     <url>
          <loc>https://15r10nk.github.io/inline-snapshot/0.29/howto/parametrize/</loc>
-         <lastmod>2025-09-24</lastmod>
+         <lastmod>2025-09-28</lastmod>
     </url>
 </urlset>
