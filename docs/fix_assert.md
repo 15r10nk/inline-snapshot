@@ -4,43 +4,41 @@
 !!! info
 
     The following feature is available for [insider](insiders.md) :heart: only
-    and requires cpython>=3.11.
+    and requires cpython>=3.11 to generate code. The generated code can be used with every python version.
 
 
 The `snapshot()` function provides a lot of flexibility, but there is a easier way for simple assertion.
 You can write a normal assertion and use `...` where inline-snapshot should create the new value, like in the following example.
 
-=== "original code"
-    <!-- inline-snapshot: first_block requires_assert outcome-failed=1 outcome-errors=1 -->
-    ``` python
-    def test_assert():
-        assert 1 + 1 == ...
-    ```
+<!-- inline-snapshot: first_block requires_assert outcome-failed=1 outcome-errors=1 -->
+``` python
+def test_assert():
+    assert 1 + 1 == ...
+```
 
-=== "--inline-snapshot=create"
-    <!-- inline-snapshot: create requires_assert outcome-failed=1 outcome-errors=1 -->
-    ``` python hl_lines="2"
-    def test_assert():
-        assert 1 + 1 == 2
-    ```
+You can then run `pytest` to create the value or use the "run test" button in [PyCharm](pycharm.md), which replaces `...` by default with the correct value.
 
-inline-snapshot will detect these failures and will replace `...` with the correct value.
+<!-- inline-snapshot: create requires_assert outcome-failed=1 outcome-errors=1 -->
+``` python hl_lines="2"
+def test_assert():
+    assert 1 + 1 == 2
+```
 
 It is also possible to fix existing values.
 
-=== "original code"
-    <!-- inline-snapshot: first_block requires_assert outcome-failed=1 outcome-errors=1 -->
-    ``` python
-    def test_assert():
-        assert 1 + 1 == 5
-    ```
+<!-- inline-snapshot: first_block requires_assert outcome-failed=1 outcome-errors=1 -->
+``` python
+def test_assert():
+    assert 1 + 1 == 5
+```
 
-=== "--inline-snapshot=fix-assert"
-    <!-- inline-snapshot: requires_assert outcome-passed=1 -->
-    ``` python hl_lines="2"
-    def test_assert():
-        assert 1 + 1 == 2
-    ```
+Fixing existing assertions can only be done by running `pytest` and not the "run test" button.
+
+<!-- inline-snapshot: requires_assert outcome-passed=1 -->
+``` python hl_lines="2"
+def test_assert():
+    assert 1 + 1 == 2
+```
 
 This is especially useful to fix values in existing codebases where `snapshot()` is currently not used.
 
@@ -56,7 +54,6 @@ The rule is that exactly one side of the equation must be a *value expression*, 
     * and `T` is a type (which excludes function calls)
 
 
-
 ## Limitations
 
 * `cpython>=3.11` is required to create/fix assertions.
@@ -64,7 +61,6 @@ The rule is that exactly one side of the equation must be a *value expression*, 
   You need to run your tests a multiple times to fix the remaining ones.
 * It is not possible to fix values where inline-snapshot did not know which side of the equal sign should be fixed.
   You can use `snapshot()` in this case to make this clear.
-
 
 
 ## pytest options

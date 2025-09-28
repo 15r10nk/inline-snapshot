@@ -33,7 +33,7 @@ pip install inline-snapshot
     assert 1 + 1 == 3
     ```
 
-    You can learn [here](fix_assert.md) more about this feature.
+    You can learn [here](https://15r10nk.github.io/inline-snapshot/latest/fix_assert/) more about this feature.
 
 
 - **Intuitive Semantics:** `snapshot(x)` mirrors `x` for easy understanding.
