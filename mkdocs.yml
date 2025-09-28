@@ -42,7 +42,9 @@ nav:
 - Home:
   - Introduction: index.md
   - Configuration: configuration.md
-  - pytest integration: pytest.md
+  - Integrations:
+    - Pytest: pytest.md
+    - PyCharm: pycharm.md
   - Categories: categories.md
   - Code generation: code_generation.md
   - Limitations: limitations.md
