@@ -2,7 +2,7 @@
 
 Info
 
-The following feature is available for [insider](../insiders/) only and requires cpython>=3.11.
+The following feature is available for [insider](../insiders/) only and requires cpython>=3.11 to generate code. The generated code can be used with every python version.
 
 The `snapshot()` function provides a lot of flexibility, but there is a easier way for simple assertion. You can write a normal assertion and use `...` where inline-snapshot should create the new value, like in the following example.
 
@@ -11,12 +11,12 @@ def test_assert():
     assert 1 + 1 == ...
 ```
 
+You can then run `pytest` to create the value or use the "run test" button in [PyCharm](../pycharm/), which replaces `...` by default with the correct value.
+
 ```
 def test_assert():
     assert 1 + 1 == 2
 ```
-
-inline-snapshot will detect these failures and will replace `...` with the correct value.
 
 It is also possible to fix existing values.
 
@@ -24,6 +24,8 @@ It is also possible to fix existing values.
 def test_assert():
     assert 1 + 1 == 5
 ```
+
+Fixing existing assertions can only be done by running `pytest` and not the "run test" button.
 
 ```
 def test_assert():
