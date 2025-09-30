@@ -36,6 +36,10 @@ class CustomCall(Custom):
         return self._args
 
     @property
+    def all_pos_args(self):
+        return [*self._args, *self._kwargs.values()]
+
+    @property
     def kwargs(self):
         return {**self._kwargs, **self._kwonly}
 
@@ -49,13 +53,13 @@ class CustomCall(Custom):
 
     def argument(self, pos_or_str):
         if isinstance(pos_or_str, int):
-            return self._args[pos_or_str]
+            return unwrap_default(self.all_pos_args[pos_or_str])
         else:
-            return self.kwargs[pos_or_str]
+            return unwrap_default(self.kwargs[pos_or_str])
 
     def map(self, f):
         return self._function(
-            *[f(unwrap_default(x)) for x in self.args],
+            *[f(unwrap_default(x)) for x in self._args],
             **{k: f(unwrap_default(v)) for k, v in self.kwargs.items()},
         )
 

@@ -43,7 +43,7 @@ class GenericCallAdapter(Adapter):
 
     @classmethod
     def argument(cls, value, pos_or_name) -> Any:
-        raise NotImplementedError(cls)
+        return cls.arguments(value).argument(pos_or_name)
 
     @classmethod
     def repr(cls, value):
@@ -262,13 +262,6 @@ class DataclassAdapter(GenericCallAdapter):
 
         return CustomCall(type(value), *[], **kwargs)
 
-    def argument(self, value, pos_or_name):
-        if isinstance(pos_or_name, str):
-            return getattr(value, pos_or_name)
-        else:
-            args = [field for field in fields(value) if field.init]
-            return args[pos_or_name]
-
 
 try:
     import attrs
@@ -313,10 +306,6 @@ else:
                     kwargs[field.name] = field_value
 
             return CustomCall(type(value), **kwargs)
-
-        def argument(self, value, pos_or_name):
-            assert isinstance(pos_or_name, str)
-            return getattr(value, pos_or_name)
 
 
 try:
@@ -376,11 +365,6 @@ else:
 
             return CustomCall(type(value), **kwargs)
 
-        @classmethod
-        def argument(cls, value, pos_or_name):
-            assert isinstance(pos_or_name, str)
-            return getattr(value, pos_or_name)
-
 
 class IsNamedTuple(ABC):
     _inline_snapshot_name = "namedtuple"
@@ -418,10 +402,6 @@ class NamedTupleAdapter(GenericCallAdapter):
             },
         )
 
-    def argument(self, value, pos_or_name):
-        assert isinstance(pos_or_name, str)
-        return getattr(value, pos_or_name)
-
 
 class DefaultDictAdapter(GenericCallAdapter):
     @classmethod
@@ -435,11 +415,3 @@ class DefaultDictAdapter(GenericCallAdapter):
             type(value),
             *[value.default_factory, dict(value)],
         )
-
-    def argument(self, value, pos_or_name):
-        assert isinstance(pos_or_name, int)
-        if pos_or_name == 0:
-            return value.default_factory
-        elif pos_or_name == 1:
-            return dict(value)
-        assert False
