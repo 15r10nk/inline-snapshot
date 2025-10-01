@@ -254,3 +254,31 @@ def test_a():
         ),
         returncode=1,
     )
+
+
+def test_black_does_not_trim_spaces():
+    # https://github.com/15r10nk/inline-snapshot/issues/301
+
+    Example(
+        {
+            "test_a.py": """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert " a " == snapshot("")
+""",
+        }
+    ).run_pytest(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "test_a.py": """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert " a " == snapshot(" a ")
+"""
+            }
+        ),
+        returncode=1,
+    ).run_inline()
