@@ -173,7 +173,8 @@ extra-dependencies = [
   "pyright>=1.1.359",
   "pytest-freezer>=0.4.8",
   "pytest-mock>=3.14.0",
-  "black==25.1.0"
+  "black==25.1.0",
+  "setuptools"
 ]
 env-vars.TOP = "{root}"
 
@@ -243,3 +244,4 @@ force_single_line=true
 
 [tool.inline-snapshot]
 show-updates=true
+default-flags-tui=["disable"]

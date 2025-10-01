@@ -81,11 +81,7 @@ def code_repr(obj):
 
 
 def mocked_code_repr(obj):
-    from inline_snapshot._adapter.adapter import get_adapter_type
-
-    adapter = get_adapter_type(obj)
-    assert adapter is not None
-    return adapter.repr(obj)
+    return value_code_repr(obj)
 
 
 def value_code_repr(obj):

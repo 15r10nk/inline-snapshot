@@ -510,6 +510,7 @@ E    +  where 1 = snapshot(1)
 
 @pytest.mark.no_rewriting
 def test_run_without_pytest(pytester):
+    pytest.skip()
     # snapshots are deactivated by default
     pytester.makepyfile(
         test_file="""

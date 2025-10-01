@@ -3,10 +3,13 @@ from __future__ import annotations
 import ast
 import warnings
 
+from inline_snapshot._customize import Custom
+from inline_snapshot._customize import CustomUnmanaged
+from inline_snapshot._customize import CustomValue
+
 from .._change import Replace
 from .._code_repr import value_code_repr
 from .._sentinels import undefined
-from .._unmanaged import Unmanaged
 from .._unmanaged import update_allowed
 from .._utils import value_to_token
 from ..syntax_warnings import InlineSnapshotInfo
@@ -25,18 +28,24 @@ class ValueAdapter(Adapter):
 
     def assign(self, old_value, old_node, new_value):
         # generic fallback
+        assert isinstance(old_value, Custom)
+        assert isinstance(new_value, Custom)
 
         # because IsStr() != IsStr()
-        if isinstance(old_value, Unmanaged):
+        if isinstance(old_value, CustomUnmanaged):
             return old_value
 
         if old_node is None:
             new_token = []
         else:
-            new_token = value_to_token(new_value)
+            new_token = value_to_token(new_value.eval())
 
-        if isinstance(old_node, ast.JoinedStr) and isinstance(new_value, str):
-            if not old_value == new_value:
+        if (
+            isinstance(old_node, ast.JoinedStr)
+            and isinstance(new_value, CustomValue)
+            and isinstance(new_value.value, str)
+        ):
+            if not old_value.eval() == new_value.eval():
                 warnings.warn_explicit(
                     f"inline-snapshot will be able to fix f-strings in the future.\nThe current string value is:\n   {new_value!r}",
                     filename=self.context.file._source.filename,
