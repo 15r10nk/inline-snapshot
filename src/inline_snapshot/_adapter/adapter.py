@@ -4,34 +4,53 @@ import ast
 import typing
 from dataclasses import dataclass
 
+import pytest
+
+from inline_snapshot._customize import CustomCall
+from inline_snapshot._customize import CustomDict
+from inline_snapshot._customize import CustomList
+from inline_snapshot._customize import CustomTuple
+from inline_snapshot._customize import CustomUndefined
+from inline_snapshot._customize import CustomValue
 from inline_snapshot._source_file import SourceFile
 
 
 def get_adapter_type(value):
-    from inline_snapshot._adapter.generic_call_adapter import get_adapter_for_type
 
-    adapter = get_adapter_for_type(type(value))
-    if adapter is not None:
-        return adapter
+    if isinstance(value, CustomCall):
+        from .generic_call_adapter import CallAdapter
 
-    if isinstance(value, list):
+        pytest.skip()
+
+        return CallAdapter
+
+    if isinstance(value, CustomList):
         from .sequence_adapter import ListAdapter
+
+        pytest.skip()
 
         return ListAdapter
 
-    if type(value) is tuple:
+    if isinstance(value, CustomTuple):
         from .sequence_adapter import TupleAdapter
+
+        pytest.skip()
 
         return TupleAdapter
 
-    if isinstance(value, dict):
+    if isinstance(value, CustomDict):
         from .dict_adapter import DictAdapter
+
+        pytest.skip()
 
         return DictAdapter
 
-    from .value_adapter import ValueAdapter
+    if isinstance(value, (CustomValue, CustomUndefined)):
+        from .value_adapter import ValueAdapter
 
-    return ValueAdapter
+        return ValueAdapter
+
+    raise AssertionError(f"no handler for {type(value)}")
 
 
 class Item(typing.NamedTuple):

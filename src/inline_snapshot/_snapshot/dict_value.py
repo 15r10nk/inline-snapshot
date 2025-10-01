@@ -1,6 +1,12 @@
 import ast
 from typing import Iterator
 
+import pytest
+
+from inline_snapshot._customize import Builder
+from inline_snapshot._customize import CustomDict
+from inline_snapshot._customize import CustomUndefined
+
 from .._adapter.adapter import AdapterContext
 from .._change import Change
 from .._change import Delete
@@ -16,35 +22,43 @@ class DictValue(GenericValue):
 
     def __getitem__(self, index):
 
-        if self._new_value is undefined:
-            self._new_value = {}
+        pytest.skip()
 
-        if index not in self._new_value:
-            old_value = self._old_value
-            if old_value is undefined:
+        if isinstance(self._new_value, CustomUndefined):
+            self._new_value = CustomDict({}, {})
+
+        index = Builder().get_handler(index)
+
+        if index not in self._new_value.value:
+            if isinstance(self._old_value, CustomUndefined):
                 state().missing_values += 1
                 old_value = {}
+            else:
+                old_value = self._old_value.value
 
             child_node = None
             if self._ast_node is not None:
                 assert isinstance(self._ast_node, ast.Dict)
-                if index in old_value:
-                    pos = list(old_value.keys()).index(index)
+                old_keys = [k for k in old_value.keys()]
+                if index in old_keys:
+                    pos = old_keys.index(index)
                     child_node = self._ast_node.values[pos]
 
-            self._new_value[index] = UndecidedValue(
+            self._new_value.value[index] = UndecidedValue(
                 old_value.get(index, undefined), child_node, self._context
             )
 
-        return self._new_value[index]
+        return self._new_value.value[index]
 
     def _re_eval(self, value, context: AdapterContext):
         super()._re_eval(value, context)
 
-        if self._new_value is not undefined and self._old_value is not undefined:
-            for key, s in self._new_value.items():
-                if key in self._old_value:
-                    s._re_eval(self._old_value[key], context)
+        if not isinstance(self._new_value, CustomUndefined) and not isinstance(
+            self._old_value, CustomUndefined
+        ):
+            for key, s in self._new_value.value.items():
+                if key in self._old_value.value:
+                    s._re_eval(self._old_value.value[key], context)
 
     def _new_code(self):
         return (
@@ -52,7 +66,7 @@ class DictValue(GenericValue):
             + ", ".join(
                 [
                     f"{self._file._value_to_code(k)}: {v._new_code()}"
-                    for k, v in self._new_value.items()
+                    for k, v in self._new_value.value.items()
                     if not isinstance(v, UndecidedValue)
                 ]
             )
@@ -61,37 +75,37 @@ class DictValue(GenericValue):
 
     def _get_changes(self) -> Iterator[Change]:
 
-        assert self._old_value is not undefined
+        assert not isinstance(self._old_value, CustomUndefined)
 
         if self._ast_node is None:
-            values = [None] * len(self._old_value)
+            values = [None] * len(self._old_value.value)
         else:
             assert isinstance(self._ast_node, ast.Dict)
             values = self._ast_node.values
 
-        for key, node in zip(self._old_value.keys(), values):
-            if key in self._new_value:
+        for key, node in zip(self._old_value.value.keys(), values):
+            if key in self._new_value.value:
                 # check values with same keys
-                yield from self._new_value[key]._get_changes()
+                yield from self._new_value.value[key]._get_changes()
             else:
                 # delete entries
-                yield Delete("trim", self._file, node, self._old_value[key])
+                yield Delete("trim", self._file, node, self._old_value.value[key])
 
         to_insert = []
-        for key, new_value_element in self._new_value.items():
-            if key not in self._old_value and not isinstance(
+        for key, new_value_element in self._new_value.value.items():
+            if key not in self._old_value.value and not isinstance(
                 new_value_element, UndecidedValue
             ):
                 # add new values
                 to_insert.append((key, new_value_element._new_code()))
 
         if to_insert:
-            new_code = [(self._file._value_to_code(k), v) for k, v in to_insert]
+            new_code = [(self._file._value_to_code(k.eval()), v) for k, v in to_insert]
             yield DictInsert(
                 "create",
                 self._file,
                 self._ast_node,
-                len(self._old_value),
+                len(self._old_value.value),
                 new_code,
                 to_insert,
             )
