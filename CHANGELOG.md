@@ -1,4 +1,15 @@
 
+<a id='changelog-0.29.2'></a>
+# 0.29.2 — 2025-10-01
+
+## Fixed
+
+- fixed string formatting with black which caused invalid snapshots ([#301](https://github.com/15r10nk/inline-snapshot/issues/301))
+
+    ``` python
+    assert " a " == snapshot("a")
+    ```
+
 <a id='changelog-0.29.1'></a>
 # 0.29.1 — 2025-09-24
 
