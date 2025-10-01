@@ -76,7 +76,9 @@ This issue can be solved by:
         mode = file_mode_for_path(filename)
 
         try:
-            return format_str(text, mode=mode)
+            # "a\n" is a work around for https://github.com/15r10nk/inline-snapshot/issues/301
+            # it prevents that " " gets treated as a docstring and gets striped by black.
+            return format_str("a\n" + text, mode=mode)[2:].lstrip()
         except:
             raise_problem(
                 """\

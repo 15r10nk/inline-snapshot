@@ -589,13 +589,15 @@ def test_format_file(check_update):
         'assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot()\n', flags="create"
     ) == snapshot(
         """\
-assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot([
-    "aaaaaaaaaaaaaaaaa",
-    "aaaaaaaaaaaaaaaaa",
-    "aaaaaaaaaaaaaaaaa",
-    "aaaaaaaaaaaaaaaaa",
-    "aaaaaaaaaaaaaaaaa",
-])
+assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot(
+    [
+        "aaaaaaaaaaaaaaaaa",
+        "aaaaaaaaaaaaaaaaa",
+        "aaaaaaaaaaaaaaaaa",
+        "aaaaaaaaaaaaaaaaa",
+        "aaaaaaaaaaaaaaaaa",
+    ]
+)
 """
     )
 
