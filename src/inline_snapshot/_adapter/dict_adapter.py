@@ -46,7 +46,7 @@ class DictAdapter(Adapter):
             except Exception:
                 pass
             else:
-                assert node_key == value_key
+                assert node_key == value_key, f"{node_key!r} != {value_key!r}"
 
             result.append(Item(value=value[value_key], node=node_value))
 

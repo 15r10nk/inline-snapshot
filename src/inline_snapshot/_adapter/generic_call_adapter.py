@@ -10,7 +10,7 @@ from dataclasses import is_dataclass
 from typing import Any
 
 from inline_snapshot._customize import CustomCall
-from inline_snapshot._customize import Default
+from inline_snapshot._customize import CustomDefault
 from inline_snapshot._customize import unwrap_default
 
 from .._change import CallArg
@@ -53,7 +53,7 @@ class GenericCallAdapter(Adapter):
         arguments = [repr(value) for value in call.args] + [
             f"{key}={repr(value)}"
             for key, value in call.kwargs.items()
-            if not isinstance(value, Default)
+            if not isinstance(value, CustomDefault)
         ]
 
         return f"{repr(type(value))}({', '.join(arguments)})"
@@ -165,7 +165,9 @@ class GenericCallAdapter(Adapter):
         # keyword arguments
         result_kwargs = {}
         for kw in old_node.keywords:
-            if kw.arg not in new_kwargs or isinstance(new_kwargs[kw.arg], Default):
+            if kw.arg not in new_kwargs or isinstance(
+                new_kwargs[kw.arg], CustomDefault
+            ):
                 # delete entries
                 yield Delete(
                     (
@@ -184,7 +186,7 @@ class GenericCallAdapter(Adapter):
         to_insert = []
         insert_pos = 0
         for key, new_value_element in new_kwargs.items():
-            if isinstance(new_value_element, Default):
+            if isinstance(new_value_element, CustomDefault):
                 continue
             if key not in old_node_kwargs:
                 # add new values
@@ -257,7 +259,7 @@ class DataclassAdapter(GenericCallAdapter):
                     is_default = True
 
                 if is_default:
-                    field_value = Default(field_value)
+                    field_value = CustomDefault(field_value)
                 kwargs[field.name] = field_value
 
         return CustomCall(type(value), *[], **kwargs)
@@ -301,7 +303,7 @@ else:
                             is_default = True
 
                     if is_default:
-                        field_value = Default(field_value)
+                        field_value = CustomDefault(field_value)
 
                     kwargs[field.name] = field_value
 
@@ -359,7 +361,7 @@ else:
                         is_default = True
 
                     if is_default:
-                        field_value = Default(field_value)
+                        field_value = CustomDefault(field_value)
 
                     kwargs[name] = field_value
 

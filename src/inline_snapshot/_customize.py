@@ -1,13 +1,19 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from typing import Any
 from typing import Callable
+
+from inline_snapshot._unmanaged import Unmanaged
+from inline_snapshot._unmanaged import is_unmanaged
 
 custom_functions = []
 
 from dataclasses import MISSING
 from dataclasses import fields
 from dataclasses import is_dataclass
+
+from inline_snapshot._sentinels import undefined
 
 
 def customize(f: Callable[[Any, Builder], Custom | None]):
@@ -20,22 +26,21 @@ class Custom:
         raise NotImplementedError()
 
 
-def get_handler(v, builder: Builder) -> Custom:
-    for f in reversed(custom_functions):
-        r = f(v, builder)
-        if isinstance(r, Custom):
-            return r
-
-    return CustomValue(v)
-
-
 class CustomDefault(Custom):
     def __init__(self, value):
         self.value = value
 
 
+class CustomUnmanaged(Custom, Unmanaged):
+    pass
+
+
+class CustomUndefined(Custom):
+    pass
+
+
 def unwrap_default(value):
-    if isinstance(value, Default):
+    if isinstance(value, CustomDefault):
         return value.value
     return value
 
@@ -104,11 +109,12 @@ class CustomDict(Custom):
         self.value = value
 
     def map(self, f):
-        return {f(k): f(v) for k, v in self.value}
+        return {f(k): f(v) for k, v in self.value.items()}
 
 
 class CustomValue(Custom):
     def __init__(self, value, repr_str=None):
+        assert not isinstance(value, Custom)
 
         if repr_str is None:
             self.repr_str = repr_str
@@ -118,7 +124,7 @@ class CustomValue(Custom):
         self.value = value
 
     def map(self, f):
-        return self.value
+        return f(self.value)
 
 
 @customize
@@ -158,7 +164,7 @@ def dataclass_handler(value, builder: Builder):
                     field_value = builder.Default(field_value)
                 kwargs[field.name] = field_value
 
-        return builder.Call(type(value), [], kwargs)
+        return builder.Call(type(value), [], kwargs, {})
 
 
 try:
@@ -199,7 +205,7 @@ else:
 
                     kwargs[field.name] = field_value
 
-            return builder.Call(type(value), [], kwargs)
+            return builder.Call(type(value), [], kwargs, {})
 
 
 try:
@@ -227,7 +233,7 @@ else:
     @customize
     def attrs_handler(value, builder: Builder):
 
-        if issubclass(value, BaseModel):
+        if isinstance(value, BaseModel):
 
             kwargs = {}
 
@@ -253,7 +259,7 @@ else:
 
                     kwargs[name] = field_value
 
-            return builder.Call(type(value), [], kwargs)
+            return builder.Call(type(value), [], kwargs, {})
 
 
 @customize
@@ -279,40 +285,60 @@ def namedtuple_handler(value, builder: Builder):
             if field not in value._field_defaults
             or getattr(value, field) != value._field_defaults[field]
         },
+        {},
     )
 
 
 @customize
 def defaultdict_handler(value, builder: Builder):
-    if issubclass(value, defaultdict):
-        return CustomCall(
-            type(value),
-            [value.default_factory, dict(value)],
-        )
+    if isinstance(value, defaultdict):
+        return builder.Call(type(value), [value.default_factory, dict(value)], {}, {})
+
+
+@customize
+def unmanaged_handler(value, builder: Builder):
+    if is_unmanaged(value):
+        return CustomUnmanaged(value)
+
+
+@customize
+def undefined_handler(value, builder: Builder):
+    if value is undefined:
+        return CustomUndefined()
 
 
 class Builder:
+    def get_handler(self, v) -> Custom:
+        if isinstance(v, Custom):
+            return v
+
+        for f in reversed(custom_functions):
+            r = f(v, self)
+            if isinstance(r, Custom):
+                return r
+        return CustomValue(v)
+
     def List(self, value) -> CustomList:
-        value = [get_handler(v, self) for v in value]
+        value = [self.get_handler(v) for v in value]
         return CustomList(value)
 
     def Tuple(self, value) -> CustomTuple:
-        value = tuple([get_handler(v, self) for v in value])
+        value = tuple([self.get_handler(v) for v in value])
         return CustomTuple(value)
 
     def Call(self, function, posonly_args, kwargs, kwonly_args) -> CustomCall:
-        function = get_handler(function, self)
-        posonly_args = [get_handler(arg, self) for arg in posonly_args]
-        kwargs = {k: get_handler(arg, self) for k, arg in kwargs.items()}
-        kwonly_args = {k: get_handler(arg, self) for k, arg in kwonly_args.items()}
+        function = self.get_handler(function)
+        posonly_args = [self.get_handler(arg) for arg in posonly_args]
+        kwargs = {k: self.get_handler(arg) for k, arg in kwargs.items()}
+        kwonly_args = {k: self.get_handler(arg) for k, arg in kwonly_args.items()}
 
         return CustomCall(function, *posonly_args, **kwargs).kwonly(**kwonly_args)
 
     def Default(self, value) -> CustomDefault:
-        return CustomDefault(get_handler(value, self))
+        return CustomDefault(self.get_handler(value))
 
     def Dict(self, value) -> CustomDict:
-        value = {get_handler(k, self): get_handler(v, self) for k, v in value.items()}
+        value = {self.get_handler(k): self.get_handler(v) for k, v in value.items()}
         return CustomDict(value)
 
     def Value(self, value, repr) -> CustomValue:

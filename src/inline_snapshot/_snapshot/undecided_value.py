@@ -1,6 +1,6 @@
 from typing import Iterator
 
-from inline_snapshot._adapter.adapter import adapter_map
+from inline_snapshot._customize import Builder
 
 from .._adapter.adapter import AdapterContext
 from .._adapter.adapter import get_adapter_type
@@ -8,7 +8,6 @@ from .._change import Change
 from .._change import Replace
 from .._sentinels import undefined
 from .._unmanaged import Unmanaged
-from .._unmanaged import map_unmanaged
 from .._utils import value_to_token
 from .generic_value import GenericValue
 
@@ -16,7 +15,7 @@ from .generic_value import GenericValue
 class UndecidedValue(GenericValue):
     def __init__(self, old_value, ast_node, context: AdapterContext):
 
-        old_value = adapter_map(old_value, map_unmanaged)
+        old_value = Builder().get_handler(old_value)
         self._old_value = old_value
         self._new_value = undefined
         self._ast_node = ast_node
