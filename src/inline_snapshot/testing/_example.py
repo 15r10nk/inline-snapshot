@@ -441,6 +441,7 @@ class Example:
             )
             command_env.pop("CI", None)
             command_env.pop("GITHUB_ACTIONS", None)
+            command_env.pop("PYTEST_XDIST_WORKER", None)
 
             if stdin:
                 # makes Console.is_terminal == True

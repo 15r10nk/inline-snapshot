@@ -367,6 +367,7 @@ def set_time(freezer):
                 del os.environ["CI"]  # pragma: no cover
 
             os.environ.pop("GITHUB_ACTIONS", None)
+            os.environ.pop("PYTEST_XDIST_WORKER", None)
 
             try:
                 with mock.patch.dict(

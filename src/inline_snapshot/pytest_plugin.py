@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 
@@ -70,6 +71,9 @@ categories = Flags.all().to_set()
 
 
 def xdist_running(config):
+    if "PYTEST_XDIST_WORKER" in os.environ:
+        return True
+
     return (
         hasattr(config.option, "numprocesses")
         and config.option.numprocesses is not None
