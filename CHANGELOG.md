@@ -1,4 +1,11 @@
 
+<a id='changelog-0.29.3'></a>
+# 0.29.3 — 2025-10-04
+
+## Fixed
+
+- xdist is now detected properly.
+
 <a id='changelog-0.29.2'></a>
 # 0.29.2 — 2025-10-01
 
