@@ -1,4 +1,5 @@
 from inline_snapshot import snapshot
+from inline_snapshot.testing._example import Example
 
 
 def test_xdist(project):
@@ -21,26 +22,25 @@ def test_a():
 
 
 def test_xdist_disabled(project):
-
-    project.setup(
+    Example(
         """\
+from inline_snapshot import snapshot
 
 def test_a():
-    assert 1==snapshot(1)
+    assert 1==snapshot(5)
 """
-    )
-
-    result = project.run("-n=auto")
-
-    assert result.report == snapshot(
-        """\
+    ).run_pytest(
+        ["-n=auto"],
+        report=snapshot(
+            """\
 INFO: inline-snapshot was disabled because you used xdist. This means that tests
 with snapshots will continue to run, but snapshot(x) will only return x and
-inline-snapshot will not be able to fix snapshots or generate reports.
+inline-snapshot will not be able to fix snapshots or generate reports.\
 """
+        ),
+        returncode=snapshot(1),
+        outcomes=snapshot({"failed": 1}),
     )
-
-    assert result.ret == 0
 
 
 def test_xdist_and_disable(project):
