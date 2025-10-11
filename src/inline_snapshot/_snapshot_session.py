@@ -1,6 +1,7 @@
 import ast
 import os
 import sys
+import tokenize
 from pathlib import Path
 from typing import Dict
 from typing import List
@@ -442,7 +443,8 @@ class SnapshotSession:
                     content = changed_files[file].new_code()
                     check_import = False
                 else:
-                    content = file.read_text("utf-8")
+                    with tokenize.open(file) as f:
+                        content = f.read()
                     check_import = True
 
                 for e in used_externals_in(content, check_import=check_import):

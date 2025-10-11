@@ -49,7 +49,7 @@ pip install inline-snapshot
 - **Customizable:** code generation can be customized with [@customize_repr](https://15r10nk.github.io/inline-snapshot/latest/customize_repr)
 - **Nested Snapshot Support:** snapshots can contain [other snapshots](https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#inner-snapshots)
 - **Fuzzy Matching:** Incorporate [dirty-equals](https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#dirty-equals) for flexible comparisons within snapshots.
-- **Dynamic Snapshot Content:** snashots can contain [non-constant values](https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#is)
+- **Dynamic Snapshot Content:** snapshots can contain [non-constant values](https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#is)
 - **Comprehensive Documentation:** Access detailed [documentation](https://15r10nk.github.io/inline-snapshot/latest) for complete guidance.
 
 
