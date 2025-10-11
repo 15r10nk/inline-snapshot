@@ -129,13 +129,13 @@ def change_file(path, map_function):
 class Example:
     files: dict[str, str | bytes]
 
-    def __init__(self, files: str | dict[str, str | bytes]):
+    def __init__(self, files: str | bytes | dict[str, str | bytes]):
         """
         Parameters:
             files: a collection of files which are used as your example project,
                    or just a string which will be saved as *tests/test_something.py*.
         """
-        if isinstance(files, str):
+        if isinstance(files, (str, bytes)):
             files = {"tests/test_something.py": files}
 
         self.files = files
