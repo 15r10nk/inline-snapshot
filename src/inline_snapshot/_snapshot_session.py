@@ -1,6 +1,7 @@
 import ast
 import os
 import sys
+import tokenize
 from pathlib import Path
 from typing import Dict
 from typing import List
@@ -205,6 +206,11 @@ def filter_changes(changes, snapshot_changes, console):
 
         any_changes = False
 
+        def save_encoding(text: str, encoding) -> str:
+            if encoding == "utf-8":
+                return text
+            return text.encode(encoding, errors="replace").decode()
+
         for file in cr.files():
             diff = file.diff()
             if diff:
@@ -212,7 +218,12 @@ def filter_changes(changes, snapshot_changes, console):
                 name = file.filename.relative_to(Path.cwd())
                 console().print(
                     Panel(
-                        Syntax(diff, "diff", theme="ansi_light", word_wrap=True),
+                        Syntax(
+                            save_encoding(diff, sys.stdout.encoding),
+                            "diff",
+                            theme="ansi_light",
+                            word_wrap=True,
+                        ),
                         title=name.as_posix(),
                         box=(
                             box.ASCII
@@ -442,7 +453,8 @@ class SnapshotSession:
                     content = changed_files[file].new_code()
                     check_import = False
                 else:
-                    content = file.read_text("utf-8")
+                    with tokenize.open(file) as f:
+                        content = f.read()
                     check_import = True
 
                 for e in used_externals_in(content, check_import=check_import):

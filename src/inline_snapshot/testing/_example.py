@@ -109,19 +109,19 @@ uuid.uuid4 = f
 
 
 @contextmanager
-def change_file(path, map_function):
+def change_file(path: Path, map_function):
     exists = path.exists()
     if exists:
-        text = path.read_text()
+        text = path.read_bytes().decode("utf-8")
     else:
         text = ""
 
-    path.write_text(map_function(text))
+    path.write_bytes(map_function(text).encode("utf-8"))
 
     yield
 
     if exists:
-        path.write_text(text)
+        path.write_bytes(text.encode("utf-8"))
     else:
         path.unlink()
 
@@ -129,13 +129,13 @@ def change_file(path, map_function):
 class Example:
     files: dict[str, str | bytes]
 
-    def __init__(self, files: str | dict[str, str | bytes]):
+    def __init__(self, files: str | bytes | dict[str, str | bytes]):
         """
         Parameters:
             files: a collection of files which are used as your example project,
                    or just a string which will be saved as *tests/test_something.py*.
         """
-        if isinstance(files, str):
+        if isinstance(files, (str, bytes)):
             files = {"tests/test_something.py": files}
 
         self.files = files
@@ -155,18 +155,21 @@ class Example:
         for name, content in self.files.items():
             filename = dir / name
             filename.parent.mkdir(exist_ok=True, parents=True)
-            if isinstance(content, str):
-                filename.write_text(content)
-            else:
-                filename.write_bytes(content)
+            with open(filename, "wb") as f:
+                if isinstance(content, str):
+                    f.write(content.encode("utf-8"))
+                else:
+                    f.write(content)
 
     def _read_files(self, dir: Path):
 
         def try_read(path: Path):
+            with open(path, "rb") as f:
+                code = f.read()
             try:
-                return path.read_text("utf-8")
+                return code.decode("utf-8")
             except UnicodeDecodeError:
-                return path.read_bytes()
+                return code
 
         def normalize_path(path):
             return str(path.relative_to(dir)).replace("\\", "/")
@@ -456,8 +459,16 @@ class Example:
                     cmd, cwd=tmp_path, capture_output=True, env=command_env, input=stdin
                 )
 
-            result_stdout = result.stdout.decode()
-            result_stderr = result.stderr.decode()
+            try:
+                result_stdout = result.stdout.decode("utf-8")
+            except UnicodeDecodeError:
+                result_stdout = result.stdout.decode("windows-1251")
+
+            try:
+                result_stderr = result.stderr.decode("utf-8")
+            except UnicodeDecodeError:
+                result_stderr = result.stderr.decode("windows-1251")
+
             result_returncode = result.returncode
 
             print("run>", *cmd)

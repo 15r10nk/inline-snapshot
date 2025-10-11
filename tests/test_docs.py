@@ -147,7 +147,7 @@ def test_map_code_blocks(tmp_path):
         new_markdown_code=None,
     ):
 
-        file.write_text(markdown_code)
+        file.write_bytes(markdown_code.encode("utf-8"))
 
         recorded_blocks = []
 

@@ -31,9 +31,8 @@ class HashStorage(StorageProtocol):
         self.directory.mkdir(exist_ok=True, parents=True)
         gitignore = self.directory / ".gitignore"
         if not gitignore.exists():
-            gitignore.write_text(
-                "# ignore all snapshots which are not referred in the source\n*-new.*\n",
-                "utf-8",
+            gitignore.write_bytes(
+                b"# ignore all snapshots which are not referred in the source\n*-new.*\n"
             )
 
     @contextmanager

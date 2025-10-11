@@ -71,12 +71,12 @@ def test_format_command():
     Example(
         {
             "fmt_cmd.py": """\
-from sys import stdin
+from sys import stdin,stdout
 import re
 
 text=stdin.read()
 text=re.sub("#.*","",text)
-print(text)
+stdout.buffer.write(text.encode("utf-8"))
 """,
             "pyproject.toml": f"""\
 [tool.inline-snapshot]
@@ -98,7 +98,6 @@ from inline_snapshot import snapshot
 
 def test_a():
     assert "5" == snapshot('5')
-
 """
             }
         ),
@@ -127,7 +126,7 @@ def test_format_command_fail():
         {
             "fmt_cmd.py": """
 import sys
-print("some problem")
+sys.stdout.buffer.write(b"some problem\\n")
 sys.exit(1)
 """,
             "pyproject.toml": f"""\

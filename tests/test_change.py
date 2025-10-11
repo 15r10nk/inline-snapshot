@@ -22,7 +22,7 @@ def check_change(tmp_path):
         filename = tmp_path / f"test_{i}.py"
         i += 1
 
-        filename.write_text(source)
+        filename.write_bytes(source.encode("utf-8"))
         print(f"\ntest: {source}")
 
         source = Source.for_filename(filename)

@@ -96,7 +96,7 @@ from inline_snapshot import outsource
 """
             source = prefix + textwrap.dedent(self.source)
 
-            filename.write_text(source, "utf-8")
+            filename.write_bytes(source.encode("utf-8"))
 
             print()
             print("input:")
@@ -293,10 +293,10 @@ from inline_snapshot import outsource
             source = header + source
             print("write code:")
             print(source)
-            self._filename.write_text(source, "utf-8")
+            self._filename.write_bytes(source.encode("utf-8"))
 
-            (pytester.path / "conftest.py").write_text(
-                """
+            (pytester.path / "conftest.py").write_bytes(
+                b"""
 import datetime
 import pytest
 from freezegun.api import FakeDatetime,FakeDate
@@ -329,15 +329,17 @@ def set_time(freezer):
             return code == format_code(code, self._filename)
 
         def format(self):
-            self._filename.write_text(
-                format_code(self._filename.read_text("utf-8"), self._filename), "utf-8"
+            self._filename.write_bytes(
+                format_code(self._filename.read_text("utf-8"), self._filename).encode(
+                    "utf-8"
+                )
             )
 
         def pyproject(self, source):
             self.write_file("pyproject.toml", source)
 
         def write_file(self, filename, content):
-            (pytester.path / filename).write_text(content, "utf-8")
+            (pytester.path / filename).write_bytes(content.encode("utf-8"))
 
         def storage(self, storage_dir=".inline-snapshot"):
             if os.path.isabs(storage_dir):
