@@ -39,9 +39,9 @@ class SequenceAdapter(Adapter):
         if node is None or not isinstance(node, cls.node_type):
             return [Item(value=v, node=None) for v in value]
 
-        assert len(value) == len(node.elts)
+        assert len(value.value) == len(node.elts)
 
-        return [Item(value=v, node=n) for v, n in zip(value, node.elts)]
+        return [Item(value=v, node=n) for v, n in zip(value.value, node.elts)]
 
     def assign(self, old_value, old_node, new_value):
         if old_node is not None:

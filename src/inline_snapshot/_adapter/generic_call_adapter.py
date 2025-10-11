@@ -2,11 +2,6 @@ from __future__ import annotations
 
 import ast
 import warnings
-from abc import ABC
-from collections import defaultdict
-from dataclasses import MISSING
-from dataclasses import fields
-from dataclasses import is_dataclass
 from typing import Any
 
 from inline_snapshot._customize import CustomCall
@@ -21,25 +16,15 @@ from .adapter import Item
 
 
 def get_adapter_for_type(value_type):
-    subclasses = GenericCallAdapter.__subclasses__()
-    options = [cls for cls in subclasses if cls.check_type(value_type)]
-
-    if not options:
-        return
-
-    assert len(options) == 1
-    return options[0]
+    assert isinstance(value_type, CustomCall)
+    return CallAdapter
 
 
-class GenericCallAdapter(Adapter):
-
-    @classmethod
-    def check_type(cls, value_type) -> bool:
-        raise NotImplementedError(cls)
+class CallAdapter(Adapter):
 
     @classmethod
     def arguments(cls, value) -> CustomCall:
-        raise NotImplementedError(cls)
+        return value
 
     @classmethod
     def argument(cls, value, pos_or_name) -> Any:
@@ -231,189 +216,3 @@ class GenericCallAdapter(Adapter):
                     new_value=value,
                 )
         return type(old_value)(*result_args, **result_kwargs)
-
-
-class DataclassAdapter(GenericCallAdapter):
-
-    @classmethod
-    def check_type(cls, value):
-        return is_dataclass(value)
-
-    @classmethod
-    def arguments(cls, value):
-
-        kwargs = {}
-
-        for field in fields(value):  # type: ignore
-            if field.repr:
-                field_value = getattr(value, field.name)
-                is_default = False
-
-                if field.default != MISSING and field.default == field_value:
-                    is_default = True
-
-                if (
-                    field.default_factory != MISSING
-                    and field.default_factory() == field_value
-                ):
-                    is_default = True
-
-                if is_default:
-                    field_value = CustomDefault(field_value)
-                kwargs[field.name] = field_value
-
-        return CustomCall(type(value), *[], **kwargs)
-
-
-try:
-    import attrs
-except ImportError:  # pragma: no cover
-    pass
-else:
-
-    class AttrAdapter(GenericCallAdapter):
-
-        @classmethod
-        def check_type(cls, value):
-            return attrs.has(value)
-
-        @classmethod
-        def arguments(cls, value):
-
-            kwargs = {}
-
-            for field in attrs.fields(type(value)):
-                if field.repr:
-                    field_value = getattr(value, field.name)
-                    is_default = False
-
-                    if field.default is not attrs.NOTHING:
-
-                        default_value = (
-                            field.default
-                            if not isinstance(field.default, attrs.Factory)
-                            else (
-                                field.default.factory()
-                                if not field.default.takes_self
-                                else field.default.factory(value)
-                            )
-                        )
-
-                        if default_value == field_value:
-                            is_default = True
-
-                    if is_default:
-                        field_value = CustomDefault(field_value)
-
-                    kwargs[field.name] = field_value
-
-            return CustomCall(type(value), **kwargs)
-
-
-try:
-    import pydantic
-except ImportError:  # pragma: no cover
-    pass
-else:
-    # import pydantic
-    if pydantic.version.VERSION.startswith("1."):
-        # pydantic v1
-        from pydantic.fields import Undefined as PydanticUndefined  # type: ignore[attr-defined,no-redef]
-
-        def get_fields(value):
-            return value.__fields__
-
-    else:
-        # pydantic v2
-        from pydantic_core import PydanticUndefined
-
-        def get_fields(value):
-            return type(value).model_fields
-
-    from pydantic import BaseModel
-
-    class PydanticContainer(GenericCallAdapter):
-
-        @classmethod
-        def check_type(cls, value):
-            return issubclass(value, BaseModel)
-
-        @classmethod
-        def arguments(cls, value):
-
-            kwargs = {}
-
-            for name, field in get_fields(value).items():  # type: ignore
-                if getattr(field, "repr", True):
-                    field_value = getattr(value, name)
-                    is_default = False
-
-                    if (
-                        field.default is not PydanticUndefined
-                        and field.default == field_value
-                    ):
-                        is_default = True
-
-                    if (
-                        field.default_factory is not None
-                        and field.default_factory() == field_value
-                    ):
-                        is_default = True
-
-                    if is_default:
-                        field_value = CustomDefault(field_value)
-
-                    kwargs[name] = field_value
-
-            return CustomCall(type(value), **kwargs)
-
-
-class IsNamedTuple(ABC):
-    _inline_snapshot_name = "namedtuple"
-
-    _fields: tuple
-    _field_defaults: dict
-
-    @classmethod
-    def __subclasshook__(cls, t):
-        b = t.__bases__
-        if len(b) != 1 or b[0] != tuple:
-            return False
-        f = getattr(t, "_fields", None)
-        if not isinstance(f, tuple):
-            return False
-        return all(type(n) == str for n in f)
-
-
-class NamedTupleAdapter(GenericCallAdapter):
-
-    @classmethod
-    def check_type(cls, value):
-        return issubclass(value, IsNamedTuple)
-
-    @classmethod
-    def arguments(cls, value: IsNamedTuple):
-
-        return CustomCall(
-            type(value),
-            **{
-                field: getattr(value, field)
-                for field in value._fields
-                if field not in value._field_defaults
-                or getattr(value, field) != value._field_defaults[field]
-            },
-        )
-
-
-class DefaultDictAdapter(GenericCallAdapter):
-    @classmethod
-    def check_type(cls, value):
-        return issubclass(value, defaultdict)
-
-    @classmethod
-    def arguments(cls, value: defaultdict):
-
-        return CustomCall(
-            type(value),
-            *[value.default_factory, dict(value)],
-        )

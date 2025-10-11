@@ -1,7 +1,11 @@
 import ast
 import copy
-from typing import Any
 from typing import Iterator
+
+from inline_snapshot._customize import Builder
+from inline_snapshot._customize import Custom
+from inline_snapshot._customize import CustomUndefined
+from inline_snapshot._customize import CustomUnmanaged
 
 from .._adapter.adapter import AdapterContext
 from .._adapter.adapter import get_adapter_type
@@ -9,11 +13,8 @@ from .._change import Change
 from .._code_repr import code_repr
 from .._exceptions import UsageError
 from .._global_state import state
-from .._sentinels import undefined
 from .._types import SnapshotBase
-from .._unmanaged import Unmanaged
 from .._unmanaged import declare_unmanaged
-from .._unmanaged import update_allowed
 
 
 def clone(obj):
@@ -40,8 +41,8 @@ def ignore_old_value():
 
 @declare_unmanaged
 class GenericValue(SnapshotBase):
-    _new_value: Any
-    _old_value: Any
+    _new_value: Custom
+    _old_value: Custom
     _current_op = "undefined"
     _ast_node: ast.Expr
     _context: AdapterContext
@@ -52,7 +53,12 @@ class GenericValue(SnapshotBase):
             state().incorrect_values += 1
         flags = state().update_flags
 
-        if flags.fix or flags.create or flags.update or self._old_value is undefined:
+        if (
+            flags.fix
+            or flags.create
+            or flags.update
+            or isinstance(self._old_value, CustomUndefined)
+        ):
             return new_result
         return result
 
@@ -67,7 +73,7 @@ class GenericValue(SnapshotBase):
         self._context = context
 
         def re_eval(old_value, node, value):
-            if isinstance(old_value, Unmanaged):
+            if isinstance(old_value, CustomUnmanaged):
                 old_value.value = value
                 return
 
@@ -83,22 +89,24 @@ class GenericValue(SnapshotBase):
                     re_eval(old_item.value, old_item.node, new_item.value)
 
             else:
-                if update_allowed(old_value):
-                    if not old_value == value:
+                if not isinstance(old_value, CustomUnmanaged):
+                    if not old_value.eval() == value.eval():
                         raise UsageError(
                             "snapshot value should not change. Use Is(...) for dynamic snapshot parts."
                         )
                 else:
-                    assert False, "old_value should be converted to Unmanaged"
+                    assert (
+                        False
+                    ), f"old_value ({type(old_value)}) should be converted to Unmanaged"
 
-        re_eval(self._old_value, self._ast_node, value)
+        re_eval(self._old_value, self._ast_node, Builder().get_handler(value))
 
     def _ignore_old(self):
         return (
             state().update_flags.fix
             or state().update_flags.update
             or state().update_flags.create
-            or self._old_value is undefined
+            or isinstance(self._old_value, CustomUndefined)
         )
 
     def _visible_value(self):
@@ -114,7 +122,7 @@ class GenericValue(SnapshotBase):
         raise NotImplementedError()
 
     def __repr__(self):
-        return repr(self._visible_value())
+        return repr(self._visible_value().eval())
 
     def _type_error(self, op):
         __tracebackhide__ = True

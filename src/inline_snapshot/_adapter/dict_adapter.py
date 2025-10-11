@@ -3,6 +3,8 @@ from __future__ import annotations
 import ast
 import warnings
 
+from inline_snapshot._customize import CustomDict
+
 from .._change import Delete
 from .._change import DictInsert
 from ..syntax_warnings import InlineSnapshotSyntaxWarning
@@ -32,6 +34,8 @@ class DictAdapter(Adapter):
 
     @classmethod
     def items(cls, value, node):
+        assert isinstance(value, CustomDict)
+        value = value.value
         if node is None or not isinstance(node, ast.Dict):
             return [Item(value=value, node=None) for value in value.values()]
 
@@ -46,13 +50,18 @@ class DictAdapter(Adapter):
             except Exception:
                 pass
             else:
-                assert node_key == value_key, f"{node_key!r} != {value_key!r}"
+                assert node_key == value_key.eval(), f"{node_key!r} != {value_key!r}"
 
             result.append(Item(value=value[value_key], node=node_value))
 
         return result
 
     def assign(self, old_value, old_node, new_value):
+        assert isinstance(old_value, CustomDict)
+        assert isinstance(new_value, CustomDict)
+        old_value = old_value.value
+        new_value = new_value.value
+
         if old_node is not None:
             if not (
                 isinstance(old_node, ast.Dict) and len(old_value) == len(old_node.keys)

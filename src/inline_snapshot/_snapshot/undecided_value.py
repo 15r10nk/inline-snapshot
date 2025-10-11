@@ -1,13 +1,13 @@
 from typing import Iterator
 
 from inline_snapshot._customize import Builder
+from inline_snapshot._customize import CustomUndefined
+from inline_snapshot._customize import CustomUnmanaged
 
 from .._adapter.adapter import AdapterContext
 from .._adapter.adapter import get_adapter_type
 from .._change import Change
 from .._change import Replace
-from .._sentinels import undefined
-from .._unmanaged import Unmanaged
 from .._utils import value_to_token
 from .generic_value import GenericValue
 
@@ -17,7 +17,7 @@ class UndecidedValue(GenericValue):
 
         old_value = Builder().get_handler(old_value)
         self._old_value = old_value
-        self._new_value = undefined
+        self._new_value = CustomUndefined()
         self._ast_node = ast_node
         self._context = context
 
@@ -37,8 +37,8 @@ class UndecidedValue(GenericValue):
                     yield from handle(item.node, item.value)
                 return
 
-            if not isinstance(obj, Unmanaged) and node is not None:
-                new_token = value_to_token(obj)
+            if not isinstance(obj, CustomUnmanaged) and node is not None:
+                new_token = value_to_token(obj.value)
                 if self._file._token_of_node(node) != new_token:
                     new_code = self._file._token_to_code(new_token)
 
