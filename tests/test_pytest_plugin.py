@@ -779,17 +779,23 @@ Please fix the way your object is copied or your __eq__ implementation.
 
 def test_unknown_flag():
 
-    Example(
+    e = Example(
         """\
 def test_a():
     assert 1==1
 """
-    ).run_pytest(
+    )
+
+    error = snapshot("ERROR: --inline-snapshot=creaigflen is a unknown flag\n")
+
+    e.run_pytest(
         ["--inline-snapshot=creaigflen"],
         report=snapshot(""),
         returncode=snapshot(4),
-        stderr=snapshot("ERROR: --inline-snapshot=creaigflen is a unknown flag\n"),
+        stderr=error,
     )
+
+    e.run_inline(["--inline-snapshot=creaigflen"], stderr=error)
 
 
 @pytest.mark.parametrize("storage_dir", ["tests/snapshots", None])

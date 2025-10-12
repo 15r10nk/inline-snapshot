@@ -269,6 +269,7 @@ class Example:
         changed_files: Snapshot[dict[str, str]] | None = None,
         report: Snapshot[str] | None = None,
         raises: Snapshot[str] | None = None,
+        stderr: Snapshot[str] | None = None,
     ) -> Example:
         """Execute the example files in process and run every `test_*`
         function.
@@ -374,7 +375,7 @@ class Example:
                             snapshot_flags.add(change.flag)
 
                 except StopTesting as e:
-                    print(str(e))
+                    assert stderr == f"ERROR: {e}\n"
                 finally:
                     leave_snapshot_context()
 
@@ -474,15 +475,8 @@ class Example:
                     cmd, cwd=tmp_path, capture_output=True, env=command_env, input=stdin
                 )
 
-            try:
-                result_stdout = result.stdout.decode("utf-8")
-            except UnicodeDecodeError:
-                result_stdout = result.stdout.decode("windows-1251")
-
-            try:
-                result_stderr = result.stderr.decode("utf-8")
-            except UnicodeDecodeError:
-                result_stderr = result.stderr.decode("windows-1251")
+            result_stdout = result.stdout.decode("utf-8")
+            result_stderr = result.stderr.decode("utf-8")
 
             result_returncode = result.returncode
 

@@ -206,11 +206,6 @@ def filter_changes(changes, snapshot_changes, console):
 
         any_changes = False
 
-        def save_encoding(text: str, encoding) -> str:
-            if encoding == "utf-8":
-                return text
-            return text.encode(encoding, errors="replace").decode()
-
         for file in cr.files():
             diff = file.diff()
             if diff:
@@ -219,7 +214,7 @@ def filter_changes(changes, snapshot_changes, console):
                 console().print(
                     Panel(
                         Syntax(
-                            save_encoding(diff, sys.stdout.encoding),
+                            diff,
                             "diff",
                             theme="ansi_light",
                             word_wrap=True,
