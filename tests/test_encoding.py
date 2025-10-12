@@ -34,13 +34,15 @@ def test_a():
     if encoding not in ("utf-8", "ascii"):
         fixed_code = fixed_code.encode(encoding)
 
-    Example(code.replace("\n", newline).encode(encoding)).run_pytest(
+    Example(code.replace("\n", newline).encode(encoding)).run_inline(
         ["--inline-snapshot=create"],
         changed_files={"tests/test_something.py": fixed_code},
-        returncode=snapshot(1),
         report=snapshot(
             {
                 "utf-8": """\
+
+
+═══════════════════════════════ inline-snapshot ════════════════════════════════
 ------------------------------- Create snapshots -------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -3,4 +3,4 @@                                                              |
@@ -51,9 +53,13 @@ def test_a():
 | -    assert "aéЯÂþ"==snapshot()                                              |
 | +    assert "aéЯÂþ"==snapshot("aéЯÂþ")                                       |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used create\
+These changes will be applied, because you used create
+
 """,
                 "windows-1251": """\
+
+
+═══════════════════════════════ inline-snapshot ════════════════════════════════
 ------------------------------- Create snapshots -------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -3,4 +3,4 @@                                                              |
@@ -64,9 +70,13 @@ These changes will be applied, because you used create\
 | -    assert "aЯ"==snapshot()                                                 |
 | +    assert "aЯ"==snapshot("aЯ")                                             |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used create\
+These changes will be applied, because you used create
+
 """,
                 "cp1252": """\
+
+
+═══════════════════════════════ inline-snapshot ════════════════════════════════
 ------------------------------- Create snapshots -------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -3,4 +3,4 @@                                                              |
@@ -77,9 +87,13 @@ These changes will be applied, because you used create\
 | -    assert "aéÂþ"==snapshot()                                               |
 | +    assert "aéÂþ"==snapshot("aéÂþ")                                         |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used create\
+These changes will be applied, because you used create
+
 """,
                 "latin-1": """\
+
+
+═══════════════════════════════ inline-snapshot ════════════════════════════════
 ------------------------------- Create snapshots -------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -3,4 +3,4 @@                                                              |
@@ -90,9 +104,13 @@ These changes will be applied, because you used create\
 | -    assert "aéÂþ"==snapshot()                                               |
 | +    assert "aéÂþ"==snapshot("aéÂþ")                                         |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used create\
+These changes will be applied, because you used create
+
 """,
                 "ascii": """\
+
+
+═══════════════════════════════ inline-snapshot ════════════════════════════════
 ------------------------------- Create snapshots -------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -3,4 +3,4 @@                                                              |
@@ -103,7 +121,8 @@ These changes will be applied, because you used create\
 | -    assert "a"==snapshot()                                                  |
 | +    assert "a"==snapshot("a")                                               |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used create\
+These changes will be applied, because you used create
+
 """,
             }
         )[encoding],

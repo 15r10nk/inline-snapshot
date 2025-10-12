@@ -215,7 +215,7 @@ def filter_changes(changes, snapshot_changes, console):
             diff = file.diff()
             if diff:
                 header()
-                name = file.filename.relative_to(Path.cwd())
+                name = file.filename.resolve().relative_to(Path.cwd().resolve())
                 console().print(
                     Panel(
                         Syntax(

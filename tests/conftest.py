@@ -21,9 +21,9 @@ from inline_snapshot._change import ChangeBase
 from inline_snapshot._change import apply_all
 from inline_snapshot._flags import Flags
 from inline_snapshot._format import format_code
+from inline_snapshot._global_state import snapshot_env
 from inline_snapshot._rewrite_code import ChangeRecorder
 from inline_snapshot._types import Category
-from inline_snapshot.testing._example import snapshot_env
 
 pytest_plugins = "pytester"
 

@@ -40,6 +40,39 @@ def test_something():
         ),
         report=snapshot(
             """\
+
+
+═══════════════════════════════ inline-snapshot ════════════════════════════════
+------------------------------- Create snapshots -------------------------------
++-------------------------- tests/test_something.py ---------------------------+
+| @@ -1,6 +1,6 @@                                                              |
+|                                                                              |
+|  from inline_snapshot import snapshot                                        |
+|                                                                              |
+|  def test_something():                                                       |
+| -    assert 1==snapshot()                                                    |
+| +    assert 1==snapshot(1)                                                   |
+|      assert 1==snapshot(2)                                                   |
+| -    assert list(range(20)) == snapshot()                                    |
+| +    assert list(range(20)) == snapshot([0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10    |
+| ,11 ,12 ,13 ,14 ,15 ,16 ,17 ,18 ,19 ])                                       |
++------------------------------------------------------------------------------+
+These changes will be applied, because you used create
+
+-------------------------------- Fix snapshots ---------------------------------
++-------------------------- tests/test_something.py ---------------------------+
+| @@ -2,5 +2,5 @@                                                              |
+|                                                                              |
+|                                                                              |
+|  def test_something():                                                       |
+|      assert 1==snapshot(1)                                                   |
+| -    assert 1==snapshot(2)                                                   |
+| +    assert 1==snapshot(1)                                                   |
+|      assert list(range(20)) == snapshot([0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10    |
+| ,11 ,12 ,13 ,14 ,15 ,16 ,17 ,18 ,19 ])                                       |
++------------------------------------------------------------------------------+
+These changes will be applied, because you used fix
+
 ----------------------------------- Problems -----------------------------------
 black could not format your code, which might be caused by this issue:
     https://github.com/15r10nk/inline-snapshot/issues/138
@@ -206,6 +239,24 @@ def test_a():
         ),
         report=snapshot(
             """\
+
+
+═══════════════════════════════ inline-snapshot ════════════════════════════════
+-------------------------------- Fix snapshots ---------------------------------
++--------------------------------- test_a.py ----------------------------------+
+| @@ -2,4 +2,4 @@                                                              |
+|                                                                              |
+|  from inline_snapshot import snapshot                                        |
+|                                                                              |
+|  def test_a():                                                               |
+| -    assert "5" ==            snapshot('''3''')                              |
+| +    assert "5" ==            snapshot('5')                                  |
++------------------------------------------------------------------------------+
+These changes will be applied, because you used fix
+
+INFO: inline-snapshot can not trim your external snapshots, because there is no \n\
+tests/ folder in your repository root and no test-dir defined in your \n\
+pyproject.toml.
 ----------------------------------- Problems -----------------------------------
 inline-snapshot is not able to format your code.
 This issue can be solved by:

@@ -6,6 +6,7 @@ import random
 import re
 import subprocess as sp
 import sys
+import tokenize
 import traceback
 import uuid
 from argparse import ArgumentParser
@@ -19,17 +20,12 @@ from unittest.mock import patch
 
 from rich.console import Console
 
-from inline_snapshot._config import Config
-from inline_snapshot._config import read_config
 from inline_snapshot._exceptions import UsageError
-from inline_snapshot._external._storage._hash import HashStorage
-from inline_snapshot._problems import report_problems
+from inline_snapshot._snapshot_session import SnapshotSession
 
-from .._change import ChangeBase
-from .._change import apply_all
-from .._flags import Flags
-from .._global_state import snapshot_env
-from .._rewrite_code import ChangeRecorder
+from .._global_state import enter_snapshot_context
+from .._global_state import leave_snapshot_context
+from .._global_state import state
 from .._types import Category
 from .._types import Snapshot
 
@@ -109,6 +105,16 @@ uuid.uuid4 = f
 
 
 @contextmanager
+def chdir(path):
+    cwd = os.getcwd()
+    try:
+        os.chdir(path)
+        yield
+    finally:
+        os.chdir(cwd)
+
+
+@contextmanager
 def change_file(path: Path, map_function):
     exists = path.exists()
     if exists:
@@ -124,6 +130,21 @@ def change_file(path: Path, map_function):
         path.write_bytes(text.encode("utf-8"))
     else:
         path.unlink()
+
+
+@contextmanager
+def temp_environ(**kwargs):
+    original = dict(os.environ)
+    os.environ.update(kwargs)
+    try:
+        yield
+    finally:
+        os.environ.clear()
+        os.environ.update(original)
+
+
+class StopTesting(Exception):
+    pass
 
 
 class Example:
@@ -284,6 +305,7 @@ class Example:
         parsed_args = parser.parse_args(args)
         flags = (parsed_args.inline_snapshot or "").split(",")
         self.dump_files()
+        flags = {f for f in flags if f}
 
         with TemporaryDirectory() as dir:
             tmp_path = Path(dir)
@@ -292,28 +314,30 @@ class Example:
 
             raised_exception = []
 
-            with snapshot_env() as state, deterministic_uuid():
+            with deterministic_uuid(), chdir(tmp_path), temp_environ(TERM="unknown"):
+                session = SnapshotSession()
 
-                recorder = ChangeRecorder()
-                state.update_flags = Flags({*flags})
-                state.active = "disable" not in flags
-                state.all_storages["hash"] = HashStorage(
-                    tmp_path / ".inline-snapshot" / "external"
-                )
-                state.config = Config()
-                read_config(tmp_path / "pyproject.toml", state.config)
-                if state.config.storage_dir is None:
-                    state.config.storage_dir = tmp_path / ".inline_snapshot"
-                else:
-                    pass  # pragma: no cover
+                def report_error(message):
+                    raise StopTesting(message)
 
+                snapshot_flags = set()
                 try:
+                    enter_snapshot_context()
+                    session.load_config(
+                        tmp_path / "pyproject.toml",
+                        flags,
+                        parallel_run=False,
+                        error=report_error,
+                        project_root=tmp_path,
+                    )
                     tests_found = False
                     for filename in tmp_path.rglob("test_*.py"):
                         globals: dict[str, Any] = {}
                         print("run> pytest-inline", filename)
+                        with tokenize.open(filename) as f:
+                            code = f.read()
                         exec(
-                            compile(filename.read_text("utf-8"), filename, "exec"),
+                            compile(code, filename, "exec"),
                             globals,
                         )
 
@@ -327,41 +351,32 @@ class Example:
 
                         for v in tests:
                             try:
-                                v()
+                                session.test_enter()
+                                try:
+                                    v()
+                                finally:
+                                    session.test_exit(
+                                        fail=lambda message: print(message)
+                                    )
                             except Exception as e:
                                 traceback.print_exc()
                                 raised_exception.append(e)
 
                     if not tests_found:
                         raise UsageError("no test_*() functions in the example")
+
+                    report_output = StringIO()
+                    console = Console(file=report_output, width=80)
+                    session.show_report(console)
+
+                    for snapshot in state().snapshots.values():
+                        for change in snapshot._changes():
+                            snapshot_flags.add(change.flag)
+
+                except StopTesting as e:
+                    print(str(e))
                 finally:
-                    state.active = False
-
-                changes: list[ChangeBase] = []
-                for snapshot in state.snapshots.values():
-                    changes += list(snapshot._changes())
-
-                snapshot_flags = {change.flag for change in changes}
-
-                apply_all(
-                    [
-                        change
-                        for change in changes
-                        if change.flag in state.update_flags.to_set()
-                    ],
-                    recorder,
-                )
-                recorder.fix_all()
-
-                for change in changes:
-                    if change.flag in state.update_flags.to_set():
-                        change.apply_external_changes()
-
-                report_output = StringIO()
-                console = Console(file=report_output, width=80)
-
-                # TODO: add all the report output here
-                report_problems(lambda: console)
+                    leave_snapshot_context()
 
             if reported_categories is not None:
                 assert sorted(snapshot_flags) == reported_categories

@@ -10,8 +10,8 @@ import pytest
 
 from inline_snapshot import snapshot
 from inline_snapshot._flags import Flags
+from inline_snapshot._global_state import snapshot_env
 from inline_snapshot.testing import Example
-from inline_snapshot.testing._example import snapshot_env
 
 
 @pytest.mark.no_rewriting
