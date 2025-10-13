@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import pathlib
 import sys
+import tokenize
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -127,13 +128,17 @@ class SourceFile:
     def __init__(self, filename: pathlib.Path):
         self.replacements: list[Replacement] = []
         self.filename = filename
-        self.source = self.filename.read_text("utf-8")
+        with open(self.filename, "rb") as f:
+            self.encoding, _ = tokenize.detect_encoding(f.readline)
+
+        self.source = self.read_source()
+
+    def read_source(self) -> str:
+        return self.filename.read_bytes().decode(self.encoding)
 
     def rewrite(self):
         new_code = self.new_code()
-
-        with open(self.filename, "bw") as code:
-            code.write(new_code.encode())
+        self.filename.write_bytes(new_code.encode(self.encoding))
 
     def virtual_write(self):
         self.source = self.new_code()
@@ -156,7 +161,7 @@ class SourceFile:
 
         self._check()
 
-        code = self.filename.read_text("utf-8")
+        code = self.read_source()
 
         format_whole_file = enforce_formatting() or code == format_code(
             code, self.filename

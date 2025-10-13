@@ -35,6 +35,8 @@ class State:
     update_flags: Flags = field(default_factory=Flags)
     active: bool = True
 
+    all_problems: set[str] = field(default_factory=set)
+
     @property
     def files_with_snapshots(self):
         return {

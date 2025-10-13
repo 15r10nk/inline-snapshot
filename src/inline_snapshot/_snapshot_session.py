@@ -1,6 +1,7 @@
 import ast
 import os
 import sys
+import tokenize
 from pathlib import Path
 from typing import Dict
 from typing import List
@@ -23,6 +24,7 @@ from ._external._find_external import ensure_import
 from ._external._find_external import used_externals_in
 from ._flags import Flags
 from ._global_state import state
+from ._problems import raise_problem
 from ._problems import report_problems
 from ._rewrite_code import ChangeRecorder
 from .fix_pytest_diff import fix_pytest_diff
@@ -209,7 +211,7 @@ def filter_changes(changes, snapshot_changes, console):
             diff = file.diff()
             if diff:
                 header()
-                name = file.filename.relative_to(Path.cwd())
+                name = file.filename.resolve().relative_to(Path.cwd().resolve())
                 console().print(
                     Panel(
                         Syntax(diff, "diff", theme="ansi_light", word_wrap=True),
@@ -423,8 +425,8 @@ class SnapshotSession:
 
         test_dir = state().config.tests_dir
         if not test_dir:
-            console().print(
-                "INFO: inline-snapshot can not trim your external snapshots,"
+            raise_problem(
+                "inline-snapshot can not trim your external snapshots,"
                 " because there is no [i]tests/[/] folder in your repository root"
                 " and no [i]test-dir[/] defined in your pyproject.toml."
             )
@@ -442,7 +444,8 @@ class SnapshotSession:
                     content = changed_files[file].new_code()
                     check_import = False
                 else:
-                    content = file.read_text("utf-8")
+                    with tokenize.open(file) as f:
+                        content = f.read()
                     check_import = True
 
                 for e in used_externals_in(content, check_import=check_import):

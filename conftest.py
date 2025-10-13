@@ -1,6 +1,6 @@
 import pytest
 
-from inline_snapshot.testing._example import snapshot_env
+from inline_snapshot._global_state import snapshot_env
 
 
 @pytest.fixture(autouse=True)

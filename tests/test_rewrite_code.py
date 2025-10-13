@@ -24,13 +24,12 @@ def test_range():
 
 def test_rewrite(tmp_path):
     file = tmp_path / "file.txt"
-    file.write_text(
-        """
+    file.write_bytes(
+        b"""
 12345
 12345
 12345
-""",
-        "utf-8",
+"""
     )
 
     recorder = ChangeRecorder()

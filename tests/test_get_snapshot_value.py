@@ -5,8 +5,8 @@ from inline_snapshot import external
 from inline_snapshot import get_snapshot_value
 from inline_snapshot import outsource
 from inline_snapshot import snapshot
+from inline_snapshot._global_state import snapshot_env
 from inline_snapshot._global_state import state
-from inline_snapshot.testing._example import snapshot_env
 
 
 def inspect(value):

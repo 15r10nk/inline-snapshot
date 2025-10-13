@@ -408,12 +408,11 @@ test_something()
 
 def test_ensure_imports(tmp_path):
     file = tmp_path / "file.py"
-    file.write_text(
-        """\
+    file.write_bytes(
+        b"""\
 from os import environ
 from os import getcwd
-""",
-        "utf-8",
+"""
     )
 
     with apply_changes() as recorder:
@@ -431,11 +430,10 @@ from os import chdir
 
 def test_ensure_imports_with_comment(tmp_path):
     file = tmp_path / "file.py"
-    file.write_text(
-        """\
+    file.write_bytes(
+        b"""\
 from os import environ # comment
-""",
-        "utf-8",
+"""
     )
 
     with apply_changes() as recorder:
