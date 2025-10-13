@@ -1,4 +1,15 @@
 
+<a id='changelog-0.29.4'></a>
+# 0.29.4 — 2025-10-13
+
+## Changed
+
+- `External.run_inline()` now uses the same logic as `External.run_pytest`.
+
+## Fixed
+
+- inline-snapshot now supports different Python file encodings and recognizes encoding comments such as `# -*- coding: windows-1251 -*-` ([#305](https://github.com/15r10nk/inline-snapshot/issues/305)).
+
 <a id='changelog-0.29.3'></a>
 # 0.29.3 — 2025-10-04
 
