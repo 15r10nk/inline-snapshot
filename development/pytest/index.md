@@ -34,7 +34,7 @@ def test_something():
 > pytest test_something.py --inline-snapshot=create,report
 ============================= test session starts ==============================
 platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0
-rootdir: /tmp/tmp.ZPZJU3A7IJ
+rootdir: /tmp/tmp.doCYd888tJ
 plugins: inline-snapshot-0.29.3
 collected 1 item
 
@@ -52,7 +52,7 @@ test_something.py .E                                                     [100%]
 │ +    assert 1 == snapshot(1)                                                 │
 │      assert 2 <= snapshot(5)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-These changes will be applied, because you used ]8;id=187885;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\
+These changes will be applied, because you used ]8;id=438727;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\
 
 ──────────────────────────────── Trim snapshots ────────────────────────────────
 ╭───────────────────────────── test_something.py ──────────────────────────────╮
@@ -65,12 +65,13 @@ These changes will be applied, because you used ]8;id=187885;https://15r10nk.git
 │ +    assert 2 <= snapshot(2)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 These changes are not applied.
-Use --inline-snapshot=]8;id=33739;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ to apply them, or use the interactive mode with 
---inline-snapshot=]8;id=901447;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
+Use --inline-snapshot=]8;id=372011;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ to apply them, or use the interactive mode with 
+--inline-snapshot=]8;id=882850;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
 
-INFO: inline-snapshot can not trim your external snapshots, because there is no 
-tests/ folder in your repository root and no test-dir defined in your 
-pyproject.toml.
+─────────────────────────────────── Problems ───────────────────────────────────
+inline-snapshot can not trim your external snapshots, because there is no tests/
+folder in your repository root and no test-dir defined in your pyproject.toml.
+
 
 
 ==================================== ERRORS ====================================
@@ -90,7 +91,7 @@ give a short report over which changes can be made to the snapshots
 > pytest test_something.py --inline-snapshot=short-report
 ============================= test session starts ==============================
 platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0
-rootdir: /tmp/tmp.l7keDVnojE
+rootdir: /tmp/tmp.Lw5VIJWZyP
 plugins: inline-snapshot-0.29.3
 collected 1 item
 
@@ -124,7 +125,7 @@ Shows a diff report over which changes can be made to the snapshots
 > pytest test_something.py --inline-snapshot=report
 ============================= test session starts ==============================
 platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0
-rootdir: /tmp/tmp.044JBgeTW7
+rootdir: /tmp/tmp.gvbfhjrX11
 plugins: inline-snapshot-0.29.3
 collected 1 item
 
@@ -143,8 +144,8 @@ test_something.py .E                                                     [100%]
 │      assert 2 <= snapshot(5)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 These changes are not applied.
-Use --inline-snapshot=]8;id=377219;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\ to apply them, or use the interactive mode with 
---inline-snapshot=]8;id=75933;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
+Use --inline-snapshot=]8;id=505621;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\ to apply them, or use the interactive mode with 
+--inline-snapshot=]8;id=782647;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
 
 ──────────────────────────────── Trim snapshots ────────────────────────────────
 ╭───────────────────────────── test_something.py ──────────────────────────────╮
@@ -157,12 +158,13 @@ Use --inline-snapshot=]8;id=377219;https://15r10nk.github.io/inline-snapshot/lat
 │ +    assert 2 <= snapshot(2)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 These changes are not applied.
-Use --inline-snapshot=]8;id=257579;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ to apply them, or use the interactive mode with 
---inline-snapshot=]8;id=980504;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
+Use --inline-snapshot=]8;id=373605;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ to apply them, or use the interactive mode with 
+--inline-snapshot=]8;id=900394;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
 
-INFO: inline-snapshot can not trim your external snapshots, because there is no 
-tests/ folder in your repository root and no test-dir defined in your 
-pyproject.toml.
+─────────────────────────────────── Problems ───────────────────────────────────
+inline-snapshot can not trim your external snapshots, because there is no tests/
+folder in your repository root and no test-dir defined in your pyproject.toml.
+
 
 
 ==================================== ERRORS ====================================
@@ -171,7 +173,7 @@ your snapshot is missing one value.
 If you just created this value with --snapshot=create, the value is now created and you can ignore this message.
 =========================== short test summary info ============================
 ERROR test_something.py::test_something - Failed: your snapshot is missing one value.
-========================== 1 passed, 1 error in 0.09s ==========================
+========================== 1 passed, 1 error in 0.10s ==========================
 ```
 
 ## --inline-snapshot=review
@@ -182,7 +184,7 @@ Shows a diff report for each category and ask if you want to apply the changes
 > pytest test_something.py --inline-snapshot=review
 ============================= test session starts ==============================
 platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0
-rootdir: /tmp/tmp.afpDLNPLwR
+rootdir: /tmp/tmp.CaOMHGccpI
 plugins: inline-snapshot-0.29.3
 collected 1 item
 
@@ -200,7 +202,7 @@ test_something.py .E                                                     [100%]
 │ +    assert 1 == snapshot(1)                                                 │
 │      assert 2 <= snapshot(5)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-Do you want to ]8;id=551473;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\ these snapshots? [y/n] (n): 
+Do you want to ]8;id=572053;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\ these snapshots? [y/n] (n): 
 ──────────────────────────────── Trim snapshots ────────────────────────────────
 ╭───────────────────────────── test_something.py ──────────────────────────────╮
 │ @@ -3,4 +3,4 @@                                                              │
@@ -211,10 +213,11 @@ Do you want to ]8;id=551473;https://15r10nk.github.io/inline-snapshot/latest/cat
 │ -    assert 2 <= snapshot(5)                                                 │
 │ +    assert 2 <= snapshot(2)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-Do you want to ]8;id=301699;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ these snapshots? [y/n] (n): 
-INFO: inline-snapshot can not trim your external snapshots, because there is no 
-tests/ folder in your repository root and no test-dir defined in your 
-pyproject.toml.
+Do you want to ]8;id=265433;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ these snapshots? [y/n] (n): 
+─────────────────────────────────── Problems ───────────────────────────────────
+inline-snapshot can not trim your external snapshots, because there is no tests/
+folder in your repository root and no test-dir defined in your pyproject.toml.
+
 
 
 ==================================== ERRORS ====================================
@@ -223,7 +226,7 @@ your snapshot is missing one value.
 If you just created this value with --snapshot=create, the value is now created and you can ignore this message.
 =========================== short test summary info ============================
 ERROR test_something.py::test_something - Failed: your snapshot is missing one value.
-========================== 1 passed, 1 error in 0.10s ==========================
+========================== 1 passed, 1 error in 0.09s ==========================
 ```
 
 ## --inline-snapshot=disable
