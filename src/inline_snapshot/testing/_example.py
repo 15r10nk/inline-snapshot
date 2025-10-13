@@ -176,17 +176,14 @@ class Example:
         for name, content in self.files.items():
             filename = dir / name
             filename.parent.mkdir(exist_ok=True, parents=True)
-            with open(filename, "wb") as f:
-                if isinstance(content, str):
-                    f.write(content.encode("utf-8"))
-                else:
-                    f.write(content)
+            if isinstance(content, str):
+                content = content.encode("utf-8")
+            filename.write_bytes(content)
 
     def _read_files(self, dir: Path):
 
-        def try_read(path: Path):
-            with open(path, "rb") as f:
-                code = f.read()
+        def try_read(path: Path) -> str | bytes:
+            code = path.read_bytes()
             try:
                 return code.decode("utf-8")
             except UnicodeDecodeError:
@@ -331,6 +328,10 @@ class Example:
                         error=report_error,
                         project_root=tmp_path,
                     )
+
+                    report_output = StringIO()
+                    console = Console(file=report_output, width=80)
+
                     tests_found = False
                     for filename in tmp_path.rglob("test_*.py"):
                         globals: dict[str, Any] = {}
@@ -352,13 +353,15 @@ class Example:
 
                         for v in tests:
                             try:
+
+                                def fail(message):
+                                    console.print(f"FAIL: {message}")
+
                                 session.test_enter()
                                 try:
                                     v()
                                 finally:
-                                    session.test_exit(
-                                        fail=lambda message: print(message)
-                                    )
+                                    session.test_exit(fail=fail)
                             except Exception as e:
                                 traceback.print_exc()
                                 raised_exception.append(e)
@@ -366,8 +369,6 @@ class Example:
                     if not tests_found:
                         raise UsageError("no test_*() functions in the example")
 
-                    report_output = StringIO()
-                    console = Console(file=report_output, width=80)
                     session.show_report(console)
 
                     for snapshot in state().snapshots.values():

@@ -131,14 +131,14 @@ class SourceFile:
         with open(self.filename, "rb") as f:
             self.encoding, _ = tokenize.detect_encoding(f.readline)
 
-        with open(self.filename, "rb") as f:
-            self.source = f.read().decode(self.encoding)
+        self.source = self.read_source()
+
+    def read_source(self) -> str:
+        return self.filename.read_bytes().decode(self.encoding)
 
     def rewrite(self):
         new_code = self.new_code()
-
-        with open(self.filename, "wb") as f:
-            f.write(new_code.encode(self.encoding))
+        self.filename.write_bytes(new_code.encode(self.encoding))
 
     def virtual_write(self):
         self.source = self.new_code()
@@ -161,8 +161,7 @@ class SourceFile:
 
         self._check()
 
-        with open(self.filename, "rb") as f:
-            code = f.read().decode(self.encoding)
+        code = self.read_source()
 
         format_whole_file = enforce_formatting() or code == format_code(
             code, self.filename

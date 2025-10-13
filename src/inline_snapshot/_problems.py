@@ -16,6 +16,6 @@ def report_problems(console: Callable[[], Console]):
     if not state().all_problems:
         return
     console().rule("[red]Problems")
-    for problem in state().all_problems:
+    for problem in sorted(state().all_problems):
         console().print(f"{problem}")
         console().print()

@@ -40,6 +40,12 @@ def test_something():
         ),
         report=snapshot(
             """\
+FAIL: your snapshot is missing 2 values.
+If you just created this value with --snapshot=create, the value is now created \n\
+and you can ignore this message.
+FAIL: some snapshots in this test have incorrect values.
+If you just created this value with --snapshot=create, the value is now created \n\
+and you can ignore this message.
 
 
 ═══════════════════════════════ inline-snapshot ════════════════════════════════
@@ -239,6 +245,9 @@ def test_a():
         ),
         report=snapshot(
             """\
+FAIL: some snapshots in this test have incorrect values.
+If you just created this value with --snapshot=create, the value is now created \n\
+and you can ignore this message.
 
 
 ═══════════════════════════════ inline-snapshot ════════════════════════════════
@@ -254,9 +263,6 @@ def test_a():
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used fix
 
-INFO: inline-snapshot can not trim your external snapshots, because there is no \n\
-tests/ folder in your repository root and no test-dir defined in your \n\
-pyproject.toml.
 ----------------------------------- Problems -----------------------------------
 inline-snapshot is not able to format your code.
 This issue can be solved by:
@@ -266,6 +272,9 @@ older versions
 https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command \n\
 for more information).
 
+
+inline-snapshot can not trim your external snapshots, because there is no tests/
+folder in your repository root and no test-dir defined in your pyproject.toml.
 
 """
         ),
