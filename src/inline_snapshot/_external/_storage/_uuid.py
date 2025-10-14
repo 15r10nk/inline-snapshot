@@ -33,8 +33,7 @@ class UuidStorage(StorageProtocol):
 
             base_folders = {file.parent for file in state().files_with_snapshots}
 
-            test_dir = state().config.tests_dir
-            if test_dir:
+            for test_dir in state().config.test_directories or []:
                 base_folders |= set(test_dir.rglob("__inline_snapshot__"))
 
             for folder in base_folders:

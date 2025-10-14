@@ -94,3 +94,4 @@ fix=["create","fix"]
     where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
     This directory is used to search through all test files for `external()` calls and to check whether the currently saved external objects are still used in the source.
     It is therefore required if you want to *trim* unused externals.
+    You can also specify a list of folders.

@@ -23,7 +23,7 @@ class Config:
     format_command: str = ""
     storage_dir: Optional[Path] = None
     show_updates: bool = False
-    tests_dir: Optional[Path] = None
+    test_directories: Optional[List[Path]] = None
     default_storage: str = "uuid"
 
 
@@ -62,26 +62,35 @@ def read_config(path: Path, config=Config()) -> Config:
         "shortcuts", {"fix": ["create", "fix"], "review": ["review"]}
     )
 
-    def read_path(name):
-        result = tool_config.get(name)
-        if result:
-            result = Path(result)
-            if not result.is_absolute():
-                # Make it relative to pyproject.toml, and absolute.
-                result = path.parent.joinpath(result).absolute()
+    def to_path(pathname: str) -> Path:
+        result = Path(pathname)
+        if not result.is_absolute():
+            # Make it relative to pyproject.toml, and absolute.
+            result = path.parent.joinpath(result).absolute()
         return result
 
-    config.storage_dir = read_path("storage-dir")
+    config.storage_dir = (
+        to_path(name) if (name := tool_config.get("storage-dir")) else None
+    )
 
-    config.tests_dir = read_path("test-dir")
+    test_directories = tool_config.get("test-dir")
 
-    if (
-        config.tests_dir is None
+    if isinstance(test_directories, str):
+        test_directories = [test_directories]
+
+    if isinstance(test_directories, list):
+        config.test_directories = [to_path(d) for d in test_directories]
+    elif (
+        test_directories is None
         and path.exists()
-        and (test_dir := path.parent / "tests").exists()
-        and test_dir.is_dir()
+        and (std_tests := path.parent / "tests").exists()
+        and std_tests.is_dir()
     ):
-        config.tests_dir = test_dir
+        config.test_directories = [std_tests]
+    elif test_directories is None:
+        config.test_directories = None
+    else:
+        raise UsageError(f"test-dir has to be a directory or list of directories")
 
     config.default_storage = tool_config.get("default-storage", "uuid")
 
