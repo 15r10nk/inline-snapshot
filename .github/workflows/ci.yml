@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - uses: ./.github/actions/setup
@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', pypy3.9, pypy3.10]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14', pypy3.9, pypy3.10]
         os: [ubuntu-latest, windows-latest, macos-13]
         extra_deps: ['"--with=pydantic<2"', '"--with=pydantic>2"']
         is_insider:
@@ -35,6 +35,9 @@ jobs:
         - is_insider: true
           os: macos-13
 
+        - python-version: '3.14'
+          extra_deps: '"--with=pydantic<2"'
+
         - os: macos-13
           python-version: '3.9'
         - os: macos-13
@@ -43,6 +46,8 @@ jobs:
           python-version: '3.11'
         - os: macos-13
           python-version: '3.12'
+        - os: macos-13
+          python-version: '3.13'
         - os: macos-13
           python-version: pypy3.9
         - os: macos-13
@@ -56,6 +61,8 @@ jobs:
           python-version: '3.11'
         - os: windows-latest
           python-version: '3.12'
+        - os: windows-latest
+          python-version: '3.13'
         - os: windows-latest
           python-version: pypy3.9
         - os: windows-latest

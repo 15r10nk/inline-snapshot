@@ -19,6 +19,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
   "License :: OSI Approved :: MIT License",
@@ -150,6 +151,10 @@ scripts.test=["python testing/generate_tests.py"]
 python = ["3.13", "3.12", "3.11", "3.10", "3.9", "3.8","pypy3.9","pypy3.10"]
 extra-deps=["low","hight"]
 
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.14"]
+extra-deps=["hight"]
+
 [tool.hatch.envs.hatch-test.overrides]
 matrix.extra-deps.dependencies = [
   { value = "pydantic<2", if = ["low"] },
@@ -186,7 +191,7 @@ extra-dependencies = [
 ]
 
 [[tool.hatch.envs.types.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12","3.13"]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12","3.13","3.14"]
 
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/inline_snapshot tests}"

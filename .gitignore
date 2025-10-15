@@ -70,6 +70,9 @@ target/
 # IPython Notebook
 .ipynb_checkpoints
 
+# mypy
+.mypy_cache
+
 # pyenv
 .python-version
 .mutmut-cache
