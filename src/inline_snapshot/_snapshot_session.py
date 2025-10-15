@@ -283,9 +283,9 @@ class SnapshotSession:
         if pyproject is not None:
             _config.read_config(pyproject, state().config)
 
-        if state().config.tests_dir is None:
+        if state().config.test_directories is None:
             if (tests_dir := Path.cwd() / "tests").exists() and tests_dir.is_dir():
-                state().config.tests_dir = tests_dir
+                state().config.test_directories = [tests_dir]
 
         console = Console()
 
@@ -423,8 +423,8 @@ class SnapshotSession:
         apply_all(used_changes, cr)
         changed_files = {Path(f.filename): f for f in cr.files()}
 
-        test_dir = state().config.tests_dir
-        if not test_dir:
+        tests_dir = state().config.test_directories
+        if tests_dir is None:
             raise_problem(
                 "inline-snapshot can not trim your external snapshots,"
                 " because there is no [i]tests/[/] folder in your repository root"
@@ -432,9 +432,10 @@ class SnapshotSession:
             )
         else:
 
+            assert isinstance(tests_dir, list), tests_dir
             all_files = {
                 *map(Path, state().files_with_snapshots),
-                *test_dir.rglob("*.py"),
+                *[file for test_dir in tests_dir for file in test_dir.rglob("*.py")],
             }
 
             used = []
