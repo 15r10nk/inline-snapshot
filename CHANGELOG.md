@@ -1,4 +1,13 @@
 
+<a id='changelog-0.30.0'></a>
+# 0.30.0 — 2025-10-15
+
+## Added
+
+- The `test-dir` config option can now also be a list of paths ([#307](https://github.com/15r10nk/inline-snapshot/issues/307))
+
+- added Python 3.14 support
+
 <a id='changelog-0.29.4'></a>
 # 0.29.4 — 2025-10-13
 
