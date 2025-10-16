@@ -16,7 +16,6 @@ class EqValue(GenericValue):
     _changes: List[Change]
 
     def __eq__(self, other):
-        self._changes = []
         other = Builder().get_handler(other)
 
         if isinstance(self._old_value, CustomUndefined):
@@ -43,4 +42,4 @@ class EqValue(GenericValue):
         return self._file._value_to_code(self._new_value.eval())
 
     def _get_changes(self) -> Iterator[Change]:
-        return iter(self._changes)
+        return iter(getattr(self, "_changes", []))

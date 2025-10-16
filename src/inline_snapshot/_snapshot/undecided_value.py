@@ -38,7 +38,7 @@ class UndecidedValue(GenericValue):
                 return
 
             if not isinstance(obj, CustomUnmanaged) and node is not None:
-                new_token = value_to_token(obj.value)
+                new_token = value_to_token(obj.eval())
                 if self._file._token_of_node(node) != new_token:
                     new_code = self._file._token_to_code(new_token)
 

@@ -86,7 +86,7 @@ class DictAdapter(Adapter):
                     node_value = ast.literal_eval(node)
                 except:
                     continue
-                assert node_value == value
+                assert node_value == value.eval()
 
         result = {}
         for key, node in zip(
