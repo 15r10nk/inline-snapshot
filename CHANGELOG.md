@@ -1,4 +1,11 @@
 
+<a id='changelog-0.30.1'></a>
+# 0.30.1 — 2025-10-20
+
+## Fixed
+
+- Disable ensure ascii in json.dump to support non-ASCII characters in external files
+
 <a id='changelog-0.30.0'></a>
 # 0.30.0 — 2025-10-15
 

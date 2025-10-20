@@ -80,7 +80,6 @@ def test_a():
     )
 
 
-
 def test_binary_format():
 
     Example(
