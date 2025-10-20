@@ -41,6 +41,46 @@ def test_a():
     )
 
 
+def test_json_format_with_non_ascii_symbols():
+
+    Example(
+        """\
+from inline_snapshot import external
+
+def test_a():
+    assert ["Тест1","Тест2"] == external(".json")
+    assert {"Тест":2} == external()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.json": """\
+[
+  "Тест1",
+  "Тест2"
+]\
+""",
+                "tests/__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.json": """\
+{
+  "Тест": 2
+}\
+""",
+                "tests/test_something.py": """\
+from inline_snapshot import external
+
+def test_a():
+    assert ["Тест1","Тест2"] == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.json")
+    assert {"Тест":2} == external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.json")
+""",
+            }
+        ),
+    ).run_inline(
+        ["--inline-snapshot=disable"]
+    )
+
+
+
 def test_binary_format():
 
     Example(
