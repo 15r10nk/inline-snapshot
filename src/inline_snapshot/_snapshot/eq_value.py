@@ -4,6 +4,8 @@ from typing import List
 from inline_snapshot._adapter.adapter import Adapter
 from inline_snapshot._customize import Builder
 from inline_snapshot._customize import CustomUndefined
+from inline_snapshot._new_adapter import compare
+from inline_snapshot._new_adapter import update_code
 
 from .._change import Change
 from .._compare_context import compare_only
@@ -17,6 +19,11 @@ class EqValue(GenericValue):
 
     def __eq__(self, other):
         other = Builder().get_handler(other)
+        self._new_value = compare(self._old_value, other)
+
+        return self._old_value == other
+
+        breakpoint()
 
         if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1
@@ -38,8 +45,9 @@ class EqValue(GenericValue):
         )
 
     def _new_code(self):
-        # TODO repr()
-        return self._file._value_to_code(self._new_value.eval())
+        return self._new_value.repr()
 
     def _get_changes(self) -> Iterator[Change]:
+        return update_code(self._old_value, self._ast_node, self._new_value)
+
         return iter(getattr(self, "_changes", []))

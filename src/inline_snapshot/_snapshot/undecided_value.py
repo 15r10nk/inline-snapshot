@@ -1,6 +1,7 @@
 from typing import Iterator
 
 from inline_snapshot._customize import Builder
+from inline_snapshot._customize import Custom
 from inline_snapshot._customize import CustomUndefined
 from inline_snapshot._customize import CustomUnmanaged
 
@@ -16,6 +17,7 @@ class UndecidedValue(GenericValue):
     def __init__(self, old_value, ast_node, context: AdapterContext):
 
         old_value = Builder().get_handler(old_value)
+        assert isinstance(old_value, Custom)
         self._old_value = old_value
         self._new_value = CustomUndefined()
         self._ast_node = ast_node

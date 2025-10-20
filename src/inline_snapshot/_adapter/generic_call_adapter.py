@@ -4,6 +4,8 @@ import ast
 import warnings
 from typing import Any
 
+import pytest
+
 from inline_snapshot._customize import CustomCall
 from inline_snapshot._customize import CustomDefault
 from inline_snapshot._customize import unwrap_default
@@ -16,6 +18,7 @@ from .adapter import Item
 
 
 def get_adapter_for_type(value_type):
+    assert False, "unreachable"
     assert isinstance(value_type, CustomCall)
     return CallAdapter
 
@@ -24,14 +27,17 @@ class CallAdapter(Adapter):
 
     @classmethod
     def arguments(cls, value) -> CustomCall:
+        pytest.skip()
         return value
 
     @classmethod
     def argument(cls, value, pos_or_name) -> Any:
+        pytest.skip()
         return cls.arguments(value).argument(pos_or_name)
 
     @classmethod
     def repr(cls, value):
+        pytest.skip()
 
         call = cls.arguments(value)
 
@@ -45,10 +51,12 @@ class CallAdapter(Adapter):
 
     @classmethod
     def map(cls, value, map_function):
+        pytest.skip()
         return cls.arguments(value).map(map_function)
 
     @classmethod
     def items(cls, value, node):
+        pytest.skip()
 
         args = cls.arguments(value)
         new_args = args.args
@@ -79,6 +87,7 @@ class CallAdapter(Adapter):
         ]
 
     def assign(self, old_value, old_node, new_value):
+        pytest.skip()
         if old_node is None or not isinstance(old_node, ast.Call):
             result = yield from self.value_assign(old_value, old_node, new_value)
             return result

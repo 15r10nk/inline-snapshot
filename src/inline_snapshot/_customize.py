@@ -233,6 +233,12 @@ def standard_handler(value, builder: Builder):
 
 
 @customize
+def type_handler(value, builder: Builder):
+    if isinstance(value, type):
+        return builder.Value(value, type(value).__qualname__)
+
+
+@customize
 def dataclass_handler(value, builder: Builder):
 
     if is_dataclass(value) and not isinstance(value, type):
