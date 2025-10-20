@@ -34,7 +34,7 @@ class JsonFormat(TextDiff, Format[object]):
     def encode(self, value: object, path: Path):
 
         with path.open("w", newline="\n", encoding="utf-8") as f:
-            json.dump(value, f, indent=2)
+            json.dump(value, f, indent=2, ensure_ascii=False)
 
     def decode(self, path: Path) -> object:
 
