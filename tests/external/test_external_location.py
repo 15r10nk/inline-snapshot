@@ -4,7 +4,6 @@ from inline_snapshot.testing._example import Example
 
 
 def test_external_location():
-
     results = snapshot(
         {
             "hash:a.txt": ExternalLocation(storage="hash", stem="a", suffix=".txt"),
@@ -19,12 +18,12 @@ def test_external_location():
             ".txt": ExternalLocation(storage="uuid", stem="", suffix=".txt"),
             ".b.txt": ExternalLocation(storage="uuid", stem="", suffix=".b.txt"),
             """""": ExternalLocation(storage="uuid", stem="", suffix=""),
-            "invalid:a.txt": "ValueError: storage has to be hash or uuid",
-            "invalid:a.b.txt": "ValueError: storage has to be hash or uuid",
-            "invalid:a": "ValueError: storage has to be hash or uuid",
-            "invalid:.txt": "ValueError: storage has to be hash or uuid",
-            "invalid:.b.txt": "ValueError: storage has to be hash or uuid",
-            "invalid:": "ValueError: storage has to be hash or uuid",
+            "invalid:a.txt": "ValueError: storage 'invalid' is not registered. Available: 'hash', 'uuid'",
+            "invalid:a.b.txt": "ValueError: storage 'invalid' is not registered. Available: 'hash', 'uuid'",
+            "invalid:a": "ValueError: storage 'invalid' is not registered. Available: 'hash', 'uuid'",
+            "invalid:.txt": "ValueError: storage 'invalid' is not registered. Available: 'hash', 'uuid'",
+            "invalid:.b.txt": "ValueError: storage 'invalid' is not registered. Available: 'hash', 'uuid'",
+            "invalid:": "ValueError: storage 'invalid' is not registered. Available: 'hash', 'uuid'",
         }
     )
 
