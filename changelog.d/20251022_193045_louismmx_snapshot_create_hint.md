@@ -31,7 +31,7 @@ For top level release notes, leave all the headers commented out.
 -->
 ### Fixed
 
-- Updated `--snapshot` flag to `--inline-snapshot` in session hints (#316).
+- Updated `--snapshot` flag to `--inline-snapshot` in session hints ([#316](https://github.com/15r10nk/inline-snapshot/issues/316)).
 
 <!--
 ### Security
