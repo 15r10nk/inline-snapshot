@@ -17,6 +17,21 @@ class StorageLookupError(Exception):
 
 
 class StorageProtocol:
+    # Does not need to be defined, has a default implementation
+    def compare(self, location: ExternalLocation, other_value) -> bool:
+        """
+        Compare a value against what's stored at the location.
+
+        Default implementation loads the stored value and uses ==.
+        Override this for custom comparison logic (e.g., perceptual hashing).
+
+        Returns:
+            True if the values match according to this storage's criteria
+        """
+        # Default implementation for backward compatibility
+        with self.load(location) as path:
+            stored_value = self._deserialize(path)  # needs to be defined
+            return stored_value == other_value
 
     @contextmanager
     def load(self, location: ExternalLocation) -> Generator[Path]:
