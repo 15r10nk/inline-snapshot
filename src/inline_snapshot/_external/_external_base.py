@@ -65,9 +65,9 @@ class ExternalBase:
 
         if self._is_empty():
             self._assign(other)
-            state().missing_values += 1
             if state().update_flags.create:
                 return True
+            state().missing_values += 1
             return False
 
         value = self._load_value()
