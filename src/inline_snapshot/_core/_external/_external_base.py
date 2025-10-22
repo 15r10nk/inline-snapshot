@@ -108,7 +108,12 @@ class ExternalBase:
             else:
                 raise
 
-        result = value == other
+            # Use storage's compare method if available, otherwise fall back to default
+            if hasattr(self.storage, "compare"):
+                result = self.storage.compare(self._location, other)
+            else:
+                # Fallback for storage implementations that don't have compare yet
+                result = value == other
 
         if not result and first_comparison:
             self._assign(other)
