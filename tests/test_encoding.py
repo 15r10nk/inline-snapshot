@@ -41,11 +41,11 @@ def test_a():
             {
                 "utf-8": """\
 FAIL: your snapshot is missing one value.
-If you just created this value with --snapshot=create, the value is now created \n\
-and you can ignore this message.
+If you just created this value with --inline-snapshot=create, the value is now \n\
+created and you can ignore this message.
 FAIL: some snapshots in this test have incorrect values.
-If you just created this value with --snapshot=create, the value is now created \n\
-and you can ignore this message.
+If you just created this value with --inline-snapshot=create, the value is now \n\
+created and you can ignore this message.
 
 
 ═══════════════════════════════ inline-snapshot ════════════════════════════════
@@ -64,11 +64,11 @@ These changes will be applied, because you used create
 """,
                 "windows-1251": """\
 FAIL: your snapshot is missing one value.
-If you just created this value with --snapshot=create, the value is now created \n\
-and you can ignore this message.
+If you just created this value with --inline-snapshot=create, the value is now \n\
+created and you can ignore this message.
 FAIL: some snapshots in this test have incorrect values.
-If you just created this value with --snapshot=create, the value is now created \n\
-and you can ignore this message.
+If you just created this value with --inline-snapshot=create, the value is now \n\
+created and you can ignore this message.
 
 
 ═══════════════════════════════ inline-snapshot ════════════════════════════════
@@ -87,11 +87,11 @@ These changes will be applied, because you used create
 """,
                 "cp1252": """\
 FAIL: your snapshot is missing one value.
-If you just created this value with --snapshot=create, the value is now created \n\
-and you can ignore this message.
+If you just created this value with --inline-snapshot=create, the value is now \n\
+created and you can ignore this message.
 FAIL: some snapshots in this test have incorrect values.
-If you just created this value with --snapshot=create, the value is now created \n\
-and you can ignore this message.
+If you just created this value with --inline-snapshot=create, the value is now \n\
+created and you can ignore this message.
 
 
 ═══════════════════════════════ inline-snapshot ════════════════════════════════
@@ -110,11 +110,11 @@ These changes will be applied, because you used create
 """,
                 "latin-1": """\
 FAIL: your snapshot is missing one value.
-If you just created this value with --snapshot=create, the value is now created \n\
-and you can ignore this message.
+If you just created this value with --inline-snapshot=create, the value is now \n\
+created and you can ignore this message.
 FAIL: some snapshots in this test have incorrect values.
-If you just created this value with --snapshot=create, the value is now created \n\
-and you can ignore this message.
+If you just created this value with --inline-snapshot=create, the value is now \n\
+created and you can ignore this message.
 
 
 ═══════════════════════════════ inline-snapshot ════════════════════════════════
@@ -133,11 +133,11 @@ These changes will be applied, because you used create
 """,
                 "ascii": """\
 FAIL: your snapshot is missing one value.
-If you just created this value with --snapshot=create, the value is now created \n\
-and you can ignore this message.
+If you just created this value with --inline-snapshot=create, the value is now \n\
+created and you can ignore this message.
 FAIL: some snapshots in this test have incorrect values.
-If you just created this value with --snapshot=create, the value is now created \n\
-and you can ignore this message.
+If you just created this value with --inline-snapshot=create, the value is now \n\
+created and you can ignore this message.
 
 
 ═══════════════════════════════ inline-snapshot ════════════════════════════════

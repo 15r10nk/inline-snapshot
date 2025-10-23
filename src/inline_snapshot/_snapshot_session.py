@@ -260,7 +260,7 @@ class SnapshotSession:
         missing_values = state().missing_values
         incorrect_values = state().incorrect_values
 
-        extra = "\nIf you just created this value with --snapshot=create, the value is now created and you can ignore this message."
+        extra = "\nIf you just created this value with --inline-snapshot=create, the value is now created and you can ignore this message."
 
         if missing_values != 0:
             fail(

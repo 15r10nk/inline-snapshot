@@ -41,11 +41,11 @@ def test_something():
         report=snapshot(
             """\
 FAIL: your snapshot is missing 2 values.
-If you just created this value with --snapshot=create, the value is now created \n\
-and you can ignore this message.
+If you just created this value with --inline-snapshot=create, the value is now \n\
+created and you can ignore this message.
 FAIL: some snapshots in this test have incorrect values.
-If you just created this value with --snapshot=create, the value is now created \n\
-and you can ignore this message.
+If you just created this value with --inline-snapshot=create, the value is now \n\
+created and you can ignore this message.
 
 
 ═══════════════════════════════ inline-snapshot ════════════════════════════════
@@ -246,8 +246,8 @@ def test_a():
         report=snapshot(
             """\
 FAIL: some snapshots in this test have incorrect values.
-If you just created this value with --snapshot=create, the value is now created \n\
-and you can ignore this message.
+If you just created this value with --inline-snapshot=create, the value is now \n\
+created and you can ignore this message.
 
 
 ═══════════════════════════════ inline-snapshot ════════════════════════════════
