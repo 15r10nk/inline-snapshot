@@ -65,13 +65,18 @@ class ExternalBase:
 
         if self._is_empty():
             self._assign(other)
-            state().missing_values += 1
             if state().update_flags.create:
                 return True
+            state().missing_values += 1
             return False
 
-        value = self._load_value()
-        result = value == other
+            # Use storage's compare method if available, otherwise fall back to default
+            if hasattr(self.storage, "compare"):
+                result = self.storage.compare(self._location, other)
+            else:
+                # Fallback for storage implementations that don't have compare yet
+                value = self._load_value()
+                result = value == other
 
         if not result and first_comparison:
             self._assign(other)

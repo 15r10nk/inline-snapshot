@@ -62,8 +62,11 @@ class ExternalLocation(Location):
                 path = name
             elif ":" in name:
                 storage, path = name.split(":", 1)
-                if storage not in ("hash", "uuid"):
-                    raise ValueError(f"storage has to be hash or uuid")
+                if storage not in state().all_storages:
+                    available = ", ".join(map(repr, state().all_storages.keys()))
+                    raise ValueError(
+                        f"storage '{storage}' is not registered. Available: {available}"
+                    )
             else:
                 storage = state().config.default_storage
                 path = name
