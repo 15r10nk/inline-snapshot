@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import ast
 from abc import ABC
 from abc import abstractmethod
 from collections import defaultdict
+from types import BuiltinFunctionType
+from types import FunctionType
 from typing import Any
 from typing import Callable
 
@@ -26,16 +29,15 @@ def customize(f: Callable[[Any, Builder], Custom | None]):
     return f
 
 
-@dataclass(frozen=True, eq=False, order=False)
 class Custom(ABC):
-    raw_value: Any
+    node_type: type[ast.AST] = ast.AST
 
     def __hash__(self):
-        return hash(self.raw_value)
+        return hash(self.eval())
 
     def __eq__(self, other):
         if isinstance(other, Custom):
-            return self.raw_value == other.raw_value
+            return self.eval() == other.eval()
 
         return NotImplemented
 
@@ -47,9 +49,8 @@ class Custom(ABC):
     def repr(self):
         raise NotImplementedError()
 
-    @abstractmethod
     def eval(self):
-        raise NotImplementedError()
+        return self.map(lambda a: a)
 
 
 @dataclass(frozen=True)
@@ -59,9 +60,6 @@ class CustomDefault(Custom):
     def repr(self):
         return self.value.repr()
 
-    def eval(self):
-        return self.value.eval()
-
     def map(self, f):
         return self.value.map(f)
 
@@ -69,11 +67,8 @@ class CustomDefault(Custom):
 class CustomUnmanaged(Custom, Unmanaged):
     def __init__(self, value):
         # TODO remove Unmanaged
-        Custom.__init__(self, raw_value=value)
+        Custom.__init__(self)
         Unmanaged.__init__(self, value)
-
-    def eval(self):
-        return self.value
 
     def repr(self):
         return "<no repr>"
@@ -84,14 +79,10 @@ class CustomUnmanaged(Custom, Unmanaged):
 
 class CustomUndefined(Custom):
     def __init__(self):
-        super().__init__(raw_value=undefined)
         self.value = undefined
 
     def repr(self) -> str:
         return "..."
-
-    def eval(self):
-        return undefined
 
     def map(self, f):
         return f(undefined)
@@ -105,6 +96,7 @@ def unwrap_default(value):
 
 @dataclass(frozen=True)
 class CustomCall(Custom):
+    node_type = ast.Call
     _function: Custom = field(compare=False)
     _args: list[Custom] = field(compare=False)
     _kwargs: dict[str, Custom] = field(compare=False)
@@ -143,60 +135,54 @@ class CustomCall(Custom):
             return unwrap_default(self.kwargs[pos_or_str])
 
     def map(self, f):
-        return self._function(
+        return self._function.map(f)(
             *[f(x.map(f)) for x in self._args],
             **{k: f(v.map(f)) for k, v in self.kwargs.items()},
         )
 
-    def eval(self):
-        return self._function.eval()(
-            *[x.eval() for x in self._args],
-            **{k: v.eval() for k, v in self.kwargs.items()},
-        )
+
+class CustomSequenceTypes:
+    trailing_comma: bool
+    braces: str
+    value_type: type
 
 
 @dataclass(frozen=True)
-class CustomList(Custom):
+class CustomSequence(Custom, CustomSequenceTypes):
     value: list[Custom] = field(compare=False)
 
     def map(self, f):
-        return [f(x) for x in self.value]
+        return f(self.value_type([x.map(f) for x in self.value]))
 
     def repr(self) -> str:
-        return f"[{', '.join(v.repr() for v in self.value)}]"
-
-    def eval(self):
-        return [v.eval() for v in self.value]
+        trailing_comma = self.trailing_comma and len(self.value) == 1
+        return f"{self.braces[0]}{', '.join(v.repr() for v in self.value)}{', ' if trailing_comma else ''}{self.braces[1]}"
 
 
-@dataclass(frozen=True)
-class CustomTuple(Custom):
-    value: list[Custom] = field(compare=False)
+class CustomList(CustomSequence):
+    node_type = ast.List
+    value_type = list
+    braces = "[]"
+    trailing_comma = False
 
-    def map(self, f):
-        return tuple([f(x) for x in self.value])
 
-    def repr(self) -> str:
-        if len(self.value) == 1:
-            return f"({self.value[0].repr()},)"
-        return f"({', '.join(v.repr() for v in self.value)})"
-
-    def eval(self):
-        return tuple(v.eval() for v in self.value)
+class CustomTuple(CustomSequence):
+    node_type = ast.Tuple
+    value_type = tuple
+    braces = "()"
+    trailing_comma = True
 
 
 @dataclass(frozen=True)
 class CustomDict(Custom):
+    node_type = ast.Dict
     value: dict[Custom, Custom] = field(compare=False)
 
     def map(self, f):
-        return {f(k): f(v) for k, v in self.value.items()}
+        return f({k.map(f): v.map(f) for k, v in self.value.items()})
 
     def repr(self) -> str:
         return f"{{ { ', '.join(f'{k.repr()} = {v.repr()}' for k,v in self.value.items())} }}"
-
-    def eval(self):
-        return {k.eval(): v.eval() for k, v in self.value.items()}
 
 
 class CustomValue(Custom):
@@ -208,16 +194,16 @@ class CustomValue(Custom):
         else:
             self.repr_str = repr_str
 
-        super().__init__(raw_value=value)
+        self.value = value
 
     def map(self, f):
-        return f(self.raw_value)
+        return f(self.value)
 
     def repr(self) -> str:
         return self.repr_str
 
-    def eval(self):
-        return self.raw_value
+    def __repr__(self):
+        return f"CustomValue({self.repr_str})"
 
 
 @customize
@@ -233,9 +219,21 @@ def standard_handler(value, builder: Builder):
 
 
 @customize
+def function_handler(value, builder: Builder):
+    if isinstance(value, FunctionType):
+        return builder.Value(value, value.__qualname__)
+
+
+@customize
+def builtin_function_handler(value, builder: Builder):
+    if isinstance(value, BuiltinFunctionType):
+        return builder.Value(value, value.__name__)
+
+
+@customize
 def type_handler(value, builder: Builder):
     if isinstance(value, type):
-        return builder.Value(value, type(value).__qualname__)
+        return builder.Value(value, value.__qualname__)
 
 
 @customize
@@ -422,11 +420,11 @@ class Builder:
 
     def List(self, value) -> CustomList:
         custom = [self.get_handler(v) for v in value]
-        return CustomList(raw_value=value, value=custom)
+        return CustomList(value=custom)
 
     def Tuple(self, value) -> CustomTuple:
         custom = [self.get_handler(v) for v in value]
-        return CustomTuple(raw_value=value, value=custom)
+        return CustomTuple(value=custom)
 
     def Call(
         self, value, function, posonly_args=[], kwargs={}, kwonly_args={}
@@ -437,7 +435,6 @@ class Builder:
         kwonly_args = {k: self.get_handler(arg) for k, arg in kwonly_args.items()}
 
         return CustomCall(
-            raw_value=value,
             _function=function,
             _args=posonly_args,
             _kwargs=kwargs,
@@ -445,11 +442,11 @@ class Builder:
         )
 
     def Default(self, value) -> CustomDefault:
-        return CustomDefault(raw_value=value, value=self.get_handler(value))
+        return CustomDefault(value=self.get_handler(value))
 
     def Dict(self, value) -> CustomDict:
         custom = {self.get_handler(k): self.get_handler(v) for k, v in value.items()}
-        return CustomDict(raw_value=value, value=custom)
+        return CustomDict(value=custom)
 
     def Value(self, value, repr) -> CustomValue:
         return CustomValue(value, repr)

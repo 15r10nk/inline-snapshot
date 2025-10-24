@@ -1,11 +1,9 @@
 from typing import Iterator
 from typing import List
 
-from inline_snapshot._adapter.adapter import Adapter
 from inline_snapshot._customize import Builder
 from inline_snapshot._customize import CustomUndefined
-from inline_snapshot._new_adapter import compare
-from inline_snapshot._new_adapter import update_code
+from inline_snapshot._new_adapter import NewAdapter
 
 from .._change import Change
 from .._compare_context import compare_only
@@ -19,19 +17,18 @@ class EqValue(GenericValue):
 
     def __eq__(self, other):
         other = Builder().get_handler(other)
-        self._new_value = compare(self._old_value, other)
-
-        return self._old_value == other
-
-        breakpoint()
+        print("===")
+        print(self._old_value)
+        print(other)
 
         if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1
 
         if not compare_only() and isinstance(self._new_value, CustomUndefined):
             self._changes = []
-            adapter = Adapter(self._context).get_adapter(self._old_value, other)
-            it = iter(adapter.assign(self._old_value, self._ast_node, other))
+
+            adapter = NewAdapter(self._context)
+            it = iter(adapter.compare(self._old_value, self._ast_node, other))
             while True:
                 try:
                     self._changes.append(next(it))
@@ -48,6 +45,4 @@ class EqValue(GenericValue):
         return self._new_value.repr()
 
     def _get_changes(self) -> Iterator[Change]:
-        return update_code(self._old_value, self._ast_node, self._new_value)
-
         return iter(getattr(self, "_changes", []))
