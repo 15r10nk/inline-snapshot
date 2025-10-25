@@ -5,12 +5,7 @@ import shutil
 import typing
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING
 from typing import Generator
-from typing import Iterator
-
-if TYPE_CHECKING:
-    from inline_snapshot._change import ChangeBase
 
 from .._external_location import ExternalLocation
 from ._protocol import StorageLookupError
@@ -72,21 +67,16 @@ class HashStorage(StorageProtocol):
 
         return location.with_stem(path)
 
-    def sync_used_externals(
+    def find_unused_externals(
         self, used_externals: list[ExternalLocation]
-    ) -> Iterator[ChangeBase]:
+    ) -> list[ExternalLocation]:
         unused_externals = self.list()
         for location in used_externals:
             if location.path:
                 used = self.lookup_all(location.path)
                 unused_externals -= used
 
-        from inline_snapshot._change import ExternalRemove
-        from inline_snapshot._global_state import state
-
-        if state().update_flags.trim:
-            for name in unused_externals:
-                yield ExternalRemove("trim", ExternalLocation.from_name(name))
+        return [ExternalLocation.from_name(name) for name in unused_externals]
 
     def list(self) -> set[str]:
 

@@ -37,8 +37,9 @@ class ExternalLocation(Location):
     stem: str
     suffix: str
 
-    filename: Path | None
-    qualname: str | None
+    filename: Path | None = None
+    qualname: str | None = None
+    linenumber: int | None = None
 
     @classmethod
     def from_name(
@@ -82,7 +83,7 @@ class ExternalLocation(Location):
             filename = Path(context.file.filename)
             qualname = context.qualname
 
-        return cls(storage, stem, suffix, filename, qualname)
+        return cls(storage, stem, suffix, filename, qualname, None)
 
     @property
     def path(self) -> str:

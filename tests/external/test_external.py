@@ -1,9 +1,11 @@
 import ast
 import sys
+from pathlib import Path
 
 from inline_snapshot import external
 from inline_snapshot import outsource
 from inline_snapshot import snapshot
+from inline_snapshot._external._external_location import ExternalLocation
 from inline_snapshot._external._find_external import ensure_import
 from inline_snapshot._external._find_external import used_externals_in
 from inline_snapshot._global_state import snapshot_env
@@ -366,13 +368,27 @@ def test_errors():
 
 def test_uses_external():
     assert used_externals_in(
-        ast.parse("[external('hash:111*.txt')]"), check_import=False
-    ) == snapshot({"hash:111*.txt"})
-    assert not used_externals_in(ast.parse("[external()]"), check_import=False)
-    assert not used_externals_in(ast.parse("[external]"), check_import=False)
+        Path("a.py"), ast.parse("[external('hash:111*.txt')]"), check_import=False
+    ) == snapshot(
+        [
+            ExternalLocation(
+                storage="hash",
+                stem="111*",
+                suffix=".txt",
+                filename=Path("a.py"),
+                linenumber=1,
+            )
+        ]
+    )
+    assert not used_externals_in(
+        Path("a.py"), ast.parse("[external()]"), check_import=False
+    )
+    assert not used_externals_in(
+        Path("a.py"), ast.parse("[external]"), check_import=False
+    )
     assert used_externals_in(
-        ast.parse("[external('hash:111*.txt')]"), check_import=True
-    ) == snapshot(set())
+        Path("a.py"), ast.parse("[external('hash:111*.txt')]"), check_import=True
+    ) == snapshot([])
 
 
 def test_no_imports(project):

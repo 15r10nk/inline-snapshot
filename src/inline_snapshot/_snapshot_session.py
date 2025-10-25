@@ -14,12 +14,14 @@ from rich.prompt import Confirm
 from rich.syntax import Syntax
 
 from inline_snapshot._external._storage import default_storages
+from inline_snapshot._utils import category_link
+from inline_snapshot._utils import link
 
 from . import _config
 from ._change import ChangeBase
+from ._change import ExternalRemove
 from ._change import apply_all
 from ._code_repr import used_hasrepr
-from ._external._external_location import ExternalLocation
 from ._external._find_external import ensure_import
 from ._external._find_external import used_externals_in
 from ._flags import Flags
@@ -85,17 +87,6 @@ def call_once(f):
         return result
 
     return w
-
-
-def link(text, link=None):
-    return f"[italic blue link={link or text}]{text}[/]"
-
-
-def category_link(category):
-    return link(
-        category,
-        f"https://15r10nk.github.io/inline-snapshot/latest/categories/#{category}",
-    )
 
 
 def apply_changes(flag, console):
@@ -440,21 +431,17 @@ class SnapshotSession:
                         content = f.read()
                     check_import = True
 
-                for e in used_externals_in(content, check_import=check_import):
-                    try:
-                        location = ExternalLocation.from_name(e)
-                    except ValueError:
-                        pass
-                    else:
-                        used.append(location)
+                used += used_externals_in(file, content, check_import=check_import)
 
             changes = {f: [] for f in Flags.all()}
 
             for name, storage in state().all_storages.items():
-                for external_change in storage.sync_used_externals(
-                    [e for e in used if e.storage == name]
-                ):
-                    changes[external_change.flag].append(external_change)
+                externals_for_storage = [e for e in used if e.storage == name]
+                for location in storage.find_unused_externals(externals_for_storage):
+                    if state().update_flags.trim:
+                        changes["trim"].append(ExternalRemove("trim", location))
+
+                storage.check_externals(externals_for_storage)
 
             used_changes += filter_changes(changes, snapshot_changes, console)
 
@@ -469,7 +456,9 @@ class SnapshotSession:
 
             for test_file in cr.files():
                 tree = ast.parse(test_file.new_code())
-                used_externals = used_externals_in(tree, check_import=False)
+                used_externals = used_externals_in(
+                    test_file.filename, tree, check_import=False
+                )
 
                 required_imports = []
 

@@ -8,6 +8,17 @@ from pathlib import Path
 from ._code_repr import code_repr
 
 
+def link(text, link=None):
+    return f"[italic blue link={link or text}]{text}[/]"
+
+
+def category_link(category):
+    return link(
+        category,
+        f"https://15r10nk.github.io/inline-snapshot/latest/categories/#{category}",
+    )
+
+
 def is_relative_to(base: Path, relative: Path):
     try:
         relative.relative_to(base)

@@ -194,3 +194,48 @@ def test_a():
         ),
         returncode=snapshot(0),
     )
+
+
+def test_double_use():
+    e = Example(
+        {
+            "tests/test_a.py": """\
+from inline_snapshot import external
+
+def test_a():
+    assert "test"==external("uuid:")
+             """
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/__inline_snapshot__/test_a/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "test",
+                "tests/test_a.py": """\
+from inline_snapshot import external
+
+def test_a():
+    assert "test"==external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+             \
+""",
+            }
+        ),
+    )
+
+    e = e.with_files({"tests/test_b.py": e.read_file("tests/test_a.py")}).run_inline(
+        report=snapshot(
+            """\
+
+
+═══════════════════════════════ inline-snapshot ════════════════════════════════
+----------------------------------- Problems -----------------------------------
+The external uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt is used multiple \n\
+times, which is not supported:
+   tests/test_a.py:4
+   tests/test_b.py:4
+   (see \n\
+https://15r10nk.github.io/inline-snapshot/latest/external/external/#uuid)
+
+"""
+        )
+    )

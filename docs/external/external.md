@@ -101,6 +101,42 @@ The `uuid:` storage protocol is the default protocol and stores the external fil
 - :material-plus:{.green} The use of a UUID allows inline-snapshot to find the external file even if file or function names of a test function have changed.
 - :material-minus:{.red} Distinguishing multiple external snapshots in the same function remains challenging.
 
+!!! note
+    Using the same external uuid multiple times like this is not supported:
+
+    <!-- inline-snapshot: create first_block outcome-failed=2 -->
+    ``` python
+    from inline_snapshot import external
+
+
+    def test_a():
+        assert "test" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+
+
+    def test_b():
+        assert "test" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+    ```
+
+    This can happen when you copy tests and change them for another use case. inline-snapshot notifies you in this case, and you should change one external back to `#!python external("uuid:")` and create new external snapshots.
+
+    The correct way to do use the same external in different tests is to assign the external to a variable and reuse this variable.
+
+    <!-- inline-snapshot: create first_block outcome-failed=2 -->
+    ``` python
+    from inline_snapshot import external
+
+    expected = external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+
+
+    def test_a():
+        assert "test" == expected
+
+
+    def test_b():
+        assert "test" == expected
+    ```
+    <!-- inline-snapshot: create first_block outcome-failed=1 -->
+
 ### Hash
 
 The `hash:` storage can be used to store snapshot files based on the hash of their content. This was the first storage protocol supported by inline-snapshot and can still be useful in some cases. It also preserves backward compatibility with older inline-snapshot versions.

@@ -13,14 +13,13 @@ from typing import Literal
 from uuid import uuid4
 
 from inline_snapshot._config import Config
-from inline_snapshot._external._format._protocol import Format
-from inline_snapshot._external._storage._protocol import StorageProtocol
-from inline_snapshot._types import SnapshotRefBase
-
-from ._flags import Flags
 
 if TYPE_CHECKING:
-    pass
+    from inline_snapshot._external._format._protocol import Format
+    from inline_snapshot._external._storage._protocol import StorageProtocol
+    from inline_snapshot._types import SnapshotRefBase
+
+from ._flags import Flags
 
 
 @dataclass
@@ -99,3 +98,14 @@ def snapshot_env() -> Generator[State]:
             yield _current
     finally:
         leave_snapshot_context()
+
+
+def state_cached(function):
+    def w():
+        name = "_cached_" + function.__name__
+        if not hasattr(state(), name):
+            setattr(state(), name, function())
+
+        return getattr(state(), name)
+
+    return w

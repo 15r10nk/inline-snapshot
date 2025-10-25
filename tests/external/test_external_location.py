@@ -7,38 +7,18 @@ def test_external_location():
 
     results = snapshot(
         {
-            "hash:a.txt": ExternalLocation(
-                storage="hash", stem="a", suffix=".txt", filename=None, qualname=None
-            ),
-            "hash:a.b.txt": ExternalLocation(
-                storage="hash", stem="a", suffix=".b.txt", filename=None, qualname=None
-            ),
+            "hash:a.txt": ExternalLocation(storage="hash", stem="a", suffix=".txt"),
+            "hash:a.b.txt": ExternalLocation(storage="hash", stem="a", suffix=".b.txt"),
             "hash:a": "ValueError: 'hash:a' is missing a suffix",
-            "hash:.txt": ExternalLocation(
-                storage="hash", stem="", suffix=".txt", filename=None, qualname=None
-            ),
-            "hash:.b.txt": ExternalLocation(
-                storage="hash", stem="", suffix=".b.txt", filename=None, qualname=None
-            ),
-            "hash:": ExternalLocation(
-                storage="hash", stem="", suffix="", filename=None, qualname=None
-            ),
-            "a.txt": ExternalLocation(
-                storage="uuid", stem="a", suffix=".txt", filename=None, qualname=None
-            ),
-            "a.b.txt": ExternalLocation(
-                storage="uuid", stem="a", suffix=".b.txt", filename=None, qualname=None
-            ),
+            "hash:.txt": ExternalLocation(storage="hash", stem="", suffix=".txt"),
+            "hash:.b.txt": ExternalLocation(storage="hash", stem="", suffix=".b.txt"),
+            "hash:": ExternalLocation(storage="hash", stem="", suffix=""),
+            "a.txt": ExternalLocation(storage="uuid", stem="a", suffix=".txt"),
+            "a.b.txt": ExternalLocation(storage="uuid", stem="a", suffix=".b.txt"),
             "a": "ValueError: 'a' is missing a suffix",
-            ".txt": ExternalLocation(
-                storage="uuid", stem="", suffix=".txt", filename=None, qualname=None
-            ),
-            ".b.txt": ExternalLocation(
-                storage="uuid", stem="", suffix=".b.txt", filename=None, qualname=None
-            ),
-            """""": ExternalLocation(
-                storage="uuid", stem="", suffix="", filename=None, qualname=None
-            ),
+            ".txt": ExternalLocation(storage="uuid", stem="", suffix=".txt"),
+            ".b.txt": ExternalLocation(storage="uuid", stem="", suffix=".b.txt"),
+            """""": ExternalLocation(storage="uuid", stem="", suffix=""),
             "invalid:a.txt": "ValueError: storage has to be hash or uuid",
             "invalid:a.b.txt": "ValueError: storage has to be hash or uuid",
             "invalid:a": "ValueError: storage has to be hash or uuid",
