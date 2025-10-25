@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+from pathlib import Path
 
 from inline_snapshot._adapter.adapter import AdapterContext
 from inline_snapshot._change import CallArg
@@ -12,12 +13,21 @@ from inline_snapshot._external._format._protocol import get_format_handler_from_
 from inline_snapshot._global_state import state
 from inline_snapshot._inline_snapshot import create_snapshot
 from inline_snapshot._unmanaged import declare_unmanaged
+from inline_snapshot._utils import is_relative_to
 
 from ._external_location import ExternalLocation
 
 
 def external(name: str | None = None):
     return create_snapshot(External, name)
+
+
+def is_inside_testdir(path: Path) -> bool:
+    path = path.resolve()
+    for dir in state().config.test_directories or []:
+        if is_relative_to(dir, path):
+            return True
+    return False
 
 
 @declare_unmanaged
@@ -41,6 +51,13 @@ class External(ExternalBase):
         self._original_location = ExternalLocation.from_name(name, context=context)
 
         super().__init__()
+
+    @staticmethod
+    def check_context(context: AdapterContext):
+        if not is_inside_testdir(Path(context.file.filename)):
+            raise UsageError(
+                "external() can only be used in files which are inside tests/ or any other folder defined by your tool.inline-snapshot.test-dir in pyproject.toml"
+            )
 
     def result(self):
         return self

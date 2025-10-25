@@ -24,7 +24,6 @@ from ._external._find_external import ensure_import
 from ._external._find_external import used_externals_in
 from ._flags import Flags
 from ._global_state import state
-from ._problems import raise_problem
 from ._problems import report_problems
 from ._rewrite_code import ChangeRecorder
 from .fix_pytest_diff import fix_pytest_diff
@@ -424,18 +423,10 @@ class SnapshotSession:
         changed_files = {Path(f.filename): f for f in cr.files()}
 
         tests_dir = state().config.test_directories
-        if tests_dir is None:
-            raise_problem(
-                "inline-snapshot can not trim your external snapshots,"
-                " because there is no [i]tests/[/] folder in your repository root"
-                " and no [i]test-dir[/] defined in your pyproject.toml."
-            )
-        else:
-
+        if tests_dir:
             assert isinstance(tests_dir, list), tests_dir
             all_files = {
-                *map(Path, state().files_with_snapshots),
-                *[file for test_dir in tests_dir for file in test_dir.rglob("*.py")],
+                file for test_dir in tests_dir for file in test_dir.rglob("*.py")
             }
 
             used = []

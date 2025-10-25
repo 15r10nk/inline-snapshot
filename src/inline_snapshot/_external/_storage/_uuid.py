@@ -24,14 +24,14 @@ class UuidStorage(StorageProtocol):
         yield snapshot_path
 
     @property
-    def _external_files(self):
+    def _external_files(self) -> dict[str, Path]:
         from inline_snapshot._global_state import state
 
         if not hasattr(state(), "_external_files_cache"):
 
             state()._external_files_cache = {}
 
-            base_folders = {file.parent for file in state().files_with_snapshots}
+            base_folders = set()
 
             for test_dir in state().config.test_directories or []:
                 base_folders |= set(test_dir.rglob("__inline_snapshot__"))

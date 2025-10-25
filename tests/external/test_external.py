@@ -740,59 +740,6 @@ E           inline_snapshot._exceptions.UsageError: can not load external object
     )
 
 
-def test_tests_dir():
-    Example(
-        {
-            "pyproject.toml": "# empty",
-            "example1.py": """\
-from inline_snapshot import external
-
-def test_a():
-    assert "hi" == external("hash:")
-""",
-            "tests/example2.py": """\
-from inline_snapshot import external
-
-def test_a():
-    assert "ho" == external("hash:")
-""",
-        }
-    ).run_pytest(
-        ["--inline-snapshot=create", "example1.py", "tests/example2.py"],
-        changed_files=snapshot(
-            {
-                ".inline-snapshot/external/8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4.txt": "hi",
-                ".inline-snapshot/external/a821c62e8104f8519d639b4c0948aece641b143f6601fa145993bb2e2c7299d4.txt": "ho",
-                "example1.py": """\
-from inline_snapshot import external
-
-def test_a():
-    assert "hi" == external("hash:8f434346648f*.txt")
-""",
-                "tests/example2.py": """\
-from inline_snapshot import external
-
-def test_a():
-    assert "ho" == external("hash:a821c62e8104*.txt")
-""",
-            }
-        ),
-        returncode=snapshot(1),
-    ).run_pytest(
-        ["--inline-snapshot=trim", "example1.py"],
-        changed_files=snapshot({}),
-        returncode=snapshot(0),
-    ).run_pytest(
-        ["--inline-snapshot=trim", "tests/example2.py"],
-        changed_files=snapshot(
-            {
-                ".inline-snapshot/external/8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4.txt": None
-            }
-        ),
-        returncode=snapshot(0),
-    )
-
-
 def test_report():
     # see https://github.com/15r10nk/inline-snapshot/issues/298
 
@@ -879,4 +826,26 @@ Use --inline-snapshot=fix to apply them, or use the interactive mode with
 """
         ),
         returncode=snapshot(1),
+    )
+
+
+def test_uses_external_outside_testdir():
+    Example(
+        {
+            "test_a.py": """\
+from inline_snapshot import external
+
+def test_a():
+    assert "a" == external()
+"""
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot({}),
+        raises=snapshot(
+            """\
+UsageError:
+external() can only be used in files which are inside tests/ or any other folder defined by your tool.inline-snapshot.test-dir in pyproject.toml\
+"""
+        ),
     )

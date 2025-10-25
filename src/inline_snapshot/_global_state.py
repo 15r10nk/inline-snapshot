@@ -37,14 +37,6 @@ class State:
 
     all_problems: set[str] = field(default_factory=set)
 
-    @property
-    def files_with_snapshots(self):
-        return {
-            Path(s._context.file.filename)
-            for s in self.snapshots.values()
-            if hasattr(s, "_context")
-        }
-
     flags: set[str] = field(default_factory=set)
 
     format_aliases: dict[str, str] = field(default_factory=dict)

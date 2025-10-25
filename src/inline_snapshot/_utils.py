@@ -3,8 +3,17 @@ import io
 import token
 import tokenize
 from collections import namedtuple
+from pathlib import Path
 
 from ._code_repr import code_repr
+
+
+def is_relative_to(base: Path, relative: Path):
+    try:
+        relative.relative_to(base)
+    except ValueError:
+        return False
+    return True
 
 
 def normalize_strings(token_sequence):

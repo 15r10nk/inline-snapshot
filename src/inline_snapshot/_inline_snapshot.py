@@ -59,6 +59,8 @@ def create_snapshot(Type, obj, extra_frames=0):
         qualname=expr.code_qualname(),
     )
 
+    Type.check_context(context)
+
     if not state().active:
         if obj is undefined:
             raise AssertionError(

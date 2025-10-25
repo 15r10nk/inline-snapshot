@@ -5,7 +5,7 @@ from inline_snapshot.testing._example import Example
 def test_max_hash():
     Example(
         {
-            "test_something.py": """\
+            "tests/test_something.py": """\
 from inline_snapshot import external
 def test_a():
     assert "a" == external()
@@ -21,7 +21,7 @@ default-storage="hash"
         changed_files=snapshot(
             {
                 ".inline-snapshot/external/ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb.txt": "a",
-                "test_something.py": """\
+                "tests/test_something.py": """\
 from inline_snapshot import external
 def test_a():
     assert "a" == external("hash:ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb.txt")

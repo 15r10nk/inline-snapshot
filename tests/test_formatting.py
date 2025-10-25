@@ -273,9 +273,6 @@ https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command \
 for more information).
 
 
-inline-snapshot can not trim your external snapshots, because there is no tests/
-folder in your repository root and no test-dir defined in your pyproject.toml.
-
 """
         ),
     )

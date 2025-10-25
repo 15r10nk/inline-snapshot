@@ -236,9 +236,7 @@ E           inline_snapshot._exceptions.UsageError: Format '.blub' is unknown.
 def test_replace_format():
 
     Example(
-        {
-            "test.blub": "hi",
-            "test_a.py": """\
+        """\
 from pathlib import Path
 from inline_snapshot import external_file,register_format,TextDiff,Format
 
@@ -258,10 +256,9 @@ class BytesFormat(TextDiff, Format[bytes]):
 def test_a():
     assert b"hi\\nyou" == external_file("test.bin")
 """,
-        }
     ).run_pytest(
         ["--inline-snapshot=create"],
-        changed_files=snapshot({"test.bin": "b'hi\\nyou'"}),
+        changed_files=snapshot({"tests/test.bin": "b'hi\\nyou'"}),
         returncode=snapshot(1),
     ).run_inline()
 
@@ -269,9 +266,7 @@ def test_a():
 def test_replace_format_error():
 
     Example(
-        {
-            "test.blub": "hi",
-            "test_a.py": """\
+        """\
 from pathlib import Path
 from inline_snapshot import external_file,register_format,TextDiff,Format
 
@@ -280,7 +275,6 @@ class BytesFormat(TextDiff, Format[bytes]):
     suffix=".bin"
     ...
 """,
-        }
     ).run_pytest(
         error=snapshot(
             "E   inline_snapshot._exceptions.UsageError: A format handler is already registered for the suffix '.bin'.\n"
@@ -293,8 +287,7 @@ def test_multiple_handler_found():
 
     Example(
         {
-            "test.blub": "hi",
-            "test_a.py": """\
+            "tests/test_a.py": """\
 from pathlib import Path
 from inline_snapshot import external,register_format,TextDiff,Format
 
