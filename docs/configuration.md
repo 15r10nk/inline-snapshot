@@ -89,7 +89,7 @@ fix=["create","fix"]
     Possible values are `hash` and `uuid`.
     External snapshots created by `outsource()` do not currently support this setting due to some internal limitations and will always use the old `hash` protocol.
 
-* **test-dir:** can be used to define where your tests are located.
+* **test-dir:**[](){#test-dir} can be used to define where your tests are located.
     The default is `<pytest_config_dir>/tests` if it exists,
     where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
     This directory is used to search through all test files for `external()` calls and to check whether the currently saved external objects are still used in the source.

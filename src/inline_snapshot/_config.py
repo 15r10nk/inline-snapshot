@@ -86,7 +86,7 @@ def read_config(path: Path, config=Config()) -> Config:
         and (std_tests := path.parent / "tests").exists()
         and std_tests.is_dir()
     ):
-        config.test_directories = [std_tests]
+        config.test_directories = [std_tests.resolve()]
     elif test_directories is None:
         config.test_directories = None
     else:

@@ -275,7 +275,7 @@ class SnapshotSession:
 
         if state().config.test_directories is None:
             if (tests_dir := Path.cwd() / "tests").exists() and tests_dir.is_dir():
-                state().config.test_directories = [tests_dir]
+                state().config.test_directories = [tests_dir.resolve()]
 
         console = Console()
 

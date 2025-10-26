@@ -112,7 +112,7 @@ class UuidStorage(StorageProtocol):
                     f"The external {external} is used multiple times, which is not supported:\n"
                     + "\n".join(
                         sorted(
-                            f"   {e.filename.relative_to(Path.cwd()).as_posix()}:{e.linenumber}"
+                            f"   {e.filename.resolve().relative_to(Path.cwd().resolve()).as_posix()}:{e.linenumber}"
                             for e in externals
                             if e.filename
                         )

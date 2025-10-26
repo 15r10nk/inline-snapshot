@@ -25,7 +25,7 @@ def external(name: str | None = None):
 def is_inside_testdir(path: Path) -> bool:
     path = path.resolve()
     for dir in state().config.test_directories or []:
-        if is_relative_to(dir, path):
+        if is_relative_to(dir.resolve(), path):
             return True
     return False
 

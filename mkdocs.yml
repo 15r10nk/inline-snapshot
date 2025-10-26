@@ -37,6 +37,7 @@ watch:
 - CHANGELOG.md
 - README.md
 - src/inline_snapshot
+- changelog.d
 
 nav:
 - Home:
