@@ -815,7 +815,7 @@ def test_storage_dir_config(project, tmp_path, storage_dir):
 [tool.inline-snapshot]
 storage-dir = {str(storage_dir)!r}
 """,
-            "test_a.py": """\
+            "tests/test_a.py": """\
 from inline_snapshot import outsource, snapshot
 
 def test_outsource():
@@ -826,7 +826,7 @@ def test_outsource():
         ["--inline-snapshot=create"],
         changed_files=IsIgnoreDict(
             {
-                "test_a.py": snapshot(
+                "tests/test_a.py": snapshot(
                     """\
 from inline_snapshot import outsource, snapshot
 

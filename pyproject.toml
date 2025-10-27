@@ -137,7 +137,7 @@ github=[
 build = "mkdocs build --strict"
 deploy = "mkdocs gh-deploy"
 export-deps = "pip freeze"
-serve = "mkdocs serve"
+serve = "mkdocs serve --livereload"
 
 [tool.hatch.envs.cog]
 dependencies=["cogapp","lxml","requests"]

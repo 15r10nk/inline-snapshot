@@ -2,12 +2,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING
 from typing import Generator
-from typing import Iterator
-
-if TYPE_CHECKING:
-    from inline_snapshot._change import ChangeBase
 
 from .._external_location import ExternalLocation
 
@@ -47,7 +42,14 @@ class StorageProtocol:
         """
         raise NotImplementedError
 
-    def sync_used_externals(
+    def find_unused_externals(
         self, used_externals: list[ExternalLocation]
-    ) -> Iterator[ChangeBase]:
+    ) -> list[ExternalLocation]:
         raise NotImplementedError
+
+    def check_externals(self, used_externals: list[ExternalLocation]):
+        """
+        This function is executed with all external locations
+        at the end of each test session and can be used
+        to verify storage specific constraints
+        """

@@ -157,39 +157,6 @@ default-storage="hash"
     )
 
 
-def test_no_test_dir():
-    Example(
-        {
-            "my_tests/test_a.py": """\
-from inline_snapshot import external
-
-def test_a():
-    assert "a" == external("uuid:")
-    assert "b" == external("hash:")
-""",
-        }
-    ).run_inline(
-        ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                ".inline-snapshot/external/3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d.txt": "b",
-                "my_tests/__inline_snapshot__/test_a/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "a",
-                "my_tests/test_a.py": """\
-from inline_snapshot import external
-
-def test_a():
-    assert "a" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
-    assert "b" == external("hash:3e23e8160039*.txt")
-""",
-            }
-        ),
-    ).replace(
-        "test_a", "test_b"
-    ).run_inline().remove_file(
-        "my_tests/__inline_snapshot__/test_a/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"
-    ).run_inline()
-
-
 def test_trim():
 
     Example(
@@ -226,4 +193,49 @@ def test_a():
             }
         ),
         returncode=snapshot(0),
+    )
+
+
+def test_double_use():
+    e = Example(
+        {
+            "tests/test_a.py": """\
+from inline_snapshot import external
+
+def test_a():
+    assert "test"==external("uuid:")
+             """
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/__inline_snapshot__/test_a/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "test",
+                "tests/test_a.py": """\
+from inline_snapshot import external
+
+def test_a():
+    assert "test"==external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+             \
+""",
+            }
+        ),
+    )
+
+    e = e.with_files({"tests/test_b.py": e.read_file("tests/test_a.py")}).run_inline(
+        report=snapshot(
+            """\
+
+
+═══════════════════════════════ inline-snapshot ════════════════════════════════
+----------------------------------- Problems -----------------------------------
+The external uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt is used multiple \n\
+times, which is not supported:
+   tests/test_a.py:4
+   tests/test_b.py:4
+   (see \n\
+https://15r10nk.github.io/inline-snapshot/latest/external/external/#uuid)
+
+"""
+        )
     )

@@ -67,7 +67,7 @@ def read_config(path: Path, config=Config()) -> Config:
         if not result.is_absolute():
             # Make it relative to pyproject.toml, and absolute.
             result = path.parent.joinpath(result).absolute()
-        return result
+        return result.resolve()
 
     config.storage_dir = (
         to_path(name) if (name := tool_config.get("storage-dir")) else None
@@ -86,7 +86,7 @@ def read_config(path: Path, config=Config()) -> Config:
         and (std_tests := path.parent / "tests").exists()
         and std_tests.is_dir()
     ):
-        config.test_directories = [std_tests]
+        config.test_directories = [std_tests.resolve()]
     elif test_directories is None:
         config.test_directories = None
     else:

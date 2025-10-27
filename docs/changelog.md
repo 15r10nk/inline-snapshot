@@ -6,9 +6,15 @@ from subprocess import run
 import re
 
 new_changes = list(Path.cwd().glob("changelog.d/*.md"))
-next_version = (
-    run(["hatch", "version"], capture_output=True).stdout.decode().strip()
-)
+try:
+    next_version = (
+        run(["cz", "bump", "--get-next"], capture_output=True)
+        .stdout.decode()
+        .strip()
+    )
+except:
+    next_version = "???"
+
 
 if new_changes:
     print(f"## upcoming version ({next_version})")

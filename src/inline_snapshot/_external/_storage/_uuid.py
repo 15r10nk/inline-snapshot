@@ -2,18 +2,34 @@ from __future__ import annotations
 
 import shutil
 import uuid
+from collections import defaultdict
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING
 from typing import Generator
-from typing import Iterator
 
-if TYPE_CHECKING:
-    from inline_snapshot._change import ChangeBase
+from inline_snapshot._global_state import state_cached
+from inline_snapshot._problems import raise_problem
+from inline_snapshot._utils import link
 
 from .._external_location import ExternalLocation
 from ._protocol import StorageLookupError
 from ._protocol import StorageProtocol
+
+
+@state_cached
+def external_files() -> dict[str, Path]:
+    from inline_snapshot._global_state import state
+
+    base_folders = set()
+
+    for test_dir in state().config.test_directories or []:
+        base_folders |= set(test_dir.rglob("__inline_snapshot__"))
+
+    return {
+        file.name: file
+        for folder in base_folders
+        for file in folder.rglob("????????-????-????-????-????????????.*")
+    }
 
 
 class UuidStorage(StorageProtocol):
@@ -23,32 +39,14 @@ class UuidStorage(StorageProtocol):
 
         yield snapshot_path
 
-    @property
-    def _external_files(self):
-        from inline_snapshot._global_state import state
-
-        if not hasattr(state(), "_external_files_cache"):
-
-            state()._external_files_cache = {}
-
-            base_folders = {file.parent for file in state().files_with_snapshots}
-
-            for test_dir in state().config.test_directories or []:
-                base_folders |= set(test_dir.rglob("__inline_snapshot__"))
-
-            for folder in base_folders:
-                for file in folder.rglob("????????-????-????-????-????????????.*"):
-                    state()._external_files_cache[file.name] = file
-        return state()._external_files_cache
-
     def _lookup_path(self, location: ExternalLocation):
         if location.filename and location.qualname:
             path = self._get_path(location)
             if path.exists():
                 return path
 
-        if location.path in self._external_files:
-            return self._external_files[location.path]
+        if location.path in external_files():
+            return external_files()[location.path]
         else:
             raise StorageLookupError(location)
 
@@ -91,19 +89,33 @@ class UuidStorage(StorageProtocol):
             / f"{location.stem}{location.suffix}"
         )
 
-    def sync_used_externals(
+    def find_unused_externals(
         self, used_externals: list[ExternalLocation]
-    ) -> Iterator[ChangeBase]:
+    ) -> list[ExternalLocation]:
 
         used_names = [location.path for location in used_externals]
 
         unused_externals = {
-            f.name for f in self._external_files.values() if f.name not in used_names
+            f.name for f in external_files().values() if f.name not in used_names
         }
 
-        from inline_snapshot._change import ExternalRemove
-        from inline_snapshot._global_state import state
+        return [ExternalLocation.from_name("uuid:" + name) for name in unused_externals]
 
-        if state().update_flags.trim:
-            for name in unused_externals:
-                yield ExternalRemove("trim", ExternalLocation.from_name("uuid:" + name))
+    def check_externals(self, used_externals: list[ExternalLocation]):
+        grouped = defaultdict(list)
+        for external in used_externals:
+            grouped[external.to_str()].append(external)
+
+        for external, externals in grouped.items():
+            if len(externals) > 1:
+                raise_problem(
+                    f"The external {external} is used multiple times, which is not supported:\n"
+                    + "\n".join(
+                        sorted(
+                            f"   {e.filename.resolve().relative_to(Path.cwd().resolve()).as_posix()}:{e.linenumber}"
+                            for e in externals
+                            if e.filename
+                        )
+                    )
+                    + f"\n   (see {link('https://15r10nk.github.io/inline-snapshot/latest/external/external/#uuid')})"
+                )

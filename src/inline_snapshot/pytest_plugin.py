@@ -6,6 +6,8 @@ import pytest
 from executing import is_pytest_compatible
 from rich.console import Console
 
+from inline_snapshot._utils import is_relative_to
+
 from . import _config
 from ._exceptions import UsageError
 from ._fix_assert import fix_assert
@@ -79,14 +81,6 @@ def xdist_running(config):
         and config.option.numprocesses is not None
         and config.option.numprocesses != 0
     )
-
-
-def is_relative_to(base, relative):
-    try:
-        relative.relative_to(base)
-    except ValueError:
-        return False
-    return True
 
 
 def find_pyproject(pytest_root, cwd):

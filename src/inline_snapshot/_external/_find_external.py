@@ -1,8 +1,12 @@
 import ast
-from typing import Set
+from dataclasses import replace
+from pathlib import Path
+from typing import List
 from typing import Union
 
 from executing import Source
+
+from inline_snapshot._external._external_location import ExternalLocation
 
 from .._rewrite_code import ChangeRecorder
 from .._rewrite_code import end_of
@@ -20,16 +24,18 @@ def contains_import(tree, module, name):
     return False
 
 
-def used_externals_in(source: Union[str, ast.Module], check_import=True) -> Set[str]:
+def used_externals_in(
+    filename: Path, source: Union[str, ast.Module], check_import=True
+) -> List[ExternalLocation]:
     if isinstance(source, str):
         if "external" not in source:
-            return set()
+            return []
         tree = ast.parse(source)
     else:
         tree = source
 
     if check_import and not contains_import(tree, "inline_snapshot", "external"):
-        return set()
+        return []
 
     usages = []
 
@@ -38,16 +44,24 @@ def used_externals_in(source: Union[str, ast.Module], check_import=True) -> Set[
             isinstance(node, ast.Call)
             and isinstance(node.func, ast.Name)
             and node.func.id == "external"
+            and node.args
+            and isinstance(node.args[0], ast.Constant)
+            and isinstance(node.args[0].value, str)
         ):
-            usages.append(node)
+            arg = node.args[0].value
 
-    return {
-        u.args[0].value
-        for u in usages
-        if u.args
-        and isinstance(u.args[0], ast.Constant)
-        and isinstance(u.args[0].value, str)
-    }
+            try:
+                location = replace(
+                    ExternalLocation.from_name(arg),
+                    filename=filename,
+                    linenumber=node.lineno,
+                )
+            except ValueError:
+                pass
+            else:
+                usages.append(location)
+
+    return usages
 
 
 def ensure_import(filename, imports, recorder: ChangeRecorder):

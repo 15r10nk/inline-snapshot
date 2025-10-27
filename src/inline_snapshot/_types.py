@@ -14,6 +14,10 @@ class SnapshotRefBase:
     def _changes(self) -> Iterator[ChangeBase]:
         raise NotImplementedError
 
+    @staticmethod
+    def check_context(context):
+        pass
+
 
 class SnapshotBase:
     pass
