@@ -1790,6 +1790,37 @@ It stores a reference to the external data in a special <code>external()</code> 
 <li><span class="twemoji green"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg></span> The use of a UUID allows inline-snapshot to find the external file even if file or function names of a test function have changed.</li>
 <li><span class="twemoji red"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13H5v-2h14z"/></svg></span> Distinguishing multiple external snapshots in the same function remains challenging.</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Using the same external uuid multiple times like this is not supported:</p>
+<p><!-- inline-snapshot: create first_block outcome-failed=2 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">external</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_a</span><span class="p">():</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">assert</span> <span class="s2">&quot;test&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_b</span><span class="p">():</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="k">assert</span> <span class="s2">&quot;test&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+<p>This can happen when you copy tests and change them for another use case. inline-snapshot notifies you in this case, and you should change one external back to <code class="highlight"><span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:&quot;</span><span class="p">)</span></code> and create new external snapshots.</p>
+<p>The correct way to do use the same external in different tests is to assign the external to a variable and reuse this variable.</p>
+<p><!-- inline-snapshot: create first_block outcome-failed=2 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">external</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">expected</span> <span class="o">=</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_a</span><span class="p">():</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="k">assert</span> <span class="s2">&quot;test&quot;</span> <span class="o">==</span> <span class="n">expected</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_b</span><span class="p">():</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="k">assert</span> <span class="s2">&quot;test&quot;</span> <span class="o">==</span> <span class="n">expected</span>
+</code></pre></div>
+<!-- inline-snapshot: create first_block outcome-failed=1 --></p>
+</div>
 <h3 id="hash">Hash<a class="headerlink" href="#hash" title="Permanent link">&para;</a></h3>
 <p>The <code>hash:</code> storage can be used to store snapshot files based on the hash of their content. This was the first storage protocol supported by inline-snapshot and can still be useful in some cases. It also preserves backward compatibility with older inline-snapshot versions.</p>
 <p>The external data is by default stored inside <code>&lt;pytest_config_dir&gt;/.inline-snapshot/external</code>,
@@ -1843,25 +1874,25 @@ for format in sorted(state().all_formats.values(),key=lambda f:-f.priority):
 <p>You can also use format aliases if you want to use specific file suffixes that have the same handling as existing formats.
 You must specify the suffix in this case.</p>
 <!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_format_alias</span><span class="p">,</span> <span class="n">external</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">register_format_alias</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test</span><span class="p">():</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="k">assert</span> <span class="s2">&quot;&lt;html&gt;&lt;/html&gt;&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_format_alias</span><span class="p">,</span> <span class="n">external</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">register_format_alias</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test</span><span class="p">():</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="k">assert</span> <span class="s2">&quot;&lt;html&gt;&lt;/html&gt;&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">)</span>
 </code></pre></div>
 <p>inline-snapshot uses the given suffix to create an external snapshot.</p>
 <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_format_alias</span><span class="p">,</span> <span class="n">external</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">register_format_alias</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">)</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test</span><span class="p">():</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="hll">    <span class="k">assert</span> <span class="s2">&quot;&lt;html&gt;&lt;/html&gt;&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span>
-</span><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="hll">        <span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.html&quot;</span>
-</span><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="hll">    <span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_format_alias</span><span class="p">,</span> <span class="n">external</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">register_format_alias</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">)</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test</span><span class="p">():</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="hll">    <span class="k">assert</span> <span class="s2">&quot;&lt;html&gt;&lt;/html&gt;&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span>
+</span><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="hll">        <span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.html&quot;</span>
+</span><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="hll">    <span class="p">)</span>
 </span></code></pre></div>
 <div class="admonition important">
 <p class="admonition-title">Breaking Change</p>
