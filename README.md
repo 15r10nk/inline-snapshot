@@ -13,6 +13,7 @@
 [![PyPI - Downloads](https://img.shields.io/pypi/dw/inline-snapshot)](https://pypacktrends.com/?packages=inline-snapshot&time_range=2years)
 [![coverage](https://img.shields.io/badge/coverage-100%25-blue)](https://15r10nk.github.io/inline-snapshot/latest/contributing/#coverage)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/15r10nk)](https://github.com/sponsors/15r10nk)
+[![Discord](https://img.shields.io/discord/1435889192143159346)](https://discord.gg/6vjeQuZ4)
 
 <!-- -8<- [end:Header] -->
 
