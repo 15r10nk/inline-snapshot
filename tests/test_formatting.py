@@ -163,14 +163,18 @@ def test_format_command_fail():
 
     Example(
         {
-            "fmt_cmd.py": """
+            "fmt_cmd_good.py": """
 import sys
-sys.stdout.buffer.write(b"some problem\\n")
+sys.stdout.buffer.write(sys.stdin.buffer.read())
+""",
+            "fmt_cmd_bad.py": """
+import sys
+sys.stdout.buffer.write(b"some_problem\\n")
 sys.exit(1)
 """,
             "pyproject.toml": f"""\
 [tool.inline-snapshot]
-format-command="{executable} fmt_cmd.py {{filename}}"
+format-command="{executable} fmt_cmd_bad.py {{filename}} | {executable} fmt_cmd_good.py"
 """,
             "tests/test_a.py": """
 from inline_snapshot import snapshot
@@ -208,12 +212,12 @@ def test_a():
 +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 These changes will be applied, because you used fix
 ----------------------------------------------------------------------------------------------- Problems -----------------------------------------------------------------------------------------------
-The format_command '/.../python fmt_cmd.py /.../test_a.py' caused the following error:
-some problem\
+The format_command '/.../python fmt_cmd_bad.py /.../test_a.py | /.../python fmt_cmd_good.py' caused the following error:
+some_problem\
 """
             )
         ),
-        returncode=1,
+        returncode=snapshot(1),
     )
 
 
