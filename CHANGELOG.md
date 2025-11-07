@@ -1,4 +1,11 @@
 
+<a id='changelog-0.31.1'></a>
+# 0.31.1 — 2025-11-07
+
+## Fixed
+
+- Format commands with pipelines (using `|`) now properly fail when any command in the pipeline returns a non-zero exit code ([#320](https://github.com/15r10nk/inline-snapshot/issues/320)). Previously, only the last command's exit code was considered, which could allow formatting to succeed even when intermediate commands failed.
+
 <a id='changelog-0.31.0'></a>
 # 0.31.0 — 2025-10-27
 
