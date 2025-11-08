@@ -1,5 +1,6 @@
 import ast
 import io
+import textwrap
 import token
 import tokenize
 from collections import namedtuple
@@ -60,20 +61,64 @@ def normalize_strings(token_sequence):
 def skip_trailing_comma(token_sequence):
     token_sequence = list(token_sequence)
 
-    for index, token in enumerate(token_sequence):
+    for index, tok in enumerate(token_sequence):
         if index + 1 < len(token_sequence):
             next_token = token_sequence[index + 1]
 
-            if token.string == "," and next_token.string in ("]", ")", "}"):
+            if tok.string == "," and next_token.string in ("]", ")", "}"):
                 continue
-        yield token
+        yield tok
+
+
+def remove_dedent(token_sequence):
+    """Remove dedent calls and replace them with dedented string literals.
+
+    Transforms: dedent('''...''') -> '''...''' (with dedenting applied)
+    """
+    token_sequence = list(token_sequence)
+    i = 0
+
+    while i < len(token_sequence):
+        # Look for pattern: dedent ( string )
+        if (
+            i + 3 < len(token_sequence)
+            and token_sequence[i].type == token.NAME
+            and token_sequence[i].string == "dedent"
+            and token_sequence[i + 1].type == token.OP
+            and token_sequence[i + 1].string == "("
+            and token_sequence[i + 2].type == token.STRING
+            and token_sequence[i + 3].type == token.OP
+            and token_sequence[i + 3].string == ")"
+        ):
+
+            # Extract the string literal and apply dedent
+            string_token = token_sequence[i + 2]
+            try:
+                # Parse the string literal to get its actual value
+                string_value = ast.literal_eval(string_token.string)
+                # Apply textwrap.dedent to remove common leading whitespace
+                dedented_value = textwrap.dedent(string_value)
+                # Create a new string token with the dedented value
+                dedented_token = simple_token(
+                    token.STRING, triple_quote(dedented_value)
+                )
+                yield dedented_token
+                # Skip the next 3 tokens (open paren, string, close paren)
+                i += 4
+            except (ValueError, SyntaxError):
+                # If we can't parse the string, just yield the original token
+                yield token_sequence[i]
+                i += 1
+        else:
+            yield token_sequence[i]
+            i += 1
 
 
 def normalize(token_sequence):
-    return skip_trailing_comma(normalize_strings(token_sequence))
+    return skip_trailing_comma(remove_dedent(normalize_strings(token_sequence)))
 
 
-ignore_tokens = (token.NEWLINE, token.ENDMARKER, token.NL)
+ignore_tokens = (token.NEWLINE, token.ENDMARKER, token.NL, token.ENCODING)
 
 
 # based on ast.unparse

@@ -296,3 +296,29 @@ def test_a():
             }
         ),
     )
+
+
+def test_update_keep_dedent():
+    Example(
+        """\
+from inline_snapshot import snapshot
+from textwrap import dedent
+
+def test_a():
+    assert '''\
+a
+b
+''' == snapshot(dedent(\"\"\"\\
+                a
+                b
+                \"\"\"))
+"""
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot({}),
+    ).replace(
+        '"', "'"
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot({}),
+    )
