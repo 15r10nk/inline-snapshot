@@ -4,6 +4,7 @@ from dataclasses import field
 from pathlib import Path
 from typing import Dict
 from typing import List
+from typing import Literal
 from typing import Optional
 
 from inline_snapshot._exceptions import UsageError
@@ -25,6 +26,7 @@ class Config:
     show_updates: bool = False
     test_directories: Optional[List[Path]] = None
     default_storage: str = "uuid"
+    multiline_string: Literal["dedent", "triple-quote"] = "triple-quote"
 
 
 def read_config(path: Path, config=Config()) -> Config:
@@ -55,6 +57,11 @@ def read_config(path: Path, config=Config()) -> Config:
 
     try:
         config.show_updates = tool_config["show-updates"]
+    except KeyError:
+        pass
+
+    try:
+        config.multiline_string = tool_config["multiline-string"]
     except KeyError:
         pass
 

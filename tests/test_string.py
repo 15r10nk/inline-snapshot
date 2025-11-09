@@ -1,5 +1,7 @@
 import ast
 
+import pytest
+from dirty_equals import AnyThing
 from hypothesis import given
 from hypothesis.strategies import text
 
@@ -196,29 +198,17 @@ def test_string_convert(s):
     assert ast.literal_eval(triple_quote(s)) == s
 
 
-def test_newline():
+@pytest.mark.parametrize("string", ['"a\\r\\nb"'])
+def test_newline(string):
     Example(
-        """\
+        f"""\
 from inline_snapshot import snapshot
 
 def test_a():
-    assert "a\\r\\nb" == snapshot()
+    assert {string} == snapshot()
 """
-    ).run_inline(
-        ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": '''\
-from inline_snapshot import snapshot
-
-def test_a():
-    assert "a\\r\\nb" == snapshot("""\\
-a\\r
-b\\
-""")
-'''
-            }
-        ),
+    ).run_inline(["--inline-snapshot=create"], changed_files=AnyThing()).run_inline(
+        ["--inline-snapshot=disable"]
     )
 
 
@@ -322,3 +312,48 @@ b
         ["--inline-snapshot=update"],
         changed_files=snapshot({}),
     )
+
+
+def test_create_dedent():
+    Example(
+        {
+            "pyproject.toml": """\
+[tool.inline-snapshot]
+multiline-string="dedent"
+format-command="black --stdin-filename {{filename}} -"
+                """,
+            "tests/test_dedent.py": """\
+from inline_snapshot import snapshot
+from textwrap import dedent
+
+def test_a():
+    assert '''\
+a
+b
+''' == snapshot()
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_dedent.py": '''\
+from inline_snapshot import snapshot
+from textwrap import dedent
+
+
+def test_a():
+    assert """a
+b
+""" == snapshot(
+        dedent(
+            """\\
+a
+b
+"""
+        )
+    )
+'''
+            }
+        ),
+    ).run_inline()

@@ -193,6 +193,21 @@ class simple_token(namedtuple("simple_token", "type,string")):
             return super().__eq__(other)
 
 
+def multiline_string(s):
+    from inline_snapshot._global_state import state
+
+    typ = state().config.multiline_string
+    if typ == "dedent":
+        return [
+            simple_token(token.NAME, "dedent"),
+            simple_token(token.OP, "("),
+            simple_token(token.STRING, triple_quote(s)),
+            simple_token(token.OP, ")"),
+        ]
+
+    return [simple_token(token.STRING, triple_quote(s))]
+
+
 def value_to_token(value):
     input = io.StringIO(code_repr(value))
 
@@ -205,16 +220,23 @@ def value_to_token(value):
             ):
                 # unparse creates a triple quoted string here,
                 # because it thinks that the string should be a docstring
-                triple_quoted_string = triple_quote(s)
+                triple_quoted_string = multiline_string(s)
 
-                assert ast.literal_eval(triple_quoted_string) == s
+                assert (
+                    eval(
+                        "".join(t[1] for t in triple_quoted_string),
+                        {"dedent": textwrap.dedent},
+                    )
+                    == s
+                )
 
-                return simple_token(tok.type, triple_quoted_string)
+                return triple_quoted_string
 
-        return simple_token(tok.type, tok.string)
+        return [simple_token(tok.type, tok.string)]
 
-    return [
-        map_string(t)
-        for t in tokenize.generate_tokens(input.readline)
-        if t.type not in ignore_tokens
-    ]
+    result = []
+    for t in tokenize.generate_tokens(input.readline):
+        if t.type not in ignore_tokens:
+            result += map_string(t)
+
+    return result
