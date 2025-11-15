@@ -1,14 +1,14 @@
 from typing import Iterator
 from typing import List
 
-from inline_snapshot._adapter.adapter import Adapter
+from inline_snapshot._customize import Builder
+from inline_snapshot._customize import CustomUndefined
+from inline_snapshot._new_adapter import NewAdapter
 
 from .._change import Change
 from .._compare_context import compare_only
 from .._global_state import state
-from .._sentinels import undefined
 from .generic_value import GenericValue
-from .generic_value import clone
 
 
 class EqValue(GenericValue):
@@ -16,13 +16,19 @@ class EqValue(GenericValue):
     _changes: List[Change]
 
     def __eq__(self, other):
-        if self._old_value is undefined:
+        other = Builder().get_handler(other)
+        print("===")
+        print(self._old_value)
+        print(other)
+
+        if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1
 
-        if not compare_only() and self._new_value is undefined:
+        if not compare_only() and isinstance(self._new_value, CustomUndefined):
             self._changes = []
-            adapter = Adapter(self._context).get_adapter(self._old_value, other)
-            it = iter(adapter.assign(self._old_value, self._ast_node, clone(other)))
+
+            adapter = NewAdapter(self._context)
+            it = iter(adapter.compare(self._old_value, self._ast_node, other))
             while True:
                 try:
                     self._changes.append(next(it))
@@ -30,10 +36,13 @@ class EqValue(GenericValue):
                     self._new_value = ex.value
                     break
 
-        return self._return(self._old_value == other, self._new_value == other)
+        return self._return(
+            self._old_value.eval() == other.eval(),
+            self._new_value.eval() == other.eval(),
+        )
 
     def _new_code(self):
-        return self._file._value_to_code(self._new_value)
+        return self._new_value.repr()
 
     def _get_changes(self) -> Iterator[Change]:
-        return iter(self._changes)
+        return iter(getattr(self, "_changes", []))

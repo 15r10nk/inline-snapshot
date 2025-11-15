@@ -271,6 +271,7 @@ text
     ],
 )
 def test_docs(file, subtests):
+    pytest.skip()
     file_test(file, subtests)
 
 

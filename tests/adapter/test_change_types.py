@@ -31,7 +31,7 @@ def f(v):
 
     def code_repr(v):
         g = {}
-        exec(context + f"r=repr({a})", g)
+        exec(context + f"r=repr({v})", g)
         return g["r"]
 
     def code(a, b):

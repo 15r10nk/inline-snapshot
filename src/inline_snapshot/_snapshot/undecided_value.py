@@ -1,14 +1,14 @@
 from typing import Iterator
 
-from inline_snapshot._adapter.adapter import adapter_map
+from inline_snapshot._customize import Builder
+from inline_snapshot._customize import Custom
+from inline_snapshot._customize import CustomUndefined
+from inline_snapshot._customize import CustomUnmanaged
 
 from .._adapter.adapter import AdapterContext
 from .._adapter.adapter import get_adapter_type
 from .._change import Change
 from .._change import Replace
-from .._sentinels import undefined
-from .._unmanaged import Unmanaged
-from .._unmanaged import map_unmanaged
 from .._utils import value_to_token
 from .generic_value import GenericValue
 
@@ -16,9 +16,10 @@ from .generic_value import GenericValue
 class UndecidedValue(GenericValue):
     def __init__(self, old_value, ast_node, context: AdapterContext):
 
-        old_value = adapter_map(old_value, map_unmanaged)
+        old_value = Builder().get_handler(old_value)
+        assert isinstance(old_value, Custom)
         self._old_value = old_value
-        self._new_value = undefined
+        self._new_value = CustomUndefined()
         self._ast_node = ast_node
         self._context = context
 
@@ -38,8 +39,8 @@ class UndecidedValue(GenericValue):
                     yield from handle(item.node, item.value)
                 return
 
-            if not isinstance(obj, Unmanaged) and node is not None:
-                new_token = value_to_token(obj)
+            if not isinstance(obj, CustomUnmanaged) and node is not None:
+                new_token = value_to_token(obj.eval())
                 if self._file._token_of_node(node) != new_token:
                     new_code = self._file._token_to_code(new_token)
 
