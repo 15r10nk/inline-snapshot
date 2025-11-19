@@ -49,10 +49,10 @@ dirty-equals =[
 
 [dependency-groups]
 dev = [
+    "inline-snapshot[black,dirty-equals]",
     "hypothesis>=6.75.5",
     "mypy>=1.2.0",
     "pyright>=1.1.359",
-    "pytest-subtests>=0.11.0",
     "pytest-freezer>=0.4.8",
     "pytest-mock>=3.14.0",
     "pytest-xdist>=3.6.1",
@@ -171,7 +171,6 @@ extra-dependencies = [
   "hypothesis>=6.75.5",
   "mypy>=1.2.0",
   "pyright>=1.1.359",
-  "pytest-subtests>=0.11.0",
   "pytest-freezer>=0.4.8",
   "pytest-mock>=3.14.0",
 ]

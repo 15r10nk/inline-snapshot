@@ -57,9 +57,8 @@ operations = [
 ]
 
 
-def test_generic(source, subtests, executing_used):
+def _generate_test_codes():
     codes = []
-
     for op in operations:
         codes.append((f"assert {op.value} {op.op} snapshot({op.svalue})", op.flag))
         if op.svalue:
@@ -71,37 +70,43 @@ def test_generic(source, subtests, executing_used):
             )
         else:
             codes.append((f"assert {op.value} {op.op} snapshot({{}})[0]", op.flag))
+    return codes
 
+
+@pytest.mark.parametrize(
+    "code,reported_flag",
+    _generate_test_codes(),
+    ids=lambda x: x if isinstance(x, str) else "",
+)
+def test_generic(source, code, reported_flag, executing_used):
     all_flags = ["trim", "fix", "create", "update"]
 
-    for code, reported_flag in codes:
-        with subtests.test(code):
-            s = source(code)
-            print("source:", code)
+    s = source(code)
+    print("source:", code)
 
-            if not executing_used and reported_flag == "update":
-                assert not s.flags
-            else:
-                assert list(s.flags) == [reported_flag]
+    if not executing_used and reported_flag == "update":
+        assert not s.flags
+    else:
+        assert list(s.flags) == [reported_flag]
 
-            assert (reported_flag == "fix") == s.error
+    assert (reported_flag == "fix") == s.error
 
-            for flag in all_flags:
-                if flag == reported_flag:
-                    continue
-                print("use flag:", flag)
-                s2 = s.run(flag)
-                assert s2.source == s.source
+    for flag in all_flags:
+        if flag == reported_flag:
+            continue
+        print("use flag:", flag)
+        s2 = s.run(flag)
+        assert s2.source == s.source
 
-            if not executing_used:
-                continue
+    if not executing_used:
+        return
 
-            s2 = s.run(reported_flag)
-            assert s2.flags == {reported_flag}
+    s2 = s.run(reported_flag)
+    assert s2.flags == {reported_flag}
 
-            s3 = s2.run(*all_flags)
-            assert s3.flags == set()
-            assert s3.source == s2.source
+    s3 = s2.run(*all_flags)
+    assert s3.flags == set()
+    assert s3.source == s2.source
 
 
 @pytest.mark.parametrize(
@@ -111,7 +116,7 @@ def test_generic(source, subtests, executing_used):
         for ops in itertools.combinations(operations, 2)
     ],
 )
-def test_generic_multi(source, subtests, ops, executing_used):
+def test_generic_multi(source, ops, executing_used):
 
     def gen_code(ops, fixed, old_keys):
         keys = old_keys + [k for k in range(len(ops)) if k not in old_keys]
@@ -144,23 +149,21 @@ def test_generic_multi(source, subtests, ops, executing_used):
 
     if executing_used:
         for flags in itertools.permutations(all_flags):
-            with subtests.test(" ".join(flags)):
-                s2 = s
-                fixed_flags = set()
-                for flag in flags:
+            s2 = s
+            fixed_flags = set()
+            for flag in flags:
 
-                    s2 = s2.run(flag)
-                    fixed_flags.add(flag)
-                    code, keys = gen_code(ops, fixed_flags, keys)
-                    assert s2.source == code
+                s2 = s2.run(flag)
+                fixed_flags.add(flag)
+                code, keys = gen_code(ops, fixed_flags, keys)
+                assert s2.source == code
 
-                    s2 = s2.run()
-                    assert s2.flags == all_flags - fixed_flags
+                s2 = s2.run()
+                assert s2.flags == all_flags - fixed_flags
 
     for flag in {"update", "fix", "trim", "create"} - all_flags:
-        with subtests.test(f"ignore {flag}"):
-            s2 = s.run(flag)
-            assert s2.source == s.source
+        s2 = s.run(flag)
+        assert s2.source == s.source
 
 
 def test_mutable_values(check_update):
