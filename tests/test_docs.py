@@ -4,10 +4,8 @@ import re
 import sys
 import textwrap
 from collections import defaultdict
-from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from types import SimpleNamespace
 from typing import Any
 from typing import Dict
 from typing import Generic
@@ -270,8 +268,8 @@ text
         ]
     ],
 )
-def test_docs(file, subtests):
-    file_test(file, subtests)
+def test_docs(file):
+    file_test(file)
 
 
 T = TypeVar("T")
@@ -287,7 +285,6 @@ class Store(Generic[T]):
 
 def file_test(
     file: Path,
-    subtests,
     width: int = 80,
     use_hl_lines: bool = True,
 ):
@@ -361,105 +358,103 @@ uuid.uuid4=f
             return block
 
         nonlocal last_code
-        with subtests.test(line=block.line):
-            print(f"test block line {block.line}")
+        print(f"test block line {block.line}")
 
-            code = block.code
+        code = block.code
 
-            options = set(block.code_header.split())
+        options = set(block.code_header.split())
 
-            if "requires_assert" in options and (
-                not is_pytest_compatible() or not is_insider
-            ):
-                return block
+        if "requires_assert" in options and (
+            not is_pytest_compatible() or not is_insider
+        ):
+            return block
 
-            flags = options & Flags.all().to_set()
+        flags = options & Flags.all().to_set()
 
-            args = ["--inline-snapshot", ",".join(flags)] if flags else []
+        args = ["--inline-snapshot", ",".join(flags)] if flags else []
 
-            errors = Store[str]()
-            outcomes = Store[Dict[str, int]]()
-            returncode = Store[int]()
+        errors = Store[str]()
+        outcomes = Store[Dict[str, int]]()
+        returncode = Store[int]()
 
-            if flags and "first_block" not in options:
-                assert last_code is not None
-                test_files = {"tests/test_example.py": last_code}
-            else:
-                test_files = {"tests/test_example.py": code}
+        if flags and "first_block" not in options:
+            assert last_code is not None
+            test_files = {"tests/test_example.py": last_code}
+        else:
+            test_files = {"tests/test_example.py": code}
 
-            example = Example({**std_files, **test_files})
-            if extra_files:
-                all_files = [
-                    [(key, file) for file in files]
-                    for key, files in extra_files.items()
-                ]
-                for files in itertools.product(*all_files):
-                    example = example.with_files(dict(files))
+        example = Example({**std_files, **test_files})
+        if extra_files:
+            all_files = [
+                [(key, file) for file in files] for key, files in extra_files.items()
+            ]
+            for files in itertools.product(*all_files):
+                example = example.with_files(dict(files))
 
-                    print("run with")
-                    example = example.run_pytest(
-                        args, error=errors, outcomes=outcomes, returncode=returncode
-                    )
-
-            else:
+                print("run with")
                 example = example.run_pytest(
                     args, error=errors, outcomes=outcomes, returncode=returncode
                 )
 
-            print("flags:", flags, repr(block.block_options))
-
-            new_code = code
-            if flags:
-                new_code = example.read_file("tests/test_example.py")
-            new_code.replace("\n\n", "\n")
-
-            if "show_error" in options:
-                new_code = new_code.split("# Error:")[0]
-                new_code += "# Error:\n" + textwrap.indent(errors.value, "# ")
-
-            print("new code:")
-            print(new_code)
-            print("expected code:")
-            print(code)
-
-            block.code_header = "inline-snapshot: " + " ".join(
-                sorted(flags)
-                + sorted(options & {"first_block", "show_error", "requires_assert"})
-                + [
-                    f"outcome-{k}={v}"
-                    for k, v in outcomes.value.items()
-                    if k in ("failed", "errors", "passed")
-                ]
+        else:
+            example = example.run_pytest(
+                args, error=errors, outcomes=outcomes, returncode=returncode
             )
 
-            if use_hl_lines:
-                from inline_snapshot._align import align
+        print("flags:", flags, repr(block.block_options))
 
-                linenum = 1
-                hl_lines = ""
+        new_code = code
+        if flags:
+            new_code = example.read_file("tests/test_example.py")
+        new_code.replace("\n\n", "\n")
 
-                if last_code is not None and "first_block" not in options:
-                    changed_lines = []
-                    alignment = align(last_code.split("\n"), new_code.split("\n"))
-                    for c in alignment:
-                        if c == "d":
-                            continue
-                        elif c == "m":
-                            linenum += 1
-                        else:
-                            changed_lines.append(str(linenum))
-                            linenum += 1
-                    if changed_lines:
-                        hl_lines = f'hl_lines="{" ".join(changed_lines)}"'
+        if "show_error" in options:
+            new_code = new_code.split("# Error:")[0]
+            new_code += "# Error:\n" + textwrap.indent(errors.value, "# ")
+
+        print("new code:")
+        print(new_code)
+        print("expected code:")
+        print(code)
+
+        block.code_header = "inline-snapshot: " + " ".join(
+            sorted(flags)
+            + sorted(options & {"first_block", "show_error", "requires_assert"})
+            + [
+                f"outcome-{k}={v}"
+                for k, v in outcomes.value.items()
+                if k in ("failed", "errors", "passed")
+            ]
+        )
+
+        if use_hl_lines:
+            from inline_snapshot._align import align
+
+            linenum = 1
+            hl_lines = ""
+
+            if last_code is not None and "first_block" not in options:
+                changed_lines = []
+                alignment = align(last_code.split("\n"), new_code.split("\n"))
+                for c in alignment:
+                    if c == "d":
+                        continue
+                    elif c == "m":
+                        linenum += 1
                     else:
-                        assert False, "no lines changed"
-                block.block_options = hl_lines
-            else:
-                pass  # pragma: no cover
+                        changed_lines.append(str(linenum))
+                        linenum += 1
+                if changed_lines:
+                    hl_lines = f'hl_lines="{" ".join(changed_lines)}"'
+                else:
+                    assert False, "no lines changed"
+            block.block_options = hl_lines
+        else:
+            pass  # pragma: no cover
 
-            block.code = new_code
+        block.code = new_code
 
-            last_code = code
+        last_code = code
         return block
 
     map_code_blocks(file, test_block)
@@ -472,10 +467,4 @@ if __name__ == "__main__":  # pragma: no cover
 
     print(file)
 
-    @contextmanager
-    def test(line):
-        yield
-
-    nosubtests = SimpleNamespace(test=test)
-
-    file_test(file, nosubtests, width=60, use_hl_lines=True)
+    file_test(file, width=60, use_hl_lines=True)
