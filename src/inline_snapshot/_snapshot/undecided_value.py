@@ -4,6 +4,7 @@ from typing import Iterator
 from inline_snapshot._customize import Builder
 from inline_snapshot._customize import Custom
 from inline_snapshot._customize import CustomCall
+from inline_snapshot._customize import CustomDefault
 from inline_snapshot._customize import CustomDict
 from inline_snapshot._customize import CustomList
 from inline_snapshot._customize import CustomTuple
@@ -21,6 +22,11 @@ from .generic_value import GenericValue
 
 def verify(value: Custom, node: ast.AST, eval) -> Custom:
     """Verify that a Custom value matches its corresponding AST node structure."""
+    if isinstance(value, CustomUnmanaged):
+        return value
+    if isinstance(value, CustomDefault):
+        return CustomDefault(value=verify(value.value, node, eval))
+
     if isinstance(node, ast.List):
         return verify_list(value, node, eval)
     elif isinstance(node, ast.Tuple):
@@ -90,7 +96,10 @@ def verify_call(value: Custom, node: ast.Call, eval) -> Custom:
 class UndecidedValue(GenericValue):
     def __init__(self, old_value, ast_node, context: AdapterContext):
 
-        old_value = verify(Builder().get_handler(old_value), ast_node, context.eval)
+        old_value = Builder().get_handler(old_value)
+        print("before verify", old_value)
+        old_value = verify(old_value, ast_node, context.eval)
+        print("after verify", old_value)
 
         assert isinstance(old_value, Custom)
         self._old_value = old_value

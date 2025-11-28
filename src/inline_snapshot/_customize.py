@@ -3,14 +3,14 @@ from __future__ import annotations
 import ast
 from abc import ABC
 from abc import abstractmethod
+from collections import Counter
 from collections import defaultdict
 from types import BuiltinFunctionType
 from types import FunctionType
 from typing import Any
 from typing import Callable
 
-from inline_snapshot._code_repr import code_repr
-from inline_snapshot._unmanaged import Unmanaged
+from inline_snapshot._code_repr import value_code_repr
 from inline_snapshot._unmanaged import is_unmanaged
 
 custom_functions = []
@@ -64,11 +64,9 @@ class CustomDefault(Custom):
         return self.value.map(f)
 
 
-class CustomUnmanaged(Custom, Unmanaged):
-    def __init__(self, value):
-        # TODO remove Unmanaged
-        Custom.__init__(self)
-        Unmanaged.__init__(self, value)
+@dataclass()
+class CustomUnmanaged(Custom):
+    value: Any
 
     def repr(self):
         return "<no repr>"
@@ -105,7 +103,11 @@ class CustomCall(Custom):
     def repr(self) -> str:
         args = []
         args += [a.repr() for a in self.args]
-        args += [f"{k} = {v.repr()}" for k, v in self.kwargs.items()]
+        args += [
+            f"{k}={v.repr()}"
+            for k, v in self.kwargs.items()
+            if not isinstance(v, CustomDefault)
+        ]
         return f"{self._function.repr()}({', '.join(args)})"
 
     @property
@@ -182,7 +184,9 @@ class CustomDict(Custom):
         return f({k.map(f): v.map(f) for k, v in self.value.items()})
 
     def repr(self) -> str:
-        return f"{{ { ', '.join(f'{k.repr()} = {v.repr()}' for k,v in self.value.items())} }}"
+        return (
+            f"{{{ ', '.join(f'{k.repr()}: {v.repr()}' for k,v in self.value.items())}}}"
+        )
 
 
 class CustomValue(Custom):
@@ -190,7 +194,7 @@ class CustomValue(Custom):
         assert not isinstance(value, Custom)
 
         if repr_str is None:
-            self.repr_str = code_repr(value)
+            self.repr_str = value_code_repr(value)
         else:
             self.repr_str = repr_str
 
@@ -211,11 +215,17 @@ def standard_handler(value, builder: Builder):
     if isinstance(value, list):
         return builder.List(value)
 
-    if isinstance(value, tuple):
+    if type(value) is tuple:
         return builder.Tuple(value)
 
     if isinstance(value, dict):
         return builder.Dict(value)
+
+
+@customize
+def counter_handler(value, builder: Builder):
+    if isinstance(value, Counter):
+        return builder.Call(value, Counter, [dict(value)])
 
 
 @customize
@@ -398,7 +408,7 @@ def defaultdict_handler(value, builder: Builder):
 @customize
 def unmanaged_handler(value, builder: Builder):
     if is_unmanaged(value):
-        return CustomUnmanaged(value)
+        return CustomUnmanaged(value=value)
 
 
 @customize
