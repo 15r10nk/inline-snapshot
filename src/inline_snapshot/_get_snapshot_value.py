@@ -9,7 +9,6 @@ from ._global_state import state
 from ._is import Is
 from ._snapshot.generic_value import GenericValue
 from ._types import Snapshot
-from ._unmanaged import Unmanaged
 
 
 def unwrap(value):
@@ -21,9 +20,6 @@ def unwrap(value):
             return unwrap(value._load_value())[0], True
         except (UsageError, StorageLookupError):
             return (None, False)
-
-    if isinstance(value, Unmanaged):
-        return unwrap(value.value)[0], True
 
     if isinstance(value, Is):
         return value.value, True

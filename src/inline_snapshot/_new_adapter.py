@@ -43,6 +43,10 @@ def reeval(old_value: Custom, value: Custom) -> Custom:
     function_name = f"reeval_{type(old_value).__name__}"
     result = globals()[function_name](old_value, value)
     assert isinstance(result, Custom)
+
+    if not result == value:
+        breakpoint()
+
     assert result == value
     return result
 
