@@ -36,7 +36,7 @@ def reeval(old_value: Custom, value: Custom) -> Custom:
         return reeval(old_value.value, value)
 
     if isinstance(value, CustomDefault):
-        return CustomDefault(reeval(old_value, value.value))
+        return CustomDefault(value=reeval(old_value, value.value))
 
     if type(old_value) is not type(value):
         return CustomUnmanaged(value.eval())
@@ -75,14 +75,10 @@ def reeval_CustomValue(old_value: CustomValue, value: CustomValue):
 
 def reeval_CustomCall(old_value: CustomCall, value: CustomCall):
     return CustomCall(
-        _function=reeval(old_value._function, value._function),
-        _args=[reeval(a, b) for a, b in zip(old_value._args, value._args)],
-        _kwargs={
-            k: reeval(old_value._kwargs[k], value._kwargs[k]) for k in old_value._kwargs
-        },
-        _kwonly={
-            k: reeval(old_value._kwonly[k], value._kwonly[k]) for k in old_value._kwonly
-        },
+        reeval(old_value._function, value._function),
+        [reeval(a, b) for a, b in zip(old_value._args, value._args)],
+        {k: reeval(old_value._kwargs[k], value._kwargs[k]) for k in old_value._kwargs},
+        {k: reeval(old_value._kwonly[k], value._kwonly[k]) for k in old_value._kwonly},
     )
 
 
@@ -187,14 +183,13 @@ class NewAdapter:
 
     def compare_CustomSequence(
         self, old_value: CustomSequence, old_node: ast.AST, new_value: CustomSequence
-    ) -> Generator[Change, None, CustomList]:
+    ) -> Generator[Change, None, CustomSequence]:
 
         if old_node is not None:
-            if not isinstance(
+            assert isinstance(
                 old_node, ast.List if isinstance(old_value.eval(), list) else ast.Tuple
-            ):
-                breakpoint()
-                assert False
+            )
+            assert isinstance(old_node, (ast.List, ast.Tuple))
 
             for e in old_node.elts:
                 if isinstance(e, ast.Starred):
@@ -244,7 +239,11 @@ class NewAdapter:
 
         for position, code_values in to_insert.items():
             yield ListInsert(
-                "fix", self.context.file._source, old_node, position, *zip(*code_values)
+                "fix",
+                self.context.file._source,
+                old_node,
+                position,
+                *zip(*code_values),  # type:ignore
             )
 
         return type(new_value)(result)
@@ -254,7 +253,7 @@ class NewAdapter:
 
     def compare_CustomDict(
         self, old_value: CustomDict, old_node: ast.AST, new_value: CustomDict
-    ) -> Generator[Change, None, CustomDict]:
+    ) -> Generator[Change, None, Custom]:
         assert isinstance(old_value, CustomDict)
         assert isinstance(new_value, CustomDict)
 
@@ -263,13 +262,13 @@ class NewAdapter:
                 isinstance(old_node, ast.Dict)
                 and len(old_value.value) == len(old_node.keys)
             ):
-                result = yield from self.compare_CustomValue(
+                result1 = yield from self.compare_CustomValue(
                     old_value, old_node, new_value
                 )
-                return result
+                return result1
 
-            for key, value in zip(old_node.keys, old_node.values):
-                if key is None:
+            for key1, value in zip(old_node.keys, old_node.values):
+                if key1 is None:
                     warnings.warn_explicit(
                         "star-expressions are not supported inside snapshots",
                         filename=self.context.file._source.filename,
@@ -278,17 +277,18 @@ class NewAdapter:
                     )
                     return old_value
 
-            for value, node in zip(old_value.value.keys(), old_node.keys):
+            for value2, node in zip(old_value.value.keys(), old_node.keys):
 
-                try:
-                    # this is just a sanity check, dicts should be ordered
-                    node_value = ast.literal_eval(node)
-                except:
-                    continue
-                assert node_value == value.eval()
+                if node is not None:
+                    try:
+                        # this is just a sanity check, dicts should be ordered
+                        node_value = ast.literal_eval(node)
+                    except Exception:
+                        continue
+                    assert node_value == value2.eval()
 
         result = {}
-        for key, node in zip(
+        for key2, node2 in zip(
             old_value.value.keys(),
             (
                 old_node.values
@@ -296,10 +296,10 @@ class NewAdapter:
                 else [None] * len(old_value.value)
             ),
         ):
-            if key not in new_value.value:
+            if key2 not in new_value.value:
                 # delete entries
                 yield Delete(
-                    "fix", self.context.file._source, node, old_value.value[key]
+                    "fix", self.context.file._source, node2, old_value.value[key2]
                 )
 
         to_insert = []
@@ -356,15 +356,17 @@ class NewAdapter:
                 to_insert,
             )
 
-        return CustomDict(result)
+        return CustomDict(value=result)
 
     def compare_CustomCall(
         self, old_value: CustomCall, old_node: ast.AST, new_value: CustomCall
-    ) -> Generator[Change, None, CustomCall]:
+    ) -> Generator[Change, None, Custom]:
 
         if old_node is None or not isinstance(old_node, ast.Call):
-            result = yield from self.compare_CustomValue(old_value, old_node, new_value)
-            return result
+            result1 = yield from self.compare_CustomValue(
+                old_value, old_node, new_value
+            )
+            return result1
 
         # positional arguments
         for pos_arg in old_node.args:
@@ -490,11 +492,11 @@ class NewAdapter:
                     new_value=value,
                 )
         return CustomCall(
-            _function=(
+            (
                 yield from self.compare(
                     old_value._function, old_node.func, new_value._function
                 )
             ),
-            _args=result_args,
-            _kwargs=result_kwargs,
+            result_args,
+            result_kwargs,
         )

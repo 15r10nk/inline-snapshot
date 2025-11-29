@@ -309,7 +309,7 @@ else:
 
                         default_value = (
                             field.default
-                            if not isinstance(field.default, attrs.Factory)
+                            if not isinstance(field.default, attrs.Factory)  # type: ignore
                             else (
                                 field.default.factory()
                                 if not field.default.takes_self

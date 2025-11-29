@@ -117,7 +117,7 @@ class Change(ChangeBase):
 
 @dataclass()
 class Delete(Change):
-    node: ast.AST
+    node: ast.AST | None
     old_value: Any
 
 
@@ -134,7 +134,7 @@ class AddArgument(Change):
 
 @dataclass()
 class ListInsert(Change):
-    node: ast.List
+    node: ast.List | ast.Tuple
     position: int
 
     new_code: list[str]
