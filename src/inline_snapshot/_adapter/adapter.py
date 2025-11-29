@@ -4,8 +4,6 @@ import ast
 import typing
 from dataclasses import dataclass
 
-import pytest
-
 from inline_snapshot._customize import CustomCall
 from inline_snapshot._customize import CustomDict
 from inline_snapshot._customize import CustomList
@@ -20,28 +18,20 @@ def get_adapter_type(value):
     if isinstance(value, CustomCall):
         from .generic_call_adapter import CallAdapter
 
-        pytest.skip()
-
         return CallAdapter
 
     if isinstance(value, CustomList):
         from .sequence_adapter import ListAdapter
-
-        pytest.skip()
 
         return ListAdapter
 
     if isinstance(value, CustomTuple):
         from .sequence_adapter import TupleAdapter
 
-        pytest.skip()
-
         return TupleAdapter
 
     if isinstance(value, CustomDict):
         from .dict_adapter import DictAdapter
-
-        pytest.skip()
 
         return DictAdapter
 

@@ -23,9 +23,9 @@ class CollectionValue(GenericValue):
             state().missing_values += 1
 
         if isinstance(self._new_value, CustomUndefined):
-            self._new_value = CustomList([item], [Builder().get_handler(item)])
+            self._new_value = CustomList([Builder().get_handler(item)])
         else:
-            if item not in self._new_value.value:
+            if item not in self._new_value.eval():
                 self._new_value.value.append(Builder().get_handler(item))
 
         if ignore_old_value() or isinstance(self._old_value, CustomUndefined):
@@ -38,7 +38,7 @@ class CollectionValue(GenericValue):
         return self._file._value_to_code(self._new_value.eval())
 
     def _get_changes(self) -> Iterator[Change]:
-        assert isinstance(self._old_value, CustomList)
+        assert isinstance(self._old_value, CustomList), self._old_value
         assert isinstance(self._new_value, CustomList), self._new_value
 
         if self._ast_node is None:

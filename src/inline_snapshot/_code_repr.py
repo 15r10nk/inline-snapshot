@@ -35,7 +35,7 @@ class HasRepr:
             if type(other) is not self._type:
                 return False
 
-        other_repr = code_repr(other)
+        other_repr = value_code_repr(other)
         return other_repr == self._str_repr or other_repr == repr(self)
 
 

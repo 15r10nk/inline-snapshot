@@ -452,9 +452,7 @@ def test_remove_positional_argument():
     Example(
         """\
 from inline_snapshot import snapshot
-
-from inline_snapshot._adapter.generic_call_adapter import GenericCallAdapter
-from inline_snapshot._customize import CustomCall
+from inline_snapshot._customize import CustomCall,customize
 
 
 class L:
@@ -466,19 +464,10 @@ class L:
             return NotImplemented
         return other.l==self.l
 
-class LAdapter(GenericCallAdapter):
-    @classmethod
-    def check_type(cls, value_type):
-        return issubclass(value_type,L)
-
-    @classmethod
-    def arguments(cls, value):
-        return CustomCall(L,*value.l)
-
-    @classmethod
-    def argument(cls, value, pos_or_name):
-        assert isinstance(pos_or_name,int)
-        return value.l[pos_or_name]
+@customize
+def handle(value,builder):
+    if isinstance(value,L):
+        return builder.Call(value,L,value.l)
 
 def test_L1():
     for _ in [1,2]:
@@ -498,9 +487,7 @@ def test_L3():
             {
                 "tests/test_something.py": """\
 from inline_snapshot import snapshot
-
-from inline_snapshot._adapter.generic_call_adapter import GenericCallAdapter
-from inline_snapshot._customize import CustomCall
+from inline_snapshot._customize import CustomCall,customize
 
 
 class L:
@@ -512,19 +499,10 @@ class L:
             return NotImplemented
         return other.l==self.l
 
-class LAdapter(GenericCallAdapter):
-    @classmethod
-    def check_type(cls, value_type):
-        return issubclass(value_type,L)
-
-    @classmethod
-    def arguments(cls, value):
-        return CustomCall(L,*value.l)
-
-    @classmethod
-    def argument(cls, value, pos_or_name):
-        assert isinstance(pos_or_name,int)
-        return value.l[pos_or_name]
+@customize
+def handle(value,builder):
+    if isinstance(value,L):
+        return builder.Call(value,L,value.l)
 
 def test_L1():
     for _ in [1,2]:

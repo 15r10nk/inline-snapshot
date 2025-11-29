@@ -445,9 +445,7 @@ class Example:
         Returns:
             A new Example instance containing the changed files.
         """
-        import pytest
 
-        pytest.skip()
         self.dump_files()
 
         with TemporaryDirectory() as dir:

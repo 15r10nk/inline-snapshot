@@ -5,6 +5,8 @@ from abc import ABC
 from abc import abstractmethod
 from collections import Counter
 from collections import defaultdict
+from pathlib import Path
+from pathlib import PurePath
 from types import BuiltinFunctionType
 from types import FunctionType
 from typing import Any
@@ -12,6 +14,7 @@ from typing import Callable
 
 from inline_snapshot._code_repr import value_code_repr
 from inline_snapshot._unmanaged import is_unmanaged
+from inline_snapshot._utils import clone
 
 custom_functions = []
 
@@ -72,7 +75,7 @@ class CustomUnmanaged(Custom):
         return "<no repr>"
 
     def map(self, f):
-        return self.value
+        return f(self.value)
 
 
 class CustomUndefined(Custom):
@@ -192,6 +195,7 @@ class CustomDict(Custom):
 class CustomValue(Custom):
     def __init__(self, value, repr_str=None):
         assert not isinstance(value, Custom)
+        value = clone(value)
 
         if repr_str is None:
             self.repr_str = value_code_repr(value)
@@ -244,6 +248,15 @@ def builtin_function_handler(value, builder: Builder):
 def type_handler(value, builder: Builder):
     if isinstance(value, type):
         return builder.Value(value, value.__qualname__)
+
+
+@customize
+def path_handler(value, builder: Builder):
+    if isinstance(value, Path):
+        return builder.Call(value, Path, [value.as_posix()])
+
+    if isinstance(value, PurePath):
+        return builder.Call(value, PurePath, [value.as_posix()])
 
 
 @customize

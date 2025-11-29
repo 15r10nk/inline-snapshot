@@ -24,6 +24,7 @@ from inline_snapshot._customize import CustomTuple
 from inline_snapshot._customize import CustomUndefined
 from inline_snapshot._customize import CustomUnmanaged
 from inline_snapshot._customize import CustomValue
+from inline_snapshot._exceptions import UsageError
 from inline_snapshot._utils import value_to_token
 from inline_snapshot.syntax_warnings import InlineSnapshotInfo
 from inline_snapshot.syntax_warnings import InlineSnapshotSyntaxWarning
@@ -44,9 +45,6 @@ def reeval(old_value: Custom, value: Custom) -> Custom:
     result = globals()[function_name](old_value, value)
     assert isinstance(result, Custom)
 
-    if not result == value:
-        breakpoint()
-
     assert result == value
     return result
 
@@ -66,6 +64,12 @@ def reeval_CustomUndefined(old_value, value):
 
 
 def reeval_CustomValue(old_value: CustomValue, value: CustomValue):
+
+    if not old_value.eval() == value.eval():
+        raise UsageError(
+            "snapshot value should not change. Use Is(...) for dynamic snapshot parts."
+        )
+
     return value
 
 
@@ -112,8 +116,6 @@ class NewAdapter:
         if isinstance(new_value, CustomUnmanaged):
             raise UsageError("unmanaged values can not be compared with snapshots")
 
-        print("compare", old_value, new_value)
-
         if type(old_value) is not type(new_value) or not isinstance(
             old_node, new_value.node_type
         ):
@@ -148,7 +150,7 @@ class NewAdapter:
         ):
             if not old_value.eval() == new_value.eval():
                 warnings.warn_explicit(
-                    f"inline-snapshot will be able to fix f-strings in the future.\nThe current string value is:\n   {new_value!r}",
+                    f"inline-snapshot will be able to fix f-strings in the future.\nThe current string value is:\n   {new_value.repr()}",
                     filename=self.context.file._source.filename,
                     lineno=old_node.lineno,
                     category=InlineSnapshotInfo,
@@ -487,7 +489,6 @@ class NewAdapter:
                     new_code=value.repr(),
                     new_value=value,
                 )
-        print(new_value._function)
         return CustomCall(
             _function=(
                 yield from self.compare(

@@ -1,11 +1,15 @@
 import ast
+import copy
 import io
 import token
 import tokenize
 from collections import namedtuple
 from pathlib import Path
 
+from inline_snapshot._exceptions import UsageError
+
 from ._code_repr import code_repr
+from ._code_repr import value_code_repr
 
 
 def link(text, link=None):
@@ -149,7 +153,11 @@ class simple_token(namedtuple("simple_token", "type,string")):
 
 
 def value_to_token(value):
-    input = io.StringIO(code_repr(value))
+    return map_strings(code_repr(value))
+
+
+def map_strings(code_repr):
+    input = io.StringIO(code_repr)
 
     def map_string(tok):
         """Convert strings with newlines in triple quoted strings."""
@@ -173,3 +181,21 @@ def value_to_token(value):
         for t in tokenize.generate_tokens(input.readline)
         if t.type not in ignore_tokens
     ]
+
+
+def clone(obj):
+    new = copy.deepcopy(obj)
+    if not obj == new:
+        raise UsageError(
+            f"""\
+inline-snapshot uses `copy.deepcopy` to copy objects,
+but the copied object is not equal to the original one:
+
+value = {value_code_repr(obj)}
+copied_value = copy.deepcopy(value)
+assert value == copied_value
+
+Please fix the way your object is copied or your __eq__ implementation.
+"""
+        )
+    return new

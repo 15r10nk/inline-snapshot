@@ -1,8 +1,5 @@
 import ast
-import copy
 from typing import Iterator
-
-import pytest
 
 from inline_snapshot._customize import Builder
 from inline_snapshot._customize import Custom
@@ -13,29 +10,10 @@ from inline_snapshot._new_adapter import reeval
 from .._adapter.adapter import AdapterContext
 from .._adapter.adapter import get_adapter_type
 from .._change import Change
-from .._code_repr import code_repr
 from .._exceptions import UsageError
 from .._global_state import state
 from .._types import SnapshotBase
 from .._unmanaged import declare_unmanaged
-
-
-def clone(obj):
-    new = copy.deepcopy(obj)
-    if not obj == new:
-        raise UsageError(
-            f"""\
-inline-snapshot uses `copy.deepcopy` to copy objects,
-but the copied object is not equal to the original one:
-
-value = {code_repr(obj)}
-copied_value = copy.deepcopy(value)
-assert value == copied_value
-
-Please fix the way your object is copied or your __eq__ implementation.
-"""
-        )
-    return new
 
 
 def ignore_old_value():
@@ -142,21 +120,17 @@ class GenericValue(SnapshotBase):
         self._type_error("==")
 
     def __le__(self, _other):
-        pytest.skip()
         __tracebackhide__ = True
         self._type_error("<=")
 
     def __ge__(self, _other):
-        pytest.skip()
         __tracebackhide__ = True
         self._type_error(">=")
 
     def __contains__(self, _other):
-        pytest.skip()
         __tracebackhide__ = True
         self._type_error("in")
 
     def __getitem__(self, _item):
-        pytest.skip()
         __tracebackhide__ = True
         self._type_error("snapshot[key]")
