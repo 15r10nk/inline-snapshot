@@ -175,6 +175,7 @@ extra-dependencies = [
   "pytest-mock>=3.14.0",
   "black==25.1.0",
   "setuptools"
+  "attrs",
 ]
 env-vars.TOP = "{root}"
 

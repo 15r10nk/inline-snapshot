@@ -17,6 +17,9 @@ from .generic_value import GenericValue
 class DictValue(GenericValue):
     _current_op = "snapshot[key]"
 
+    _new_value: CustomDict
+    _old_value: CustomDict
+
     def __getitem__(self, index):
         if isinstance(self._new_value, CustomUndefined):
             self._new_value = CustomDict({})
@@ -52,14 +55,14 @@ class DictValue(GenericValue):
         ):
             for key, s in self._new_value.value.items():
                 if key in self._old_value.value:
-                    s._re_eval(self._old_value.value[key], context)
+                    s._re_eval(self._old_value.value[key], context)  # type:ignore
 
     def _new_code(self):
         return (
             "{"
             + ", ".join(
                 [
-                    f"{self._file._value_to_code(k)}: {v._new_code()}"
+                    f"{self._file._value_to_code(k)}: {v._new_code()}"  # type:ignore
                     for k, v in self._new_value.value.items()
                     if not isinstance(v, UndecidedValue)
                 ]
@@ -80,7 +83,7 @@ class DictValue(GenericValue):
         for key, node in zip(self._old_value.value.keys(), values):
             if key in self._new_value.value:
                 # check values with same keys
-                yield from self._new_value.value[key]._get_changes()
+                yield from self._new_value.value[key]._get_changes()  # type:ignore
             else:
                 # delete entries
                 yield Delete("trim", self._file, node, self._old_value.value[key])
@@ -91,7 +94,7 @@ class DictValue(GenericValue):
                 new_value_element, UndecidedValue
             ):
                 # add new values
-                to_insert.append((key, new_value_element._new_code()))
+                to_insert.append((key, new_value_element._new_code()))  # type:ignore
 
         if to_insert:
             new_code = [(self._file._value_to_code(k.eval()), v) for k, v in to_insert]

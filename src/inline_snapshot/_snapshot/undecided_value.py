@@ -118,11 +118,10 @@ class UndecidedValue(GenericValue):
         new_value = Builder().get_handler(self._old_value.eval())
 
         adapter = NewAdapter(self._context)
-        changes = list(adapter.compare(self._old_value, self._ast_node, new_value))
 
-        assert all(change.flag == "update" for change in changes)
-
-        return changes
+        for change in adapter.compare(self._old_value, self._ast_node, new_value):
+            assert change.flag == "update"
+            yield change
 
         # def handle(node, obj):
 
