@@ -244,4 +244,3 @@ force_single_line=true
 
 [tool.inline-snapshot]
 show-updates=true
-default-flags-tui=["disable"]

@@ -1,8 +1,6 @@
 import ast
 from typing import Iterator
 
-import pytest
-
 from inline_snapshot._customize import Builder
 from inline_snapshot._customize import CustomDict
 from inline_snapshot._customize import CustomUndefined
@@ -13,7 +11,6 @@ from .._change import Delete
 from .._change import DictInsert
 from .._global_state import state
 from .._inline_snapshot import UndecidedValue
-from .._sentinels import undefined
 from .generic_value import GenericValue
 
 
@@ -21,11 +18,8 @@ class DictValue(GenericValue):
     _current_op = "snapshot[key]"
 
     def __getitem__(self, index):
-
-        pytest.skip()
-
         if isinstance(self._new_value, CustomUndefined):
-            self._new_value = CustomDict({}, {})
+            self._new_value = CustomDict({})
 
         index = Builder().get_handler(index)
 
@@ -45,7 +39,7 @@ class DictValue(GenericValue):
                     child_node = self._ast_node.values[pos]
 
             self._new_value.value[index] = UndecidedValue(
-                old_value.get(index, undefined), child_node, self._context
+                old_value.get(index, CustomUndefined()), child_node, self._context
             )
 
         return self._new_value.value[index]

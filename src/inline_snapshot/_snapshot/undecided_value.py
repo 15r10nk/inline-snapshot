@@ -11,12 +11,10 @@ from inline_snapshot._customize import CustomTuple
 from inline_snapshot._customize import CustomUndefined
 from inline_snapshot._customize import CustomUnmanaged
 from inline_snapshot._customize import CustomValue
+from inline_snapshot._new_adapter import NewAdapter
 
 from .._adapter.adapter import AdapterContext
-from .._adapter.adapter import get_adapter_type
 from .._change import Change
-from .._change import Replace
-from .._utils import value_to_token
 from .generic_value import GenericValue
 
 
@@ -55,6 +53,9 @@ def verify_tuple(value: Custom, node: ast.Tuple, eval) -> Custom:
 def verify_dict(value: Custom, node: ast.Dict, eval) -> Custom:
     """Verify a CustomDict matches its Dict AST node."""
     assert isinstance(value, CustomDict)
+    if any(key is None for key in node.keys):
+        return value
+
     verified_items = {}
     for (key, val), key_node, val_node in zip(
         value.value.items(), node.keys, node.values
@@ -97,9 +98,7 @@ class UndecidedValue(GenericValue):
     def __init__(self, old_value, ast_node, context: AdapterContext):
 
         old_value = Builder().get_handler(old_value)
-        print("before verify", old_value)
         old_value = verify(old_value, ast_node, context.eval)
-        print("after verify", old_value)
 
         assert isinstance(old_value, Custom)
         self._old_value = old_value
@@ -114,30 +113,40 @@ class UndecidedValue(GenericValue):
         assert False
 
     def _get_changes(self) -> Iterator[Change]:
+        assert isinstance(self._new_value, CustomUndefined)
 
-        def handle(node, obj):
+        new_value = Builder().get_handler(self._old_value.eval())
 
-            adapter = get_adapter_type(obj)
-            if adapter is not None and hasattr(adapter, "items"):
-                for item in adapter.items(obj, node):
-                    yield from handle(item.node, item.value)
-                return
+        adapter = NewAdapter(self._context)
+        changes = list(adapter.compare(self._old_value, self._ast_node, new_value))
 
-            if not isinstance(obj, CustomUnmanaged) and node is not None:
-                new_token = value_to_token(obj.eval())
-                if self._file._token_of_node(node) != new_token:
-                    new_code = self._file._token_to_code(new_token)
+        assert all(change.flag == "update" for change in changes)
 
-                    yield Replace(
-                        node=self._ast_node,
-                        file=self._file,
-                        new_code=new_code,
-                        flag="update",
-                        old_value=self._old_value,
-                        new_value=self._old_value,
-                    )
+        return changes
 
-        yield from handle(self._ast_node, self._old_value)
+        # def handle(node, obj):
+
+        #     adapter = get_adapter_type(obj)
+        #     if adapter is not None and hasattr(adapter, "items"):
+        #         for item in adapter.items(obj, node):
+        #             yield from handle(item.node, item.value)
+        #         return
+
+        #     if not isinstance(obj, CustomUnmanaged) and node is not None:
+        #         new_token = value_to_token(obj.eval())
+        #         if self._file._token_of_node(node) != new_token:
+        #             new_code = self._file._token_to_code(new_token)
+
+        #             yield Replace(
+        #                 node=self._ast_node,
+        #                 file=self._file,
+        #                 new_code=new_code,
+        #                 flag="update",
+        #                 old_value=self._old_value,
+        #                 new_value=self._old_value,
+        #             )
+
+        # yield from handle(self._ast_node, self._old_value)
 
     # functions which determine the type
 

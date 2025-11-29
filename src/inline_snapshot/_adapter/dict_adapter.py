@@ -3,8 +3,6 @@ from __future__ import annotations
 import ast
 import warnings
 
-import pytest
-
 from inline_snapshot._customize import CustomDict
 
 from .._change import Delete
@@ -36,7 +34,6 @@ class DictAdapter(Adapter):
 
     @classmethod
     def items(cls, value, node):
-        pytest.skip()
         assert isinstance(value, CustomDict)
         value = value.value
         if node is None or not isinstance(node, ast.Dict):
@@ -60,7 +57,6 @@ class DictAdapter(Adapter):
         return result
 
     def assign(self, old_value, old_node, new_value):
-        pytest.skip()
         assert isinstance(old_value, CustomDict)
         assert isinstance(new_value, CustomDict)
 
