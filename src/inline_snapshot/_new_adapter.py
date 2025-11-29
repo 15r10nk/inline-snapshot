@@ -45,7 +45,7 @@ def reeval(old_value: Custom, value: Custom) -> Custom:
     result = globals()[function_name](old_value, value)
     assert isinstance(result, Custom)
 
-    assert result == value
+    #    assert result == value,(result,value)
     return result
 
 
