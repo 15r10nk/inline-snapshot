@@ -3,7 +3,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from inline_snapshot._adapter.adapter import AdapterContext
+from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._change import CallArg
 from inline_snapshot._change import Replace
 from inline_snapshot._exceptions import UsageError

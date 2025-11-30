@@ -13,7 +13,7 @@ from inline_snapshot._customize import CustomUnmanaged
 from inline_snapshot._customize import CustomValue
 from inline_snapshot._new_adapter import NewAdapter
 
-from .._adapter.adapter import AdapterContext
+from .._adapter_context import AdapterContext
 from .._change import Change
 from .generic_value import GenericValue
 
