@@ -7,12 +7,12 @@ from typing import cast
 
 from executing import Source
 
+from inline_snapshot._adapter_context import AdapterContext
+from inline_snapshot._adapter_context import FrameContext
 from inline_snapshot._customize import CustomUndefined
 from inline_snapshot._source_file import SourceFile
 from inline_snapshot._types import SnapshotRefBase
 
-from ._adapter.adapter import AdapterContext
-from ._adapter.adapter import FrameContext
 from ._change import CallArg
 from ._change import Change
 from ._global_state import state

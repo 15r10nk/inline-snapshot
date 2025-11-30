@@ -132,6 +132,9 @@ serve = "mkdocs serve --livereload"
 [tool.hatch.envs.default]
 installer="uv"
 
+[tool.hatch.envs.cov]
+python="3.12"
+
 [tool.hatch.envs.cov.scripts]
 github=[
     "- rm htmlcov/*",

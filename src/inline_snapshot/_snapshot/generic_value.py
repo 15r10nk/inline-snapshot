@@ -1,16 +1,13 @@
 import ast
 from typing import Iterator
 
+from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._customize import Builder
 from inline_snapshot._customize import Custom
 from inline_snapshot._customize import CustomUndefined
-from inline_snapshot._customize import CustomUnmanaged
 from inline_snapshot._new_adapter import reeval
 
-from .._adapter.adapter import AdapterContext
-from .._adapter.adapter import get_adapter_type
 from .._change import Change
-from .._exceptions import UsageError
 from .._global_state import state
 from .._types import SnapshotBase
 from .._unmanaged import declare_unmanaged
@@ -47,44 +44,10 @@ class GenericValue(SnapshotBase):
     def _file(self):
         return self._context.file
 
-    def get_adapter(self, value):
-        return get_adapter_type(value)(self._context)
-
     def _re_eval(self, value, context: AdapterContext):
 
         self._old_value = reeval(self._old_value, Builder().get_handler(value))
         return
-
-        self._context = context
-
-        def re_eval(old_value, node, value):
-            if isinstance(old_value, CustomUnmanaged):
-                old_value.value = value
-                return
-
-            assert type(old_value) is type(value)
-
-            adapter = self.get_adapter(old_value)
-            if adapter is not None and hasattr(adapter, "items"):
-                old_items = adapter.items(old_value, node)
-                new_items = adapter.items(value, node)
-                assert len(old_items) == len(new_items)
-
-                for old_item, new_item in zip(old_items, new_items):
-                    re_eval(old_item.value, old_item.node, new_item.value)
-
-            else:
-                if not isinstance(old_value, CustomUnmanaged):
-                    if not old_value.eval() == value.eval():
-                        raise UsageError(
-                            "snapshot value should not change. Use Is(...) for dynamic snapshot parts."
-                        )
-                else:
-                    assert (
-                        False
-                    ), f"old_value ({type(old_value)}) should be converted to Unmanaged"
-
-        re_eval(self._old_value, self._ast_node, Builder().get_handler(value))
 
     def _ignore_old(self):
         return (

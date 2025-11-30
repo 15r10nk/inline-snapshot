@@ -5,7 +5,7 @@ from inline_snapshot._customize import Builder
 from inline_snapshot._customize import CustomDict
 from inline_snapshot._customize import CustomUndefined
 
-from .._adapter.adapter import AdapterContext
+from .._adapter_context import AdapterContext
 from .._change import Change
 from .._change import Delete
 from .._change import DictInsert
