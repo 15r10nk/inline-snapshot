@@ -39,10 +39,8 @@ class Custom(ABC):
         return hash(self.eval())
 
     def __eq__(self, other):
-        if isinstance(other, Custom):
-            return self.eval() == other.eval()
-
-        return NotImplemented
+        assert isinstance(other, Custom)
+        return self.eval() == other.eval()
 
     @abstractmethod
     def map(self, f):
@@ -61,7 +59,9 @@ class CustomDefault(Custom):
     value: Custom = field(compare=False)
 
     def repr(self):
-        return self.value.repr()
+        assert (
+            False
+        ), "this should never be called because default values are never converted into code"
 
     def map(self, f):
         return self.value.map(f)
@@ -124,14 +124,6 @@ class CustomCall(Custom):
     @property
     def kwargs(self):
         return {**self._kwargs, **self._kwonly}
-
-    def kwonly(self, **kwonly):
-        assert not self._kwonly, "you should not call kwonly twice"
-        assert (
-            not kwonly.keys() & self._kwargs.keys()
-        ), "same keys in kwargs and kwonly arguments"
-        self._kwonly = kwonly
-        return self
 
     def argument(self, pos_or_str):
         if isinstance(pos_or_str, int):

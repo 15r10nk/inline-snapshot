@@ -49,6 +49,56 @@ assert [color.val] == snapshot([color.val])
     )
 
 
+def test_path():
+
+    Example(
+        """\
+from pathlib import Path,PurePath
+from inline_snapshot import snapshot
+
+folder="a"
+
+def test_a():
+    assert Path(folder,"b.txt") == snapshot()
+    assert PurePath(folder,"b.txt") == snapshot()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from pathlib import Path,PurePath
+from inline_snapshot import snapshot
+
+folder="a"
+
+def test_a():
+    assert Path(folder,"b.txt") == snapshot(Path("a/b.txt"))
+    assert PurePath(folder,"b.txt") == snapshot(PurePath("a/b.txt"))
+"""
+            }
+        ),
+    ).replace(
+        '"a"', '"c"'
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from pathlib import Path,PurePath
+from inline_snapshot import snapshot
+
+folder="c"
+
+def test_a():
+    assert Path(folder,"b.txt") == snapshot(Path("c/b.txt"))
+    assert PurePath(folder,"b.txt") == snapshot(PurePath("c/b.txt"))
+"""
+            }
+        ),
+    )
+
+
 def test_snapshot_generates_hasrepr():
 
     Example(
@@ -334,11 +384,23 @@ def test_datatypes_explicit():
     assert code_repr(default_dict) == snapshot("defaultdict(list, {5: [2], 3: [1]})")
 
 
-def test_tuple():
+def test_fake_tuple1():
 
     class FakeTuple(tuple):
         def __init__(self):
             self._fields = 5
+
+        def __repr__(self):
+            return "FakeTuple()"
+
+    assert code_repr(FakeTuple()) == snapshot("FakeTuple()")
+
+
+def test_fake_tuple2():
+
+    class FakeTuple(tuple):
+        def __init__(self):
+            self._fields = 1
 
         def __repr__(self):
             return "FakeTuple()"
