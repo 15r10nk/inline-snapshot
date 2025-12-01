@@ -387,8 +387,7 @@ def test_datatypes_explicit():
 def test_fake_tuple1():
 
     class FakeTuple(tuple):
-        def __init__(self):
-            self._fields = 5
+        _fields = 5
 
         def __repr__(self):
             return "FakeTuple()"
@@ -399,8 +398,7 @@ def test_fake_tuple1():
 def test_fake_tuple2():
 
     class FakeTuple(tuple):
-        def __init__(self):
-            self._fields = 1
+        _fields = (1, 2)
 
         def __repr__(self):
             return "FakeTuple()"

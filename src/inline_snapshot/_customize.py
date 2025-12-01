@@ -59,9 +59,8 @@ class CustomDefault(Custom):
     value: Custom = field(compare=False)
 
     def repr(self):
-        assert (
-            False
-        ), "this should never be called because default values are never converted into code"
+        # this should never be called because default values are never converted into code
+        assert False
 
     def map(self, f):
         return self.value.map(f)
