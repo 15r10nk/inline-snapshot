@@ -20,7 +20,6 @@ from inline_snapshot._customize import CustomDefault
 from inline_snapshot._customize import CustomDict
 from inline_snapshot._customize import CustomList
 from inline_snapshot._customize import CustomSequence
-from inline_snapshot._customize import CustomTuple
 from inline_snapshot._customize import CustomUndefined
 from inline_snapshot._customize import CustomUnmanaged
 from inline_snapshot._customize import CustomValue
@@ -54,6 +53,9 @@ def reeval_CustomList(old_value: CustomList, value: CustomList):
     return CustomList([reeval(a, b) for a, b in zip(old_value.value, value.value)])
 
 
+reeval_CustomTuple = reeval_CustomList
+
+
 def reeval_CustomUnmanaged(old_value: CustomUnmanaged, value: CustomUnmanaged):
     old_value.value = value.value
     return old_value
@@ -80,11 +82,6 @@ def reeval_CustomCall(old_value: CustomCall, value: CustomCall):
         {k: reeval(old_value._kwargs[k], value._kwargs[k]) for k in old_value._kwargs},
         {k: reeval(old_value._kwonly[k], value._kwonly[k]) for k in old_value._kwonly},
     )
-
-
-def reeval_CustomTuple(old_value, value):
-    assert len(old_value.value) == len(value.value)
-    return CustomTuple([reeval(a, b) for a, b in zip(old_value.value, value.value)])
 
 
 def reeval_CustomDict(old_value, value):
@@ -196,6 +193,8 @@ class NewAdapter:
                         category=InlineSnapshotSyntaxWarning,
                     )
                     return old_value
+        else:
+            pass  # pragma: no cover
 
         with compare_context():
             diff = add_x(align(old_value.value, new_value.value))
@@ -248,20 +247,12 @@ class NewAdapter:
     compare_CustomList = compare_CustomSequence
 
     def compare_CustomDict(
-        self, old_value: CustomDict, old_node: ast.AST, new_value: CustomDict
+        self, old_value: CustomDict, old_node: ast.Dict, new_value: CustomDict
     ) -> Generator[Change, None, Custom]:
         assert isinstance(old_value, CustomDict)
         assert isinstance(new_value, CustomDict)
 
         if old_node is not None:
-            if not (
-                isinstance(old_node, ast.Dict)
-                and len(old_value.value) == len(old_node.keys)
-            ):
-                result1 = yield from self.compare_CustomValue(
-                    old_value, old_node, new_value
-                )
-                return result1
 
             for key1, value in zip(old_node.keys, old_node.values):
                 if key1 is None:
@@ -274,14 +265,15 @@ class NewAdapter:
                     return old_value
 
             for value2, node in zip(old_value.value.keys(), old_node.keys):
-
-                if node is not None:
-                    try:
-                        # this is just a sanity check, dicts should be ordered
-                        node_value = ast.literal_eval(node)
-                    except Exception:
-                        continue
-                    assert node_value == value2.eval()
+                assert node is not None
+                try:
+                    # this is just a sanity check, dicts should be ordered
+                    node_value = ast.literal_eval(node)
+                except Exception:
+                    continue
+                assert node_value == value2.eval()
+        else:
+            pass  # pragma: no cover
 
         result = {}
         for key2, node2 in zip(
