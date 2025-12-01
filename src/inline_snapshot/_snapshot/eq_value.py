@@ -17,7 +17,7 @@ class EqValue(GenericValue):
     _changes: List[Change]
 
     def __eq__(self, other):
-        other = Builder().get_handler(other)
+        custom_other = Builder().get_handler(other)
 
         if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1
@@ -26,7 +26,7 @@ class EqValue(GenericValue):
             self._changes = []
 
             adapter = NewAdapter(self._context)
-            it = iter(adapter.compare(self._old_value, self._ast_node, other))
+            it = iter(adapter.compare(self._old_value, self._ast_node, custom_other))
             while True:
                 try:
                     self._changes.append(next(it))
@@ -35,8 +35,8 @@ class EqValue(GenericValue):
                     break
 
         return self._return(
-            self._old_value.eval() == other.eval(),
-            self._new_value.eval() == other.eval(),
+            self._old_value.eval() == custom_other.eval(),
+            self._new_value.eval() == custom_other.eval(),
         )
 
     def _new_code(self):
