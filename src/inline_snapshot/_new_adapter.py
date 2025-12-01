@@ -130,10 +130,6 @@ class NewAdapter:
         assert isinstance(old_value, Custom)
         assert isinstance(new_value, Custom)
 
-        # because IsStr() != IsStr()
-        if isinstance(old_value, CustomUnmanaged):
-            return old_value
-
         if old_node is None:
             new_token = []
         else:
@@ -359,14 +355,8 @@ class NewAdapter:
         return CustomDict(value=result)
 
     def compare_CustomCall(
-        self, old_value: CustomCall, old_node: ast.AST, new_value: CustomCall
+        self, old_value: CustomCall, old_node: ast.Call, new_value: CustomCall
     ) -> Generator[Change, None, Custom]:
-
-        if old_node is None or not isinstance(old_node, ast.Call):
-            result1 = yield from self.compare_CustomValue(
-                old_value, old_node, new_value
-            )
-            return result1
 
         # positional arguments
         for pos_arg in old_node.args:

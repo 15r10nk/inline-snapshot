@@ -259,6 +259,39 @@ def path_handler(value, builder: Builder):
         return builder.Call(value, PurePath, [value.as_posix()])
 
 
+def sort_set_values(set_values):
+    is_sorted = False
+    try:
+        set_values = sorted(set_values)
+        is_sorted = True
+    except TypeError:
+        pass
+
+    set_values = list(map(repr, set_values))
+    if not is_sorted:
+        set_values = sorted(set_values)
+
+    return set_values
+
+
+@customize
+def set_handler(value, builder: Builder):
+    if isinstance(value, set):
+        if len(value) == 0:
+            return builder.Value(value, "set()")
+        else:
+            return builder.Value(value, "{" + ", ".join(sort_set_values(value)) + "}")
+
+
+@customize
+def frozenset_handler(value, builder: Builder):
+    if isinstance(value, frozenset):
+        if len(value) == 0:
+            return builder.Value(value, "frozenset()")
+        else:
+            return builder.Call(value, frozenset, [set(value)])
+
+
 @customize
 def dataclass_handler(value, builder: Builder):
 
