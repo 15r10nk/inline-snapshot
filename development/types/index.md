@@ -2,7 +2,7 @@
 
 ## `Category = Literal['update', 'fix', 'create', 'trim', 'fix-assert']`
 
-See [categories](../categories/)
+See [categories](https://15r10nk.github.io/inline-snapshot/development/categories/index.md)
 
 ## `Snapshot`
 

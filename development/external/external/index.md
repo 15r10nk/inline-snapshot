@@ -5,7 +5,7 @@ Storing snapshots in the source code is the main feature of inline snapshots. Th
 
 `external()` solves this problem and integrates nicely with inline snapshots. It stores a reference to the external data in a special `external()` object, which can be used like `snapshot()`.
 
-There are different storage protocols, such as [*hash*](#hash) or [*uuid*](#uuid), and different file formats, such as *.txt*, *.bin*, and *.json*. It is also possible to implement [*custom*](../register_format/) file formats.
+There are different storage protocols, such as [*hash*](#hash) or [*uuid*](#uuid), and different file formats, such as *.txt*, *.bin*, and *.json*. It is also possible to implement [*custom*](https://15r10nk.github.io/inline-snapshot/development/external/register_format/index.md) file formats.
 
 Example:
 
@@ -147,7 +147,7 @@ inline-snapshot supports several built-in formats for external snapshots. The fo
 | `.txt`  | 0        | Stores strings in `.txt` files.                           |
 | `.json` | -10      | Stores the data with `json.dump()`.                       |
 
-[Custom formats](../register_format/) are also supported.
+[Custom formats](https://15r10nk.github.io/inline-snapshot/development/external/register_format/index.md) are also supported.
 
 You can also use format aliases if you want to use specific file suffixes that have the same handling as existing formats. You must specify the suffix in this case.
 

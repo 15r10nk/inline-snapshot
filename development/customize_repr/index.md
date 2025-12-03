@@ -53,7 +53,7 @@ Please open an [issue](https://github.com/15r10nk/inline-snapshot/issues) if you
 
 Note
 
-Container types like `dict`, `list`, `tuple` or `dataclass` are handled in a different way, because inline-snapshot also needs to inspect these types to implement [unmanaged](../eq_snapshot/#unmanaged-snapshot-values) snapshot values.
+Container types like `dict`, `list`, `tuple` or `dataclass` are handled in a different way, because inline-snapshot also needs to inspect these types to implement [unmanaged](https://15r10nk.github.io/inline-snapshot/development/eq_snapshot/#unmanaged-snapshot-values) snapshot values.
 
 ## customize recursive repr
 
@@ -96,7 +96,7 @@ using `f"{obj!r}"` or `PyObject_Repr()` will not work, because inline-snapshot r
 
 Note
 
-This implementation allows inline-snapshot to use the custom `repr()` recursively, but it does not allow you to use [unmanaged](../eq_snapshot/#unmanaged-snapshot-values) snapshot values like `Pair(Is(some_var),5)`
+This implementation allows inline-snapshot to use the custom `repr()` recursively, but it does not allow you to use [unmanaged](https://15r10nk.github.io/inline-snapshot/development/eq_snapshot/#unmanaged-snapshot-values) snapshot values like `Pair(Is(some_var),5)`
 
 you can also customize the representation of data types in other libraries:
 

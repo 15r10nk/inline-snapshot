@@ -151,7 +151,7 @@ The value of the snapshot is reduced to `2`, because `test_a()` was the only tes
 
 ### Update
 
-Changes in the update category do not change the value of the snapshot, just its representation. These updates are not shown by default in your reports and can be enabled with [show-updates](../configuration/#show-updates). The reason might be that `repr()` of the object has changed or that inline-snapshot provides some new logic which changes the representation. Like with the strings in the following example:
+Changes in the update category do not change the value of the snapshot, just its representation. These updates are not shown by default in your reports and can be enabled with [show-updates](https://15r10nk.github.io/inline-snapshot/development/configuration/#show-updates). The reason might be that `repr()` of the object has changed or that inline-snapshot provides some new logic which changes the representation. Like with the strings in the following example:
 
 ```
 from inline_snapshot import snapshot
@@ -217,9 +217,9 @@ The approval of this type of changes is easier, because inline-snapshot assures 
 
 The goal of inline-snapshot is to generate the values for you in the correct format so that no manual editing is required. This improves your productivity and saves time. Keep in mind that any changes you make to your snapshots will likely need to be redone if your program's behaviour (and expected values) change. Inline-snapshot uses the *update* category to let you know when it has a different opinion than you about how the code should look. You can agree with inline-snapshot and accept the changes or you can use one of the following options to tell inline-snapshot what the code should look like:
 
-1. change the `__repr__` implementation of your object or use [customize repr](../customize_repr/) if the class is not part of your codebase.
-1. define a [format-command](../configuration/#format-command) if another tool has a different opinion about how your code should look. Inline-snapshot will apply this formatting before reporting an update.
-1. inline-snapshot manages everything within `snapshot(...)`, but you can take control by using [Is()](../eq_snapshot/#is) in cases where you want to use custom code (like local variables) in your snapshots.
+1. change the `__repr__` implementation of your object or use [customize repr](https://15r10nk.github.io/inline-snapshot/development/customize_repr/index.md) if the class is not part of your codebase.
+1. define a [format-command](https://15r10nk.github.io/inline-snapshot/development/configuration/#format-command) if another tool has a different opinion about how your code should look. Inline-snapshot will apply this formatting before reporting an update.
+1. inline-snapshot manages everything within `snapshot(...)`, but you can take control by using [Is()](https://15r10nk.github.io/inline-snapshot/development/eq_snapshot/#is) in cases where you want to use custom code (like local variables) in your snapshots.
 1. you can also open an [issue](https://github.com/15r10nk/inline-snapshot/issues?q=is%3Aissue%20state%3Aopen%20label%3Aupdate_related) if you have a specific problem with the way inline-snapshot generates the code.
 
 !!! note: [#177](https://github.com/15r10nk/inline-snapshot/issues/177) will give the developer more control about how snapshots are created. *update* will them become much more useful.

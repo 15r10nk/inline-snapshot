@@ -22,7 +22,7 @@ The first feature is that inline-snapshot can now also fix normal assertions whi
 assert 1 + 1 == 3
 ```
 
-You can learn [here](fix_assert/) more about this feature.
+You can learn [here](https://15r10nk.github.io/inline-snapshot/development/fix_assert/index.md) more about this feature.
 
 ## Usage
 
@@ -84,10 +84,10 @@ Please verify the new results. `git diff` will give you a good overview over all
 
 You can use `snapshot(x)` like you can use `x` in your assertion with a limited set of operations:
 
-- [`value == snapshot()`](eq_snapshot/) to compare with something,
-- [`value <= snapshot()`](cmp_snapshot/) to ensure that something gets smaller/larger over time (number of iterations of an algorithm you want to optimize for example),
-- [`value in snapshot()`](in_snapshot/) to check if your value is in a known set of values,
-- [`snapshot()[key]`](getitem_snapshot/) to generate new sub-snapshots on demand.
+- [`value == snapshot()`](https://15r10nk.github.io/inline-snapshot/development/eq_snapshot/index.md) to compare with something,
+- [`value <= snapshot()`](https://15r10nk.github.io/inline-snapshot/development/cmp_snapshot/index.md) to ensure that something gets smaller/larger over time (number of iterations of an algorithm you want to optimize for example),
+- [`value in snapshot()`](https://15r10nk.github.io/inline-snapshot/development/in_snapshot/index.md) to check if your value is in a known set of values,
+- [`snapshot()[key]`](https://15r10nk.github.io/inline-snapshot/development/getitem_snapshot/index.md) to generate new sub-snapshots on demand.
 
 Warning
 

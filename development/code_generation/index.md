@@ -1,4 +1,4 @@
-You can use almost any python data type and also complex values like `datetime.date`, because `repr()` is used to convert the values to source code. The default `__repr__()` behaviour can be [customized](../customize_repr/). It might be necessary to import the right modules to match the `repr()` output.
+You can use almost any python data type and also complex values like `datetime.date`, because `repr()` is used to convert the values to source code. The default `__repr__()` behaviour can be [customized](https://15r10nk.github.io/inline-snapshot/development/customize_repr/index.md). It might be necessary to import the right modules to match the `repr()` output.
 
 ```
 from inline_snapshot import snapshot
@@ -58,8 +58,8 @@ The code is generated in the following way:
 
 1. The code is generated with:
 
-   - `repr(value)` (which can be [customized](../customize_repr/))
-   - or a special internal implementation for container types to support [unmanaged snapshot values](../eq_snapshot/#unmanaged-snapshot-values). This can currently not be customized.
+   - `repr(value)` (which can be [customized](https://15r10nk.github.io/inline-snapshot/development/customize_repr/index.md))
+   - or a special internal implementation for container types to support [unmanaged snapshot values](https://15r10nk.github.io/inline-snapshot/development/eq_snapshot/#unmanaged-snapshot-values). This can currently not be customized.
 
 1. Strings which contain newlines are converted to triple quoted strings.
 

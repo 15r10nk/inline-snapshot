@@ -17,7 +17,7 @@ fix=["create","fix"]
 
 Note
 
-The default flags are different if you use *cpython\<3.11* due to [technical limitations](../limitations/#pytest-assert-rewriting-is-disabled):
+The default flags are different if you use *cpython\<3.11* due to [technical limitations](https://15r10nk.github.io/inline-snapshot/development/limitations/#pytest-assert-rewriting-is-disabled):
 
 ```
 [tool.inline-snapshot]
@@ -34,7 +34,7 @@ Changing these flags will disable pytest assert rewriting for older python versi
 
 - **default-flags-tui:** defines which flags should be used if you run pytest in an interactive terminal. inline-snapshot creates all snapshots by default in this case and asks when there are values to change. This feature requires *cpython>=3.11*
 
-- **default-flags-ide:** [(insider only)](../insiders/) defines which flags should be used if you run your tests with the "run test" button in [PyCharm](../pycharm/). inline-snapshot creates in this case all snapshots by default and reports other changes. The *review* flag is not supported here because inline-snapshot is not able to read user input.
+- **default-flags-ide:** [(insider only)](https://15r10nk.github.io/inline-snapshot/development/insiders/index.md) defines which flags should be used if you run your tests with the "run test" button in [PyCharm](https://15r10nk.github.io/inline-snapshot/development/pycharm/index.md). inline-snapshot creates in this case all snapshots by default and reports other changes. The *review* flag is not supported here because inline-snapshot is not able to read user input.
 
   Danger
 

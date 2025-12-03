@@ -81,7 +81,7 @@ inline-snapshot is able to handle these types within the following containers:
 - [dataclass](https://docs.python.org/3/library/dataclasses.html)
 - [attrs](https://www.attrs.org/en/stable/index.html)
 
-Other types are converted with a [customizable](../customize_repr/) `repr()` into code. It is not possible to use unmanaged snapshot values within these objects.
+Other types are converted with a [customizable](https://15r10nk.github.io/inline-snapshot/development/customize_repr/index.md) `repr()` into code. It is not possible to use unmanaged snapshot values within these objects.
 
 ### dirty-equals
 
