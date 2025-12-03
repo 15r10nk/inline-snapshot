@@ -2,29 +2,19 @@ from __future__ import annotations
 
 import logging
 import pathlib
-import sys
 import tokenize
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
 from difflib import unified_diff
 from itertools import islice
+from itertools import pairwise
 
 import asttokens.util
 from asttokens import LineNumbers
 
 from ._format import enforce_formatting
 from ._format import format_code
-
-if sys.version_info >= (3, 10):
-    from itertools import pairwise
-else:
-    from itertools import tee
-
-    def pairwise(iterable):  # type: ignore
-        a, b = tee(iterable)
-        next(b, None)
-        return zip(a, b)
 
 
 @dataclass(order=True)
