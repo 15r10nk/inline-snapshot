@@ -4,6 +4,7 @@ import ast
 import warnings
 from collections import defaultdict
 from typing import Generator
+from typing import Sequence
 
 from inline_snapshot._align import add_x
 from inline_snapshot._align import align
@@ -109,23 +110,34 @@ class NewAdapter:
         if isinstance(new_value, CustomUnmanaged):
             raise UsageError("unmanaged values can not be compared with snapshots")
 
-        if type(old_value) is not type(new_value) or not isinstance(
-            old_node, new_value.node_type
+        if (
+            type(old_value) is type(new_value)
+            and (
+                isinstance(old_node, new_value.node_type)
+                if old_node is not None
+                else True
+            )
+            and (
+                isinstance(old_value, (CustomCall, CustomSequence))
+                if old_node is None
+                else True
+            )
         ):
+            function_name = f"compare_{type(old_value).__name__}"
+            result = yield from getattr(self, function_name)(
+                old_value, old_node, new_value
+            )
+        else:
             result = yield from self.compare_CustomValue(old_value, old_node, new_value)
-            return result
-
-        function_name = f"compare_{type(old_value).__name__}"
-        result = yield from getattr(self, function_name)(old_value, old_node, new_value)
-
         return result
 
     def compare_CustomValue(
-        self, old_value: Custom, old_node: ast.AST, new_value: Custom
+        self, old_value: Custom, old_node: ast.expr, new_value: Custom
     ) -> Generator[Change, None, Custom]:
 
         assert isinstance(old_value, Custom)
         assert isinstance(new_value, Custom)
+        assert isinstance(old_node, (ast.expr, type(None))), old_node
 
         if old_node is None:
             new_token = []
@@ -200,7 +212,7 @@ class NewAdapter:
             diff = add_x(align(old_value.value, new_value.value))
         old = zip(
             old_value.value,
-            old_node.elts if old_node is not None else [None] * len(old_value),
+            old_node.elts if old_node is not None else [None] * len(old_value.value),
         )
         new = iter(new_value.value)
         old_position = 0
@@ -301,6 +313,7 @@ class NewAdapter:
                 if isinstance(old_node, ast.Dict):
                     node = old_node.values[list(old_value.value.keys()).index(key)]
                 else:
+                    assert False
                     node = None
                 # check values with same keys
                 result[key] = yield from self.compare(
@@ -350,27 +363,28 @@ class NewAdapter:
         self, old_value: CustomCall, old_node: ast.Call, new_value: CustomCall
     ) -> Generator[Change, None, Custom]:
 
-        # positional arguments
-        for pos_arg in old_node.args:
-            if isinstance(pos_arg, ast.Starred):
-                warnings.warn_explicit(
-                    "star-expressions are not supported inside snapshots",
-                    filename=self.context.file._source.filename,
-                    lineno=pos_arg.lineno,
-                    category=InlineSnapshotSyntaxWarning,
-                )
-                return old_value
+        if old_node is not None:
+            # positional arguments
+            for pos_arg in old_node.args:
+                if isinstance(pos_arg, ast.Starred):
+                    warnings.warn_explicit(
+                        "star-expressions are not supported inside snapshots",
+                        filename=self.context.file._source.filename,
+                        lineno=pos_arg.lineno,
+                        category=InlineSnapshotSyntaxWarning,
+                    )
+                    return old_value
 
-        # keyword arguments
-        for kw in old_node.keywords:
-            if kw.arg is None:
-                warnings.warn_explicit(
-                    "star-expressions are not supported inside snapshots",
-                    filename=self.context.file._source.filename,
-                    lineno=kw.value.lineno,
-                    category=InlineSnapshotSyntaxWarning,
-                )
-                return old_value
+            # keyword arguments
+            for kw in old_node.keywords:
+                if kw.arg is None:
+                    warnings.warn_explicit(
+                        "star-expressions are not supported inside snapshots",
+                        filename=self.context.file._source.filename,
+                        lineno=kw.value.lineno,
+                        category=InlineSnapshotSyntaxWarning,
+                    )
+                    return old_value
 
         call = new_value
         new_args = call.args
@@ -380,22 +394,31 @@ class NewAdapter:
 
         result_args = []
 
-        for i, (new_value_element, node) in enumerate(zip(new_args, old_node.args)):
+        old_node_args: Sequence[ast.expr | None]
+        if old_node:
+            old_node_args = old_node.args
+        else:
+            old_node_args = [None] * len(new_args)
+
+        for i, (new_value_element, node) in enumerate(zip(new_args, old_node_args)):
             old_value_element = old_value.argument(i)
             result = yield from self.compare(old_value_element, node, new_value_element)
             result_args.append(result)
 
-        if len(old_node.args) > len(new_args):
-            for arg_pos, node in list(enumerate(old_node.args))[len(new_args) :]:
-                yield Delete(
-                    "fix",
-                    self.context.file._source,
-                    node,
-                    old_value.argument(arg_pos),
-                )
+        old_args_len = len(old_node.args if old_node else old_value.args)
 
-        if len(old_node.args) < len(new_args):
-            for insert_pos, value in list(enumerate(new_args))[len(old_node.args) :]:
+        if old_node is not None:
+            if old_args_len > len(new_args):
+                for arg_pos, node in list(enumerate(old_node.args))[len(new_args) :]:
+                    yield Delete(
+                        "fix",
+                        self.context.file._source,
+                        node,
+                        old_value.argument(arg_pos),
+                    )
+
+        if old_args_len < len(new_args):
+            for insert_pos, value in list(enumerate(new_args))[old_args_len:]:
                 yield CallArg(
                     flag="fix",
                     file=self.context.file._source,
@@ -408,35 +431,38 @@ class NewAdapter:
 
         # keyword arguments
         result_kwargs = {}
-        for kw in old_node.keywords:
-            if kw.arg not in new_kwargs or isinstance(
-                new_kwargs[kw.arg], CustomDefault
+        if old_node is None:
+            old_keywords = {key: None for key in old_value._kwargs.keys()}
+        else:
+            old_keywords = {kw.arg: kw.value for kw in old_node.keywords}
+
+        for kw_arg, kw_value in old_keywords.items():
+            if kw_arg not in new_kwargs or isinstance(
+                new_kwargs[kw_arg], CustomDefault
             ):
                 # delete entries
                 yield Delete(
                     (
                         "update"
-                        if old_value.argument(kw.arg) == new_value.argument(kw.arg)
+                        if old_value.argument(kw_arg) == new_value.argument(kw_arg)
                         else "fix"
                     ),
                     self.context.file._source,
-                    kw.value,
-                    old_value.argument(kw.arg),
+                    kw_value,
+                    old_value.argument(kw_arg),
                 )
-
-        old_node_kwargs = {kw.arg: kw.value for kw in old_node.keywords}
 
         to_insert = []
         insert_pos = 0
         for key, new_value_element in new_kwargs.items():
             if isinstance(new_value_element, CustomDefault):
                 continue
-            if key not in old_node_kwargs:
+            if key not in old_keywords:
                 # add new values
                 to_insert.append((key, new_value_element))
                 result_kwargs[key] = new_value_element
             else:
-                node = old_node_kwargs[key]
+                node = old_keywords[key]
 
                 # check values with same keys
                 old_value_element = old_value.argument(key)
@@ -473,10 +499,13 @@ class NewAdapter:
                     new_code=value.repr(),
                     new_value=value,
                 )
+
         return CustomCall(
             (
                 yield from self.compare(
-                    old_value._function, old_node.func, new_value._function
+                    old_value._function,
+                    old_node.func if old_node else None,
+                    new_value._function,
                 )
             ),
             result_args,
