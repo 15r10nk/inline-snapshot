@@ -151,7 +151,9 @@ jobs:
           echo "should_continue=false" >> "$GITHUB_OUTPUT"
         fi
 
-    - run: uv pip install hatch scriv
+    - run: |
+        uv venv
+        uv pip install hatch scriv
 
     - name: build package
       run: hatch build
