@@ -5,31 +5,24 @@ from abc import ABC
 from abc import abstractmethod
 from collections import Counter
 from collections import defaultdict
+from dataclasses import MISSING
+from dataclasses import dataclass
+from dataclasses import field
+from dataclasses import fields
+from dataclasses import is_dataclass
 from pathlib import Path
 from pathlib import PurePath
 from types import BuiltinFunctionType
 from types import FunctionType
 from typing import Any
 from typing import Callable
+from typing import TypeAlias
 
 from inline_snapshot._code_repr import value_code_repr
+from inline_snapshot._sentinels import undefined
+from inline_snapshot._unmanaged import is_dirty_equal
 from inline_snapshot._unmanaged import is_unmanaged
 from inline_snapshot._utils import clone
-
-custom_functions = []
-
-from dataclasses import MISSING
-from dataclasses import dataclass
-from dataclasses import field
-from dataclasses import fields
-from dataclasses import is_dataclass
-
-from inline_snapshot._sentinels import undefined
-
-
-def customize(f: Callable[[Any, Builder], Custom | None]):
-    custom_functions.append(f)
-    return f
 
 
 class Custom(ABC):
@@ -52,6 +45,89 @@ class Custom(ABC):
 
     def eval(self):
         return self.map(lambda a: a)
+
+
+CustomizeHandler: TypeAlias = Callable[[Any, "Builder"], Custom | None]
+"""
+Type alias for customization handler functions.
+
+A customization handler is a function that takes a Python value and a Builder,
+and returns either a Custom representation or None.
+
+The handler receives two parameters:
+
+- `value` (Any): The Python object to be converted to snapshot code
+- `builder` (Builder): Helper object providing methods to create Custom representations
+
+The handler should return a Custom object if it processes the value type, or None otherwise.
+"""
+
+
+custom_functions = []
+
+
+def customize(f: CustomizeHandler) -> CustomizeHandler:
+    """
+    Registers a function as a customization hook inside inline-snapshot.
+
+    Customization hooks allow you to control how objects are represented in snapshot code.
+    When inline-snapshot generates code for a value, it calls each registered customization
+    function in reverse order of registration until one returns a Custom object.
+
+    **Important**: Customization handlers should be registered in your `conftest.py` file to ensure
+    they are loaded before your tests run.
+
+    Args:
+        f: A customization handler function. See [CustomizeHandler][inline_snapshot._customize.CustomizeHandler]
+            for the expected signature.
+
+    Returns:
+        The input function unchanged (for use as a decorator)
+
+    Example:
+        Basic usage with a custom class:
+
+        <!-- inline-snapshot: create fix first_block outcome-failed=1 outcome-errors=1 -->
+        ``` python
+        from inline_snapshot import customize, snapshot
+
+
+        class MyClass:
+            def __init__(self, arg1, arg2, key=None):
+                self.arg1 = arg1
+                self.arg2 = arg2
+                self.key_attr = key
+
+
+        @customize
+        def my_custom_handler(value, builder):
+            if isinstance(value, MyClass):
+                # Generate code like: MyClass(arg1, arg2, key=value)
+                return builder.create_call(
+                    MyClass, [value.arg1, value.arg2], {"key": value.key_attr}
+                )
+            return None  # Let other handlers process this value
+
+
+        def test_myclass():
+            obj = MyClass(42, "hello", key="world")
+            assert obj == snapshot(MyClass(42, "hello", key="world"))
+        ```
+
+    Note:
+        - **Always register handlers in `conftest.py`** to ensure they're available for all tests
+        - Handlers are called in **reverse order** of registration (last registered is called first)
+        - If no handler returns a Custom object, a default representation is used
+        - Use builder methods (`create_call`, `create_list`, `create_dict`, etc.) to construct representations
+        - Always return `None` if your handler doesn't apply to the given value type
+        - The builder automatically handles recursive conversion of nested values
+
+    See Also:
+        - [Builder][inline_snapshot._customize.Builder]: Available builder methods
+        - [Custom][inline_snapshot._customize.Custom]: Base class for custom representations
+    """
+    custom_functions.append(f)
+    return f
 
 
 @dataclass(frozen=True)
@@ -208,46 +284,46 @@ class CustomValue(Custom):
 @customize
 def standard_handler(value, builder: Builder):
     if isinstance(value, list):
-        return builder.List(value)
+        return builder.create_list(value)
 
     if type(value) is tuple:
-        return builder.Tuple(value)
+        return builder.create_tuple(value)
 
     if isinstance(value, dict):
-        return builder.Dict(value)
+        return builder.create_dict(value)
 
 
 @customize
 def counter_handler(value, builder: Builder):
     if isinstance(value, Counter):
-        return builder.Call(value, Counter, [dict(value)])
+        return builder.create_call(Counter, [dict(value)])
 
 
 @customize
 def function_handler(value, builder: Builder):
     if isinstance(value, FunctionType):
-        return builder.Value(value, value.__qualname__)
+        return builder.create_value(value, value.__qualname__)
 
 
 @customize
 def builtin_function_handler(value, builder: Builder):
     if isinstance(value, BuiltinFunctionType):
-        return builder.Value(value, value.__name__)
+        return builder.create_value(value, value.__name__)
 
 
 @customize
 def type_handler(value, builder: Builder):
     if isinstance(value, type):
-        return builder.Value(value, value.__qualname__)
+        return builder.create_value(value, value.__qualname__)
 
 
 @customize
 def path_handler(value, builder: Builder):
     if isinstance(value, Path):
-        return builder.Call(value, Path, [value.as_posix()])
+        return builder.create_call(Path, [value.as_posix()])
 
     if isinstance(value, PurePath):
-        return builder.Call(value, PurePath, [value.as_posix()])
+        return builder.create_call(PurePath, [value.as_posix()])
 
 
 def sort_set_values(set_values):
@@ -269,18 +345,20 @@ def sort_set_values(set_values):
 def set_handler(value, builder: Builder):
     if isinstance(value, set):
         if len(value) == 0:
-            return builder.Value(value, "set()")
+            return builder.create_value(value, "set()")
         else:
-            return builder.Value(value, "{" + ", ".join(sort_set_values(value)) + "}")
+            return builder.create_value(
+                value, "{" + ", ".join(sort_set_values(value)) + "}"
+            )
 
 
 @customize
 def frozenset_handler(value, builder: Builder):
     if isinstance(value, frozenset):
         if len(value) == 0:
-            return builder.Value(value, "frozenset()")
+            return builder.create_value(value, "frozenset()")
         else:
-            return builder.Call(value, frozenset, [set(value)])
+            return builder.create_call(frozenset, [set(value)])
 
 
 @customize
@@ -305,10 +383,10 @@ def dataclass_handler(value, builder: Builder):
                     is_default = True
 
                 if is_default:
-                    field_value = builder.Default(field_value)
+                    field_value = builder.create_default(field_value)
                 kwargs[field.name] = field_value
 
-        return builder.Call(value, type(value), [], kwargs, {})
+        return builder.create_call(type(value), [], kwargs, {})
 
 
 try:
@@ -345,11 +423,11 @@ else:
                             is_default = True
 
                     if is_default:
-                        field_value = builder.Default(field_value)
+                        field_value = builder.create_default(field_value)
 
                     kwargs[field.name] = field_value
 
-            return builder.Call(value, type(value), [], kwargs, {})
+            return builder.create_call(type(value), [], kwargs, {})
 
 
 try:
@@ -399,11 +477,11 @@ else:
                         is_default = True
 
                     if is_default:
-                        field_value = builder.Default(field_value)
+                        field_value = builder.create_default(field_value)
 
                     kwargs[name] = field_value
 
-            return builder.Call(value, type(value), [], kwargs, {})
+            return builder.create_call(type(value), [], kwargs, {})
 
 
 @customize
@@ -420,8 +498,7 @@ def namedtuple_handler(value, builder: Builder):
 
     # TODO handle with builder.Default
 
-    return builder.Call(
-        value,
+    return builder.create_call(
         type(value),
         [],
         {
@@ -437,8 +514,8 @@ def namedtuple_handler(value, builder: Builder):
 @customize
 def defaultdict_handler(value, builder: Builder):
     if isinstance(value, defaultdict):
-        return builder.Call(
-            value, type(value), [value.default_factory, dict(value)], {}, {}
+        return builder.create_call(
+            type(value), [value.default_factory, dict(value)], {}, {}
         )
 
 
@@ -454,8 +531,20 @@ def undefined_handler(value, builder: Builder):
         return CustomUndefined()
 
 
+@customize
+def dirty_equals_handler(value, builder: Builder):
+    if is_dirty_equal(value) and builder._build_new_value:
+        if isinstance(value, type):
+            return builder.create_value(value, value.__name__)
+        else:
+            return builder.create_call(type(value))
+
+
+@dataclass
 class Builder:
-    def get_handler(self, v) -> Custom:
+    _build_new_value: bool = False
+
+    def _get_handler(self, v) -> Custom:
         if isinstance(v, Custom):
             return v
 
@@ -465,21 +554,39 @@ class Builder:
                 return r
         return CustomValue(v)
 
-    def List(self, value) -> CustomList:
-        custom = [self.get_handler(v) for v in value]
+    def create_list(self, value) -> Custom:
+        """
+        Creates an intermediate node for a list-expression which can be used as a result for your customization function.
+
+        `create_list([1,2,3])` becomes `[1,2,3]` in the code.
+        List elements are recursively converted into CustomNodes.
+        """
+        custom = [self._get_handler(v) for v in value]
         return CustomList(value=custom)
 
-    def Tuple(self, value) -> CustomTuple:
-        custom = [self.get_handler(v) for v in value]
+    def create_tuple(self, value) -> Custom:
+        """
+        Creates an intermediate node for a tuple-expression which can be used as a result for your customization function.
+
+        `create_tuple((1, 2, 3))` becomes `(1, 2, 3)` in the code.
+        Tuple elements are recursively converted into CustomNodes.
+        """
+        custom = [self._get_handler(v) for v in value]
         return CustomTuple(value=custom)
 
-    def Call(
-        self, value, function, posonly_args=[], kwargs={}, kwonly_args={}
-    ) -> CustomCall:
-        function = self.get_handler(function)
-        posonly_args = [self.get_handler(arg) for arg in posonly_args]
-        kwargs = {k: self.get_handler(arg) for k, arg in kwargs.items()}
-        kwonly_args = {k: self.get_handler(arg) for k, arg in kwonly_args.items()}
+    def create_call(
+        self, function, posonly_args=[], kwargs={}, kwonly_args={}
+    ) -> Custom:
+        """
+        Creates an intermediate node for a function call expression which can be used as a result for your customization function.
+
+        `create_call(MyClass, [arg1, arg2], {'key': value})` becomes `MyClass(arg1, arg2, key=value)` in the code.
+        Function, arguments, and keyword arguments are recursively converted into CustomNodes.
+        """
+        function = self._get_handler(function)
+        posonly_args = [self._get_handler(arg) for arg in posonly_args]
+        kwargs = {k: self._get_handler(arg) for k, arg in kwargs.items()}
+        kwonly_args = {k: self._get_handler(arg) for k, arg in kwonly_args.items()}
 
         return CustomCall(
             _function=function,
@@ -488,12 +595,30 @@ class Builder:
             _kwonly=kwonly_args,
         )
 
-    def Default(self, value) -> CustomDefault:
-        return CustomDefault(value=self.get_handler(value))
+    def create_default(self, value) -> Custom:
+        """
+        Creates an intermediate node for a default value which can be used as a result for your customization function.
 
-    def Dict(self, value) -> CustomDict:
-        custom = {self.get_handler(k): self.get_handler(v) for k, v in value.items()}
+        Default values are not included in the generated code when they match the actual default.
+        The value is recursively converted into a CustomNode.
+        """
+        return CustomDefault(value=self._get_handler(value))
+
+    def create_dict(self, value) -> Custom:
+        """
+        Creates an intermediate node for a dict-expression which can be used as a result for your customization function.
+
+        `create_dict({'key': 'value'})` becomes `{'key': 'value'}` in the code.
+        Dict keys and values are recursively converted into CustomNodes.
+        """
+        custom = {self._get_handler(k): self._get_handler(v) for k, v in value.items()}
         return CustomDict(value=custom)
 
-    def Value(self, value, repr) -> CustomValue:
+    def create_value(self, value, repr) -> CustomValue:
+        """
+        Creates an intermediate node for a value with a custom representation which can be used as a result for your customization function.
+
+        `create_value(my_obj, 'MyClass')` becomes `MyClass` in the code.
+        Use this when you want to control the exact string representation of a value.
+        """
         return CustomValue(value, repr)

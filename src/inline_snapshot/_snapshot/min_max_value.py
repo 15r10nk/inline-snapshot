@@ -23,13 +23,13 @@ class MinMaxValue(GenericValue):
             state().missing_values += 1
 
         if isinstance(self._new_value, CustomUndefined):
-            self._new_value = Builder().get_handler(other)
+            self._new_value = Builder()._get_handler(other)
             if isinstance(self._old_value, CustomUndefined) or ignore_old_value():
                 return True
             return self._return(self.cmp(self._old_value.eval(), other))
         else:
             if not self.cmp(self._new_value.eval(), other):
-                self._new_value = Builder().get_handler(other)
+                self._new_value = Builder()._get_handler(other)
 
         return self._return(self.cmp(self._visible_value().eval(), other))
 

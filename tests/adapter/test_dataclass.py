@@ -467,7 +467,7 @@ class L:
 @customize
 def handle(value,builder):
     if isinstance(value,L):
-        return builder.Call(value,L,value.l)
+        return builder.create_call(L,value.l)
 
 def test_L1():
     for _ in [1,2]:
@@ -502,7 +502,7 @@ class L:
 @customize
 def handle(value,builder):
     if isinstance(value,L):
-        return builder.Call(value,L,value.l)
+        return builder.create_call(L,value.l)
 
 def test_L1():
     for _ in [1,2]:
