@@ -46,7 +46,7 @@ class GenericValue(SnapshotBase):
 
     def _re_eval(self, value, context: AdapterContext):
 
-        self._old_value = reeval(self._old_value, Builder().get_handler(value))
+        self._old_value = reeval(self._old_value, Builder()._get_handler(value))
         return
 
     def _ignore_old(self):

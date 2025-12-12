@@ -97,7 +97,7 @@ def verify_call(value: Custom, node: ast.Call, eval) -> Custom:
 class UndecidedValue(GenericValue):
     def __init__(self, old_value, ast_node, context: AdapterContext):
 
-        old_value = Builder().get_handler(old_value)
+        old_value = Builder()._get_handler(old_value)
         old_value = verify(old_value, ast_node, context.eval)
 
         assert isinstance(old_value, Custom)
@@ -115,7 +115,7 @@ class UndecidedValue(GenericValue):
     def _get_changes(self) -> Iterator[Change]:
         assert isinstance(self._new_value, CustomUndefined)
 
-        new_value = Builder().get_handler(self._old_value.eval())
+        new_value = Builder()._get_handler(self._old_value.eval())
 
         adapter = NewAdapter(self._context)
 
