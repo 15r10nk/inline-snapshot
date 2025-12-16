@@ -30,6 +30,55 @@ from inline_snapshot.syntax_warnings import InlineSnapshotInfo
 from inline_snapshot.syntax_warnings import InlineSnapshotSyntaxWarning
 
 
+def warn_star_expression(node, context):
+    if isinstance(node, ast.Call):
+        for pos_arg in node.args:
+            if isinstance(pos_arg, ast.Starred):
+                warnings.warn_explicit(
+                    "star-expressions are not supported inside snapshots",
+                    filename=context.file._source.filename,
+                    lineno=pos_arg.lineno,
+                    category=InlineSnapshotSyntaxWarning,
+                )
+                return True
+
+        # keyword arguments
+        for kw in node.keywords:
+            if kw.arg is None:
+                warnings.warn_explicit(
+                    "star-expressions are not supported inside snapshots",
+                    filename=context.file._source.filename,
+                    lineno=kw.value.lineno,
+                    category=InlineSnapshotSyntaxWarning,
+                )
+                return True
+
+    if isinstance(node, (ast.Tuple, ast.List)):
+
+        for e in node.elts:
+            if isinstance(e, ast.Starred):
+                warnings.warn_explicit(
+                    "star-expressions are not supported inside snapshots",
+                    filename=context.file.filename,
+                    lineno=e.lineno,
+                    category=InlineSnapshotSyntaxWarning,
+                )
+                return True
+    if isinstance(node, ast.Dict):
+
+        for key1, value in zip(node.keys, node.values):
+            if key1 is None:
+                warnings.warn_explicit(
+                    "star-expressions are not supported inside snapshots",
+                    filename=context.file._source.filename,
+                    lineno=value.lineno,
+                    category=InlineSnapshotSyntaxWarning,
+                )
+                return True
+
+    return False
+
+
 def reeval(old_value: Custom, value: Custom) -> Custom:
 
     if isinstance(old_value, CustomDefault):
@@ -158,7 +207,7 @@ class NewAdapter:
                 )
             return old_value
 
-        if not old_value == new_value:
+        if not old_value.eval() == new_value.eval():
             if isinstance(old_value, CustomUndefined):
                 flag = "create"
             else:
@@ -196,15 +245,8 @@ class NewAdapter:
             )
             assert isinstance(old_node, (ast.List, ast.Tuple))
 
-            for e in old_node.elts:
-                if isinstance(e, ast.Starred):
-                    warnings.warn_explicit(
-                        "star-expressions are not supported inside snapshots",
-                        filename=self.context.file.filename,
-                        lineno=e.lineno,
-                        category=InlineSnapshotSyntaxWarning,
-                    )
-                    return old_value
+            if warn_star_expression(old_node, self.context):
+                return old_value
         else:
             pass  # pragma: no cover
 
@@ -266,15 +308,8 @@ class NewAdapter:
 
         if old_node is not None:
 
-            for key1, value in zip(old_node.keys, old_node.values):
-                if key1 is None:
-                    warnings.warn_explicit(
-                        "star-expressions are not supported inside snapshots",
-                        filename=self.context.file._source.filename,
-                        lineno=value.lineno,
-                        category=InlineSnapshotSyntaxWarning,
-                    )
-                    return old_value
+            if warn_star_expression(old_node, self.context):
+                return old_value
 
             for value2, node in zip(old_value.value.keys(), old_node.keys):
                 assert node is not None
@@ -365,26 +400,8 @@ class NewAdapter:
 
         if old_node is not None:
             # positional arguments
-            for pos_arg in old_node.args:
-                if isinstance(pos_arg, ast.Starred):
-                    warnings.warn_explicit(
-                        "star-expressions are not supported inside snapshots",
-                        filename=self.context.file._source.filename,
-                        lineno=pos_arg.lineno,
-                        category=InlineSnapshotSyntaxWarning,
-                    )
-                    return old_value
-
-            # keyword arguments
-            for kw in old_node.keywords:
-                if kw.arg is None:
-                    warnings.warn_explicit(
-                        "star-expressions are not supported inside snapshots",
-                        filename=self.context.file._source.filename,
-                        lineno=kw.value.lineno,
-                        category=InlineSnapshotSyntaxWarning,
-                    )
-                    return old_value
+            if warn_star_expression(old_node, self.context):
+                return old_value
 
         call = new_value
         new_args = call.args

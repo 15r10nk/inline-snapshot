@@ -44,10 +44,21 @@ class GenericValue(SnapshotBase):
     def _file(self):
         return self._context.file
 
-    def _re_eval(self, value, context: AdapterContext):
+    def value_to_custom(self, value):
+        if isinstance(value, Custom):
+            return value
 
-        self._old_value = reeval(self._old_value, Builder()._get_handler(value))
-        return
+        if self._ast_node is None:
+            return Builder()._get_handler(value)
+        else:
+            from inline_snapshot._snapshot.undecided_value import AstToCustom
+
+            return AstToCustom(self._context).convert(value, self._ast_node)
+
+    def _re_eval(self, value, context: AdapterContext):
+        self._context = context
+
+        self._old_value = reeval(self._old_value, self.value_to_custom(value))
 
     def _ignore_old(self):
         return (

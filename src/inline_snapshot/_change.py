@@ -320,7 +320,7 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
                             else len(parent.args) + len(parent.keywords)
                         )
                         to_insert[position].append(
-                            f"{change.arg_name} = {change.new_code}"
+                            f"{change.arg_name}={change.new_code}"
                         )
                     else:
                         assert change.arg_pos is not None
