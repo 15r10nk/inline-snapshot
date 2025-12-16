@@ -374,7 +374,7 @@ def test_something():
     assert A(a=3) == snapshot(A(**{"a":5})),"not equal"
 """
         ).run_inline(
-            ["--inline-snapshot=fix"],
+            ["--inline-snapshot=report"],
             raises=snapshot(
                 """\
 AssertionError:
@@ -414,7 +414,7 @@ class A:
     c:int=0
 
 def test_something():
-    assert A(a=3,b=3,c=3) == snapshot(A(a = 3, b=3, c = 3)),"not equal"
+    assert A(a=3,b=3,c=3) == snapshot(A(a=3, b=3, c=3)),"not equal"
 """
             }
         ),
