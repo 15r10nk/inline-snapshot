@@ -22,19 +22,6 @@ def fix_pytest_diff():
 
     PrettyPrinter._dispatch[GenericValue.__repr__] = _pprint_snapshot
 
-    # def _pprint_unmanaged(
-    #     self,
-    #     object: Any,
-    #     stream: IO[str],
-    #     indent: int,
-    #     allowance: int,
-    #     context: Set[int],
-    #     level: int,
-    # ) -> None:
-    #     self._format(object.value, stream, indent, allowance, context, level)
-
-    # PrettyPrinter._dispatch[Unmanaged.__repr__] = _pprint_unmanaged
-
     def _pprint_is(
         self,
         object: Any,

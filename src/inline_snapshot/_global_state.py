@@ -15,6 +15,7 @@ from uuid import uuid4
 from inline_snapshot._config import Config
 
 if TYPE_CHECKING:
+    from inline_snapshot._customize._custom import CustomizeHandler
     from inline_snapshot._external._format._protocol import Format
     from inline_snapshot._external._storage._protocol import StorageProtocol
     from inline_snapshot._types import SnapshotRefBase
@@ -56,6 +57,8 @@ class State:
 
     disable_reason: Literal["xdist", "ci", "implementation", None] = None
 
+    custom_functions: list[CustomizeHandler] = field(default_factory=list)
+
 
 _latest_global_states: list[State] = []
 
@@ -72,6 +75,7 @@ def enter_snapshot_context():
     latest = _current
     _latest_global_states.append(_current)
     _current = State()
+    _current.custom_functions = list(latest.custom_functions)
     _current.all_formats = dict(latest.all_formats)
     _current.config = deepcopy(latest.config)
 

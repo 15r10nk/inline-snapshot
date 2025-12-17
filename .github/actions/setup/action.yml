@@ -12,10 +12,3 @@ runs:
     uses: astral-sh/setup-uv@v7
     with:
       python-version: ${{inputs.python-version}}
-
-  - name: Set up Python
-    uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
-    with:
-      python-version: ${{inputs.python-version}}
-      architecture: x64
-      allow-prereleases: true

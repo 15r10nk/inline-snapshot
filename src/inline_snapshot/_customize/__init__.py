@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import fields
 from dataclasses import is_dataclass
+from dataclasses import replace
 from pathlib import Path
 from pathlib import PurePath
 from types import BuiltinFunctionType
@@ -19,51 +20,14 @@ from typing import Callable
 from typing import TypeAlias
 
 from inline_snapshot._code_repr import value_code_repr
+from inline_snapshot._customize._custom import CustomizeHandler
 from inline_snapshot._sentinels import undefined
 from inline_snapshot._unmanaged import is_dirty_equal
 from inline_snapshot._unmanaged import is_unmanaged
 from inline_snapshot._utils import clone
 
-
-class Custom(ABC):
-    node_type: type[ast.AST] = ast.AST
-
-    def __hash__(self):
-        return hash(self.eval())
-
-    def __eq__(self, other):
-        assert isinstance(other, Custom)
-        return self.eval() == other.eval()
-
-    @abstractmethod
-    def map(self, f):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def repr(self):
-        raise NotImplementedError()
-
-    def eval(self):
-        return self.map(lambda a: a)
-
-
-CustomizeHandler: TypeAlias = Callable[[Any, "Builder"], Custom | None]
-"""
-Type alias for customization handler functions.
-
-A customization handler is a function that takes a Python value and a Builder,
-and returns either a Custom representation or None.
-
-The handler receives two parameters:
-
-- `value` (Any): The Python object to be converted to snapshot code
-- `builder` (Builder): Helper object providing methods to create Custom representations
-
-The handler should return a Custom object if it processes the value type, or None otherwise.
-"""
-
-
-custom_functions = []
+from ._custom import Custom
+from ._custom import CustomizeHandler
 
 
 def customize(f: CustomizeHandler) -> CustomizeHandler:
@@ -126,7 +90,9 @@ def customize(f: CustomizeHandler) -> CustomizeHandler:
         - [Builder][inline_snapshot._customize.Builder]: Available builder methods
         - [Custom][inline_snapshot._customize.Custom]: Base class for custom representations
     """
-    custom_functions.append(f)
+    from inline_snapshot._global_state import state
+
+    state().custom_functions.append(f)
     return f
 
 
@@ -147,7 +113,7 @@ class CustomUnmanaged(Custom):
     value: Any
 
     def repr(self):
-        return "<no repr>"
+        return "'unmanaged'"  # pragma: no cover
 
     def map(self, f):
         return f(self.value)
@@ -548,11 +514,17 @@ class Builder:
         if isinstance(v, Custom):
             return v
 
-        for f in reversed(custom_functions):
+        from inline_snapshot._global_state import state
+
+        for f in reversed(state().custom_functions):
             r = f(v, self)
             if isinstance(r, Custom):
-                return r
-        return CustomValue(v)
+                break
+        else:
+            r = CustomValue(v)
+
+        r.__dict__["original_value"] = v
+        return r
 
     def create_list(self, value) -> Custom:
         """
