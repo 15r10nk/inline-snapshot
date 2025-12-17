@@ -25,7 +25,7 @@ from inline_snapshot._customize import CustomUndefined
 from inline_snapshot._customize import CustomUnmanaged
 from inline_snapshot._customize import CustomValue
 from inline_snapshot._exceptions import UsageError
-from inline_snapshot._utils import value_to_token
+from inline_snapshot._utils import map_strings
 from inline_snapshot.syntax_warnings import InlineSnapshotInfo
 from inline_snapshot.syntax_warnings import InlineSnapshotSyntaxWarning
 
@@ -80,21 +80,10 @@ def warn_star_expression(node, context):
 
 
 def reeval(old_value: Custom, value: Custom) -> Custom:
-
-    if isinstance(old_value, CustomDefault):
-        return reeval(old_value.value, value)
-
-    if isinstance(value, CustomDefault):
-        return CustomDefault(value=reeval(old_value, value.value))
-
-    if type(old_value) is not type(value):
-        return CustomUnmanaged(value.eval())
-
     function_name = f"reeval_{type(old_value).__name__}"
     result = globals()[function_name](old_value, value)
     assert isinstance(result, Custom)
 
-    #    assert result == value,(result,value)
     return result
 
 
@@ -191,7 +180,7 @@ class NewAdapter:
         if old_node is None:
             new_token = []
         else:
-            new_token = value_to_token(new_value.eval())
+            new_token = map_strings(new_value.repr())
 
         if (
             isinstance(old_node, ast.JoinedStr)
@@ -207,7 +196,7 @@ class NewAdapter:
                 )
             return old_value
 
-        if not old_value.eval() == new_value.eval():
+        if not old_value.eval() == new_value.original_value:
             if isinstance(old_value, CustomUndefined):
                 flag = "create"
             else:
@@ -245,8 +234,6 @@ class NewAdapter:
             )
             assert isinstance(old_node, (ast.List, ast.Tuple))
 
-            if warn_star_expression(old_node, self.context):
-                return old_value
         else:
             pass  # pragma: no cover
 
@@ -307,9 +294,6 @@ class NewAdapter:
         assert isinstance(new_value, CustomDict)
 
         if old_node is not None:
-
-            if warn_star_expression(old_node, self.context):
-                return old_value
 
             for value2, node in zip(old_value.value.keys(), old_node.keys):
                 assert node is not None
@@ -397,11 +381,6 @@ class NewAdapter:
     def compare_CustomCall(
         self, old_value: CustomCall, old_node: ast.Call, new_value: CustomCall
     ) -> Generator[Change, None, Custom]:
-
-        if old_node is not None:
-            # positional arguments
-            if warn_star_expression(old_node, self.context):
-                return old_value
 
         call = new_value
         new_args = call.args
