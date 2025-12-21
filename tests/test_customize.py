@@ -45,3 +45,43 @@ def test_a():
             }
         ),
     )
+
+
+@pytest.mark.parametrize(
+    "original,flag",
+    [("{'1': 1, '2': 2}", "update"), ("5", "fix"), ("", "create")],
+)
+def test_create_imports(original, flag):
+
+    Example(
+        {
+            "tests/test_something.py": f"""\
+from inline_snapshot import snapshot
+
+def counter():
+    from collections import Counter
+    return Counter("122")
+
+def test():
+    assert counter() == snapshot({original})
+"""
+        }
+    ).run_inline(
+        [f"--inline-snapshot={flag}"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+from collections import Counter
+
+def counter():
+    from collections import Counter
+    return Counter("122")
+
+def test():
+    assert counter() == snapshot(Counter({"1": 1, "2": 2}))
+"""
+            }
+        ),
+    )

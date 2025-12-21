@@ -1,5 +1,6 @@
 import ast
 import inspect
+from collections import defaultdict
 from typing import Any
 from typing import Iterator
 from typing import TypeVar
@@ -15,6 +16,7 @@ from inline_snapshot._types import SnapshotRefBase
 
 from ._change import CallArg
 from ._change import Change
+from ._change import RequiredImports
 from ._global_state import state
 from ._sentinels import undefined
 from ._snapshot.undecided_value import UndecidedValue
@@ -147,6 +149,14 @@ class SnapshotReference(SnapshotRefBase):
                 arg_name=None,
                 new_code=new_code,
                 new_value=self._value._new_value,
+            )
+
+            imports = defaultdict(set)
+            for module, names in self._value._needed_imports():
+                imports[module] |= set(names)
+
+            yield RequiredImports(
+                flag="create", file=self._value._file, imports=imports
             )
 
         else:

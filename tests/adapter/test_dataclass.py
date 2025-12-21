@@ -153,7 +153,7 @@ class A:
 
 def test_something():
     for _ in [1,2]:
-        assert A(a=1) == snapshot(A(1,2))
+        assert A(a=1) == snapshot(A(a=1))
 """
             }
         ),

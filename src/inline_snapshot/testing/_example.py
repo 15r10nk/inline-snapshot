@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import importlib.util
 import os
 import platform
 import random
 import re
 import subprocess as sp
 import sys
-import tokenize
 import traceback
 import uuid
 from argparse import ArgumentParser
@@ -14,7 +14,6 @@ from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any
 from typing import Callable
 from unittest.mock import patch
 
@@ -319,6 +318,7 @@ class Example:
                     raise StopTesting(message)
 
                 snapshot_flags = set()
+                old_modules = sys.modules
                 try:
                     enter_snapshot_context()
                     session.load_config(
@@ -334,19 +334,23 @@ class Example:
 
                     tests_found = False
                     for filename in tmp_path.rglob("test_*.py"):
-                        globals: dict[str, Any] = {}
-                        print("run> pytest-inline", filename)
-                        with tokenize.open(filename) as f:
-                            code = f.read()
-                        exec(
-                            compile(code, filename, "exec"),
-                            globals,
+                        print("run> pytest-inline", filename, *args)
+
+                        # Load module using importlib
+                        spec = importlib.util.spec_from_file_location(
+                            filename.stem, filename
                         )
+                        if spec and spec.loader:
+                            module = importlib.util.module_from_spec(spec)
+                            sys.modules[filename.stem] = module
+                            spec.loader.exec_module(module)
+                        else:
+                            raise UsageError(f"Could not load module from {filename}")
 
                         # run all test_* functions
                         tests = [
                             v
-                            for k, v in globals.items()
+                            for k, v in module.__dict__.items()
                             if (k.startswith("test_") or k == "test") and callable(v)
                         ]
                         tests_found |= len(tests) != 0
@@ -378,6 +382,7 @@ class Example:
                 except StopTesting as e:
                     assert stderr == f"ERROR: {e}\n"
                 finally:
+                    sys.modules = old_modules
                     leave_snapshot_context()
 
             if reported_categories is not None:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import importlib
 from abc import ABC
 from abc import abstractmethod
 from collections import Counter
@@ -107,6 +108,9 @@ class CustomDefault(Custom):
     def map(self, f):
         return self.value.map(f)
 
+    def _needed_imports(self):
+        yield from self.value._needed_imports()
+
 
 @dataclass()
 class CustomUnmanaged(Custom):
@@ -118,6 +122,9 @@ class CustomUnmanaged(Custom):
     def map(self, f):
         return f(self.value)
 
+    def _needed_imports(self):
+        yield from ()
+
 
 class CustomUndefined(Custom):
     def __init__(self):
@@ -128,6 +135,9 @@ class CustomUndefined(Custom):
 
     def map(self, f):
         return f(undefined)
+
+    def _needed_imports(self):
+        yield from ()
 
 
 def unwrap_default(value):
@@ -178,6 +188,17 @@ class CustomCall(Custom):
             **{k: f(v.map(f)) for k, v in self.kwargs.items()},
         )
 
+    def _needed_imports(self):
+        yield from self._function._needed_imports()
+        for v in self._args:
+            yield from v._needed_imports()
+
+        for v in self._kwargs.values():
+            yield from v._needed_imports()
+
+        for v in self._kwonly.values():
+            yield from v._needed_imports()
+
 
 class CustomSequenceTypes:
     trailing_comma: bool
@@ -195,6 +216,10 @@ class CustomSequence(Custom, CustomSequenceTypes):
     def repr(self) -> str:
         trailing_comma = self.trailing_comma and len(self.value) == 1
         return f"{self.braces[0]}{', '.join(v.repr() for v in self.value)}{', ' if trailing_comma else ''}{self.braces[1]}"
+
+    def _needed_imports(self):
+        for v in self.value:
+            yield from v._needed_imports()
 
 
 class CustomList(CustomSequence):
@@ -224,6 +249,11 @@ class CustomDict(Custom):
             f"{{{ ', '.join(f'{k.repr()}: {v.repr()}' for k,v in self.value.items())}}}"
         )
 
+    def _needed_imports(self):
+        for k, v in self.value.items():
+            yield from k._needed_imports()
+            yield from v._needed_imports()
+
 
 class CustomValue(Custom):
     def __init__(self, value, repr_str=None):
@@ -236,6 +266,9 @@ class CustomValue(Custom):
             self.repr_str = repr_str
 
         self.value = value
+        self._imports = defaultdict(list)
+
+        super().__init__()
 
     def map(self, f):
         return f(self.value)
@@ -245,6 +278,27 @@ class CustomValue(Custom):
 
     def __repr__(self):
         return f"CustomValue({self.repr_str})"
+
+    def _needed_imports(self):
+        yield from self._imports.items()
+
+    def with_import(self, module, name, simplify=True):
+        value = getattr(importlib.import_module(module), name)
+        if simplify:
+            parts = module.split(".")
+            while len(parts) >= 2:
+                if (
+                    getattr(importlib.import_module(".".join(parts[:-1])), name, None)
+                    == value
+                ):
+                    parts.pop()
+                else:
+                    break
+            module = ".".join(parts)
+
+        self._imports[module].append(name)
+
+        return self
 
 
 @customize
@@ -268,7 +322,9 @@ def counter_handler(value, builder: Builder):
 @customize
 def function_handler(value, builder: Builder):
     if isinstance(value, FunctionType):
-        return builder.create_value(value, value.__qualname__)
+        qualname = value.__qualname__
+        name = qualname.split(".")[0]
+        return builder.create_value(value, qualname).with_import(value.__module__, name)
 
 
 @customize
@@ -280,7 +336,9 @@ def builtin_function_handler(value, builder: Builder):
 @customize
 def type_handler(value, builder: Builder):
     if isinstance(value, type):
-        return builder.create_value(value, value.__qualname__)
+        qualname = value.__qualname__
+        name = qualname.split(".")[0]
+        return builder.create_value(value, qualname).with_import(value.__module__, name)
 
 
 @customize
@@ -586,7 +644,7 @@ class Builder:
         custom = {self._get_handler(k): self._get_handler(v) for k, v in value.items()}
         return CustomDict(value=custom)
 
-    def create_value(self, value, repr) -> CustomValue:
+    def create_value(self, value, repr: Optional[str] = None) -> CustomValue:
         """
         Creates an intermediate node for a value with a custom representation which can be used as a result for your customization function.
 

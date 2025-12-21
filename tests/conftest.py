@@ -1,3 +1,4 @@
+import importlib.util
 import os
 import platform
 import re
@@ -113,7 +114,16 @@ from inline_snapshot import outsource
                 error = False
 
                 try:
-                    exec(compile(filename.read_text("utf-8"), filename, "exec"), {})
+                    # Load module using importlib
+                    spec = importlib.util.spec_from_file_location(
+                        filename.stem, filename
+                    )
+                    if spec and spec.loader:
+                        module = importlib.util.module_from_spec(spec)
+                        sys.modules[filename.stem] = module
+                        spec.loader.exec_module(module)
+                    else:
+                        raise RuntimeError(f"Could not load module from {filename}")
                 except AssertionError:
                     traceback.print_exc()
                     error = True
