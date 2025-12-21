@@ -1,4 +1,3 @@
-import ast
 from enum import Enum
 from enum import Flag
 from functools import singledispatch
@@ -35,17 +34,6 @@ class HasRepr:
 
         other_repr = value_code_repr(other)
         return other_repr == self._str_repr or other_repr == repr(self)
-
-
-def used_hasrepr(tree):
-    return [
-        n
-        for n in ast.walk(tree)
-        if isinstance(n, ast.Call)
-        and isinstance(n.func, ast.Name)
-        and n.func.id == "HasRepr"
-        and len(n.args) == 2
-    ]
 
 
 @singledispatch
@@ -93,11 +81,6 @@ def value_code_repr(obj):
         )
 
     result = code_repr_dispatch(obj)
-
-    try:
-        ast.parse(result)
-    except SyntaxError:
-        return real_repr(HasRepr(type(obj), result))
 
     return result
 

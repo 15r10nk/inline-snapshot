@@ -18,8 +18,10 @@ from types import BuiltinFunctionType
 from types import FunctionType
 from typing import Any
 from typing import Callable
+from typing import Optional
 from typing import TypeAlias
 
+from inline_snapshot._code_repr import HasRepr
 from inline_snapshot._code_repr import value_code_repr
 from inline_snapshot._customize._custom import CustomizeHandler
 from inline_snapshot._sentinels import undefined
@@ -259,14 +261,20 @@ class CustomValue(Custom):
     def __init__(self, value, repr_str=None):
         assert not isinstance(value, Custom)
         value = clone(value)
+        self._imports = defaultdict(list)
 
         if repr_str is None:
             self.repr_str = value_code_repr(value)
+
+            try:
+                ast.parse(self.repr_str)
+            except SyntaxError:
+                self.repr_str = HasRepr(type(value), self.repr_str).__repr__()
+                self.with_import("inline_snapshot", "HasRepr")
         else:
             self.repr_str = repr_str
 
         self.value = value
-        self._imports = defaultdict(list)
 
         super().__init__()
 
@@ -561,7 +569,18 @@ def dirty_equals_handler(value, builder: Builder):
         if isinstance(value, type):
             return builder.create_value(value, value.__name__)
         else:
+            # TODO: args
             return builder.create_call(type(value))
+
+
+@customize
+def outsourced_handler(value, builder: Builder):
+    from inline_snapshot._external._outsource import Outsourced
+
+    if isinstance(value, Outsourced):
+        return builder.create_value(value, repr(value)).with_import(
+            "inline_snapshot", "external"
+        )
 
 
 @dataclass
@@ -644,7 +663,7 @@ class Builder:
         custom = {self._get_handler(k): self._get_handler(v) for k, v in value.items()}
         return CustomDict(value=custom)
 
-    def create_value(self, value, repr: Optional[str] = None) -> CustomValue:
+    def create_value(self, value, repr: str | None = None) -> CustomValue:
         """
         Creates an intermediate node for a value with a custom representation which can be used as a result for your customization function.
 
