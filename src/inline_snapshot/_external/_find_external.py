@@ -1,7 +1,9 @@
 import ast
+import os
 from dataclasses import replace
 from pathlib import Path
 from typing import List
+from typing import Optional
 from typing import Union
 
 from executing import Source
@@ -64,6 +66,38 @@ def used_externals_in(
     return usages
 
 
+def module_name_of(filename: str | os.PathLike) -> Optional[str]:
+    path = Path(filename).resolve()
+
+    if path.suffix != ".py":
+        return None
+
+    parts = []
+
+    if path.name != "__init__.py":
+        parts.append(path.stem)
+
+    current = path.parent
+
+    while current != current.root:
+        if not (current / "__init__.py").exists():
+            break
+
+        parts.append(current.name)
+
+        next_parent = current.parent
+        if next_parent == current:
+            break
+        current = next_parent
+
+    parts.reverse()
+
+    if not parts:
+        return None
+
+    return ".".join(parts)
+
+
 def ensure_import(filename, imports, recorder: ChangeRecorder):
     source = Source.for_filename(filename)
 
@@ -74,8 +108,14 @@ def ensure_import(filename, imports, recorder: ChangeRecorder):
 
     to_add = []
 
+    my_module = module_name_of(filename)
+
     for module, names in imports.items():
-        for name in names:
+        if module == my_module:
+            continue
+        if module == "builtins":
+            continue
+        for name in sorted(names):
             if not contains_import(tree, module, name):
                 to_add.append((module, name))
 

@@ -14,6 +14,7 @@ from asttokens.util import Token
 from executing.executing import EnhancedAST
 
 from inline_snapshot._external._external_location import Location
+from inline_snapshot._external._find_external import ensure_import
 from inline_snapshot._source_file import SourceFile
 
 from ._rewrite_code import ChangeRecorder
@@ -113,6 +114,11 @@ class Change(ChangeBase):
 
     def apply_external_changes(self):
         pass
+
+
+@dataclass()
+class RequiredImports(Change):
+    imports: dict[str, list[str]]
 
 
 @dataclass()
@@ -251,6 +257,9 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
     )
     sources: dict[EnhancedAST, SourceFile] = {}
 
+    # file -> module -> names
+    imports_by_file = defaultdict(lambda: defaultdict(set))
+
     for change in all_changes:
         if isinstance(change, Delete):
             node = cast(EnhancedAST, change.node).parent
@@ -263,8 +272,14 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
             node = cast(EnhancedAST, change.node)
             by_parent[node].append(change)
             sources[node] = change.file
+        elif isinstance(change, RequiredImports):
+            for module, names in change.imports.items():
+                imports_by_file[change.filename][module] |= set(names)
         else:
             change.apply(recorder)
+
+    for filename, imports in imports_by_file.items():
+        ensure_import(filename, imports, recorder)
 
     for parent, changes in by_parent.items():
         source = sources[parent]

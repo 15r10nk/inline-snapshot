@@ -14,6 +14,7 @@ from inline_snapshot._change import Delete
 from inline_snapshot._change import DictInsert
 from inline_snapshot._change import ListInsert
 from inline_snapshot._change import Replace
+from inline_snapshot._change import RequiredImports
 from inline_snapshot._compare_context import compare_context
 from inline_snapshot._customize import Custom
 from inline_snapshot._customize import CustomCall
@@ -222,6 +223,15 @@ class NewAdapter:
             new_value=new_value,
         )
 
+        def needed_imports(value: Custom):
+            imports = defaultdict(set)
+            for module, names in value._needed_imports():
+                imports[module] |= set(names)
+            return imports
+
+        if imports := needed_imports(new_value):
+            yield RequiredImports(flag, self.context.file._source, imports)
+
         return new_value
 
     def compare_CustomSequence(
@@ -390,6 +400,23 @@ class NewAdapter:
 
         result_args = []
 
+        flag = "update" if old_value.eval() == new_value.original_value else "fix"
+
+        if flag == "update":
+
+            def intercept(stream):
+                while True:
+                    try:
+                        change = next(stream)
+                        if change.flag == "fix":
+                            change.flag = "update"
+                        yield change
+                    except StopIteration as stop:
+                        return stop.value
+
+        else:
+            intercept = lambda a: a
+
         old_node_args: Sequence[ast.expr | None]
         if old_node:
             old_node_args = old_node.args
@@ -398,7 +425,9 @@ class NewAdapter:
 
         for i, (new_value_element, node) in enumerate(zip(new_args, old_node_args)):
             old_value_element = old_value.argument(i)
-            result = yield from self.compare(old_value_element, node, new_value_element)
+            result = yield from intercept(
+                self.compare(old_value_element, node, new_value_element)
+            )
             result_args.append(result)
 
         old_args_len = len(old_node.args if old_node else old_value.args)
@@ -407,7 +436,7 @@ class NewAdapter:
             if old_args_len > len(new_args):
                 for arg_pos, node in list(enumerate(old_node.args))[len(new_args) :]:
                     yield Delete(
-                        "fix",
+                        flag,
                         self.context.file._source,
                         node,
                         old_value.argument(arg_pos),
@@ -416,7 +445,7 @@ class NewAdapter:
         if old_args_len < len(new_args):
             for insert_pos, value in list(enumerate(new_args))[old_args_len:]:
                 yield CallArg(
-                    flag="fix",
+                    flag=flag,
                     file=self.context.file._source,
                     node=old_node,
                     arg_pos=insert_pos,
@@ -441,7 +470,7 @@ class NewAdapter:
                     (
                         "update"
                         if old_value.argument(kw_arg) == new_value.argument(kw_arg)
-                        else "fix"
+                        else flag
                     ),
                     self.context.file._source,
                     kw_value,
@@ -462,15 +491,15 @@ class NewAdapter:
 
                 # check values with same keys
                 old_value_element = old_value.argument(key)
-                result_kwargs[key] = yield from self.compare(
-                    old_value_element, node, new_value_element
+                result_kwargs[key] = yield from intercept(
+                    self.compare(old_value_element, node, new_value_element)
                 )
 
                 if to_insert:
                     for key, value in to_insert:
 
                         yield CallArg(
-                            flag="fix",
+                            flag=flag,
                             file=self.context.file._source,
                             node=old_node,
                             arg_pos=insert_pos,
@@ -487,7 +516,7 @@ class NewAdapter:
             for key, value in to_insert:
 
                 yield CallArg(
-                    flag="fix",
+                    flag=flag,
                     file=self.context.file._source,
                     node=old_node,
                     arg_pos=insert_pos,
@@ -498,10 +527,12 @@ class NewAdapter:
 
         return CustomCall(
             (
-                yield from self.compare(
-                    old_value._function,
-                    old_node.func if old_node else None,
-                    new_value._function,
+                yield from intercept(
+                    self.compare(
+                        old_value._function,
+                        old_node.func if old_node else None,
+                        new_value._function,
+                    )
                 )
             ),
             result_args,
