@@ -1,4 +1,3 @@
-import ast
 import os
 import sys
 import tokenize
@@ -21,8 +20,6 @@ from . import _config
 from ._change import ChangeBase
 from ._change import ExternalRemove
 from ._change import apply_all
-from ._code_repr import used_hasrepr
-from ._external._find_external import ensure_import
 from ._external._find_external import used_externals_in
 from ._flags import Flags
 from ._global_state import state
@@ -453,26 +450,5 @@ class SnapshotSession:
 
             for change in used_changes:
                 change.apply_external_changes()
-
-            for test_file in cr.files():
-                tree = ast.parse(test_file.new_code())
-                used_externals = used_externals_in(
-                    test_file.filename, tree, check_import=False
-                )
-
-                required_imports = []
-
-                if used_externals:
-                    required_imports.append("external")
-
-                if used_hasrepr(tree):
-                    required_imports.append("HasRepr")
-
-                if required_imports:
-                    ensure_import(
-                        test_file.filename,
-                        {"inline_snapshot": required_imports},
-                        cr,
-                    )
 
             cr.fix_all()

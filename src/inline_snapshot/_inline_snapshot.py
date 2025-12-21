@@ -151,7 +151,7 @@ class SnapshotReference(SnapshotRefBase):
                 new_value=self._value._new_value,
             )
 
-            imports = defaultdict(set)
+            imports: dict[str, set[str]] = defaultdict(set)
             for module, names in self._value._needed_imports():
                 imports[module] |= set(names)
 

@@ -407,9 +407,11 @@ def test_fake_tuple2():
 
 
 def test_invalid_repr(check_update):
-    assert (
-        check_update(
-            """\
+
+    Example(
+        """\
+from inline_snapshot import snapshot
+
 class Thing:
     def __repr__(self):
         return "+++"
@@ -419,24 +421,32 @@ class Thing:
             return NotImplemented
         return True
 
-assert Thing() == snapshot()
-""",
-            flags="create",
-        )
-        == snapshot(
-            """\
-class Thing:
-    def __repr__(self):
-        return "+++"
-
-    def __eq__(self,other):
-        if not isinstance(other,Thing):
-            return NotImplemented
-        return True
-
-assert Thing() == snapshot(HasRepr(Thing, "+++"))
+def test_a():
+    assert Thing() == snapshot()
 """
-        )
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+from inline_snapshot import HasRepr
+
+class Thing:
+    def __repr__(self):
+        return "+++"
+
+    def __eq__(self,other):
+        if not isinstance(other,Thing):
+            return NotImplemented
+        return True
+
+def test_a():
+    assert Thing() == snapshot(HasRepr(Thing, "+++"))
+"""
+            }
+        ),
     )
 
 

@@ -59,6 +59,7 @@ jobs:
     env:
       TOP: ${{github.workspace}}
       COVERAGE_PROCESS_START: ${{github.workspace}}/pyproject.toml
+      PYTHONIOENCODING: utf-8
     steps:
     - name: Install gettext (macOS only)
       if: runner.os == 'macOS'

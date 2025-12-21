@@ -118,7 +118,7 @@ class Change(ChangeBase):
 
 @dataclass()
 class RequiredImports(Change):
-    imports: dict[str, list[str]]
+    imports: dict[str, set[str]]
 
 
 @dataclass()
@@ -258,7 +258,7 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
     sources: dict[EnhancedAST, SourceFile] = {}
 
     # file -> module -> names
-    imports_by_file = defaultdict(lambda: defaultdict(set))
+    imports_by_file: dict[str, dict[str, set]] = defaultdict(lambda: defaultdict(set))
 
     for change in all_changes:
         if isinstance(change, Delete):
