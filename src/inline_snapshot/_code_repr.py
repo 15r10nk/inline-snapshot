@@ -69,7 +69,7 @@ def code_repr(obj):
 def mocked_code_repr(obj):
     from inline_snapshot._customize import Builder
 
-    return Builder()._get_handler(obj).repr()
+    return Builder(_snapshot_context=None)._get_handler(obj).repr()
 
 
 def value_code_repr(obj):

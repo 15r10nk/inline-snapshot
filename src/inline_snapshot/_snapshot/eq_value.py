@@ -1,7 +1,6 @@
 from typing import Iterator
 from typing import List
 
-from inline_snapshot._customize import Builder
 from inline_snapshot._customize import CustomUndefined
 from inline_snapshot._new_adapter import NewAdapter
 from inline_snapshot._utils import map_strings
@@ -17,7 +16,7 @@ class EqValue(GenericValue):
     _changes: List[Change]
 
     def __eq__(self, other):
-        custom_other = Builder(_build_new_value=True)._get_handler(other)
+        custom_other = self.get_builder(_build_new_value=True)._get_handler(other)
 
         if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1

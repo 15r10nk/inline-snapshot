@@ -25,6 +25,9 @@ class GenericValue(SnapshotBase):
     _ast_node: ast.Expr
     _context: AdapterContext
 
+    def get_builder(self, **args):
+        return Builder(_snapshot_context=self._context, **args)
+
     def _return(self, result, new_result=True):
 
         if not result:
@@ -49,7 +52,7 @@ class GenericValue(SnapshotBase):
             return value
 
         if self._ast_node is None:
-            return Builder()._get_handler(value)
+            return self.get_builder()._get_handler(value)
         else:
             from inline_snapshot._snapshot.undecided_value import AstToCustom
 

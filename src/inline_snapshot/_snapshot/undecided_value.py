@@ -2,7 +2,7 @@ import ast
 from typing import Any
 from typing import Iterator
 
-from inline_snapshot._customize import Builder
+from inline_snapshot._compare_context import compare_only
 from inline_snapshot._customize import Custom
 from inline_snapshot._customize import CustomCall
 from inline_snapshot._customize import CustomDict
@@ -71,18 +71,18 @@ class AstToCustom:
 
 class UndecidedValue(GenericValue):
     def __init__(self, old_value, ast_node, context: AdapterContext):
+        self._context = context
 
         if not isinstance(old_value, Custom):
             if ast_node is not None:
                 old_value = AstToCustom(context).convert(old_value, ast_node)
             else:
-                old_value = Builder()._get_handler(old_value)
+                old_value = self.get_builder()._get_handler(old_value)
 
         assert isinstance(old_value, Custom)
         self._old_value = old_value
         self._new_value = CustomUndefined()
         self._ast_node = ast_node
-        self._context = context
 
     def _change(self, cls):
         self.__class__ = cls
@@ -93,7 +93,7 @@ class UndecidedValue(GenericValue):
     def _get_changes(self) -> Iterator[Change]:
         assert isinstance(self._new_value, CustomUndefined)
 
-        new_value = Builder()._get_handler(self._old_value.eval())
+        new_value = self.get_builder()._get_handler(self._old_value.eval())
 
         adapter = NewAdapter(self._context)
 
@@ -128,6 +128,9 @@ class UndecidedValue(GenericValue):
     # functions which determine the type
 
     def __eq__(self, other):
+        if compare_only():
+            return False
+
         from .._snapshot.eq_value import EqValue
 
         self._change(EqValue)
