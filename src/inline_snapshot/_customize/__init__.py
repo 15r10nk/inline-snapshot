@@ -12,6 +12,7 @@ from dataclasses import field
 from dataclasses import fields
 from dataclasses import is_dataclass
 from dataclasses import replace
+from functools import partial
 from pathlib import Path
 from pathlib import PurePath
 from types import BuiltinFunctionType
@@ -20,6 +21,7 @@ from typing import Any
 from typing import Callable
 from typing import Optional
 from typing import TypeAlias
+from typing import overload
 
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._code_repr import HasRepr
@@ -37,7 +39,19 @@ from ._custom import Custom
 from ._custom import CustomizeHandler
 
 
-def customize(f: CustomizeHandler) -> CustomizeHandler:
+@overload
+def customize(
+    f: None = None, *, priority: int = 0
+) -> Callable[[CustomizeHandler], CustomizeHandler]: ...
+
+
+@overload
+def customize(f: CustomizeHandler, *, priority: int = 0) -> CustomizeHandler: ...
+
+
+def customize(
+    f: CustomizeHandler | None = None, *, priority: int = 0
+) -> CustomizeHandler | Callable[[CustomizeHandler], CustomizeHandler]:
     """
     Registers a function as a customization hook inside inline-snapshot.
 
@@ -97,9 +111,13 @@ def customize(f: CustomizeHandler) -> CustomizeHandler:
         - [Builder][inline_snapshot._customize.Builder]: Available builder methods
         - [Custom][inline_snapshot._customize.Custom]: Base class for custom representations
     """
+
+    if f is None:
+        return partial(customize, priority=priority)  # type: ignore[return-value]
+
     from inline_snapshot._global_state import state
 
-    state().custom_functions.append(f)
+    state().custom_functions[priority].append(f)
     return f
 
 
@@ -567,14 +585,20 @@ def undefined_handler(value, builder: Builder):
         return CustomUndefined()
 
 
-@customize
+@customize(priority=1000)
 def dirty_equals_handler(value, builder: Builder):
+
     if is_dirty_equal(value) and builder._build_new_value:
         if isinstance(value, type):
-            return builder.create_value(value, value.__name__)
+            return builder.create_value(value, value.__name__).with_import(
+                "dirty_equals", value.__name__
+            )
         else:
-            # TODO: args
-            return builder.create_call(type(value))
+            from dirty_equals._utils import Omit
+
+            args = [a for a in value._repr_args if a is not Omit]
+            kwargs = {k: a for k, a in value._repr_kwargs.items() if a is not Omit}
+            return builder.create_call(type(value), args, kwargs)
 
 
 @customize
@@ -623,13 +647,19 @@ class Builder:
                 if "@" not in var_name
             ]
         else:
-            local_vars = {}
-            global_vars = {}
+            local_vars = []
+            global_vars = []
 
         result = v
 
+        custom_functions = [
+            f
+            for _, function_list in sorted(state().custom_functions.items())
+            for f in function_list
+        ]
+
         while not isinstance(result, Custom):
-            for f in reversed(state().custom_functions):
+            for f in reversed(custom_functions):
                 with compare_context():
                     r = partial_call(
                         f,
