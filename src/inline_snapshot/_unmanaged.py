@@ -8,9 +8,8 @@ except ImportError:  # pragma: no cover
 else:
 
     def is_dirty_equal(value):
-        return isinstance(value, dirty_equals.DirtyEquals) or (
-            isinstance(value, type) and issubclass(value, dirty_equals.DirtyEquals)
-        )
+        t = value if isinstance(value, type) else type(value)
+        return any(x is dirty_equals.DirtyEquals for x in t.__mro__)
 
 
 def update_allowed(value):

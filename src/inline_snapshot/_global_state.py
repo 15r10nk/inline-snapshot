@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+from collections import defaultdict
 from copy import deepcopy
 from dataclasses import dataclass
 from dataclasses import field
@@ -57,7 +58,9 @@ class State:
 
     disable_reason: Literal["xdist", "ci", "implementation", None] = None
 
-    custom_functions: list[CustomizeHandler] = field(default_factory=list)
+    custom_functions: dict[int, list[CustomizeHandler]] = field(
+        default_factory=lambda: defaultdict(list)
+    )
 
 
 _latest_global_states: list[State] = []
@@ -75,7 +78,9 @@ def enter_snapshot_context():
     latest = _current
     _latest_global_states.append(_current)
     _current = State()
-    _current.custom_functions = list(latest.custom_functions)
+    _current.custom_functions = defaultdict(
+        list, {k: list(v) for k, v in latest.custom_functions.items()}
+    )
     _current.all_formats = dict(latest.all_formats)
     _current.config = deepcopy(latest.config)
 
