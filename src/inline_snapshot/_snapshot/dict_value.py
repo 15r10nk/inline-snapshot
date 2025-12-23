@@ -1,7 +1,6 @@
 import ast
 from typing import Iterator
 
-from inline_snapshot._customize import Builder
 from inline_snapshot._customize import CustomDict
 from inline_snapshot._customize import CustomUndefined
 
@@ -24,7 +23,7 @@ class DictValue(GenericValue):
         if isinstance(self._new_value, CustomUndefined):
             self._new_value = CustomDict({})
 
-        index = Builder()._get_handler(index)
+        index = self.get_builder()._get_handler(index)
 
         if index not in self._new_value.value:
             if isinstance(self._old_value, CustomUndefined):

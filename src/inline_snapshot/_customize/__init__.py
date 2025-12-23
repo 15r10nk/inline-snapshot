@@ -21,9 +21,13 @@ from typing import Callable
 from typing import Optional
 from typing import TypeAlias
 
+from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._code_repr import HasRepr
 from inline_snapshot._code_repr import value_code_repr
+from inline_snapshot._compare_context import compare_context
+from inline_snapshot._compare_context import compare_only
 from inline_snapshot._customize._custom import CustomizeHandler
+from inline_snapshot._partial_call import partial_call
 from inline_snapshot._sentinels import undefined
 from inline_snapshot._unmanaged import is_dirty_equal
 from inline_snapshot._unmanaged import is_unmanaged
@@ -584,24 +588,66 @@ def outsourced_handler(value, builder: Builder):
 
 
 @dataclass
+class ContextValue:
+    name: str
+    value: Any
+
+
+@customize
+def context_value_handler(value, builder: Builder):
+    if isinstance(value, ContextValue):
+        return builder.create_value(value.value, value.name)
+
+
+@dataclass
 class Builder:
+    _snapshot_context: AdapterContext
     _build_new_value: bool = False
 
     def _get_handler(self, v) -> Custom:
-        if isinstance(v, Custom):
-            return v
 
         from inline_snapshot._global_state import state
 
-        for f in reversed(state().custom_functions):
-            r = f(v, self)
-            if isinstance(r, Custom):
-                break
+        if (
+            self._snapshot_context is not None
+            and (frame := self._snapshot_context.frame) is not None
+        ):
+            local_vars = [
+                ContextValue(var_name, var_value)
+                for var_name, var_value in frame.locals.items()
+                if "@" not in var_name
+            ]
+            global_vars = [
+                ContextValue(var_name, var_value)
+                for var_name, var_value in frame.globals.items()
+                if "@" not in var_name
+            ]
         else:
-            r = CustomValue(v)
+            local_vars = {}
+            global_vars = {}
 
-        r.__dict__["original_value"] = v
-        return r
+        result = v
+
+        while not isinstance(result, Custom):
+            for f in reversed(state().custom_functions):
+                with compare_context():
+                    r = partial_call(
+                        f,
+                        {
+                            "value": result,
+                            "builder": self,
+                            "local_vars": local_vars,
+                            "global_vars": global_vars,
+                        },
+                    )
+                if r is not None:
+                    result = r
+                    break
+            else:
+                result = CustomValue(result)
+
+        result.__dict__["original_value"] = v
+        return result
 
     def create_list(self, value) -> Custom:
         """
