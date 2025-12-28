@@ -45,6 +45,7 @@ class SourceFile:
         return self._format(tokenize.untokenize(tokens)).strip()
 
     def _value_to_code(self, value):
+        # TODO remove this
         return self._token_to_code(value_to_token(value))
 
     def _token_of_node(self, node):

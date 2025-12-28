@@ -25,6 +25,7 @@ from inline_snapshot._format import format_code
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot._rewrite_code import ChangeRecorder
 from inline_snapshot._types import Category
+from inline_snapshot.testing._example import deterministic_uuid
 
 pytest_plugins = "pytester"
 
@@ -103,7 +104,7 @@ from inline_snapshot import outsource
             print("input:")
             print(textwrap.indent(source, " |", lambda line: True).rstrip())
 
-            with snapshot_env() as state:
+            with snapshot_env() as state, deterministic_uuid():
                 recorder = ChangeRecorder()
                 state.update_flags = flags
                 state.all_storages["hash"] = inline_snapshot._external.HashStorage(
@@ -325,6 +326,17 @@ def _(value:FakeDate):
 def set_time(freezer):
         freezer.move_to(datetime.datetime(2024, 3, 14, 0, 0, 0, 0))
         yield
+
+import uuid
+import random
+
+rd = random.Random(0)
+
+def f():
+    return uuid.UUID(int=rd.getrandbits(128), version=4)
+
+uuid.uuid4 = f
+
 """
             )
 

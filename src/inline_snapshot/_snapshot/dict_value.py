@@ -1,4 +1,5 @@
 import ast
+from typing import Generator
 from typing import Iterator
 
 from inline_snapshot._customize import CustomDict
@@ -6,6 +7,7 @@ from inline_snapshot._customize import CustomUndefined
 
 from .._adapter_context import AdapterContext
 from .._change import Change
+from .._change import ChangeBase
 from .._change import Delete
 from .._change import DictInsert
 from .._global_state import state
@@ -56,18 +58,14 @@ class DictValue(GenericValue):
                 if key in self._old_value.value:
                     s._re_eval(self._old_value.value[key], context)  # type:ignore
 
-    def _new_code(self):
-        return (
-            "{"
-            + ", ".join(
-                [
-                    f"{self._file._value_to_code(k)}: {v._new_code()}"  # type:ignore
-                    for k, v in self._new_value.value.items()
-                    if not isinstance(v, UndecidedValue)
-                ]
-            )
-            + "}"
-        )
+    def _new_code(self) -> Generator[ChangeBase, None, str]:
+        values = []
+        for k, v in self._new_value.value.items():
+            if not isinstance(v, UndecidedValue):
+                new_code = yield from v._new_code()  # type:ignore
+                values.append(f"{self._file._value_to_code(k)}: {new_code}")
+
+        return "{" + ", ".join(values) + "}"
 
     def _get_changes(self) -> Iterator[Change]:
 
@@ -93,7 +91,8 @@ class DictValue(GenericValue):
                 new_value_element, UndecidedValue
             ):
                 # add new values
-                to_insert.append((key, new_value_element._new_code()))  # type:ignore
+                new_code = yield from new_value_element._new_code()  # type:ignore
+                to_insert.append((key, new_code))
 
         if to_insert:
             new_code = [(self._file._value_to_code(k.eval()), v) for k, v in to_insert]

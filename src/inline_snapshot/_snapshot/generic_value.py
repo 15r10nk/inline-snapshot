@@ -1,4 +1,5 @@
 import ast
+from typing import Generator
 from typing import Iterator
 
 from inline_snapshot._adapter_context import AdapterContext
@@ -7,7 +8,7 @@ from inline_snapshot._customize import Custom
 from inline_snapshot._customize import CustomUndefined
 from inline_snapshot._new_adapter import reeval
 
-from .._change import Change
+from .._change import ChangeBase
 from .._global_state import state
 from .._types import SnapshotBase
 from .._unmanaged import declare_unmanaged
@@ -80,10 +81,10 @@ class GenericValue(SnapshotBase):
         else:
             return self._old_value
 
-    def _get_changes(self) -> Iterator[Change]:
+    def _get_changes(self) -> Iterator[ChangeBase]:
         raise NotImplementedError()
 
-    def _new_code(self):
+    def _new_code(self) -> Generator[ChangeBase, None, str]:
         raise NotImplementedError()
 
     def __repr__(self):

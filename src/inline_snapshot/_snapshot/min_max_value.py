@@ -1,10 +1,13 @@
+from typing import Generator
 from typing import Iterator
 
 from inline_snapshot._customize import CustomUndefined
 
 from .._change import Change
+from .._change import ChangeBase
 from .._change import Replace
 from .._global_state import state
+from .._utils import map_strings
 from .._utils import value_to_token
 from .generic_value import GenericValue
 from .generic_value import ignore_old_value
@@ -32,9 +35,9 @@ class MinMaxValue(GenericValue):
 
         return self._return(self.cmp(self._visible_value().eval(), other))
 
-    def _new_code(self):
-        # TODO repr() ...
-        return self._file._value_to_code(self._new_value.eval())
+    def _new_code(self) -> Generator[ChangeBase, None, str]:
+        code = yield from self._new_value.repr(self._context)
+        return self._file._token_to_code(map_strings(code))
 
     def _get_changes(self) -> Iterator[Change]:
         # TODO repr() ...

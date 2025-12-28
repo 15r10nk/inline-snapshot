@@ -15,6 +15,9 @@ def unwrap(value):
     if isinstance(value, GenericValue):
         return value._visible_value().map(lambda v: unwrap(v)[0]), True
 
+    if isinstance(value, Outsourced):
+        return (value.data, True)
+
     if isinstance(value, (External, Outsourced, ExternalFile)):
         try:
             return unwrap(value._load_value())[0], True

@@ -4,6 +4,7 @@ from pathlib import Path
 
 from inline_snapshot._change import ExternalChange
 from inline_snapshot._exceptions import UsageError
+from inline_snapshot._external._format._protocol import get_format_handler
 from inline_snapshot._external._outsource import Outsourced
 from inline_snapshot._global_state import state
 
@@ -46,15 +47,18 @@ class ExternalBase:
         __tracebackhide__ = True
 
         if isinstance(other, Outsourced):
-            self._location.suffix = other._location.suffix
+
+            format = get_format_handler(other.data, other.suffix or "")
+
+            self._location.suffix = other.suffix or format.suffix
             other = other.data
 
-        if isinstance(other, ExternalBase):
+        elif isinstance(other, ExternalBase):
             raise UsageError(
                 f"you can not compare {external_type}(...) with {external_type}(...)"
             )
 
-        if isinstance(other, GenericValue):
+        elif isinstance(other, GenericValue):
             raise UsageError(
                 f"you can not compare {external_type}(...) with snapshot(...)"
             )
