@@ -6,7 +6,11 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
+from typing import Generator
 from typing import TypeAlias
+
+from inline_snapshot._adapter_context import AdapterContext
+from inline_snapshot._change import ChangeBase
 
 if TYPE_CHECKING:
     from inline_snapshot._customize import Builder
@@ -28,7 +32,7 @@ class Custom(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def repr(self):
+    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
         raise NotImplementedError()
 
     def eval(self):

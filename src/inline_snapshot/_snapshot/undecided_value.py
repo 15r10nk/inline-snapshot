@@ -16,7 +16,7 @@ from inline_snapshot._new_adapter import warn_star_expression
 from inline_snapshot._unmanaged import is_unmanaged
 
 from .._adapter_context import AdapterContext
-from .._change import Change
+from .._change import ChangeBase
 from .generic_value import GenericValue
 
 
@@ -90,7 +90,7 @@ class UndecidedValue(GenericValue):
     def _new_code(self):
         assert False
 
-    def _get_changes(self) -> Iterator[Change]:
+    def _get_changes(self) -> Iterator[ChangeBase]:
         assert isinstance(self._new_value, CustomUndefined)
 
         new_value = self.get_builder()._get_handler(self._old_value.eval())

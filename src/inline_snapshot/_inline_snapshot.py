@@ -15,7 +15,7 @@ from inline_snapshot._source_file import SourceFile
 from inline_snapshot._types import SnapshotRefBase
 
 from ._change import CallArg
-from ._change import Change
+from ._change import ChangeBase
 from ._change import RequiredImports
 from ._global_state import state
 from ._sentinels import undefined
@@ -128,7 +128,7 @@ class SnapshotReference(SnapshotRefBase):
     def create_raw(obj, context: AdapterContext):
         return obj
 
-    def _changes(self) -> Iterator[Change]:
+    def _changes(self) -> Iterator[ChangeBase]:
 
         if (
             isinstance(self._value._old_value, CustomUndefined)
@@ -139,7 +139,7 @@ class SnapshotReference(SnapshotRefBase):
             if isinstance(self._value._new_value, CustomUndefined):
                 return
 
-            new_code = self._value._new_code()
+            new_code = yield from self._value._new_code()
 
             yield CallArg(
                 flag="create",

@@ -9,7 +9,7 @@ from typing import Sequence
 from inline_snapshot._align import add_x
 from inline_snapshot._align import align
 from inline_snapshot._change import CallArg
-from inline_snapshot._change import Change
+from inline_snapshot._change import ChangeBase
 from inline_snapshot._change import Delete
 from inline_snapshot._change import DictInsert
 from inline_snapshot._change import ListInsert
@@ -26,6 +26,7 @@ from inline_snapshot._customize import CustomUndefined
 from inline_snapshot._customize import CustomUnmanaged
 from inline_snapshot._customize import CustomValue
 from inline_snapshot._exceptions import UsageError
+from inline_snapshot._generator_utils import only_value
 from inline_snapshot._utils import map_strings
 from inline_snapshot.syntax_warnings import InlineSnapshotInfo
 from inline_snapshot.syntax_warnings import InlineSnapshotSyntaxWarning
@@ -141,7 +142,7 @@ class NewAdapter:
 
     def compare(
         self, old_value: Custom, old_node, new_value: Custom
-    ) -> Generator[Change, None, Custom]:
+    ) -> Generator[ChangeBase, None, Custom]:
 
         if isinstance(old_value, CustomUnmanaged):
             return old_value
@@ -172,7 +173,7 @@ class NewAdapter:
 
     def compare_CustomValue(
         self, old_value: Custom, old_node: ast.expr, new_value: Custom
-    ) -> Generator[Change, None, Custom]:
+    ) -> Generator[ChangeBase, None, Custom]:
 
         assert isinstance(old_value, Custom)
         assert isinstance(new_value, Custom)
@@ -181,7 +182,8 @@ class NewAdapter:
         if old_node is None:
             new_token = []
         else:
-            new_token = map_strings(new_value.repr())
+            new_code = yield from new_value.repr(self.context)
+            new_token = map_strings(new_code)
 
         if (
             isinstance(old_node, ast.JoinedStr)
@@ -189,8 +191,10 @@ class NewAdapter:
             and isinstance(new_value.value, str)
         ):
             if not old_value.eval() == new_value.eval():
+
+                value = only_value(new_value.repr(self.context))
                 warnings.warn_explicit(
-                    f"inline-snapshot will be able to fix f-strings in the future.\nThe current string value is:\n   {new_value.repr()}",
+                    f"inline-snapshot will be able to fix f-strings in the future.\nThe current string value is:\n   {value}",
                     filename=self.context.file._source.filename,
                     lineno=old_node.lineno,
                     category=InlineSnapshotInfo,
@@ -236,7 +240,7 @@ class NewAdapter:
 
     def compare_CustomSequence(
         self, old_value: CustomSequence, old_node: ast.AST, new_value: CustomSequence
-    ) -> Generator[Change, None, CustomSequence]:
+    ) -> Generator[ChangeBase, None, CustomSequence]:
 
         if old_node is not None:
             assert isinstance(
@@ -299,7 +303,7 @@ class NewAdapter:
 
     def compare_CustomDict(
         self, old_value: CustomDict, old_node: ast.Dict, new_value: CustomDict
-    ) -> Generator[Change, None, Custom]:
+    ) -> Generator[ChangeBase, None, Custom]:
         assert isinstance(old_value, CustomDict)
         assert isinstance(new_value, CustomDict)
 
@@ -390,7 +394,7 @@ class NewAdapter:
 
     def compare_CustomCall(
         self, old_value: CustomCall, old_node: ast.Call, new_value: CustomCall
-    ) -> Generator[Change, None, Custom]:
+    ) -> Generator[ChangeBase, None, Custom]:
 
         call = new_value
         new_args = call.args
@@ -444,13 +448,14 @@ class NewAdapter:
 
         if old_args_len < len(new_args):
             for insert_pos, value in list(enumerate(new_args))[old_args_len:]:
+                new_code = yield from value.repr(self.context)
                 yield CallArg(
                     flag=flag,
                     file=self.context.file._source,
                     node=old_node,
                     arg_pos=insert_pos,
                     arg_name=None,
-                    new_code=value.repr(),
+                    new_code=new_code,
                     new_value=value,
                 )
 
@@ -497,14 +502,14 @@ class NewAdapter:
 
                 if to_insert:
                     for key, value in to_insert:
-
+                        new_code = yield from value.repr(self.context)
                         yield CallArg(
                             flag=flag,
                             file=self.context.file._source,
                             node=old_node,
                             arg_pos=insert_pos,
                             arg_name=key,
-                            new_code=value.repr(),
+                            new_code=new_code,
                             new_value=value,
                         )
                     to_insert = []
@@ -514,6 +519,7 @@ class NewAdapter:
         if to_insert:
 
             for key, value in to_insert:
+                new_code = yield from value.repr(self.context)
 
                 yield CallArg(
                     flag=flag,
@@ -521,7 +527,7 @@ class NewAdapter:
                     node=old_node,
                     arg_pos=insert_pos,
                     arg_name=key,
-                    new_code=value.repr(),
+                    new_code=new_code,
                     new_value=value,
                 )
 

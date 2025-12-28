@@ -1,7 +1,10 @@
 from enum import Enum
 from enum import Flag
+from functools import partial
 from functools import singledispatch
 from unittest import mock
+
+from inline_snapshot._generator_utils import only_value
 
 real_repr = repr
 
@@ -60,19 +63,25 @@ def customize_repr(f):
     code_repr_dispatch.register(f)
 
 
-def code_repr(obj):
+def code_repr(obj, context=None):
 
-    with mock.patch("builtins.repr", mocked_code_repr):
-        return mocked_code_repr(obj)
+    new_repr = partial(mocked_code_repr, context=context)
+
+    with mock.patch("builtins.repr", new_repr):
+        return new_repr(obj)
 
 
-def mocked_code_repr(obj):
+def mocked_code_repr(obj, context):
     from inline_snapshot._customize import Builder
 
-    return Builder(_snapshot_context=None)._get_handler(obj).repr()
+    return only_value(
+        Builder(_snapshot_context=context)._get_handler(obj).repr(context)
+    )
 
 
 def value_code_repr(obj):
+    # TODO: check the called functions
+
     if not type(obj) == type(obj):  # pragma: no cover
         # this was caused by https://github.com/samuelcolvin/dirty-equals/issues/104
         # dispatch will not work in cases like this

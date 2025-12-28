@@ -19,16 +19,24 @@ from types import BuiltinFunctionType
 from types import FunctionType
 from typing import Any
 from typing import Callable
+from typing import Generator
 from typing import Optional
 from typing import TypeAlias
 from typing import overload
 
 from inline_snapshot._adapter_context import AdapterContext
+from inline_snapshot._change import Change
+from inline_snapshot._change import ChangeBase
+from inline_snapshot._change import ExternalChange
 from inline_snapshot._code_repr import HasRepr
 from inline_snapshot._code_repr import value_code_repr
 from inline_snapshot._compare_context import compare_context
 from inline_snapshot._compare_context import compare_only
 from inline_snapshot._customize._custom import CustomizeHandler
+from inline_snapshot._external._external_location import ExternalLocation
+from inline_snapshot._external._format._protocol import get_format_handler
+from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
+from inline_snapshot._global_state import state
 from inline_snapshot._partial_call import partial_call
 from inline_snapshot._sentinels import undefined
 from inline_snapshot._unmanaged import is_dirty_equal
@@ -125,7 +133,8 @@ def customize(
 class CustomDefault(Custom):
     value: Custom = field(compare=False)
 
-    def repr(self):
+    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+        yield from ()
         # this should never be called because default values are never converted into code
         assert False
 
@@ -140,7 +149,8 @@ class CustomDefault(Custom):
 class CustomUnmanaged(Custom):
     value: Any
 
-    def repr(self):
+    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+        yield from ()
         return "'unmanaged'"  # pragma: no cover
 
     def map(self, f):
@@ -154,7 +164,8 @@ class CustomUndefined(Custom):
     def __init__(self):
         self.value = undefined
 
-    def repr(self) -> str:
+    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+        yield from ()
         return "..."
 
     def map(self, f):
@@ -178,15 +189,18 @@ class CustomCall(Custom):
     _kwargs: dict[str, Custom] = field(compare=False)
     _kwonly: dict[str, Custom] = field(default_factory=dict, compare=False)
 
-    def repr(self) -> str:
+    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
         args = []
-        args += [a.repr() for a in self.args]
-        args += [
-            f"{k}={v.repr()}"
-            for k, v in self.kwargs.items()
-            if not isinstance(v, CustomDefault)
-        ]
-        return f"{self._function.repr()}({', '.join(args)})"
+        for a in self.args:
+            v = yield from a.repr(context)
+            args.append(v)
+
+        for k, v in self.kwargs.items():
+            if not isinstance(v, CustomDefault):
+                value = yield from v.repr(context)
+                args.append(f"{k}={value}")
+
+        return f"{yield from self._function.repr(context)}({', '.join(args)})"
 
     @property
     def args(self):
@@ -237,9 +251,14 @@ class CustomSequence(Custom, CustomSequenceTypes):
     def map(self, f):
         return f(self.value_type([x.map(f) for x in self.value]))
 
-    def repr(self) -> str:
+    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+        values = []
+        for v in self.value:
+            value = yield from v.repr(context)
+            values.append(value)
+
         trailing_comma = self.trailing_comma and len(self.value) == 1
-        return f"{self.braces[0]}{', '.join(v.repr() for v in self.value)}{', ' if trailing_comma else ''}{self.braces[1]}"
+        return f"{self.braces[0]}{', '.join(values)}{', ' if trailing_comma else ''}{self.braces[1]}"
 
     def _needed_imports(self):
         for v in self.value:
@@ -268,15 +287,62 @@ class CustomDict(Custom):
     def map(self, f):
         return f({k.map(f): v.map(f) for k, v in self.value.items()})
 
-    def repr(self) -> str:
-        return (
-            f"{{{ ', '.join(f'{k.repr()}: {v.repr()}' for k,v in self.value.items())}}}"
-        )
+    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+        values = []
+        for k, v in self.value.items():
+            key = yield from k.repr(context)
+            value = yield from v.repr(context)
+            values.append(f"{key}: {value}")
+
+        return f"{{{ ', '.join(values)}}}"
 
     def _needed_imports(self):
         for k, v in self.value.items():
             yield from k._needed_imports()
             yield from v._needed_imports()
+
+
+@dataclass(frozen=True)
+class CustomExternal(Custom):
+    value: Any
+    format: str | None = None
+    storage: str | None = None
+
+    def map(self, f):
+        return f(self.value)
+
+    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+        storage_name = self.storage or state().config.default_storage
+
+        format = get_format_handler(self.value, self.format or "")
+
+        location = ExternalLocation(
+            storage=storage_name,
+            stem="",
+            suffix=format.suffix,
+            filename=Path(context.file.filename),
+            qualname=context.qualname,
+        )
+
+        tmp_file = state().new_tmp_path(location.suffix)
+
+        storage = state().all_storages[storage_name]
+
+        format.encode(self.value, tmp_file)
+        location = storage.new_location(location, tmp_file)
+
+        yield ExternalChange(
+            "create",
+            tmp_file,
+            ExternalLocation.from_name("", context=context),
+            location,
+            format,
+        )
+
+        return f"external({location.to_str()!r})"
+
+    def _needed_imports(self):
+        return [("inline_snapshot", ["external"])]
 
 
 class CustomValue(Custom):
@@ -303,7 +369,8 @@ class CustomValue(Custom):
     def map(self, f):
         return f(self.value)
 
-    def repr(self) -> str:
+    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+        yield from ()
         return self.repr_str
 
     def __repr__(self):
@@ -678,6 +745,10 @@ class Builder:
 
         result.__dict__["original_value"] = v
         return result
+
+    def create_external(self, value: Any, format: str | None, storage: str | None):
+
+        return CustomExternal(value, format=format, storage=storage)
 
     def create_list(self, value) -> Custom:
         """

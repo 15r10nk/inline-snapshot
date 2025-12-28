@@ -1,3 +1,4 @@
+from typing import Generator
 from typing import Iterator
 from typing import List
 
@@ -6,6 +7,7 @@ from inline_snapshot._new_adapter import NewAdapter
 from inline_snapshot._utils import map_strings
 
 from .._change import Change
+from .._change import ChangeBase
 from .._compare_context import compare_only
 from .._global_state import state
 from .generic_value import GenericValue
@@ -38,8 +40,9 @@ class EqValue(GenericValue):
             self._new_value.eval() == other,
         )
 
-    def _new_code(self):
-        return self._file._token_to_code(map_strings(self._new_value.repr()))
+    def _new_code(self) -> Generator[ChangeBase, None, str]:
+        code = yield from self._new_value.repr(self._context)
+        return self._file._token_to_code(map_strings(code))
 
     def _get_changes(self) -> Iterator[Change]:
         return iter(getattr(self, "_changes", []))
