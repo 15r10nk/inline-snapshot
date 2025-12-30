@@ -1,10 +1,17 @@
+from __future__ import annotations
+
+from contextlib import contextmanager
 from enum import Enum
 from enum import Flag
-from functools import partial
 from functools import singledispatch
+from typing import TYPE_CHECKING
 from unittest import mock
 
 from inline_snapshot._generator_utils import only_value
+
+if TYPE_CHECKING:
+    from inline_snapshot._adapter_context import AdapterContext
+
 
 real_repr = repr
 
@@ -35,8 +42,9 @@ class HasRepr:
             if type(other) is not self._type:
                 return False
 
-        other_repr = value_code_repr(other)
-        return other_repr == self._str_repr or other_repr == repr(self)
+        with mock_repr(None):
+            other_repr = value_code_repr(other)
+        return other_repr == self._str_repr or other_repr == real_repr(self)
 
 
 @singledispatch
@@ -63,24 +71,26 @@ def customize_repr(f):
     code_repr_dispatch.register(f)
 
 
-def code_repr(obj, context=None):
+def code_repr(obj):
+    with mock_repr(None):
+        return repr(obj)
 
-    new_repr = partial(mocked_code_repr, context=context)
+
+@contextmanager
+def mock_repr(context: AdapterContext):
+    def new_repr(obj):
+        from inline_snapshot._customize import Builder
+
+        return only_value(
+            Builder(_snapshot_context=context)._get_handler(obj).repr(context)
+        )
 
     with mock.patch("builtins.repr", new_repr):
-        return new_repr(obj)
-
-
-def mocked_code_repr(obj, context):
-    from inline_snapshot._customize import Builder
-
-    return only_value(
-        Builder(_snapshot_context=context)._get_handler(obj).repr(context)
-    )
+        yield
 
 
 def value_code_repr(obj):
-    # TODO: check the called functions
+    assert repr is not real_repr, "@mock_repr is missing"
 
     if not type(obj) == type(obj):  # pragma: no cover
         # this was caused by https://github.com/samuelcolvin/dirty-equals/issues/104

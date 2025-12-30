@@ -28,7 +28,6 @@ from inline_snapshot._customize import CustomUnmanaged
 from inline_snapshot._customize import CustomValue
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._generator_utils import only_value
-from inline_snapshot._utils import map_strings
 from inline_snapshot.syntax_warnings import InlineSnapshotInfo
 from inline_snapshot.syntax_warnings import InlineSnapshotSyntaxWarning
 
@@ -181,10 +180,9 @@ class NewAdapter:
         assert isinstance(old_node, (ast.expr, type(None))), old_node
 
         if old_node is None:
-            new_token = []
+            new_code = ""
         else:
             new_code = yield from new_value.repr(self.context)
-            new_token = map_strings(new_code)
 
         if (
             isinstance(old_node, ast.JoinedStr)
@@ -207,21 +205,19 @@ class NewAdapter:
                 flag = "create"
             else:
                 flag = "fix"
-        elif (
-            old_node is not None
-            and not isinstance(old_value, CustomUnmanaged)
-            and self.context.file._token_of_node(old_node) != new_token
-        ):
+        elif not isinstance(
+            old_value, CustomUnmanaged
+        ) and self.context.file.code_changed(old_node, new_code):
             flag = "update"
         else:
             # equal and equal repr
             return old_value
 
-        new_code = self.context.file._token_to_code(new_token)
+        new_code = self.context.file.format_expression(new_code)
 
         yield Replace(
             node=old_node,
-            file=self.context.file._source,
+            file=self.context.file,
             new_code=new_code,
             flag=flag,
             old_value=old_value.eval(),
@@ -235,7 +231,7 @@ class NewAdapter:
             return imports
 
         if imports := needed_imports(new_value):
-            yield RequiredImports(flag, self.context.file._source, imports)
+            yield RequiredImports(flag, self.context.file, imports)
 
         return new_value
 
@@ -280,7 +276,7 @@ class NewAdapter:
                 old_value_element, old_node_element = next(old)
                 yield Delete(
                     "fix",
-                    self.context.file._source,
+                    self.context.file,
                     old_node_element,
                     old_value_element,
                 )
@@ -291,7 +287,7 @@ class NewAdapter:
         for position, code_values in to_insert.items():
             yield ListInsert(
                 "fix",
-                self.context.file._source,
+                self.context.file,
                 old_node,
                 position,
                 *zip(*code_values),  # type:ignore
@@ -332,9 +328,7 @@ class NewAdapter:
         ):
             if key2 not in new_value.value:
                 # delete entries
-                yield Delete(
-                    "fix", self.context.file._source, node2, old_value.value[key2]
-                )
+                yield Delete("fix", self.context.file, node2, old_value.value[key2])
 
         to_insert = []
         insert_pos = 0
@@ -364,7 +358,7 @@ class NewAdapter:
                     ]
                     yield DictInsert(
                         "fix",
-                        self.context.file._source,
+                        self.context.file,
                         old_node,
                         insert_pos,
                         new_code,
@@ -384,7 +378,7 @@ class NewAdapter:
             ]
             yield DictInsert(
                 "fix",
-                self.context.file._source,
+                self.context.file,
                 old_node,
                 len(old_value.value),
                 new_code,
@@ -442,7 +436,7 @@ class NewAdapter:
                 for arg_pos, node in list(enumerate(old_node.args))[len(new_args) :]:
                     yield Delete(
                         flag,
-                        self.context.file._source,
+                        self.context.file,
                         node,
                         old_value.argument(arg_pos),
                     )
@@ -452,7 +446,7 @@ class NewAdapter:
                 new_code = yield from value.repr(self.context)
                 yield CallArg(
                     flag=flag,
-                    file=self.context.file._source,
+                    file=self.context.file,
                     node=old_node,
                     arg_pos=insert_pos,
                     arg_name=None,
@@ -478,7 +472,7 @@ class NewAdapter:
                         if old_value.argument(kw_arg) == new_value.argument(kw_arg)
                         else flag
                     ),
-                    self.context.file._source,
+                    self.context.file,
                     kw_value,
                     old_value.argument(kw_arg),
                 )
@@ -506,7 +500,7 @@ class NewAdapter:
                         new_code = yield from value.repr(self.context)
                         yield CallArg(
                             flag=flag,
-                            file=self.context.file._source,
+                            file=self.context.file,
                             node=old_node,
                             arg_pos=insert_pos,
                             arg_name=key,
@@ -524,7 +518,7 @@ class NewAdapter:
 
                 yield CallArg(
                     flag=flag,
-                    file=self.context.file._source,
+                    file=self.context.file,
                     node=old_node,
                     arg_pos=insert_pos,
                     arg_name=key,

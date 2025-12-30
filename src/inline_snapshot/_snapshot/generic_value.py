@@ -3,6 +3,7 @@ from typing import Generator
 from typing import Iterator
 
 from inline_snapshot._adapter_context import AdapterContext
+from inline_snapshot._code_repr import mock_repr
 from inline_snapshot._customize import Builder
 from inline_snapshot._customize import Custom
 from inline_snapshot._customize import CustomUndefined
@@ -48,12 +49,16 @@ class GenericValue(SnapshotBase):
     def _file(self):
         return self._context.file
 
+    def to_custom(self, value):
+        with mock_repr(self._context):
+            return self.get_builder()._get_handler(value)
+
     def value_to_custom(self, value):
         if isinstance(value, Custom):
             return value
 
         if self._ast_node is None:
-            return self.get_builder()._get_handler(value)
+            return self.to_custom(value)
         else:
             from inline_snapshot._snapshot.undecided_value import AstToCustom
 
