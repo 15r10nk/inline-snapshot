@@ -137,6 +137,9 @@ class AddArgument(Change):
     new_code: str
     new_value: Any
 
+    def __post_init__(self):
+        self.new_code = self.file.format_expression(self.new_code)
+
 
 @dataclass()
 class ListInsert(Change):
@@ -146,6 +149,9 @@ class ListInsert(Change):
     new_code: list[str]
     new_values: list[Any]
 
+    def __post_init__(self):
+        self.new_code = [self.file.format_expression(v) for v in self.new_code]
+
 
 @dataclass()
 class DictInsert(Change):
@@ -154,6 +160,12 @@ class DictInsert(Change):
 
     new_code: list[tuple[str, str]]
     new_values: list[tuple[Any, Any]]
+
+    def __post_init__(self):
+        self.new_code = [
+            (self.file.format_expression(k), self.file.format_expression(v))
+            for k, v in self.new_code
+        ]
 
 
 @dataclass()
@@ -169,6 +181,9 @@ class Replace(Change):
         range = self.file.asttokens().get_text_positions(self.node, False)
         change.replace(range, self.new_code, filename=self.filename)
 
+    def __post_init__(self):
+        self.new_code = self.file.format_expression(self.new_code)
+
 
 @dataclass()
 class CallArg(Change):
@@ -178,6 +193,9 @@ class CallArg(Change):
 
     new_code: str
     new_value: Any
+
+    def __post_init__(self):
+        self.new_code = self.file.format_expression(self.new_code)
 
 
 TokenRange = Tuple[Token, Token]

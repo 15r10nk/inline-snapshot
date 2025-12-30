@@ -1,3 +1,6 @@
+import io
+import token
+import tokenize
 from pathlib import Path
 
 from executing import Source
@@ -7,8 +10,17 @@ from inline_snapshot._format import format_code
 from inline_snapshot._utils import normalize
 from inline_snapshot._utils import simple_token
 
-from ._utils import ignore_tokens
-from ._utils import map_strings
+ignore_tokens = (token.NEWLINE, token.ENDMARKER, token.NL)
+
+
+def _token_of_code(code_repr):
+    input = io.StringIO(code_repr)
+
+    return [
+        simple_token(t.type, t.string)
+        for t in tokenize.generate_tokens(input.readline)
+        if t.type not in ignore_tokens
+    ]
 
 
 class SourceFile:
@@ -38,9 +50,7 @@ class SourceFile:
         if old_node is None:
             return False
 
-        new_token = map_strings(new_code)
-
-        return self._token_of_node(old_node) != new_token
+        return self._token_of_node(old_node) != _token_of_code(new_code)
 
     def _token_of_node(self, node):
 
