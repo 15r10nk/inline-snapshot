@@ -42,6 +42,7 @@ from inline_snapshot._sentinels import undefined
 from inline_snapshot._unmanaged import is_dirty_equal
 from inline_snapshot._unmanaged import is_unmanaged
 from inline_snapshot._utils import clone
+from inline_snapshot._utils import triple_quote
 
 from ._custom import Custom
 from ._custom import CustomizeHandler
@@ -408,6 +409,19 @@ def standard_handler(value, builder: Builder):
 
     if isinstance(value, dict):
         return builder.create_dict(value)
+
+
+@customize
+def string_handler(value, builder: Builder):
+    if isinstance(value, str) and (
+        ("\n" in value and value[-1] != "\n") or value.count("\n") > 1
+    ):
+
+        triple_quoted_string = triple_quote(value)
+
+        assert ast.literal_eval(triple_quoted_string) == value
+
+        return builder.create_value(value, triple_quoted_string)
 
 
 @customize

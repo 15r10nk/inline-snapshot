@@ -161,25 +161,8 @@ def value_to_token(value):
 def map_strings(code_repr):
     input = io.StringIO(code_repr)
 
-    def map_string(tok):
-        """Convert strings with newlines in triple quoted strings."""
-        if tok.type == token.STRING:
-            s = ast.literal_eval(tok.string)
-            if isinstance(s, str) and (
-                ("\n" in s and s[-1] != "\n") or s.count("\n") > 1
-            ):
-                # unparse creates a triple quoted string here,
-                # because it thinks that the string should be a docstring
-                triple_quoted_string = triple_quote(s)
-
-                assert ast.literal_eval(triple_quoted_string) == s
-
-                return simple_token(tok.type, triple_quoted_string)
-
-        return simple_token(tok.type, tok.string)
-
     return [
-        map_string(t)
+        simple_token(t.type, t.string)
         for t in tokenize.generate_tokens(input.readline)
         if t.type not in ignore_tokens
     ]

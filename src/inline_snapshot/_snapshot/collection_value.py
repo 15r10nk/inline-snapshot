@@ -86,6 +86,6 @@ class CollectionValue(GenericValue):
                 file=self._file,
                 node=self._ast_node,
                 position=len(self._old_value.value),
-                new_code=[self._file._value_to_code(v) for v in new_values],
+                new_code=[self._context._value_to_code(v) for v in new_values],
                 new_values=new_values,
             )

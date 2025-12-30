@@ -1,14 +1,14 @@
-import ast
 import tokenize
 from pathlib import Path
 
 from executing import Source
 
+from inline_snapshot._code_repr import code_repr
 from inline_snapshot._format import enforce_formatting
 from inline_snapshot._format import format_code
+from inline_snapshot._generator_utils import only_value
 from inline_snapshot._utils import normalize
 from inline_snapshot._utils import simple_token
-from inline_snapshot._utils import value_to_token
 
 from ._utils import ignore_tokens
 
@@ -33,20 +33,15 @@ class SourceFile:
         return self._source.asttokens()
 
     def _token_to_code(self, tokens):
-        if len(tokens) == 1 and tokens[0].type == 3:
-            try:
-                if ast.literal_eval(tokens[0].string) == "":
-                    # https://github.com/15r10nk/inline-snapshot/issues/281
-                    # https://github.com/15r10nk/inline-snapshot/issues/258
-                    # this would otherwise cause a triple-quoted-string because black would format it as a docstring at the beginning of the code
-                    return '""'
-            except:  # pragma: no cover
-                pass
         return self._format(tokenize.untokenize(tokens)).strip()
 
-    def _value_to_code(self, value):
-        # TODO remove this
-        return self._token_to_code(value_to_token(value))
+    def _value_to_code(self, value, context):
+        from inline_snapshot._customize._custom import Custom
+
+        if isinstance(value, Custom):
+            return self._format(only_value(value.repr(context))).strip()
+        else:
+            return self._format(code_repr(value)).strip()
 
     def _token_of_node(self, node):
 
