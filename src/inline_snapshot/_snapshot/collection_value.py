@@ -5,14 +5,11 @@ from typing import Iterator
 from inline_snapshot._customize import CustomList
 from inline_snapshot._customize import CustomUndefined
 
-from .._change import Change
 from .._change import ChangeBase
 from .._change import Delete
 from .._change import ListInsert
 from .._change import Replace
 from .._global_state import state
-from .._utils import map_strings
-from .._utils import value_to_token
 from .generic_value import GenericValue
 from .generic_value import ignore_old_value
 
@@ -25,10 +22,10 @@ class CollectionValue(GenericValue):
             state().missing_values += 1
 
         if isinstance(self._new_value, CustomUndefined):
-            self._new_value = CustomList([self.get_builder()._get_handler(item)])
+            self._new_value = CustomList([self.to_custom(item)])
         else:
             if item not in self._new_value.eval():
-                self._new_value.value.append(self.get_builder()._get_handler(item))
+                self._new_value.value.append(self.to_custom(item))
 
         if ignore_old_value() or isinstance(self._old_value, CustomUndefined):
             return True
@@ -37,9 +34,9 @@ class CollectionValue(GenericValue):
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
         code = yield from self._new_value.repr(self._context)
-        return self._file._token_to_code(map_strings(code))
+        return code
 
-    def _get_changes(self) -> Iterator[Change]:
+    def _get_changes(self) -> Iterator[ChangeBase]:
         assert isinstance(self._old_value, CustomList), self._old_value
         assert isinstance(self._new_value, CustomList), self._new_value
 
@@ -60,13 +57,9 @@ class CollectionValue(GenericValue):
                 continue
 
             # check for update
-            new_token = value_to_token(old_value.eval())
+            new_code = yield from self.to_custom(old_value.eval()).repr(self._context)
 
-            if (
-                old_node is not None
-                and self._file._token_of_node(old_node) != new_token
-            ):
-                new_code = self._file._token_to_code(new_token)
+            if self._file.code_changed(old_node, new_code):
 
                 yield Replace(
                     node=old_node,

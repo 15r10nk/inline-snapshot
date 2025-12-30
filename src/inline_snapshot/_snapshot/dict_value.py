@@ -25,7 +25,7 @@ class DictValue(GenericValue):
         if isinstance(self._new_value, CustomUndefined):
             self._new_value = CustomDict({})
 
-        index = self.get_builder()._get_handler(index)
+        index = self.to_custom(index)
 
         if index not in self._new_value.value:
             if isinstance(self._old_value, CustomUndefined):
@@ -92,7 +92,8 @@ class DictValue(GenericValue):
             ):
                 # add new values
                 new_code = yield from new_value_element._new_code()  # type:ignore
-                to_insert.append((key, new_code))
+
+                to_insert.append((key, self._file.format_expression(new_code)))
 
         if to_insert:
             new_code = [

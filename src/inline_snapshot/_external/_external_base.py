@@ -6,9 +6,11 @@ from inline_snapshot._change import ExternalChange
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._external._format._protocol import get_format_handler
 from inline_snapshot._external._outsource import Outsourced
+from inline_snapshot._external._storage._protocol import StorageLookupError
 from inline_snapshot._global_state import state
 
 from .._snapshot.generic_value import GenericValue
+from ._external_location import ExternalLocation
 from ._external_location import Location
 
 
@@ -74,7 +76,19 @@ class ExternalBase:
                 return True
             return False
 
-        value = self._load_value()
+        try:
+            value = self._load_value()
+        except StorageLookupError as error:
+            if not error.files and state().update_flags.fix:
+                self._original_location = ExternalLocation.from_name("")
+                self._assign(other)
+                state().incorrect_values += 1
+                if state().update_flags.fix:
+                    return True
+                return False
+            else:
+                raise
+
         result = value == other
 
         if not result and first_comparison:

@@ -11,6 +11,7 @@ from inline_snapshot._utils import normalize
 from inline_snapshot._utils import simple_token
 
 from ._utils import ignore_tokens
+from ._utils import map_strings
 
 
 class SourceFile:
@@ -23,25 +24,38 @@ class SourceFile:
     def filename(self) -> str:
         return self._source.filename
 
-    def _format(self, text):
+    def _format(self, code):
         if self._source is None or enforce_formatting():
-            return text
+            return code
         else:
-            return format_code(text, Path(self._source.filename))
+            return format_code(code, Path(self._source.filename))
+
+    def format_expression(self, code):
+        return self._format(code).strip()
 
     def asttokens(self):
         return self._source.asttokens()
 
     def _token_to_code(self, tokens):
-        return self._format(tokenize.untokenize(tokens)).strip()
+        return self.format_expression(tokenize.untokenize(tokens))
 
     def _value_to_code(self, value, context):
         from inline_snapshot._customize._custom import Custom
 
         if isinstance(value, Custom):
-            return self._format(only_value(value.repr(context))).strip()
+            return self.format_expression(only_value(value.repr(context)))
         else:
-            return self._format(code_repr(value)).strip()
+            # TODO assert False
+            return self.format_expression(code_repr(value))
+
+    def code_changed(self, old_node, new_code):
+
+        if old_node is None:
+            return False
+
+        new_token = map_strings(new_code)
+
+        return self._token_of_node(old_node) != new_token
 
     def _token_of_node(self, node):
 

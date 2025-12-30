@@ -141,6 +141,8 @@ class SnapshotReference(SnapshotRefBase):
 
             new_code = yield from self._value._new_code()
 
+            new_code = self._context.file.format_expression(new_code)
+
             yield CallArg(
                 flag="create",
                 file=self._value._file,

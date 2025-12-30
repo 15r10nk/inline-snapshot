@@ -320,7 +320,7 @@ class CustomExternal(Custom):
         location = ExternalLocation(
             storage=storage_name,
             stem="",
-            suffix=format.suffix,
+            suffix=self.format or format.suffix,
             filename=Path(context.file.filename),
             qualname=context.qualname,
         )
@@ -687,9 +687,7 @@ def outsourced_handler(value, builder: Builder):
     from inline_snapshot._external._outsource import Outsourced
 
     if isinstance(value, Outsourced):
-        return builder.create_value(value, repr(value)).with_import(
-            "inline_snapshot", "external"
-        )
+        return builder.create_external(value, value.suffix, value.storage)
 
 
 @dataclass

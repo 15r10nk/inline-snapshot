@@ -26,7 +26,7 @@ def test_captcha():
 inline-snapshot always generates an external object in this case.
 
 <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-``` python hl_lines="3 4 20 21 22 23 24 25 26"
+``` python hl_lines="3 4 20 21 22 23 24 25 26 27 28"
 from inline_snapshot import outsource, register_format_alias, snapshot
 
 from inline_snapshot import external
@@ -50,7 +50,9 @@ def test_captcha():
         {
             "size": "200x100",
             "difficulty": 8,
-            "picture": external("hash:0da2cc316111*.png"),
+            "picture": external(
+                "uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.png"
+            ),
         }
     )
 ```

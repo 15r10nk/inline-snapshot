@@ -124,12 +124,12 @@ def test_a():
 
 
 def test_hash_not_found():
-    with snapshot_env():
-        with raises(
-            snapshot(
-                "StorageLookupError: hash 'bbbbb*.txt' is not found in the HashStorage"
-            )
-        ):
+    with raises(
+        snapshot(
+            "StorageLookupError: hash 'bbbbb*.txt' is not found in the HashStorage"
+        )
+    ):
+        with snapshot_env():
             assert outsource("test4") == external("hash:bbbbb*.txt")
 
 
@@ -243,7 +243,7 @@ E         Use -v to get more diff
         if sys.version_info >= (3, 11)
         else snapshot(
             """\
->       assert outsource(b"test2") == snapshot(
+>       assert outsource(b"test2") == s
 E       AssertionError
 """
         )
@@ -628,7 +628,7 @@ def test_something():
         error=snapshot(
             """\
 >       assert "foo" == external("hash:aaaaaaaaaaaa*.txt")
->           raise StorageLookupError(f"hash {name!r} is not found in the HashStorage")
+>           raise StorageLookupError(
 E           inline_snapshot._external._storage._protocol.StorageLookupError: hash 'aaaaaaaaaaaa*.txt' is not found in the HashStorage
 """
         ),

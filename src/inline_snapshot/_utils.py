@@ -8,7 +8,6 @@ from pathlib import Path
 
 from inline_snapshot._exceptions import UsageError
 
-from ._code_repr import code_repr
 from ._code_repr import value_code_repr
 
 
@@ -155,7 +154,10 @@ class simple_token(namedtuple("simple_token", "type,string")):
 
 
 def value_to_token(value):
-    return map_strings(code_repr(value))
+    from inline_snapshot._customize._custom import Custom
+
+    assert isinstance(value, Custom)
+    return map_strings(value.repr())
 
 
 def map_strings(code_repr):

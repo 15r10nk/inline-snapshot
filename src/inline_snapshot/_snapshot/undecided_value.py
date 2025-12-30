@@ -72,17 +72,13 @@ class AstToCustom:
 class UndecidedValue(GenericValue):
     def __init__(self, old_value, ast_node, context: AdapterContext):
         self._context = context
+        self._ast_node = ast_node
 
-        if not isinstance(old_value, Custom):
-            if ast_node is not None:
-                old_value = AstToCustom(context).convert(old_value, ast_node)
-            else:
-                old_value = self.get_builder()._get_handler(old_value)
+        old_value = self.value_to_custom(old_value)
 
         assert isinstance(old_value, Custom)
         self._old_value = old_value
         self._new_value = CustomUndefined()
-        self._ast_node = ast_node
 
     def _change(self, cls):
         self.__class__ = cls
@@ -93,39 +89,13 @@ class UndecidedValue(GenericValue):
     def _get_changes(self) -> Iterator[ChangeBase]:
         assert isinstance(self._new_value, CustomUndefined)
 
-        new_value = self.get_builder()._get_handler(self._old_value.eval())
+        new_value = self.to_custom(self._old_value.eval())
 
         adapter = NewAdapter(self._context)
 
         for change in adapter.compare(self._old_value, self._ast_node, new_value):
             assert change.flag == "update", change
             yield change
-
-        # def handle(node, obj):
-
-        #     adapter = get_adapter_type(obj)
-        #     if adapter is not None and hasattr(adapter, "items"):
-        #         for item in adapter.items(obj, node):
-        #             yield from handle(item.node, item.value)
-        #         return
-
-        #     if not isinstance(obj, CustomUnmanaged) and node is not None:
-        #         new_token = value_to_token(obj.eval())
-        #         if self._file._token_of_node(node) != new_token:
-        #             new_code = self._file._token_to_code(new_token)
-
-        #             yield Replace(
-        #                 node=self._ast_node,
-        #                 file=self._file,
-        #                 new_code=new_code,
-        #                 flag="update",
-        #                 old_value=self._old_value,
-        #                 new_value=self._old_value,
-        #             )
-
-        # yield from handle(self._ast_node, self._old_value)
-
-    # functions which determine the type
 
     def __eq__(self, other):
         if compare_only():
