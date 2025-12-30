@@ -63,7 +63,7 @@ class DictValue(GenericValue):
         for k, v in self._new_value.value.items():
             if not isinstance(v, UndecidedValue):
                 new_code = yield from v._new_code()  # type:ignore
-                values.append(f"{self._file._value_to_code(k)}: {new_code}")
+                values.append(f"{self._context._value_to_code(k)}: {new_code}")
 
         return "{" + ", ".join(values) + "}"
 
@@ -95,7 +95,9 @@ class DictValue(GenericValue):
                 to_insert.append((key, new_code))
 
         if to_insert:
-            new_code = [(self._file._value_to_code(k.eval()), v) for k, v in to_insert]
+            new_code = [
+                (self._context._value_to_code(k.eval()), v) for k, v in to_insert
+            ]
             yield DictInsert(
                 "create",
                 self._file,

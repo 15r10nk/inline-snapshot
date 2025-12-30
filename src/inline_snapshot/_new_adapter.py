@@ -6,6 +6,7 @@ from collections import defaultdict
 from typing import Generator
 from typing import Sequence
 
+from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._align import add_x
 from inline_snapshot._align import align
 from inline_snapshot._change import CallArg
@@ -137,7 +138,7 @@ def reeval_CustomDict(old_value, value):
 
 class NewAdapter:
 
-    def __init__(self, context):
+    def __init__(self, context: AdapterContext):
         self.context = context
 
     def compare(
@@ -272,7 +273,7 @@ class NewAdapter:
                 old_position += 1
             elif c == "i":
                 new_value_element = next(new)
-                new_code = self.context.file._value_to_code(new_value_element)
+                new_code = self.context._value_to_code(new_value_element)
                 result.append(new_value_element)
                 to_insert[old_position].append((new_code, new_value_element))
             elif c == "d":
@@ -356,8 +357,8 @@ class NewAdapter:
                 if to_insert:
                     new_code = [
                         (
-                            self.context.file._value_to_code(k),
-                            self.context.file._value_to_code(v),
+                            self.context._value_to_code(k),
+                            self.context._value_to_code(v),
                         )
                         for k, v in to_insert
                     ]
@@ -376,8 +377,8 @@ class NewAdapter:
         if to_insert:
             new_code = [
                 (
-                    self.context.file._value_to_code(k),
-                    self.context.file._value_to_code(v),
+                    self.context._value_to_code(k),
+                    self.context._value_to_code(v),
                 )
                 for k, v in to_insert
             ]
