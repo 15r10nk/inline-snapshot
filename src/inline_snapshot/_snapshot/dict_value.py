@@ -6,7 +6,6 @@ from inline_snapshot._customize import CustomDict
 from inline_snapshot._customize import CustomUndefined
 
 from .._adapter_context import AdapterContext
-from .._change import Change
 from .._change import ChangeBase
 from .._change import Delete
 from .._change import DictInsert
@@ -68,7 +67,7 @@ class DictValue(GenericValue):
 
         return "{" + ", ".join(values) + "}"
 
-    def _get_changes(self) -> Iterator[Change]:
+    def _get_changes(self) -> Iterator[ChangeBase]:
 
         assert not isinstance(self._old_value, CustomUndefined)
 
@@ -96,12 +95,7 @@ class DictValue(GenericValue):
                 new_value = yield from new_value_element._new_code()  # type:ignore
                 new_key = yield from key.repr(self._context)
 
-                to_insert.append(
-                    (
-                        self._file.format_expression(new_key),
-                        self._file.format_expression(new_value),
-                    )
-                )
+                to_insert.append((new_key, new_value))
                 to_insert_values.append((key, new_value_element))
 
         if to_insert:

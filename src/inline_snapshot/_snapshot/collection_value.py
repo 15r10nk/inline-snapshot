@@ -75,7 +75,7 @@ class CollectionValue(GenericValue):
         for v in self._new_value.value:
             if v not in self._old_value.value:
                 new_code = yield from v.repr(self._context)
-                new_codes.append(self._file.format_expression(new_code))
+                new_codes.append(new_code)
                 new_values.append(v.eval())
 
         if new_codes:

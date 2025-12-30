@@ -1,8 +1,6 @@
 import ast
 import copy
-import io
 import token
-import tokenize
 from collections import namedtuple
 from pathlib import Path
 
@@ -74,9 +72,6 @@ def skip_trailing_comma(token_sequence):
 
 def normalize(token_sequence):
     return skip_trailing_comma(normalize_strings(token_sequence))
-
-
-ignore_tokens = (token.NEWLINE, token.ENDMARKER, token.NL)
 
 
 # based on ast.unparse
@@ -151,23 +146,6 @@ class simple_token(namedtuple("simple_token", "type,string")):
             ) and self.string.replace("'", '"') == other.string.replace("'", '"')
         else:
             return super().__eq__(other)
-
-
-def value_to_token(value):
-    from inline_snapshot._customize._custom import Custom
-
-    assert isinstance(value, Custom)
-    return map_strings(value.repr())
-
-
-def map_strings(code_repr):
-    input = io.StringIO(code_repr)
-
-    return [
-        simple_token(t.type, t.string)
-        for t in tokenize.generate_tokens(input.readline)
-        if t.type not in ignore_tokens
-    ]
 
 
 def clone(obj):

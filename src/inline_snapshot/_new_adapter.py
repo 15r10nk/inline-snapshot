@@ -213,8 +213,6 @@ class NewAdapter:
             # equal and equal repr
             return old_value
 
-        new_code = self.context.file.format_expression(new_code)
-
         yield Replace(
             node=old_node,
             file=self.context.file,
@@ -271,9 +269,7 @@ class NewAdapter:
                 new_value_element = next(new)
                 new_code = yield from new_value_element.repr(self.context)
                 result.append(new_value_element)
-                to_insert[old_position].append(
-                    (self.context.file.format_expression(new_code), new_value_element)
-                )
+                to_insert[old_position].append((new_code, new_value_element))
             elif c == "d":
                 old_value_element, old_node_element = next(old)
                 yield Delete(
@@ -355,12 +351,7 @@ class NewAdapter:
                     for k, v in to_insert:
                         new_code_key = yield from k.repr(self.context)
                         new_code_value = yield from v.repr(self.context)
-                        new_code.append(
-                            (
-                                self.context.file.format_expression(new_code_key),
-                                self.context.file.format_expression(new_code_value),
-                            )
-                        )
+                        new_code.append((new_code_key, new_code_value))
 
                     yield DictInsert(
                         "fix",
@@ -377,12 +368,12 @@ class NewAdapter:
         if to_insert:
             new_code = []
             for k, v in to_insert:
-                new_key = yield from k.repr(self.context)
-                new_value = yield from v.repr(self.context)
+                new_code_key = yield from k.repr(self.context)
+                new_code_value = yield from v.repr(self.context)
                 new_code.append(
                     (
-                        self.context.file.format_expression(new_key),
-                        self.context.file.format_expression(new_value),
+                        new_code_key,
+                        new_code_value,
                     )
                 )
 
