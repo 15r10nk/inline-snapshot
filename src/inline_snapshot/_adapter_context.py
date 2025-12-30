@@ -24,6 +24,3 @@ class AdapterContext:
             self.frame.globals,
             self.frame.locals,
         )
-
-    def _value_to_code(self, value):
-        return self.file._value_to_code(value, self)

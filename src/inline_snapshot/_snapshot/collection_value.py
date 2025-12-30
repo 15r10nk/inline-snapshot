@@ -70,15 +70,20 @@ class CollectionValue(GenericValue):
                     new_value=old_value,
                 )
 
-        new_values = [
-            v.eval() for v in self._new_value.value if v not in self._old_value.value
-        ]
-        if new_values:
+        new_codes = []
+        new_values = []
+        for v in self._new_value.value:
+            if v not in self._old_value.value:
+                new_code = yield from v.repr(self._context)
+                new_codes.append(self._file.format_expression(new_code))
+                new_values.append(v.eval())
+
+        if new_codes:
             yield ListInsert(
                 flag="fix",
                 file=self._file,
                 node=self._ast_node,
                 position=len(self._old_value.value),
-                new_code=[self._context._value_to_code(v) for v in new_values],
+                new_code=new_codes,
                 new_values=new_values,
             )

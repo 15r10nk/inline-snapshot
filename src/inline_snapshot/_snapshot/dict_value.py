@@ -63,7 +63,8 @@ class DictValue(GenericValue):
         for k, v in self._new_value.value.items():
             if not isinstance(v, UndecidedValue):
                 new_code = yield from v._new_code()  # type:ignore
-                values.append(f"{self._context._value_to_code(k)}: {new_code}")
+                new_key = yield from k.repr(self._context)
+                values.append(f"{new_key}: {new_code}")
 
         return "{" + ", ".join(values) + "}"
 
@@ -86,24 +87,29 @@ class DictValue(GenericValue):
                 yield Delete("trim", self._file, node, self._old_value.value[key])
 
         to_insert = []
+        to_insert_values = []
         for key, new_value_element in self._new_value.value.items():
             if key not in self._old_value.value and not isinstance(
                 new_value_element, UndecidedValue
             ):
                 # add new values
-                new_code = yield from new_value_element._new_code()  # type:ignore
+                new_value = yield from new_value_element._new_code()  # type:ignore
+                new_key = yield from key.repr(self._context)
 
-                to_insert.append((key, self._file.format_expression(new_code)))
+                to_insert.append(
+                    (
+                        self._file.format_expression(new_key),
+                        self._file.format_expression(new_value),
+                    )
+                )
+                to_insert_values.append((key, new_value_element))
 
         if to_insert:
-            new_code = [
-                (self._context._value_to_code(k.eval()), v) for k, v in to_insert
-            ]
             yield DictInsert(
                 "create",
                 self._file,
                 self._ast_node,
                 len(self._old_value.value),
-                new_code,
                 to_insert,
+                to_insert_values,
             )
