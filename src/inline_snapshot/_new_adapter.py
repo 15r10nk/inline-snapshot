@@ -269,9 +269,11 @@ class NewAdapter:
                 old_position += 1
             elif c == "i":
                 new_value_element = next(new)
-                new_code = self.context._value_to_code(new_value_element)
+                new_code = yield from new_value_element.repr(self.context)
                 result.append(new_value_element)
-                to_insert[old_position].append((new_code, new_value_element))
+                to_insert[old_position].append(
+                    (self.context.file.format_expression(new_code), new_value_element)
+                )
             elif c == "d":
                 old_value_element, old_node_element = next(old)
                 yield Delete(
@@ -349,13 +351,17 @@ class NewAdapter:
                 )
 
                 if to_insert:
-                    new_code = [
-                        (
-                            self.context._value_to_code(k),
-                            self.context._value_to_code(v),
+                    new_code = []
+                    for k, v in to_insert:
+                        new_code_key = yield from k.repr(self.context)
+                        new_code_value = yield from v.repr(self.context)
+                        new_code.append(
+                            (
+                                self.context.file.format_expression(new_code_key),
+                                self.context.file.format_expression(new_code_value),
+                            )
                         )
-                        for k, v in to_insert
-                    ]
+
                     yield DictInsert(
                         "fix",
                         self.context.file,
@@ -369,13 +375,17 @@ class NewAdapter:
                 insert_pos += 1
 
         if to_insert:
-            new_code = [
-                (
-                    self.context._value_to_code(k),
-                    self.context._value_to_code(v),
+            new_code = []
+            for k, v in to_insert:
+                new_key = yield from k.repr(self.context)
+                new_value = yield from v.repr(self.context)
+                new_code.append(
+                    (
+                        self.context.file.format_expression(new_key),
+                        self.context.file.format_expression(new_value),
+                    )
                 )
-                for k, v in to_insert
-            ]
+
             yield DictInsert(
                 "fix",
                 self.context.file,

@@ -1,12 +1,9 @@
-import tokenize
 from pathlib import Path
 
 from executing import Source
 
-from inline_snapshot._code_repr import code_repr
 from inline_snapshot._format import enforce_formatting
 from inline_snapshot._format import format_code
-from inline_snapshot._generator_utils import only_value
 from inline_snapshot._utils import normalize
 from inline_snapshot._utils import simple_token
 
@@ -30,23 +27,11 @@ class SourceFile:
         else:
             return format_code(code, Path(self._source.filename))
 
-    def format_expression(self, code):
+    def format_expression(self, code: str) -> str:
         return self._format(code).strip()
 
     def asttokens(self):
         return self._source.asttokens()
-
-    def _token_to_code(self, tokens):
-        return self.format_expression(tokenize.untokenize(tokens))
-
-    def _value_to_code(self, value, context):
-        from inline_snapshot._customize._custom import Custom
-
-        if isinstance(value, Custom):
-            return self.format_expression(only_value(value.repr(context)))
-        else:
-            # TODO assert False
-            return self.format_expression(code_repr(value))
 
     def code_changed(self, old_node, new_code):
 
