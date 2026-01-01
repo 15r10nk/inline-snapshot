@@ -2,7 +2,6 @@ from typing import Generator
 from typing import Iterator
 from typing import List
 
-from inline_snapshot._code_repr import mock_repr
 from inline_snapshot._customize import CustomUndefined
 from inline_snapshot._generator_utils import split_gen
 from inline_snapshot._new_adapter import NewAdapter
@@ -19,8 +18,7 @@ class EqValue(GenericValue):
     _changes: List[Change]
 
     def __eq__(self, other):
-        with mock_repr(self._context):
-            custom_other = self.get_builder(_build_new_value=True)._get_handler(other)
+        custom_other = self.to_custom(other, _build_new_value=True)
 
         if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1

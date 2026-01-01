@@ -121,6 +121,43 @@ def test_something():
     )
 
 
+def test_dataclass_add_arguments():
+    Example(
+        """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+
+@dataclass
+class A:
+    a:int
+    b:int=2
+
+def test_something():
+    for _ in [1,2]:
+        assert A(a=1,b=5) == snapshot(A(a=1))
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+
+@dataclass
+class A:
+    a:int
+    b:int=2
+
+def test_something():
+    for _ in [1,2]:
+        assert A(a=1,b=5) == snapshot(A(a=1, b=5))
+"""
+            }
+        ),
+    )
+
+
 def test_dataclass_positional_arguments():
     Example(
         """\

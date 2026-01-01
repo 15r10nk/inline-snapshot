@@ -71,6 +71,11 @@ def test_a():
     )
 
 
+def test_compare_outsource():
+    assert outsource("one") == outsource("one")
+    assert outsource("one") != outsource("two")
+
+
 def test_hash_collision():
     e = (
         Example(

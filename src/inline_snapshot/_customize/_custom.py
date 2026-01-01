@@ -38,9 +38,8 @@ class Custom(ABC):
     def eval(self):
         return self.map(lambda a: a)
 
-    @abstractmethod
     def _needed_imports(self):
-        raise NotImplementedError()
+        yield from ()
 
 
 CustomizeHandler: TypeAlias = Callable[[Any, "Builder"], Custom | None]
