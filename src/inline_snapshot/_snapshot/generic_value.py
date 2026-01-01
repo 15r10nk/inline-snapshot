@@ -49,9 +49,9 @@ class GenericValue(SnapshotBase):
     def _file(self):
         return self._context.file
 
-    def to_custom(self, value):
+    def to_custom(self, value, **args):
         with mock_repr(self._context):
-            return self.get_builder()._get_handler(value)
+            return self.get_builder(**args)._get_handler(value)
 
     def value_to_custom(self, value):
         if isinstance(value, Custom):

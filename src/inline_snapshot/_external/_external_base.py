@@ -83,9 +83,7 @@ class ExternalBase:
                 self._original_location = ExternalLocation.from_name("")
                 self._assign(other)
                 state().incorrect_values += 1
-                if state().update_flags.fix:
-                    return True
-                return False
+                return True
             else:
                 raise
 

@@ -38,6 +38,7 @@ from inline_snapshot._external._format._protocol import get_format_handler
 from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
 from inline_snapshot._global_state import state
 from inline_snapshot._partial_call import partial_call
+from inline_snapshot._partial_call import partial_check_args
 from inline_snapshot._sentinels import undefined
 from inline_snapshot._unmanaged import is_dirty_equal
 from inline_snapshot._unmanaged import is_unmanaged
@@ -123,6 +124,8 @@ def customize(
 
     if f is None:
         return partial(customize, priority=priority)  # type: ignore[return-value]
+    else:
+        partial_check_args(f, {"value", "builder", "local_vars", "global_vars"})
 
     from inline_snapshot._global_state import state
 
@@ -135,7 +138,7 @@ class CustomDefault(Custom):
     value: Custom = field(compare=False)
 
     def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
-        yield from ()
+        yield from ()  # pragma: no cover
         # this should never be called because default values are never converted into code
         assert False
 
@@ -151,14 +154,11 @@ class CustomUnmanaged(Custom):
     value: Any
 
     def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
-        yield from ()
-        return "'unmanaged'"  # pragma: no cover
+        yield from ()  # pragma: no cover
+        return "'unmanaged'"
 
     def map(self, f):
         return f(self.value)
-
-    def _needed_imports(self):
-        yield from ()
 
 
 class CustomUndefined(Custom):
@@ -171,9 +171,6 @@ class CustomUndefined(Custom):
 
     def map(self, f):
         return f(undefined)
-
-    def _needed_imports(self):
-        yield from ()
 
 
 def unwrap_default(value):
@@ -680,14 +677,6 @@ def dirty_equals_handler(value, builder: Builder):
             args = [a for a in value._repr_args if a is not Omit]
             kwargs = {k: a for k, a in value._repr_kwargs.items() if a is not Omit}
             return builder.create_call(type(value), args, kwargs)
-
-
-@customize
-def outsourced_handler(value, builder: Builder):
-    from inline_snapshot._external._outsource import Outsourced
-
-    if isinstance(value, Outsourced):
-        return builder.create_external(value, value.suffix, value.storage)
 
 
 @dataclass

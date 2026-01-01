@@ -3,7 +3,7 @@ import inspect
 from inline_snapshot._exceptions import UsageError
 
 
-def check_args(func, allowed):
+def partial_check_args(func, allowed):
     sign = inspect.signature(func)
     for p in sign.parameters.values():
         if p.default is not inspect.Parameter.empty:
@@ -16,7 +16,7 @@ def check_args(func, allowed):
 
         if p.name not in allowed:
             raise UsageError(
-                f"`{p.name}` is an unknown parameter. allowed are {allowed}"
+                f"`{p.name}` is an unknown parameter. allowed are {sorted(allowed)}"
             )
 
 

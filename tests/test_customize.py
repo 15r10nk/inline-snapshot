@@ -1,6 +1,8 @@
 import pytest
 
 from inline_snapshot import snapshot
+from inline_snapshot._customize import customize
+from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
 
 
@@ -85,3 +87,44 @@ def test():
             }
         ),
     )
+
+
+def test_customize_argument_exceptions():
+
+    with raises(
+        snapshot("UsageError: `value` has a default value which is not supported")
+    ):
+
+        @customize
+        def f(value=5):
+            pass
+
+    with raises(
+        snapshot(
+            "UsageError: `value` is not a positional or keyword parameter, which is not supported"
+        )
+    ):
+
+        @customize
+        def f(value, /):
+            pass
+
+    with raises(
+        snapshot(
+            "UsageError: `value` is not a positional or keyword parameter, which is not supported"
+        )
+    ):
+
+        @customize
+        def f(*, value):
+            pass
+
+    with raises(
+        snapshot(
+            "UsageError: `my_own_arg` is an unknown parameter. allowed are ['builder', 'global_vars', 'local_vars', 'value']"
+        )
+    ):
+
+        @customize
+        def f(my_own_arg):
+            pass
