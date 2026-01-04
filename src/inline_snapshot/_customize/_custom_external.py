@@ -55,4 +55,4 @@ class CustomExternal(Custom):
         return f"external({location.to_str()!r})"
 
     def _needed_imports(self):
-        return [("inline_snapshot", ["external"])]
+        return [("inline_snapshot", "external")]

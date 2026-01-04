@@ -224,8 +224,8 @@ class NewAdapter:
 
         def needed_imports(value: Custom):
             imports: dict[str, set] = defaultdict(set)
-            for module, names in value._needed_imports():
-                imports[module] |= set(names)
+            for module, name in value._needed_imports():
+                imports[module].add(name)
             return imports
 
         if imports := needed_imports(new_value):

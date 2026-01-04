@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import ast
 import importlib
-from collections import defaultdict
 from typing import Generator
 
 from inline_snapshot._adapter_context import AdapterContext
@@ -14,11 +13,23 @@ from inline_snapshot._utils import clone
 from ._custom import Custom
 
 
+def _simplify_module_path(module: str, name: str) -> str:
+    """Simplify module path by finding the shortest import path for a given name."""
+    value = getattr(importlib.import_module(module), name)
+    parts = module.split(".")
+    while len(parts) >= 2:
+        if getattr(importlib.import_module(".".join(parts[:-1])), name, None) == value:
+            parts.pop()
+        else:
+            break
+    return ".".join(parts)
+
+
 class CustomValue(Custom):
     def __init__(self, value, repr_str=None):
         assert not isinstance(value, Custom)
         value = clone(value)
-        self._imports = defaultdict(list)
+        self._imports = []
 
         if repr_str is None:
             self.repr_str = value_code_repr(value)
@@ -46,22 +57,11 @@ class CustomValue(Custom):
         return f"CustomValue({self.repr_str})"
 
     def _needed_imports(self):
-        yield from self._imports.items()
+        yield from self._imports
 
     def with_import(self, module, name, simplify=True):
-        value = getattr(importlib.import_module(module), name)
         if simplify:
-            parts = module.split(".")
-            while len(parts) >= 2:
-                if (
-                    getattr(importlib.import_module(".".join(parts[:-1])), name, None)
-                    == value
-                ):
-                    parts.pop()
-                else:
-                    break
-            module = ".".join(parts)
-
-        self._imports[module].append(name)
+            module = _simplify_module_path(module, name)
+        self._imports.append([module, name])
 
         return self

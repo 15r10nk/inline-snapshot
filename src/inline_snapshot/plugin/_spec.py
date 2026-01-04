@@ -1,5 +1,6 @@
 from functools import partial
 from typing import Any
+from typing import List
 
 import pluggy
 
@@ -77,9 +78,9 @@ class InlineSnapshotPluginSpec:
         self,
         value: Any,
         builder: Builder,
-        local_vars: list[ContextValue],
-        global_vars: list[ContextValue],
+        local_vars: List[ContextValue],
+        global_vars: List[ContextValue],
     ) -> Any: ...
 
-    @hookspec
-    def format_code(self, filename, str) -> str: ...
+    # @hookspec
+    # def format_code(self, filename, str) -> str: ...
