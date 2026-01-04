@@ -2,7 +2,7 @@ from typing import Generator
 from typing import Iterator
 from typing import List
 
-from inline_snapshot._customize import CustomUndefined
+from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._generator_utils import split_gen
 from inline_snapshot._new_adapter import NewAdapter
 

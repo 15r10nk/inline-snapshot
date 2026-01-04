@@ -79,7 +79,7 @@ def code_repr(obj):
 @contextmanager
 def mock_repr(context: AdapterContext):
     def new_repr(obj):
-        from inline_snapshot._customize import Builder
+        from inline_snapshot._customize._builder import Builder
 
         return only_value(
             Builder(_snapshot_context=context)._get_handler(obj).repr(context)

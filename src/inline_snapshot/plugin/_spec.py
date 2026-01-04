@@ -3,7 +3,7 @@ from typing import Any
 
 import pluggy
 
-from inline_snapshot._customize import Builder
+from inline_snapshot._customize._builder import Builder
 from inline_snapshot.plugin._context_value import ContextValue
 
 hookspec = pluggy.HookspecMarker("inline_snapshot")

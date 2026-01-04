@@ -10,7 +10,7 @@ from executing import Source
 
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._adapter_context import FrameContext
-from inline_snapshot._customize import CustomUndefined
+from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._source_file import SourceFile
 from inline_snapshot._types import SnapshotRefBase
 

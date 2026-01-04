@@ -2,8 +2,8 @@ import ast
 from typing import Generator
 from typing import Iterator
 
-from inline_snapshot._customize import CustomList
-from inline_snapshot._customize import CustomUndefined
+from inline_snapshot._customize._custom_sequence import CustomList
+from inline_snapshot._customize._custom_undefined import CustomUndefined
 
 from .._change import ChangeBase
 from .._change import Delete
