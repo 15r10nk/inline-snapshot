@@ -16,6 +16,8 @@ from .generic_value import ignore_old_value
 
 class CollectionValue(GenericValue):
     _current_op = "x in snapshot"
+    _ast_node: ast.List | ast.Tuple
+    _new_value: CustomList
 
     def __contains__(self, item):
         if isinstance(self._old_value, CustomUndefined):

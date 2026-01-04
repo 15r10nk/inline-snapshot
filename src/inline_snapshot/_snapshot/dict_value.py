@@ -19,6 +19,7 @@ class DictValue(GenericValue):
 
     _new_value: CustomDict
     _old_value: CustomDict
+    _ast_node: ast.Dict
 
     def __getitem__(self, index):
         if isinstance(self._new_value, CustomUndefined):

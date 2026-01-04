@@ -24,7 +24,7 @@ class GenericValue(SnapshotBase):
     _new_value: Custom
     _old_value: Custom
     _current_op = "undefined"
-    _ast_node: ast.Expr
+    _ast_node: ast.expr
     _context: AdapterContext
 
     def get_builder(self, **args):
@@ -101,22 +101,22 @@ class GenericValue(SnapshotBase):
             f"This snapshot cannot be use with `{op}`, because it was previously used with `{self._current_op}`"
         )
 
-    def __eq__(self, _other):
+    def __eq__(self, other):
         __tracebackhide__ = True
         self._type_error("==")
 
-    def __le__(self, _other):
+    def __le__(self, other):
         __tracebackhide__ = True
         self._type_error("<=")
 
-    def __ge__(self, _other):
+    def __ge__(self, other):
         __tracebackhide__ = True
         self._type_error(">=")
 
-    def __contains__(self, _other):
+    def __contains__(self, item):
         __tracebackhide__ = True
         self._type_error("in")
 
-    def __getitem__(self, _item):
+    def __getitem__(self, item):
         __tracebackhide__ = True
         self._type_error("snapshot[key]")
