@@ -6,7 +6,6 @@ from ._code_repr import customize_repr
 from ._customize import Builder
 from ._customize import Custom
 from ._customize import CustomizeHandler
-from ._customize import customize
 from ._exceptions import UsageError
 from ._external._external import external
 from ._external._external_file import external_file
@@ -20,6 +19,7 @@ from ._is import Is
 from ._types import Category
 from ._types import Snapshot
 from ._unmanaged import declare_unmanaged
+from .plugin._spec import customize
 from .version import __version__
 
 __all__ = [

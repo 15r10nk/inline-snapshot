@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import contextlib
-from collections import defaultdict
 from copy import deepcopy
 from dataclasses import dataclass
 from dataclasses import field
@@ -13,10 +12,11 @@ from typing import Generator
 from typing import Literal
 from uuid import uuid4
 
+import pluggy
+
 from inline_snapshot._config import Config
 
 if TYPE_CHECKING:
-    from inline_snapshot._customize._custom import CustomizeHandler
     from inline_snapshot._external._format._protocol import Format
     from inline_snapshot._external._storage._protocol import StorageProtocol
     from inline_snapshot._types import SnapshotRefBase
@@ -52,15 +52,15 @@ class State:
         default_factory=lambda: TemporaryDirectory(prefix="inline-snapshot-")
     )
 
+    pm: pluggy.PluginManager = field(
+        default_factory=lambda: pluggy.PluginManager("inline_snapshot")
+    )
+
     def new_tmp_path(self, suffix: str) -> Path:
         assert self.tmp_dir is not None
         return Path(self.tmp_dir.name) / f"tmp-path-{uuid4()}{suffix}"
 
     disable_reason: Literal["xdist", "ci", "implementation", None] = None
-
-    custom_functions: dict[int, list[CustomizeHandler]] = field(
-        default_factory=lambda: defaultdict(list)
-    )
 
 
 _latest_global_states: list[State] = []
@@ -78,11 +78,21 @@ def enter_snapshot_context():
     latest = _current
     _latest_global_states.append(_current)
     _current = State()
-    _current.custom_functions = defaultdict(
-        list, {k: list(v) for k, v in latest.custom_functions.items()}
-    )
     _current.all_formats = dict(latest.all_formats)
     _current.config = deepcopy(latest.config)
+
+    from .plugin._spec import InlineSnapshotPluginSpec
+
+    _current.pm.add_hookspecs(InlineSnapshotPluginSpec)
+    _current.pm.load_setuptools_entrypoints("inline_snapshot")
+
+    from .plugin._default_plugin import InlineSnapshotAttrsPlugin
+    from .plugin._default_plugin import InlineSnapshotPlugin
+    from .plugin._default_plugin import InlineSnapshotPydanticPlugin
+
+    _current.pm.register(InlineSnapshotPlugin())
+    _current.pm.register(InlineSnapshotAttrsPlugin())
+    _current.pm.register(InlineSnapshotPydanticPlugin())
 
 
 def leave_snapshot_context():

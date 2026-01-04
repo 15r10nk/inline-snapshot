@@ -487,11 +487,8 @@ def test_something():
 
 def test_remove_positional_argument():
     Example(
-        """\
-from inline_snapshot import snapshot
-from inline_snapshot._customize import CustomCall,customize
-
-
+        {
+            "tests/helper.py": """\
 class L:
     def __init__(self,*l):
         self.l=l
@@ -500,11 +497,20 @@ class L:
         if not isinstance(other,L):
             return NotImplemented
         return other.l==self.l
+""",
+            "tests/conftest.py": """\
+from inline_snapshot import customize
+from helper import L
 
 @customize
-def handle(value,builder):
+def handle_L(value,builder):
     if isinstance(value,L):
         return builder.create_call(L,value.l)
+""",
+            "tests/test_something.py": """\
+from inline_snapshot import snapshot
+from helper import L
+
 
 def test_L1():
     for _ in [1,2]:
@@ -517,29 +523,16 @@ def test_L2():
 def test_L3():
     for _ in [1,2]:
         assert L(1,2) == snapshot(L(1, 2)), "not equal"
-"""
+""",
+        }
     ).run_pytest(returncode=snapshot(1)).run_pytest(
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
                 "tests/test_something.py": """\
 from inline_snapshot import snapshot
-from inline_snapshot._customize import CustomCall,customize
+from helper import L
 
-
-class L:
-    def __init__(self,*l):
-        self.l=l
-
-    def __eq__(self,other):
-        if not isinstance(other,L):
-            return NotImplemented
-        return other.l==self.l
-
-@customize
-def handle(value,builder):
-    if isinstance(value,L):
-        return builder.create_call(L,value.l)
 
 def test_L1():
     for _ in [1,2]:
