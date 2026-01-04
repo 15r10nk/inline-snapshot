@@ -216,8 +216,7 @@ try:
     import attrs
 except ImportError:  # pragma: no cover
 
-    class InlineSnapshotAttrsPlugin:
-        pass
+    pass
 
 else:
 
@@ -260,9 +259,7 @@ else:
 try:
     import pydantic
 except ImportError:  # pragma: no cover
-
-    class InlineSnapshotPydanticPlugin:
-        pass
+    pass
 
 else:
     # import pydantic
