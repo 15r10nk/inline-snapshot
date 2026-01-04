@@ -9,5 +9,4 @@ __all__ = ("StorageLookupError", "StorageProtocol", "HashStorage")
 
 
 def default_storages(storage_dir: Path):
-
     return {"hash": HashStorage(storage_dir / "external"), "uuid": UuidStorage()}

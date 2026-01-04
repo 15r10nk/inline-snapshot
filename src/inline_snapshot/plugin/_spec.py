@@ -30,17 +30,19 @@ customize = partial(hookimpl, specname="customize")
 
     Example:
         Basic usage with a custom class:
-
-        <!-- inline-snapshot: create fix first_block outcome-failed=1 outcome-errors=1 -->
+        <!-- inline-snapshot-lib: myclass.py -->
         ``` python
-        from inline_snapshot import customize, snapshot
-
-
         class MyClass:
             def __init__(self, arg1, arg2, key=None):
                 self.arg1 = arg1
                 self.arg2 = arg2
                 self.key_attr = key
+        ```
+
+        <!-- inline-snapshot-lib: conftest.py -->
+        ``` python
+        from myclass import MyClass
+        from inline_snapshot import customize
 
 
         @customize
@@ -51,6 +53,12 @@ customize = partial(hookimpl, specname="customize")
                     MyClass, [value.arg1, value.arg2], {"key": value.key_attr}
                 )
             return None  # Let other handlers process this value
+        ```
+
+        <!-- inline-snapshot: create fix first_block outcome-failed=1 outcome-errors=1 -->
+        ``` python
+        from inline_snapshot import snapshot
+        from myclass import MyClass
 
 
         def test_myclass():
@@ -60,11 +68,11 @@ customize = partial(hookimpl, specname="customize")
 
     Note:
         - **Always register handlers in `conftest.py`** to ensure they're available for all tests
-        - Handlers are called in **reverse order** of registration (last registered is called first)
         - If no handler returns a Custom object, a default representation is used
-        - Use builder methods (`create_call`, `create_list`, `create_dict`, etc.) to construct representations
+        - Use builder methods (`create_call`, `create_external`) to construct representations
         - Always return `None` if your handler doesn't apply to the given value type
-        - The builder automatically handles recursive conversion of nested values
+        - The builder automatically handles recursive conversion of nested values, therfor `create_list` and `create_dict` are unlikely needed because you can just use `[]` or `{}`
+
 
     See Also:
         - [Builder][inline_snapshot._customize.Builder]: Available builder methods

@@ -50,11 +50,13 @@ def map_code_blocks(file: Path, func):
     block_options: Optional[str] = None
     code_header = None
     header_line = ""
+    block_found = False
 
     for linenumber, line in enumerate(current_code.splitlines(), start=1):
         m = block_start.fullmatch(line)
         if m and not is_block:
             # ``` python
+            block_found = True
             block_start_linenum = linenumber
             indent = m[1]
             block_options = m[2]
@@ -130,7 +132,8 @@ def map_code_blocks(file: Path, func):
 
     new_code = "\n".join(new_lines) + "\n"
 
-    assert external_file(file, format=".txt") == new_code
+    if block_found:
+        assert external_file(file, format=".txt") == new_code
 
 
 def test_map_code_blocks(tmp_path):

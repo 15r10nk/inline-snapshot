@@ -118,11 +118,11 @@ class UndecidedValue(GenericValue):
         self._change(MaxValue)
         return self >= other
 
-    def __contains__(self, other):
+    def __contains__(self, item):
         from .._snapshot.collection_value import CollectionValue
 
         self._change(CollectionValue)
-        return other in self
+        return item in self
 
     def __getitem__(self, item):
         from .._snapshot.dict_value import DictValue
