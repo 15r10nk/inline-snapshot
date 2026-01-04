@@ -332,6 +332,29 @@ class Example:
                     report_output = StringIO()
                     console = Console(file=report_output, width=80)
 
+                    # Load and register all conftest.py files first
+                    for conftest_path in tmp_path.rglob("conftest.py"):
+                        print("load> conftest", conftest_path)
+
+                        # Load conftest module using importlib
+                        spec = importlib.util.spec_from_file_location(
+                            f"conftest_{conftest_path.parent.name}", conftest_path
+                        )
+                        if spec and spec.loader:
+                            conftest_module = importlib.util.module_from_spec(spec)
+                            sys.modules[spec.name] = conftest_module
+                            conftest_module.__file__ = str(conftest_path)
+                            spec.loader.exec_module(conftest_module)
+
+                            # Register customize hooks from this conftest
+                            session.register_customize_hooks_from_module(
+                                conftest_module
+                            )
+                        else:
+                            raise UsageError(
+                                f"Could not load conftest from {conftest_path}"
+                            )
+
                     tests_found = False
                     for filename in tmp_path.rglob("test_*.py"):
                         print("run> pytest-inline", filename, *args)

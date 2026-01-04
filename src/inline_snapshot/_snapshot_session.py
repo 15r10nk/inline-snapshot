@@ -237,6 +237,31 @@ def filter_changes(changes, snapshot_changes, console):
 
 class SnapshotSession:
 
+    def __init__(self):
+        self.registered_modules = set()
+
+    def register_customize_hooks_from_module(self, module):
+        """Find and register functions decorated with @customize from a module"""
+
+        if module.__file__ in self.registered_modules:
+            return
+
+        self.registered_modules.add(module.__file__)
+
+        class ConftestPlugin:
+            pass
+
+        for name in dir(module):
+            obj = getattr(module, name, None)
+            if obj is None or not callable(obj):
+                continue
+
+            # Check if the function has the customize hookimpl marker
+            if hasattr(obj, "inline_snapshot_impl"):
+                setattr(ConftestPlugin, name, obj)
+
+        state().pm.register(ConftestPlugin, name=f"<conftest {module.__file__}>")
+
     @staticmethod
     def test_enter():
         state().missing_values = 0
