@@ -2,8 +2,8 @@ import ast
 from typing import Generator
 from typing import Iterator
 
-from inline_snapshot._customize import CustomDict
-from inline_snapshot._customize import CustomUndefined
+from inline_snapshot._customize._custom_dict import CustomDict
+from inline_snapshot._customize._custom_undefined import CustomUndefined
 
 from .._adapter_context import AdapterContext
 from .._change import ChangeBase

@@ -4,9 +4,9 @@ from typing import Iterator
 
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._code_repr import mock_repr
-from inline_snapshot._customize import Builder
-from inline_snapshot._customize import Custom
-from inline_snapshot._customize import CustomUndefined
+from inline_snapshot._customize._builder import Builder
+from inline_snapshot._customize._custom import Custom
+from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._new_adapter import reeval
 
 from .._change import ChangeBase

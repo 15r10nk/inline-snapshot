@@ -1,0 +1,22 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any
+from typing import Generator
+
+from inline_snapshot._adapter_context import AdapterContext
+from inline_snapshot._change import ChangeBase
+
+from ._custom import Custom
+
+
+@dataclass()
+class CustomUnmanaged(Custom):
+    value: Any
+
+    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+        yield from ()  # pragma: no cover
+        return "'unmanaged'"
+
+    def map(self, f):
+        return f(self.value)

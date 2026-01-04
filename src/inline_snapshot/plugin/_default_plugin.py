@@ -9,9 +9,9 @@ from pathlib import PurePath
 from types import BuiltinFunctionType
 from types import FunctionType
 
-from inline_snapshot._customize import Builder
-from inline_snapshot._customize import CustomUndefined
-from inline_snapshot._customize import CustomUnmanaged
+from inline_snapshot._customize._builder import Builder
+from inline_snapshot._customize._custom_undefined import CustomUndefined
+from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._external._outsource import Outsourced
 from inline_snapshot._sentinels import undefined
 from inline_snapshot._unmanaged import is_dirty_equal

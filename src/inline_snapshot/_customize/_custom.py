@@ -13,7 +13,7 @@ from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._change import ChangeBase
 
 if TYPE_CHECKING:
-    from inline_snapshot._customize import Builder
+    from inline_snapshot._customize._builder import Builder
 
 
 class Custom(ABC):

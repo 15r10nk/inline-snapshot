@@ -3,9 +3,9 @@ from inline_snapshot._external._diff import TextDiff
 
 from ._code_repr import HasRepr
 from ._code_repr import customize_repr
-from ._customize import Builder
-from ._customize import Custom
-from ._customize import CustomizeHandler
+from ._customize._builder import Builder
+from ._customize._custom import Custom
+from ._customize._custom import CustomizeHandler
 from ._exceptions import UsageError
 from ._external._external import external
 from ._external._external_file import external_file
