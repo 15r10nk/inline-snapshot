@@ -188,18 +188,22 @@ class InlineSnapshotPlugin:
     def dirty_equals_handler(self, value, builder: Builder):
 
         if is_dirty_equal(value) and builder._build_new_value:
+
             if isinstance(value, type):
                 return builder.create_value(value, value.__name__).with_import(
                     "dirty_equals", value.__name__
                 )
             else:
+                from dirty_equals import IsNow
                 from dirty_equals._utils import Omit
 
                 args = [a for a in value._repr_args if a is not Omit]
                 kwargs = {k: a for k, a in value._repr_kwargs.items() if a is not Omit}
+                if type(value) == IsNow:
+                    kwargs.pop("approx")
                 return builder.create_call(type(value), args, kwargs)
 
-    @customize
+    @customize(tryfirst=True)
     def context_value_handler(self, value, builder: Builder):
         if isinstance(value, ContextValue):
             return builder.create_value(value.value, value.name)

@@ -62,7 +62,9 @@ class Builder:
         result.__dict__["original_value"] = v
         return result
 
-    def create_external(self, value: Any, format: str | None, storage: str | None):
+    def create_external(
+        self, value: Any, format: str | None = None, storage: str | None = None
+    ):
 
         return CustomExternal(value, format=format, storage=storage)
 

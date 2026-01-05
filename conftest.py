@@ -10,3 +10,13 @@ def snapshot_env_for_doctest(request):
             yield
     else:
         yield
+
+
+from inline_snapshot import customize, Builder
+from dirty_equals import IsNow
+
+
+@customize
+def is_now_handler(value, builder: Builder):
+    if value == IsNow():
+        return IsNow
