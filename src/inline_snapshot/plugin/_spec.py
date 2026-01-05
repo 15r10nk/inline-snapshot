@@ -21,12 +21,6 @@ customize = partial(hookimpl, specname="customize")
     **Important**: Customization handlers should be registered in your `conftest.py` file to ensure
     they are loaded before your tests run.
 
-    Args:
-        f: A customization handler function. See [CustomizeHandler][inline_snapshot._customize.CustomizeHandler]
-            for the expected signature.
-
-    Returns:
-        The input function unchanged (for use as a decorator)
 
     Example:
         Basic usage with a custom class:
