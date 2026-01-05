@@ -93,7 +93,7 @@ exclude_lines = [
     "# pragma: no cover",
     "if TYPE_CHECKING:",
     "if is_insider",
-    ": ..."
+    "\\.\\.\\."
 ]
 
 
