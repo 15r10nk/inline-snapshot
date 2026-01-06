@@ -46,6 +46,12 @@ class Builder:
 
         result = v
 
+        snapshot_value = (
+            self._snapshot_context.snapshot_value
+            if self._snapshot_context is not None
+            else None
+        )
+
         while not isinstance(result, Custom):
             with compare_context():
                 r = state().pm.hook.customize(
@@ -53,6 +59,7 @@ class Builder:
                     builder=self,
                     local_vars=local_vars,
                     global_vars=global_vars,
+                    snapshot_value=snapshot_value,
                 )
             if r is None:
                 result = CustomValue(result)

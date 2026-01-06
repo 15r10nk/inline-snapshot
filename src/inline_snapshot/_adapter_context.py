@@ -1,6 +1,6 @@
 import ast
 from dataclasses import dataclass
-
+from typing import Any
 from inline_snapshot._source_file import SourceFile
 
 
@@ -15,6 +15,7 @@ class AdapterContext:
     file: SourceFile
     frame: FrameContext | None
     qualname: str
+    snapshot_value: Any
 
     def eval(self, node):
         assert self.frame is not None

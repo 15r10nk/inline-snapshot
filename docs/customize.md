@@ -7,6 +7,7 @@ You should use it when you find yourself manually editing snapshots after they w
 * **builder:** your `Builder` object can be used to create Custom objects that represent your new code.
 * **local_vars:** a list of objects with `name` and `value` attributes that represent the local variables that are usable in your snapshot.
 * **global_vars:** same as for `local_vars`, but for global variables.
+* **snapshot_value** the original value contained in snapshot().
 
 ## Custom constructor methods
 One use case might be that you have a dataclass with a special constructor function that can be used for specific instances of this dataclass, and you want inline-snapshot to use this constructor when possible.

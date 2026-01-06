@@ -60,6 +60,7 @@ def create_snapshot(Type, obj, extra_frames=0):
         file=SourceFile(source),
         frame=FrameContext(globals=frame.f_globals, locals=frame.f_locals),
         qualname=expr.code_qualname(),
+        snapshot_value=obj,
     )
 
     Type.check_context(context)

@@ -82,6 +82,7 @@ class InlineSnapshotPluginSpec:
         builder: Builder,
         local_vars: List[ContextValue],
         global_vars: List[ContextValue],
+        snapshot_value: Any,
     ) -> Any: ...
 
     # @hookspec

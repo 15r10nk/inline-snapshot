@@ -1,4 +1,5 @@
 import pytest
+import textwrap
 
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
@@ -79,6 +80,52 @@ def counter():
 
 def test():
     assert counter() == snapshot(Counter({"1": 1, "2": 2}))
+"""
+            }
+        ),
+    )
+
+
+def test_snapshot_value():
+    conftest = textwrap.dedent(
+        """
+        from inline_snapshot import customize
+        from inline_snapshot import Builder
+        from dirty_equals import IsStr
+        
+        @customize
+        def str_handler(value, builder: Builder, snapshot_value):
+            if snapshot_value == "IsStr":
+               return builder.create_call(IsStr)
+        """
+    )
+
+    before = textwrap.dedent(
+        """
+        from inline_snapshot import snapshot
+            
+        def test():
+            assert snapshot("IsStr") == "Hello, world!"
+        """
+    )
+
+    Example(
+        {
+            "tests/test_something.py": before,
+            "tests/conftest.py": conftest,
+        }
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+
+from inline_snapshot import snapshot
+
+from dirty_equals import IsStr
+
+def test():
+    assert snapshot(IsStr()) == "Hello, world!"
 """
             }
         ),
