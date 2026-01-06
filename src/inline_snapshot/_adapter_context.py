@@ -1,6 +1,7 @@
 import ast
 from dataclasses import dataclass
 from typing import Any
+
 from inline_snapshot._source_file import SourceFile
 
 

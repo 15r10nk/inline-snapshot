@@ -1,5 +1,6 @@
-import pytest
 import textwrap
+
+import pytest
 
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
@@ -92,7 +93,7 @@ def test_snapshot_value():
         from inline_snapshot import customize
         from inline_snapshot import Builder
         from dirty_equals import IsStr
-        
+
         @customize
         def str_handler(value, builder: Builder, snapshot_value):
             if snapshot_value == "IsStr":
@@ -103,7 +104,7 @@ def test_snapshot_value():
     before = textwrap.dedent(
         """
         from inline_snapshot import snapshot
-            
+
         def test():
             assert snapshot("IsStr") == "Hello, world!"
         """
