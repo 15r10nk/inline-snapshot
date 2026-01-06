@@ -11,7 +11,7 @@ from inline_snapshot._change import ChangeBase
 from ._custom import Custom
 
 
-@dataclass(frozen=True)
+@dataclass()
 class CustomDict(Custom):
     node_type = ast.Dict
     value: dict[Custom, Custom] = field(compare=False)

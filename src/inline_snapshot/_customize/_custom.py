@@ -22,8 +22,9 @@ class Custom(ABC):
         return hash(self.eval())
 
     def __eq__(self, other):
-        assert isinstance(other, Custom)
-        return self.eval() == other.eval()
+        if isinstance(other, Custom):
+            other = other.eval()
+        return self.eval() == other
 
     @abstractmethod
     def map(self, f):

@@ -1,6 +1,7 @@
 from functools import partial
 from typing import Any
 from typing import List
+from typing import Optional
 
 import pluggy
 
@@ -82,6 +83,7 @@ class InlineSnapshotPluginSpec:
         builder: Builder,
         local_vars: List[ContextValue],
         global_vars: List[ContextValue],
+        snapshot_value: Optional[Any],
     ) -> Any: ...
 
     # @hookspec

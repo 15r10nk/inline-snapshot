@@ -17,7 +17,7 @@ class CustomSequenceTypes:
     value_type: type
 
 
-@dataclass(frozen=True)
+@dataclass()
 class CustomSequence(Custom, CustomSequenceTypes):
     value: list[Custom] = field(compare=False)
 
