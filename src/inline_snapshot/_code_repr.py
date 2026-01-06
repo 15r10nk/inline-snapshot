@@ -82,7 +82,7 @@ def mock_repr(context: AdapterContext):
         from inline_snapshot._customize._builder import Builder
 
         return only_value(
-            Builder(_snapshot_context=context)._get_handler(obj).repr(context)
+            Builder(_snapshot_context=context)._customize_all(obj).repr(context)
         )
 
     with mock.patch("builtins.repr", new_repr):

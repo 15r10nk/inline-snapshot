@@ -159,7 +159,7 @@ We check all local variables to see if they match our naming convention and are 
 
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
-``` python title="test_user.py"
+``` python
 from inline_snapshot import snapshot
 from datetime import datetime
 

@@ -4,7 +4,9 @@ from dataclasses import dataclass
 from typing import Any
 
 from inline_snapshot._adapter_context import AdapterContext
+from inline_snapshot._code_repr import mock_repr
 from inline_snapshot._compare_context import compare_context
+from inline_snapshot._customize._custom_sequence import CustomSequence
 from inline_snapshot.plugin._context_value import ContextValue
 
 from ._custom import Custom
@@ -17,12 +19,20 @@ from ._custom_sequence import CustomTuple
 from ._custom_value import CustomValue
 
 
+class Missing:
+    def __repr__(self):
+        return "missing"
+
+
+missing = Missing()
+
+
 @dataclass
 class Builder:
     _snapshot_context: AdapterContext
     _build_new_value: bool = False
 
-    def _get_handler(self, v) -> Custom:
+    def _get_handler(self, v, snapshot_value=None) -> Custom:
 
         from inline_snapshot._global_state import state
 
@@ -53,6 +63,7 @@ class Builder:
                     builder=self,
                     local_vars=local_vars,
                     global_vars=global_vars,
+                    snapshot_value=snapshot_value,
                 )
             if r is None:
                 result = CustomValue(result)
@@ -61,6 +72,35 @@ class Builder:
 
         result.__dict__["original_value"] = v
         return result
+
+    def _customize(self, value, snapshot_value=missing):
+        with mock_repr(self._snapshot_context):
+            return self._get_handler(value, snapshot_value)
+
+    def _customize_all(self, value):
+        if not isinstance(value, Custom):
+            value = self._customize(value)
+
+        if isinstance(value, CustomSequence):
+            value.value = [self._customize_all(c) for c in value.value]
+        elif isinstance(value, CustomDict):
+            value.value = {
+                self._customize_all(k): self._customize_all(v)
+                for k, v in value.value.items()
+            }
+        elif isinstance(value, CustomCall):
+            value._function = self._customize_all(value._function)
+            value._args = [self._customize_all(c) for c in value._args]
+            value._kwargs = {
+                k: self._customize_all(v) for k, v in value._kwargs.items()
+            }
+            value._kwonly = {
+                k: self._customize_all(v) for k, v in value._kwonly.items()
+            }
+        elif isinstance(value, CustomDefault):
+            value.value = self._customize_all(value.value)
+
+        return value
 
     def create_external(
         self, value: Any, format: str | None = None, storage: str | None = None
@@ -75,8 +115,7 @@ class Builder:
         `create_list([1,2,3])` becomes `[1,2,3]` in the code.
         List elements are recursively converted into CustomNodes.
         """
-        custom = [self._get_handler(v) for v in value]
-        return CustomList(value=custom)
+        return CustomList(value=list(value))
 
     def create_tuple(self, value) -> Custom:
         """
@@ -85,8 +124,7 @@ class Builder:
         `create_tuple((1, 2, 3))` becomes `(1, 2, 3)` in the code.
         Tuple elements are recursively converted into CustomNodes.
         """
-        custom = [self._get_handler(v) for v in value]
-        return CustomTuple(value=custom)
+        return CustomTuple(value=list(value))
 
     def create_call(
         self, function, posonly_args=[], kwargs={}, kwonly_args={}
@@ -97,16 +135,11 @@ class Builder:
         `create_call(MyClass, [arg1, arg2], {'key': value})` becomes `MyClass(arg1, arg2, key=value)` in the code.
         Function, arguments, and keyword arguments are recursively converted into CustomNodes.
         """
-        function = self._get_handler(function)
-        posonly_args = [self._get_handler(arg) for arg in posonly_args]
-        kwargs = {k: self._get_handler(arg) for k, arg in kwargs.items()}
-        kwonly_args = {k: self._get_handler(arg) for k, arg in kwonly_args.items()}
-
         return CustomCall(
             _function=function,
-            _args=posonly_args,
-            _kwargs=kwargs,
-            _kwonly=kwonly_args,
+            _args=list(posonly_args),
+            _kwargs=dict(kwargs),
+            _kwonly=dict(kwonly_args),
         )
 
     def create_default(self, value) -> Custom:
@@ -116,7 +149,7 @@ class Builder:
         Default values are not included in the generated code when they match the actual default.
         The value is recursively converted into a CustomNode.
         """
-        return CustomDefault(value=self._get_handler(value))
+        return CustomDefault(value=value)
 
     def create_dict(self, value) -> Custom:
         """
@@ -125,8 +158,7 @@ class Builder:
         `create_dict({'key': 'value'})` becomes `{'key': 'value'}` in the code.
         Dict keys and values are recursively converted into CustomNodes.
         """
-        custom = {self._get_handler(k): self._get_handler(v) for k, v in value.items()}
-        return CustomDict(value=custom)
+        return CustomDict(value=dict(value))
 
     def create_value(self, value, repr: str | None = None) -> CustomValue:
         """
