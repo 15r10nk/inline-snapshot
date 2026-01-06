@@ -16,6 +16,8 @@ from inline_snapshot._change import DictInsert
 from inline_snapshot._change import ListInsert
 from inline_snapshot._change import Replace
 from inline_snapshot._compare_context import compare_context
+from inline_snapshot._customize._builder import Builder
+from inline_snapshot._customize._builder import missing
 from inline_snapshot._customize._custom import Custom
 from inline_snapshot._customize._custom_call import CustomCall
 from inline_snapshot._customize._custom_call import CustomDefault
@@ -143,9 +145,26 @@ class NewAdapter:
     def __init__(self, context: AdapterContext):
         self.context = context
 
+    def get_builder(self, **args):
+        return Builder(_snapshot_context=self.context, **args)
+
+    def customize(self, value, snapshot_value=missing):
+        return self.get_builder(_build_new_value=True)._customize(value, snapshot_value)
+
+    def customize_all(self, value):
+        return self.get_builder(_build_new_value=True)._customize_all(value)
+
     def compare(
         self, old_value: Custom, old_node, new_value: Custom
     ) -> Generator[ChangeBase, None, Custom]:
+
+        snapshot_value = (
+            missing
+            if isinstance(old_value, CustomUndefined)
+            else old_value.original_value
+        )
+
+        custom_value = self.customize(new_value, snapshot_value)
 
         if isinstance(old_value, CustomUnmanaged):
             return old_value
@@ -154,9 +173,9 @@ class NewAdapter:
             raise UsageError("unmanaged values cannot be compared with snapshots")
 
         if (
-            type(old_value) is type(new_value)
+            type(old_value) is type(custom_value)
             and (
-                isinstance(old_node, new_value.node_type)
+                isinstance(old_node, custom_value.node_type)
                 if old_node is not None
                 else True
             )
@@ -168,7 +187,7 @@ class NewAdapter:
         ):
             function_name = f"compare_{type(old_value).__name__}"
             result = yield from getattr(self, function_name)(
-                old_value, old_node, new_value
+                old_value, old_node, custom_value
             )
         else:
             result = yield from self.compare_CustomCode(old_value, old_node, new_value)
@@ -357,6 +376,8 @@ class NewAdapter:
         to_insert = []
         insert_pos = 0
         for key, new_value_element in new_value.value.items():
+            key = self.customize_all(key)
+            new_value_element = self.customize_all(new_value_element)
             if key not in old_value.value:
                 # add new values
                 to_insert.append((key, new_value_element))
@@ -368,7 +389,7 @@ class NewAdapter:
                     node = None
                 # check values with same keys
                 result[key] = yield from self.compare(
-                    old_value.value[key], node, new_value.value[key]
+                    old_value.value[key], node, new_value_element
                 )
 
                 if to_insert:
@@ -415,9 +436,8 @@ class NewAdapter:
         self, old_value: CustomCall, old_node: ast.Call, new_value: CustomCall
     ) -> Generator[ChangeBase, None, Custom]:
 
-        call = new_value
-        new_args = call.args
-        new_kwargs = call.kwargs
+        new_args = new_value.args
+        new_kwargs = new_value.kwargs
 
         # positional arguments
 
@@ -501,6 +521,7 @@ class NewAdapter:
                 continue
             if key not in old_keywords:
                 # add new values
+                new_value_element = self.customize_all(new_value_element)
                 to_insert.append((key, new_value_element))
                 result_kwargs[key] = new_value_element
             else:

@@ -31,13 +31,18 @@ class AstToCustom:
 
     def convert(self, value: Any, node: ast.expr):
         if is_unmanaged(value):
-            return CustomUnmanaged(value)
+            result = CustomUnmanaged(value)
 
-        if warn_star_expression(node, self.context):
-            return self.convert_generic(value, node)
+        elif warn_star_expression(node, self.context):
+            result = self.convert_generic(value, node)
 
-        t = type(node).__name__
-        return getattr(self, "convert_" + t, self.convert_generic)(value, node)
+        else:
+            t = type(node).__name__
+            result = getattr(self, "convert_" + t, self.convert_generic)(value, node)
+
+        result.__dict__["original_value"] = value
+
+        return result
 
     def eval_convert(self, node):
         return self.convert(self.eval(node), node)
@@ -56,7 +61,6 @@ class AstToCustom:
         )
 
     def convert_List(self, value: list, node: ast.List):
-
         return CustomList([self.convert(v, n) for v, n in zip(value, node.elts)])
 
     def convert_Tuple(self, value: tuple, node: ast.Tuple):

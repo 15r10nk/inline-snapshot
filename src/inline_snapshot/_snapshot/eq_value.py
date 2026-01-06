@@ -18,7 +18,6 @@ class EqValue(GenericValue):
     _changes: List[Change]
 
     def __eq__(self, other):
-        custom_other = self.to_custom(other, _build_new_value=True)
 
         if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1
@@ -28,9 +27,7 @@ class EqValue(GenericValue):
 
             adapter = NewAdapter(self._context)
 
-            result = split_gen(
-                adapter.compare(self._old_value, self._ast_node, custom_other)
-            )
+            result = split_gen(adapter.compare(self._old_value, self._ast_node, other))
             self._changes = result.list
             self._new_value = result.value
 

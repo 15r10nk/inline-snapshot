@@ -1,6 +1,7 @@
 from functools import partial
 from typing import Any
 from typing import Dict
+from typing import Optional
 
 import pluggy
 
@@ -32,6 +33,7 @@ class InlineSnapshotPluginSpec:
         builder: Builder,
         local_vars: Dict[str, Any],
         global_vars: Dict[str, Any],
+        snapshot_value: Optional[Any] = None,
     ) -> Any:
         """
         The customize hook is called every time a snapshot value should be converted into code.
@@ -48,6 +50,8 @@ class InlineSnapshotPluginSpec:
             local_vars: Dictionary mapping variable names to their values in the local scope.
                        Useful for referencing existing variables instead of creating new literals.
             global_vars: Dictionary mapping variable names to their values in the global scope.
+            snapshot_value: The current snapshot value, if any. Can be used to preserve existing
+                            representations when only parts of the value have changed.
 
         Returns:
             (Custom): created using [Builder][inline_snapshot.plugin.Builder] `create_*` methods.

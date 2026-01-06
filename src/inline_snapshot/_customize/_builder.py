@@ -5,10 +5,9 @@ from typing import Any
 from typing import Callable
 
 from inline_snapshot._adapter_context import AdapterContext
-from inline_snapshot._sentinels import undefined
-
-missing = undefined
+from inline_snapshot._code_repr import mock_repr
 from inline_snapshot._compare_context import compare_context
+from inline_snapshot._customize._custom_sequence import CustomSequence
 from inline_snapshot._exceptions import UsageError
 
 from ._custom import Custom
@@ -21,6 +20,14 @@ from ._custom_dict import CustomDict
 from ._custom_external import CustomExternal
 from ._custom_sequence import CustomList
 from ._custom_sequence import CustomTuple
+
+
+class Missing:
+    def __repr__(self):
+        return "missing"
+
+
+missing = Missing()
 
 
 @dataclass
@@ -40,7 +47,7 @@ class Builder:
             return value._eval()
         return value
 
-    def _get_handler(self, v) -> Custom:
+    def _get_handler(self, v, snapshot_value=None) -> Custom:
 
         from inline_snapshot._global_state import state
 
@@ -53,6 +60,7 @@ class Builder:
                     builder=self,
                     local_vars=self._local_vars,
                     global_vars=self._global_vars,
+                    snapshot_value=snapshot_value,
                 )
             if r is None:
                 result = CustomCode(result)
@@ -85,6 +93,35 @@ customized_representation={result!r}
 """)
 
         return result
+
+    def _customize(self, value, snapshot_value=missing):
+        with mock_repr(self._snapshot_context):
+            return self._get_handler(value, snapshot_value)
+
+    def _customize_all(self, value):
+        if not isinstance(value, Custom):
+            value = self._customize(value)
+
+        if isinstance(value, CustomSequence):
+            value.value = [self._customize_all(c) for c in value.value]
+        elif isinstance(value, CustomDict):
+            value.value = {
+                self._customize_all(k): self._customize_all(v)
+                for k, v in value.value.items()
+            }
+        elif isinstance(value, CustomCall):
+            value._function = self._customize_all(value._function)
+            value._args = [self._customize_all(c) for c in value._args]
+            value._kwargs = {
+                k: self._customize_all(v) for k, v in value._kwargs.items()
+            }
+            value._kwonly = {
+                k: self._customize_all(v) for k, v in value._kwonly.items()
+            }
+        elif isinstance(value, CustomDefault):
+            value.value = self._customize_all(value.value)
+
+        return value
 
     def create_external(
         self, value: Any, format: str | None = None, storage: str | None = None
