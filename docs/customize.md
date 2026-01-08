@@ -12,7 +12,7 @@ You should use it when you find yourself manually editing snapshots after they w
 One use case might be that you have a dataclass with a special constructor function that can be used for specific instances of this dataclass, and you want inline-snapshot to use this constructor when possible.
 
 <!-- inline-snapshot-lib-set: rect.py -->
-``` python
+``` python title="rect.py"
 from dataclasses import dataclass
 
 
@@ -31,7 +31,7 @@ Inline-snapshot tries each hook until it finds one that does not return None.
 It keeps converting this value until a hook returns a Custom object, which can be created with the `create_*` methods of the [`Builder`][inline_snapshot.Builder].
 
 <!-- inline-snapshot-lib-set: conftest.py -->
-``` python
+``` python title="conftest.py"
 from rect import Rect
 from inline_snapshot import customize
 from inline_snapshot import Builder
@@ -47,7 +47,7 @@ class InlineSnapshotExtension:
 This allows you to influence the code that is created by inline-snapshot.
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
-``` python
+``` python title="test_quadrat.py"
 from inline_snapshot import snapshot
 from rect import Rect
 
@@ -66,7 +66,7 @@ def test_quadrat():
 It can also be used to instruct inline-snapshot to use specific dirty-equals expressions for specific values.
 
 <!-- inline-snapshot-lib-set: conftest.py -->
-``` python
+``` python title="conftest.py"
 from inline_snapshot import customize
 from inline_snapshot import Builder
 from dirty_equals import IsNow
@@ -83,7 +83,7 @@ Inline-snapshot provides a handler that can convert dirty-equals expressions bac
 This works because the value is converted with the customize functions until one hook uses the builder to create a Custom object.
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
-``` python
+``` python title="test_is_now.py"
 from inline_snapshot import snapshot
 from datetime import datetime
 
@@ -106,7 +106,7 @@ def test_is_now():
 `create_external` can be used to store values in external files if a specific criterion is met.
 
 <!-- inline-snapshot-lib-set: conftest.py -->
-``` python
+``` python title="conftest.py"
 from inline_snapshot import customize
 from inline_snapshot import Builder
 from dirty_equals import IsNow
@@ -120,7 +120,7 @@ class InlineSnapshotExtension:
 ```
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 outcome-errors=1 -->
-``` python
+``` python title="test_long_strings.py"
 from inline_snapshot import snapshot
 from datetime import datetime
 

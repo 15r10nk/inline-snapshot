@@ -326,7 +326,7 @@ The following example shows how this can be used to run a tests with two differe
 === "my_lib.py v1"
 
     <!-- inline-snapshot-lib: my_lib.py -->
-    ``` python
+    ``` python title="my_lib.py"
     version = 1
 
 
@@ -337,7 +337,7 @@ The following example shows how this can be used to run a tests with two differe
 === "my_lib.py v2"
 
     <!-- inline-snapshot-lib: my_lib.py -->
-    ``` python
+    ``` python title="my_lib.py"
     version = 2
 
 

@@ -25,7 +25,7 @@ customize = partial(hookimpl, specname="customize")
     Example:
         Basic usage with a custom class:
         <!-- inline-snapshot-lib: myclass.py -->
-        ``` python
+        ``` python title="myclass.py"
         class MyClass:
             def __init__(self, arg1, arg2, key=None):
                 self.arg1 = arg1
@@ -34,7 +34,7 @@ customize = partial(hookimpl, specname="customize")
         ```
 
         <!-- inline-snapshot-lib: conftest.py -->
-        ``` python
+        ``` python title="conftest.py"
         from myclass import MyClass
         from inline_snapshot import customize
 

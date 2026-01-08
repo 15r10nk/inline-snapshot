@@ -30,7 +30,7 @@ from inline_snapshot.version import is_insider
 class Block:
     code: str
     code_header: Optional[str]
-    block_options: str
+    block_options: Dict[str, str]
     line: int
 
 
@@ -60,7 +60,7 @@ def map_code_blocks(file: Path, func):
             block_found = True
             block_start_linenum = linenumber
             indent = m[1]
-            block_options = m[2]
+            block_options = {m[0]: m[1] for m in re.findall(r'(\w*)="([^"]*)"', m[2])}
             block_lines = []
             is_block = True
             continue
@@ -95,9 +95,9 @@ def map_code_blocks(file: Path, func):
             if new_block.code_header is not None:
                 new_lines.append(f"{indent}<!-- {new_block.code_header.strip()} -->")
 
-            new_lines.append(
-                f"{indent}``` {('python '+new_block.block_options.strip()).strip()}"
-            )
+            options = " ".join(f'{k}="{v}"' for k, v in new_block.block_options.items())
+
+            new_lines.append(f"{indent}``` {('python '+options).strip()}")
 
             new_code = new_block.code.rstrip()
             if file.suffix == ".py":
@@ -206,12 +206,12 @@ text
         blocks=snapshot(
             [
                 Block(
-                    code="print(1 + 1)\n", code_header=None, block_options="", line=2
+                    code="print(1 + 1)\n", code_header=None, block_options={}, line=2
                 ),
                 Block(
                     code="print(1 - 1)\n",
                     code_header="inline-snapshot: create test",
-                    block_options=' hl_lines="1 2 3"',
+                    block_options={"hl_lines": "1 2 3"},
                     line=7,
                 ),
             ]
@@ -221,7 +221,7 @@ text
     def change_block(block):
         block.code = "# removed"
         block.code_header = "header"
-        block.block_options = "option a b c"
+        block.block_options = {"a": "b c"}
 
     test_doc(
         """\
@@ -236,7 +236,7 @@ print(1 + 1)
                 Block(
                     code="# removed",
                     code_header="header",
-                    block_options="option a b c",
+                    block_options={"a": "b c"},
                     line=2,
                 )
             ]
@@ -245,7 +245,7 @@ print(1 + 1)
             """\
 text
 <!-- header -->
-``` python option a b c
+``` python a="b c"
 # removed
 ```
 """
@@ -353,11 +353,15 @@ uuid.uuid4=f
             return block
 
         if block.code_header.startswith("inline-snapshot-lib:"):
-            extra_files[block.code_header.split()[1]].append(block.code)
+            name = block.code_header.split()[1]
+            extra_files[name].append(block.code)
+            block.block_options["title"] = name
             return block
 
         if block.code_header.startswith("inline-snapshot-lib-set:"):
-            extra_files[block.code_header.split()[1]] = [block.code]
+            name = block.code_header.split()[1]
+            extra_files[name] = [block.code]
+            block.block_options["title"] = name
             return block
 
         if block.code_header.startswith("todo-inline-snapshot:"):
@@ -448,13 +452,9 @@ uuid.uuid4=f
                     changed_lines.append(str(linenum))
                     linenum += 1
             if changed_lines:
-                hl_lines = f'hl_lines="{" ".join(changed_lines)}"'
+                block.block_options["hl_lines"] = " ".join(changed_lines)
             else:
                 assert False, "no lines changed"
-
-        old_options = re.sub(r'hl_lines="[^"]*"', "", block.block_options).strip()
-
-        block.block_options = f"{old_options} {hl_lines}".strip()
 
         block.code = new_code
 
