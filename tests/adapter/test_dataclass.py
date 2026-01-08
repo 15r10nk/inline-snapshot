@@ -502,10 +502,11 @@ class L:
 from inline_snapshot import customize
 from helper import L
 
-@customize
-def handle_L(value,builder):
-    if isinstance(value,L):
-        return builder.create_call(L,value.l)
+class InlineSnapshotExtension:
+    @customize
+    def handle_L(self,value,builder):
+        if isinstance(value,L):
+            return builder.create_call(L,value.l)
 """,
             "tests/test_something.py": """\
 from inline_snapshot import snapshot

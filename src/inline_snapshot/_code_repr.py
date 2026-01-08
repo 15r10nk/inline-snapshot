@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import warnings
 from contextlib import contextmanager
 from enum import Enum
 from enum import Flag
 from functools import singledispatch
 from typing import TYPE_CHECKING
 from unittest import mock
+
+from typing_extensions import deprecated
 
 from inline_snapshot._generator_utils import only_value
 
@@ -52,6 +55,7 @@ def code_repr_dispatch(value):
     return real_repr(value)
 
 
+@deprecated("use @customize instead")
 def customize_repr(f):
     """Register a function which should be used to get the code representation
     of a object.
@@ -68,6 +72,10 @@ def customize_repr(f):
     * __repr__() of your class returns a valid code representation,
     * and __repr__() uses `repr()` to get the representation of the child objects
     """
+    warnings.warn(
+        "@customize_repr is deprecated, @customize should be used instead",
+        DeprecationWarning,
+    )
     code_repr_dispatch.register(f)
 
 

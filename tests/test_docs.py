@@ -17,6 +17,7 @@ import pytest
 from executing import is_pytest_compatible
 
 from inline_snapshot import snapshot
+from inline_snapshot._align import align
 from inline_snapshot._external._external_file import external_file
 from inline_snapshot._flags import Flags
 from inline_snapshot._global_state import snapshot_env
@@ -289,7 +290,6 @@ class Store(Generic[T]):
 def file_test(
     file: Path,
     width: int = 80,
-    use_hl_lines: bool = True,
 ):
     """Test code blocks with the header <!-- inline-snapshot: options ... -->
 
@@ -313,15 +313,18 @@ line-length={width}
 import datetime
 import pytest
 from freezegun.api import FakeDatetime,FakeDate
-from inline_snapshot import customize_repr
+from inline_snapshot import customize
 
-@customize_repr
-def _(value:FakeDatetime):
-    return value.__repr__().replace("FakeDatetime","datetime.datetime")
+class InlineSnapshotExtension:
+    @customize
+    def fakedatetime_handler(self,value,builder):
+        if isinstance(value,FakeDatetime):
+            return builder.create_value(value,value.__repr__().replace("FakeDatetime","datetime.datetime"))
 
-@customize_repr
-def _(value:FakeDate):
-    return value.__repr__().replace("FakeDate","datetime.date")
+    @customize
+    def fakedate_handler(self,value,builder):
+        if isinstance(value,FakeDate):
+            return builder.create_value(value,value.__repr__().replace("FakeDate","datetime.date"))
 
 
 @pytest.fixture(autouse=True)
@@ -430,30 +433,28 @@ uuid.uuid4=f
             ]
         )
 
-        if use_hl_lines:
-            from inline_snapshot._align import align
+        linenum = 1
+        hl_lines = ""
 
-            linenum = 1
-            hl_lines = ""
-
-            if last_code is not None and "first_block" not in options:
-                changed_lines = []
-                alignment = align(last_code.split("\n"), new_code.split("\n"))
-                for c in alignment:
-                    if c == "d":
-                        continue
-                    elif c == "m":
-                        linenum += 1
-                    else:
-                        changed_lines.append(str(linenum))
-                        linenum += 1
-                if changed_lines:
-                    hl_lines = f'hl_lines="{" ".join(changed_lines)}"'
+        if last_code is not None and "first_block" not in options:
+            changed_lines = []
+            alignment = align(last_code.split("\n"), new_code.split("\n"))
+            for c in alignment:
+                if c == "d":
+                    continue
+                elif c == "m":
+                    linenum += 1
                 else:
-                    assert False, "no lines changed"
-            block.block_options = hl_lines
-        else:
-            pass  # pragma: no cover
+                    changed_lines.append(str(linenum))
+                    linenum += 1
+            if changed_lines:
+                hl_lines = f'hl_lines="{" ".join(changed_lines)}"'
+            else:
+                assert False, "no lines changed"
+
+        old_options = re.sub(r'hl_lines="[^"]*"', "", block.block_options).strip()
+
+        block.block_options = f"{old_options} {hl_lines}".strip()
 
         block.code = new_code
 
@@ -470,4 +471,4 @@ if __name__ == "__main__":  # pragma: no cover
 
     print(file)
 
-    file_test(file, width=60, use_hl_lines=True)
+    file_test(file, width=60)

@@ -248,19 +248,10 @@ class SnapshotSession:
 
         self.registered_modules.add(module.__file__)
 
-        class ConftestPlugin:
-            pass
-
         for name in dir(module):
             obj = getattr(module, name, None)
-            if obj is None or not callable(obj):
-                continue
-
-            # Check if the function has the customize hookimpl marker
-            if hasattr(obj, "inline_snapshot_impl"):
-                setattr(ConftestPlugin, name, obj)
-
-        state().pm.register(ConftestPlugin, name=f"<conftest {module.__file__}>")
+            if isinstance(obj, type) and name.startswith("InlineSnapshot"):
+                state().pm.register(obj(), name=f"<conftest {name} {module.__file__}>")
 
     @staticmethod
     def test_enter():

@@ -49,7 +49,7 @@ customize = partial(hookimpl, specname="customize")
             return None  # Let other handlers process this value
         ```
 
-        <!-- inline-snapshot: create fix first_block outcome-failed=1 outcome-errors=1 -->
+        <!-- inline-snapshot: create fix first_block outcome-failed=1 -->
         ``` python
         from inline_snapshot import snapshot
         from myclass import MyClass

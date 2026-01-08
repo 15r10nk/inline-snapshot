@@ -37,10 +37,11 @@ from inline_snapshot import customize
 from inline_snapshot import Builder
 
 
-@customize
-def quadrat_handler(value, builder: Builder):
-    if isinstance(value, Rect) and value.width == value.height:
-        return builder.create_call(Rect.make_quadrat, [value.width])
+class InlineSnapshotExtension:
+    @customize
+    def quadrat_handler(self, value, builder: Builder):
+        if isinstance(value, Rect) and value.width == value.height:
+            return builder.create_call(Rect.make_quadrat, [value.width])
 ```
 
 This allows you to influence the code that is created by inline-snapshot.
@@ -71,10 +72,11 @@ from inline_snapshot import Builder
 from dirty_equals import IsNow
 
 
-@customize
-def is_now_handler(value):
-    if value == IsNow():
-        return IsNow
+class InlineSnapshotExtension:
+    @customize
+    def is_now_handler(self, value):
+        if value == IsNow():
+            return IsNow
 ```
 
 Inline-snapshot provides a handler that can convert dirty-equals expressions back into source code. This allows you to return `IsNow` here without the need to construct a custom object with the builder.
@@ -110,10 +112,11 @@ from inline_snapshot import Builder
 from dirty_equals import IsNow
 
 
-@customize
-def is_now_handler(value, builder: Builder):
-    if isinstance(value, str) and value.count("\n") > 5:
-        return builder.create_external(value)
+class InlineSnapshotExtension:
+    @customize
+    def is_now_handler(self, value, builder: Builder):
+        if isinstance(value, str) and value.count("\n") > 5:
+            return builder.create_external(value)
 ```
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 outcome-errors=1 -->
@@ -148,11 +151,12 @@ from inline_snapshot import customize
 from inline_snapshot import Builder
 
 
-@customize
-def local_var_handler(value, local_vars):
-    for local in local_vars:
-        if local.name.startswith("v_") and local.value == value:
-            return local
+class InlineSnapshotExtension:
+    @customize
+    def local_var_handler(self, value, local_vars):
+        for local in local_vars:
+            if local.name.startswith("v_") and local.value == value:
+                return local
 ```
 
 We check all local variables to see if they match our naming convention and are equal to the value that is part of our snapshot, and return the local if we find one that fits the criteria.

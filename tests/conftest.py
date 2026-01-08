@@ -311,15 +311,18 @@ from inline_snapshot import outsource
 import datetime
 import pytest
 from freezegun.api import FakeDatetime,FakeDate
-from inline_snapshot import customize_repr
+from inline_snapshot import customize
 
-@customize_repr
-def _(value:FakeDatetime):
-    return value.__repr__().replace("FakeDatetime","datetime.datetime")
+class InlineSnapshotExtension:
+    @customize
+    def fakedatetime_handler(self,value,builder):
+        if isinstance(value,FakeDatetime):
+            return builder.create_value(value,value.__repr__().replace("FakeDatetime","datetime.datetime"))
 
-@customize_repr
-def _(value:FakeDate):
-    return value.__repr__().replace("FakeDate","datetime.date")
+    @customize
+    def fakedate_handler(self,value,builder):
+        if isinstance(value,FakeDate):
+            return builder.create_value(value,value.__repr__().replace("FakeDate","datetime.date"))
 
 
 @pytest.fixture(autouse=True)

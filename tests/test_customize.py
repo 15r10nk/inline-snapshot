@@ -16,10 +16,11 @@ from inline_snapshot import customize
 from inline_snapshot import Builder
 from dirty_equals import IsStr
 
-@customize
-def re_handler(value, builder: Builder):
-    if value == IsStr(regex="[a-z]"):
-        return builder.create_call(IsStr, [], {"regex": "[a-z]"})
+class InlineSnapshotExtension:
+    @customize
+    def re_handler(self,value, builder: Builder):
+        if value == IsStr(regex="[a-z]"):
+            return builder.create_call(IsStr, [], {"regex": "[a-z]"})
 """,
             "tests/test_something.py": f"""\
 from inline_snapshot import snapshot
