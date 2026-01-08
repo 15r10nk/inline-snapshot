@@ -14,7 +14,7 @@ from ._custom_dict import CustomDict
 from ._custom_external import CustomExternal
 from ._custom_sequence import CustomList
 from ._custom_sequence import CustomTuple
-from ._custom_value import CustomValue
+from ._custom_value import CustomCode
 
 
 @dataclass
@@ -55,7 +55,7 @@ class Builder:
                     global_vars=global_vars,
                 )
             if r is None:
-                result = CustomValue(result)
+                result = CustomCode(result)
             else:
                 result = r
 
@@ -128,11 +128,11 @@ class Builder:
         custom = {self._get_handler(k): self._get_handler(v) for k, v in value.items()}
         return CustomDict(value=custom)
 
-    def create_value(self, value, repr: str | None = None) -> CustomValue:
+    def create_code(self, value, repr: str | None = None) -> CustomCode:
         """
         Creates an intermediate node for a value with a custom representation which can be used as a result for your customization function.
 
-        `create_value(my_obj, 'MyClass')` becomes `MyClass` in the code.
+        `create_code(my_obj, 'MyClass')` becomes `MyClass` in the code.
         Use this when you want to control the exact string representation of a value.
         """
-        return CustomValue(value, repr)
+        return CustomCode(value, repr)

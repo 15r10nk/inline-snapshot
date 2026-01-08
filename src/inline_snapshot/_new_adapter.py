@@ -25,7 +25,7 @@ from inline_snapshot._customize._custom_sequence import CustomList
 from inline_snapshot._customize._custom_sequence import CustomSequence
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
-from inline_snapshot._customize._custom_value import CustomValue
+from inline_snapshot._customize._custom_value import CustomCode
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._generator_utils import only_value
 from inline_snapshot.syntax_warnings import InlineSnapshotInfo
@@ -106,7 +106,7 @@ def reeval_CustomUndefined(old_value, value):
     return value
 
 
-def reeval_CustomValue(old_value: CustomValue, value: CustomValue):
+def reeval_CustomCode(old_value: CustomCode, value: CustomCode):
 
     if not old_value.eval() == value.eval():
         raise UsageError(
@@ -168,10 +168,10 @@ class NewAdapter:
                 old_value, old_node, new_value
             )
         else:
-            result = yield from self.compare_CustomValue(old_value, old_node, new_value)
+            result = yield from self.compare_CustomCode(old_value, old_node, new_value)
         return result
 
-    def compare_CustomValue(
+    def compare_CustomCode(
         self, old_value: Custom, old_node: ast.expr, new_value: Custom
     ) -> Generator[ChangeBase, None, Custom]:
 
@@ -186,7 +186,7 @@ class NewAdapter:
 
         if (
             isinstance(old_node, ast.JoinedStr)
-            and isinstance(new_value, CustomValue)
+            and isinstance(new_value, CustomCode)
             and isinstance(new_value.value, str)
         ):
             if not old_value.eval() == new_value.eval():

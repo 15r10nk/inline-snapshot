@@ -6,7 +6,7 @@ You should use it when you find yourself manually editing snapshots after they w
 * **value:** the value of your snapshot that is currently being converted to source code.
 * **builder:** your `Builder` object can be used to create Custom objects that represent your new code.
 * **local_vars:** a list of objects with `name` and `value` attributes that represent the local variables that are usable in your snapshot.
-* **global_vars:** same as for `local_vars`, but for global variables.
+* **global_vars:** same as `local_vars`, but for global variables.
 
 ## Custom constructor methods
 One use case might be that you have a dataclass with a special constructor function that can be used for specific instances of this dataclass, and you want inline-snapshot to use this constructor when possible.
@@ -22,7 +22,7 @@ class Rect:
     height: int
 
     @staticmethod
-    def make_quadrat(size):
+    def make_square(size):
         return Rect(size, size)
 ```
 
@@ -39,27 +39,27 @@ from inline_snapshot import Builder
 
 class InlineSnapshotExtension:
     @customize
-    def quadrat_handler(self, value, builder: Builder):
+    def square_handler(self, value, builder: Builder):
         if isinstance(value, Rect) and value.width == value.height:
-            return builder.create_call(Rect.make_quadrat, [value.width])
+            return builder.create_call(Rect.make_square, [value.width])
 ```
 
 This allows you to influence the code that is created by inline-snapshot.
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
-``` python title="test_quadrat.py"
+``` python title="test_square.py"
 from inline_snapshot import snapshot
 from rect import Rect
 
 
-def test_quadrat():
-    assert Rect.make_quadrat(5) == snapshot(Rect.make_quadrat(5))  # (1)!
-    assert Rect(1, 1) == snapshot(Rect.make_quadrat(1))  # (2)!
+def test_square():
+    assert Rect.make_square(5) == snapshot(Rect.make_square(5))  # (1)!
+    assert Rect(1, 1) == snapshot(Rect.make_square(1))  # (2)!
     assert Rect(1, 2) == snapshot(Rect(width=1, height=2))  # (3)!
 ```
 
 1. Your handler is used because you created a square
-2. Your handler is used because you created a rect that happens to have the same width and height
+2. Your handler is used because you created a Rect that happens to have the same width and height
 3. Your handler is not used because width and height are different
 
 ## dirty-equal expressions
@@ -98,7 +98,7 @@ def test_is_now():
 
 !!! important
     Inline-snapshot will never change the dirty-equals expressions in your code because they are unmanaged.
-    Using `@customize` with dirty-equals is a one-way ticket. Once the code is created, inline-snapshot does not know if it was created by inline-snapshot itself or by the user and will not change it, because it has to assume that it was created by the user.
+    Using `@customize` with dirty-equals is a one-way ticket. Once the code is created, inline-snapshot does not know if it was created by inline-snapshot itself or by the user and will not change it when you change the `@customize` implementation, because it has to assume that it was created by the user.
 
 
 ## Conditional external objects
@@ -114,7 +114,7 @@ from dirty_equals import IsNow
 
 class InlineSnapshotExtension:
     @customize
-    def is_now_handler(self, value, builder: Builder):
+    def long_string_handler(self, value, builder: Builder):
         if isinstance(value, str) and value.count("\n") > 5:
             return builder.create_external(value)
 ```
@@ -159,15 +159,12 @@ class InlineSnapshotExtension:
                 return local
 ```
 
-We check all local variables to see if they match our naming convention and are equal to the value that is part of our snapshot, and return the local if we find one that fits the criteria.
+We check all local variables to see if they match our naming convention and are equal to the value that is part of our snapshot, and return the local variable if we find one that fits the criteria.
 
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python title="test_user.py"
 from inline_snapshot import snapshot
-from datetime import datetime
-
-from inline_snapshot import external
 
 
 def get_data(user):
@@ -188,7 +185,83 @@ It is up to you to set the rules that work best in your project.
 !!! note
     It is not recommended to check only for the value because this might result in local variables which become part of the snapshot just because they are equal to the value and not because they should be there (see `age=55` in the example above).
     This is also the reason why inline-snapshot does not provide default customizations that check your local variables.
-    The rules are project specific and what might work well for one project can cause problems for others.
+    The rules are project-specific and what might work well for one project can cause problems for others.
+
+## Creating special code
+
+Let's say that you have an array of secrets which are used in your code.
+
+<!-- inline-snapshot-lib: my_secrets.py -->
+``` python title="my_secrets.py"
+secrets = ["some_secret", "some_other_secret"]
+```
+
+<!-- inline-snapshot-lib: get_data.py -->
+``` python title="get_data.py"
+from my_secrets import secrets
+
+
+def get_data():
+    return {"data": "large data block", "used_secret": secrets[1]}
+```
+
+The problem is that `--inline-snapshot=create` puts your secret into your test.
+
+<!-- inline-snapshot: create first_block outcome-passed=1 -->
+``` python
+from inline_snapshot import snapshot
+from get_data import get_data
+
+
+def test_my_class():
+    assert get_data() == snapshot(
+        {"data": "large data block", "used_secret": "some_other_secret"}
+    )
+```
+
+Maybe this is not what you want because the secret is a different one in CI or for every test run or the raw value leads to unreadable tests.
+What you can do now, instead of replacing `"some_other_secret"` with `secrets[1]` by hand, is to tell inline-snapshot how it should generate this code in your *conftest.py*.
+
+<!-- inline-snapshot-lib-set: conftest.py -->
+``` python title="conftest.py"
+from my_secrets import secrets
+from inline_snapshot import customize, Builder
+
+
+class InlineSnapshotExtension:
+    @customize
+    def secret_handler(self, value, builder: Builder):
+        for i, secret in enumerate(secrets):
+            if value == secret:
+                return builder.create_code(secret, f"secrets[{i}]").with_import(
+                    "my_secrets", "secrets"
+                )
+```
+
+Inline-snapshot will now create the correct code and import statement when you run your tests with `--inline-snapshot=update`.
+
+<!-- inline-snapshot: update outcome-passed=1 -->
+``` python hl_lines="4 5 9"
+from inline_snapshot import snapshot
+from get_data import get_data
+
+from my_secrets import secrets
+
+
+def test_my_class():
+    assert get_data() == snapshot(
+        {"data": "large data block", "used_secret": secrets[1]}
+    )
+```
+
+!!! question "why update?"
+    `"some_other_secret"` was already a correct value for your assertion and `--inline-snapshot=fix` only changes code when the current value is not correct and needs to be fixed. `update` is the category for all other changes where inline-snapshot wants to generate different code which represents the same value as the code before.
+
+    You only have to use `update` when you changed your customizations and want to use the new code representations in your existing tests. The new representation is also used by `create` or `fix` when you write new tests.
+
+    The `update` category is not enabled by default for `--inline-snapshot=review/report`.
+    You can read [here](categories.md#update) more about it.
+
 
 # Reference
 

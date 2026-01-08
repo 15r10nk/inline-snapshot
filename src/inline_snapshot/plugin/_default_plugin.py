@@ -4,6 +4,8 @@ from collections import defaultdict
 from dataclasses import MISSING
 from dataclasses import fields
 from dataclasses import is_dataclass
+from enum import Enum
+from enum import Flag
 from pathlib import Path
 from pathlib import PurePath
 from types import BuiltinFunctionType
@@ -44,7 +46,7 @@ class InlineSnapshotPlugin:
 
             assert ast.literal_eval(triple_quoted_string) == value
 
-            return builder.create_value(value, triple_quoted_string)
+            return builder.create_code(value, triple_quoted_string)
 
     @customize(tryfirst=True)
     def counter_handler(self, value, builder: Builder):
@@ -56,21 +58,21 @@ class InlineSnapshotPlugin:
         if isinstance(value, FunctionType):
             qualname = value.__qualname__
             name = qualname.split(".")[0]
-            return builder.create_value(value, qualname).with_import(
+            return builder.create_code(value, qualname).with_import(
                 value.__module__, name
             )
 
     @customize
     def builtin_function_handler(self, value, builder: Builder):
         if isinstance(value, BuiltinFunctionType):
-            return builder.create_value(value, value.__name__)
+            return builder.create_code(value, value.__name__)
 
     @customize
     def type_handler(self, value, builder: Builder):
         if isinstance(value, type):
             qualname = value.__qualname__
             name = qualname.split(".")[0]
-            return builder.create_value(value, qualname).with_import(
+            return builder.create_code(value, qualname).with_import(
                 value.__module__, name
             )
 
@@ -100,9 +102,9 @@ class InlineSnapshotPlugin:
     def set_handler(self, value, builder: Builder):
         if isinstance(value, set):
             if len(value) == 0:
-                return builder.create_value(value, "set()")
+                return builder.create_code(value, "set()")
             else:
-                return builder.create_value(
+                return builder.create_code(
                     value, "{" + ", ".join(self.sort_set_values(value)) + "}"
                 )
 
@@ -110,9 +112,35 @@ class InlineSnapshotPlugin:
     def frozenset_handler(self, value, builder: Builder):
         if isinstance(value, frozenset):
             if len(value) == 0:
-                return builder.create_value(value, "frozenset()")
+                return builder.create_code(value, "frozenset()")
             else:
                 return builder.create_call(frozenset, [set(value)])
+
+    # -8<- [start:Enum]
+    @customize
+    def enum_handler(self, value, builder: Builder):
+        if isinstance(value, Enum):
+            qualname = type(value).__qualname__
+            name = qualname.split(".")[0]
+
+            return builder.create_code(
+                value, f"{type(value).__qualname__}.{value.name}"
+            ).with_import(type(value).__module__, name)
+
+    # -8<- [end:Enum]
+
+    @customize
+    def flag_handler(self, value, builder: Builder):
+        if isinstance(value, Flag):
+            qualname = type(value).__qualname__
+            name = qualname.split(".")[0]
+
+            return builder.create_code(
+                value,
+                " | ".join(
+                    f"{qualname}.{flag.name}" for flag in type(value) if flag in value
+                ),
+            ).with_import(type(value).__module__, name)
 
     @customize
     def dataclass_handler(self, value, builder: Builder):
@@ -190,7 +218,7 @@ class InlineSnapshotPlugin:
         if is_dirty_equal(value) and builder._build_new_value:
 
             if isinstance(value, type):
-                return builder.create_value(value, value.__name__).with_import(
+                return builder.create_code(value, value.__name__).with_import(
                     "dirty_equals", value.__name__
                 )
             else:
@@ -206,7 +234,7 @@ class InlineSnapshotPlugin:
     @customize(tryfirst=True)
     def context_value_handler(self, value, builder: Builder):
         if isinstance(value, ContextValue):
-            return builder.create_value(value.value, value.name)
+            return builder.create_code(value.value, value.name)
 
     @customize
     def outsource_handler(self, value, builder: Builder):

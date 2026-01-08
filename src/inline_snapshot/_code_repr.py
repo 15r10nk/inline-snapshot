@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import warnings
 from contextlib import contextmanager
-from enum import Enum
-from enum import Flag
 from functools import singledispatch
 from typing import TYPE_CHECKING
 from unittest import mock
@@ -110,18 +108,3 @@ def value_code_repr(obj):
     result = code_repr_dispatch(obj)
 
     return result
-
-
-# -8<- [start:Enum]
-@customize_repr
-def _(value: Enum):
-    return f"{type(value).__qualname__}.{value.name}"
-
-
-# -8<- [end:Enum]
-
-
-@customize_repr
-def _(value: Flag):
-    name = type(value).__qualname__
-    return " | ".join(f"{name}.{flag.name}" for flag in type(value) if flag in value)

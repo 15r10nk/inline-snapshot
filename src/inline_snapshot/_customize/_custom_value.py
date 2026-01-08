@@ -25,7 +25,7 @@ def _simplify_module_path(module: str, name: str) -> str:
     return ".".join(parts)
 
 
-class CustomValue(Custom):
+class CustomCode(Custom):
     def __init__(self, value, repr_str=None):
         assert not isinstance(value, Custom)
         value = clone(value)
@@ -54,7 +54,7 @@ class CustomValue(Custom):
         return self.repr_str
 
     def __repr__(self):
-        return f"CustomValue({self.repr_str})"
+        return f"CustomCode({self.repr_str})"
 
     def _needed_imports(self):
         yield from self._imports

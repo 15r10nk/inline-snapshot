@@ -319,6 +319,10 @@ class Example:
 
                 snapshot_flags = set()
                 old_modules = sys.modules
+                old_path = sys.path[:]
+                # Add tmp_path to sys.path so modules can be imported normally
+                sys.path.insert(0, str(tmp_path))
+
                 try:
                     enter_snapshot_context()
                     session.load_config(
@@ -406,6 +410,7 @@ class Example:
                     assert stderr == f"ERROR: {e}\n"
                 finally:
                     sys.modules = old_modules
+                    sys.path = old_path
                     leave_snapshot_context()
 
             if reported_categories is not None:

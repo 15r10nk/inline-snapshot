@@ -317,12 +317,12 @@ class InlineSnapshotExtension:
     @customize
     def fakedatetime_handler(self,value,builder):
         if isinstance(value,FakeDatetime):
-            return builder.create_value(value,value.__repr__().replace("FakeDatetime","datetime.datetime"))
+            return builder.create_code(value,value.__repr__().replace("FakeDatetime","datetime.datetime"))
 
     @customize
     def fakedate_handler(self,value,builder):
         if isinstance(value,FakeDate):
-            return builder.create_value(value,value.__repr__().replace("FakeDate","datetime.date"))
+            return builder.create_code(value,value.__repr__().replace("FakeDate","datetime.date"))
 
 
 @pytest.fixture(autouse=True)

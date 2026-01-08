@@ -19,33 +19,41 @@ from inline_snapshot.testing import Example
 
 def test_enum(check_update):
 
-    assert (
-        check_update(
-            """
+    Example(
+        {
+            "color.py": """
 from enum import Enum
 
 class color(Enum):
     val="val"
 
+def get_color():
+    return [color.val,color.val]
 
-assert [color.val] == snapshot()
+             """,
+            "test_color.py": """\
+from inline_snapshot import snapshot
+from color import get_color
 
-    """,
-            flags="create",
-        )
-        == snapshot(
-            """\
+def test_enum():
+    assert get_color() == snapshot()
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_color.py": """\
+from inline_snapshot import snapshot
+from color import get_color
 
-from enum import Enum
+from color import color
 
-class color(Enum):
-    val="val"
-
-
-assert [color.val] == snapshot([color.val])
-
+def test_enum():
+    assert get_color() == snapshot([color.val, color.val])
 """
-        )
+            }
+        ),
     )
 
 

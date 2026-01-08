@@ -10,7 +10,7 @@ from inline_snapshot._customize._custom_sequence import CustomList
 from inline_snapshot._customize._custom_sequence import CustomTuple
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
-from inline_snapshot._customize._custom_value import CustomValue
+from inline_snapshot._customize._custom_value import CustomCode
 from inline_snapshot._new_adapter import NewAdapter
 from inline_snapshot._new_adapter import warn_star_expression
 from inline_snapshot._unmanaged import is_unmanaged
@@ -43,7 +43,7 @@ class AstToCustom:
         if value is ...:
             return CustomUndefined()
         else:
-            return CustomValue(value, ast.unparse(node))
+            return CustomCode(value, ast.unparse(node))
 
     def convert_Call(self, value: Any, node: ast.Call):
         return CustomCall(
