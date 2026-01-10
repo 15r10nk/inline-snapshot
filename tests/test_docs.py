@@ -48,7 +48,7 @@ def map_code_blocks(file: Path, func):
     code = None
     indent = ""
     block_start_linenum: Optional[int] = None
-    block_options: Optional[str] = None
+    block_options: dict[str, str] = {}
     code_header = None
     header_line = ""
     block_found = False
@@ -68,7 +68,6 @@ def map_code_blocks(file: Path, func):
         if block_end.fullmatch(line.strip()) and is_block:
             # ```
             is_block = False
-            assert block_options is not None
             assert block_start_linenum is not None
 
             code = "\n".join(block_lines) + "\n"
@@ -315,7 +314,7 @@ import pytest
 from freezegun.api import FakeDatetime,FakeDate
 from inline_snapshot import customize
 
-class InlineSnapshotExtension:
+class InlineSnapshotPlugin:
     @customize
     def fakedatetime_handler(self,value,builder):
         if isinstance(value,FakeDatetime):

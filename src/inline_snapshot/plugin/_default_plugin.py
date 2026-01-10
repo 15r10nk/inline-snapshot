@@ -19,7 +19,7 @@ from inline_snapshot._sentinels import undefined
 from inline_snapshot._unmanaged import is_dirty_equal
 from inline_snapshot._unmanaged import is_unmanaged
 from inline_snapshot._utils import triple_quote
-from inline_snapshot.plugin._context_value import ContextValue
+from inline_snapshot.plugin._context_variable import ContextVariable
 
 from ._spec import customize
 
@@ -233,7 +233,7 @@ class InlineSnapshotPlugin:
 
     @customize(tryfirst=True)
     def context_value_handler(self, value, builder: Builder):
-        if isinstance(value, ContextValue):
+        if isinstance(value, ContextVariable):
             return builder.create_code(value.value, value.name)
 
     @customize

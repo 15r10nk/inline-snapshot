@@ -313,7 +313,7 @@ import pytest
 from freezegun.api import FakeDatetime,FakeDate
 from inline_snapshot import customize
 
-class InlineSnapshotExtension:
+class InlineSnapshotPlugin:
     @customize
     def fakedatetime_handler(self,value,builder):
         if isinstance(value,FakeDatetime):

@@ -5,7 +5,7 @@ from typing import Any
 
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._compare_context import compare_context
-from inline_snapshot.plugin._context_value import ContextValue
+from inline_snapshot.plugin._context_variable import ContextVariable
 
 from ._custom import Custom
 from ._custom_call import CustomCall
@@ -31,12 +31,12 @@ class Builder:
             and (frame := self._snapshot_context.frame) is not None
         ):
             local_vars = [
-                ContextValue(var_name, var_value)
+                ContextVariable(var_name, var_value)
                 for var_name, var_value in frame.locals.items()
                 if "@" not in var_name
             ]
             global_vars = [
-                ContextValue(var_name, var_value)
+                ContextVariable(var_name, var_value)
                 for var_name, var_value in frame.globals.items()
                 if "@" not in var_name
             ]
@@ -132,7 +132,10 @@ class Builder:
         """
         Creates an intermediate node for a value with a custom representation which can be used as a result for your customization function.
 
-        `create_code(my_obj, 'MyClass')` becomes `MyClass` in the code.
-        Use this when you want to control the exact string representation of a value.
+        `create_code(value, '{value-1!r}+1')` becomes `4+1` in the code for a given `value=5`.
+        Use this when you need to control the exact string representation of a value.
+
+        You can use `.with_import(module,name)` to create an import in the code.
+        `create_code(Color.red,"Color.red").with_import("my_colors","Color")` will create a `from my_colors import Color` if needed and `Color.red` in the code.
         """
         return CustomCode(value, repr)

@@ -4,7 +4,7 @@
     You should use
 
     ``` python title="conftest.py"
-    class InlineSnapshotExtension:
+    class InlineSnapshotPlugin:
         @customize
         def my_class_handler(value, builder):
             if isinstance(value, MyClass):

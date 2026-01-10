@@ -15,6 +15,7 @@ from uuid import uuid4
 import pluggy
 
 from inline_snapshot._config import Config
+from inline_snapshot.plugin._spec import inline_snapshot_plugin_name
 
 if TYPE_CHECKING:
     from inline_snapshot._external._format._protocol import Format
@@ -53,7 +54,7 @@ class State:
     )
 
     pm: pluggy.PluginManager = field(
-        default_factory=lambda: pluggy.PluginManager("inline_snapshot")
+        default_factory=lambda: pluggy.PluginManager(inline_snapshot_plugin_name)
     )
 
     def new_tmp_path(self, suffix: str) -> Path:
@@ -84,7 +85,6 @@ def enter_snapshot_context():
     from .plugin._spec import InlineSnapshotPluginSpec
 
     _current.pm.add_hookspecs(InlineSnapshotPluginSpec)
-    _current.pm.load_setuptools_entrypoints("inline_snapshot")
 
     from .plugin._default_plugin import InlineSnapshotPlugin
 
@@ -103,6 +103,8 @@ def enter_snapshot_context():
         pass
     else:
         _current.pm.register(InlineSnapshotPydanticPlugin())
+
+    _current.pm.load_setuptools_entrypoints(inline_snapshot_plugin_name)
 
 
 def leave_snapshot_context():

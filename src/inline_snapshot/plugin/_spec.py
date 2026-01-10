@@ -5,73 +5,24 @@ from typing import List
 import pluggy
 
 from inline_snapshot._customize._builder import Builder
-from inline_snapshot.plugin._context_value import ContextValue
+from inline_snapshot.plugin._context_variable import ContextVariable
 
-hookspec = pluggy.HookspecMarker("inline_snapshot")
-hookimpl = pluggy.HookimplMarker("inline_snapshot")
+inline_snapshot_plugin_name = "inline-snapshot"
+
+hookspec = pluggy.HookspecMarker(inline_snapshot_plugin_name)
+"""
+The pluggy hookspec marker for inline_snapshot.
+"""
+
+hookimpl = pluggy.HookimplMarker(inline_snapshot_plugin_name)
+"""
+The pluggy hookimpl marker for inline_snapshot.
+"""
 
 customize = partial(hookimpl, specname="customize")
 """
-    Registers a function as a customization hook inside inline-snapshot.
-
-    Customization hooks allow you to control how objects are represented in snapshot code.
-    When inline-snapshot generates code for a value, it calls each registered customization
-    function in reverse order of registration until one returns a Custom object.
-
-    **Important**: Customization handlers should be registered in your `conftest.py` file to ensure
-    they are loaded before your tests run.
-
-
-    Example:
-        Basic usage with a custom class:
-        <!-- inline-snapshot-lib: myclass.py -->
-        ``` python title="myclass.py"
-        class MyClass:
-            def __init__(self, arg1, arg2, key=None):
-                self.arg1 = arg1
-                self.arg2 = arg2
-                self.key_attr = key
-        ```
-
-        <!-- inline-snapshot-lib: conftest.py -->
-        ``` python title="conftest.py"
-        from myclass import MyClass
-        from inline_snapshot import customize
-
-
-        @customize
-        def my_custom_handler(value, builder):
-            if isinstance(value, MyClass):
-                # Generate code like: MyClass(arg1, arg2, key=value)
-                return builder.create_call(
-                    MyClass, [value.arg1, value.arg2], {"key": value.key_attr}
-                )
-            return None  # Let other handlers process this value
-        ```
-
-        <!-- inline-snapshot: create fix first_block outcome-failed=1 -->
-        ``` python
-        from inline_snapshot import snapshot
-        from myclass import MyClass
-
-
-        def test_myclass():
-            obj = MyClass(42, "hello", key="world")
-            assert obj == snapshot(MyClass(42, "hello", key="world"))
-        ```
-
-    Note:
-        - **Always register handlers in `conftest.py`** to ensure they're available for all tests
-        - If no handler returns a Custom object, a default representation is used
-        - Use builder methods (`create_call`, `create_external`) to construct representations
-        - Always return `None` if your handler doesn't apply to the given value type
-        - The builder automatically handles recursive conversion of nested values, therfor `create_list` and `create_dict` are unlikely needed because you can just use `[]` or `{}`
-
-
-    See Also:
-        - [Builder][inline_snapshot._customize.Builder]: Available builder methods
-        - [Custom][inline_snapshot._customize.Custom]: Base class for custom representations
-    """
+Decorator to mark a function as an implementation of the `customize` hook which can be used instead of `hookimpl(specname="customize")`.
+"""
 
 
 class InlineSnapshotPluginSpec:
@@ -80,9 +31,81 @@ class InlineSnapshotPluginSpec:
         self,
         value: Any,
         builder: Builder,
-        local_vars: List[ContextValue],
-        global_vars: List[ContextValue],
-    ) -> Any: ...
+        local_vars: List[ContextVariable],
+        global_vars: List[ContextVariable],
+    ) -> Any:
+        """
+        The customize hook is called every time a snapshot value should be converted into code.
+
+        This hook allows you to control how inline-snapshot represents objects in generated code.
+        When multiple handlers are registered, they are called until one returns a non-None value.
+        `customize` is also called for each attribute of the converted hook which is not a Custom node, which means that a hook for `int` does not only apply for `snapshot(5)` but also for `snaspshot([1,2,3])` 3 times.
+
+        Arguments:
+            value: The Python object that needs to be converted into source code representation.
+                   This is the actual runtime value from your test.
+            builder: A Builder instance providing methods to construct custom code representations.
+                    Use methods like `create_call()`, `create_dict()`, `create_external()`, etc.
+            local_vars: List of local variables available in the current scope, each containing
+                       `name` and `value` attributes. Useful for referencing existing variables
+                       instead of creating new literals.
+            global_vars: List of global variables available in the current scope, each containing
+                        `name` and `value` attributes.
+
+        Returns:
+            (Custom): created using [Builder][inline_snapshot.Builder] `create_*` methods.
+            (None): if this handler doesn't apply to the given value.
+            (Something else): when the next handler should process the value.
+
+        Example:
+            You can use @customize when you want to specify multiple handlers in the same class:
+
+
+            === "with @customize"
+                <!-- inline-snapshot-lib: conftest.py -->
+                ``` python title="conftest.py"
+                from inline_snapshot.plugin import customize
+
+
+                class InlineSnapshotPlugin:
+                    @customize
+                    def binary_numbers(self, value, builder, local_vars, global_vars):
+                        if isinstance(value, int):
+                            return builder.create_code(value, bin(value))
+
+                    @customize
+                    def repeated_strings(self, value, builder):
+                        if isinstance(value, str) and value == value[0] * len(value):
+                            return builder.create_code(value, f"'{value[0]}'*{len(value)}")
+                ```
+
+            === "by method name"
+
+                <!-- inline-snapshot-lib: conftest.py -->
+                ``` python title="conftest.py"
+                class InlineSnapshotPlugin:
+                    def customize(self, value, builder, local_vars, global_vars):
+                        if isinstance(value, int):
+                            return builder.create_code(value, bin(value))
+
+                        if isinstance(value, str) and value == value[0] * len(value):
+                            return builder.create_code(value, f"'{value[0]}'*{len(value)}")
+                ```
+
+
+            <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
+            ``` python title="test_customizations.py"
+            from inline_snapshot import snapshot
+
+
+            def test_customizations():
+                assert ["aaaaaaaaaaaaaaa", "bbbbbb"] == snapshot(["a" * 15, "b" * 6])
+                assert 18856 == snapshot(0b100100110101000)
+            ```
+
+
+
+        """
 
     # @hookspec
     # def format_code(self, filename, str) -> str: ...

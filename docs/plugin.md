@@ -1,14 +1,58 @@
-`@customize` allows you to register special hooks to control how inline-snapshot generates your snapshots.
+
+
+inline-snapshot provides a plugin architecture based on [pluggy](https://pluggy.readthedocs.io/en/latest/index.html) which can be used to extend and customize it.
+
+The plugins are searched in your `conftest.py` and has to be called `InlineSnapshotPlugin`.
+
+You can also create packages which provide plugins using setuptools entry points.
+
+### Creating a Plugin Package
+
+To distribute inline-snapshot plugins as a package, register your plugin class using the `inline_snapshot` entry point in your `setup.py` or `pyproject.toml`:
+
+=== "pyproject.toml (recommended)"
+    ``` toml
+    [project.entry-points.inline-snapshot]
+    my_plugin = "my_package.plugin:MyInlineSnapshotPlugin"
+    ```
+
+=== "setup.py"
+    ``` python
+    setup(
+        name="my-inline-snapshot-plugin",
+        entry_points={
+            "inline-snapshot": [
+                "my_plugin = my_package.plugin:MyInlineSnapshotPlugin",
+            ],
+        },
+    )
+    ```
+
+``` python title="my_package/plugin.py"
+class MyInlineSnapshotPlugin: ...
+```
+
+Once installed, the plugin will be automatically loaded by inline-snapshot.
+
+### Plugin Specification
+
+::: inline_snapshot.plugin
+    options:
+      heading_level: 3
+      members: [InlineSnapshotPluginSpec]
+      show_root_heading: false
+      show_bases: false
+      show_source: false
+
+
+
+## Customize Examples
+
+The [customize][inline_snapshot.plugin.InlineSnapshotPluginSpec.customize] hook controls how inline-snapshot generates your snapshots.
 You should use it when you find yourself manually editing snapshots after they were created by inline-snapshot.
 
-`@customize` hooks can have the following arguments (but you do not have to use all of them).
 
-* **value:** the value of your snapshot that is currently being converted to source code.
-* **builder:** your `Builder` object can be used to create Custom objects that represent your new code.
-* **local_vars:** a list of objects with `name` and `value` attributes that represent the local variables that are usable in your snapshot.
-* **global_vars:** same as `local_vars`, but for global variables.
-
-## Custom constructor methods
+### Custom constructor methods
 One use case might be that you have a dataclass with a special constructor function that can be used for specific instances of this dataclass, and you want inline-snapshot to use this constructor when possible.
 
 <!-- inline-snapshot-lib-set: rect.py -->
@@ -27,8 +71,6 @@ class Rect:
 ```
 
 You can define a hook in your `conftest.py` that checks if your value is a square and calls the correct constructor function.
-Inline-snapshot tries each hook until it finds one that does not return None.
-It keeps converting this value until a hook returns a Custom object, which can be created with the `create_*` methods of the [`Builder`][inline_snapshot.Builder].
 
 <!-- inline-snapshot-lib-set: conftest.py -->
 ``` python title="conftest.py"
@@ -37,7 +79,7 @@ from inline_snapshot import customize
 from inline_snapshot import Builder
 
 
-class InlineSnapshotExtension:
+class InlineSnapshotPlugin:
     @customize
     def square_handler(self, value, builder: Builder):
         if isinstance(value, Rect) and value.width == value.height:
@@ -62,7 +104,7 @@ def test_square():
 2. Your handler is used because you created a Rect that happens to have the same width and height
 3. Your handler is not used because width and height are different
 
-## dirty-equal expressions
+### dirty-equal expressions
 It can also be used to instruct inline-snapshot to use specific dirty-equals expressions for specific values.
 
 <!-- inline-snapshot-lib-set: conftest.py -->
@@ -72,7 +114,7 @@ from inline_snapshot import Builder
 from dirty_equals import IsNow
 
 
-class InlineSnapshotExtension:
+class InlineSnapshotPlugin:
     @customize
     def is_now_handler(self, value):
         if value == IsNow():
@@ -101,7 +143,7 @@ def test_is_now():
     Using `@customize` with dirty-equals is a one-way ticket. Once the code is created, inline-snapshot does not know if it was created by inline-snapshot itself or by the user and will not change it when you change the `@customize` implementation, because it has to assume that it was created by the user.
 
 
-## Conditional external objects
+### Conditional external objects
 
 `create_external` can be used to store values in external files if a specific criterion is met.
 
@@ -112,7 +154,7 @@ from inline_snapshot import Builder
 from dirty_equals import IsNow
 
 
-class InlineSnapshotExtension:
+class InlineSnapshotPlugin:
     @customize
     def long_string_handler(self, value, builder: Builder):
         if isinstance(value, str) and value.count("\n") > 5:
@@ -140,7 +182,7 @@ c\
     )
 ```
 
-## Reusing local variables
+### Reusing local variables
 
 There are times when your local or global variables become part of your snapshots, like uuids or user names.
 Customize hooks accept `local_vars` and `global_vars` as arguments that can be used to generate the code.
@@ -151,7 +193,7 @@ from inline_snapshot import customize
 from inline_snapshot import Builder
 
 
-class InlineSnapshotExtension:
+class InlineSnapshotPlugin:
     @customize
     def local_var_handler(self, value, local_vars):
         for local in local_vars:
@@ -187,7 +229,7 @@ It is up to you to set the rules that work best in your project.
     This is also the reason why inline-snapshot does not provide default customizations that check your local variables.
     The rules are project-specific and what might work well for one project can cause problems for others.
 
-## Creating special code
+### Creating special code
 
 Let's say that you have an array of secrets which are used in your code.
 
@@ -220,7 +262,7 @@ def test_my_class():
 ```
 
 Maybe this is not what you want because the secret is a different one in CI or for every test run or the raw value leads to unreadable tests.
-What you can do now, instead of replacing `"some_other_secret"` with `secrets[1]` by hand, is to tell inline-snapshot how it should generate this code in your *conftest.py*.
+What you can do now, instead of replacing `"some_other_secret"` with `secrets[1]` by hand, is to tell inline-snapshot in your *conftest.py* how it should generate this code.
 
 <!-- inline-snapshot-lib-set: conftest.py -->
 ``` python title="conftest.py"
@@ -228,7 +270,7 @@ from my_secrets import secrets
 from inline_snapshot import customize, Builder
 
 
-class InlineSnapshotExtension:
+class InlineSnapshotPlugin:
     @customize
     def secret_handler(self, value, builder: Builder):
         for i, secret in enumerate(secrets):
@@ -263,12 +305,26 @@ def test_my_class():
     You can read [here](categories.md#update) more about it.
 
 
-# Reference
+
+
+
+
+
+
+
+## Reference
+::: inline_snapshot.plugin
+    options:
+      heading_level: 3
+      members: [hookimpl,customize]
+      show_root_heading: false
+      show_bases: false
+      show_source: false
 
 ::: inline_snapshot
     options:
       heading_level: 3
-      members: [customize,Builder,Custom]
+      members: [Builder,Custom,CustomCode,ContextVariable]
       show_root_heading: false
       show_bases: false
       show_source: false

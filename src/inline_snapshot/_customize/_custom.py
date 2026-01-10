@@ -15,6 +15,11 @@ if TYPE_CHECKING:
 
 
 class Custom(ABC):
+    """
+    Custom objects are returned by the `create_*` functions of the builder.
+    They should only be returned in your customize function or used as arguments for other `create_*` functions.
+    """
+
     node_type: type[ast.AST] = ast.AST
     original_value: Any
 

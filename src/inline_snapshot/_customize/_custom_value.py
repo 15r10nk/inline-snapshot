@@ -54,12 +54,30 @@ class CustomCode(Custom):
         return self.repr_str
 
     def __repr__(self):
-        return f"CustomCode({self.repr_str})"
+        return f"CustomValue({self.repr_str})"
 
     def _needed_imports(self):
         yield from self._imports
 
     def with_import(self, module, name, simplify=True):
+        """
+        Adds a `from module import name` statement to the generated code.
+
+        Arguments:
+            module: The module path to import from (e.g., "my_module" or "package.submodule").
+            name: The name to import from the module (e.g., "MyClass" or "my_function").
+            simplify: If True (default), attempts to find the shortest valid import path
+                     by checking parent modules. For example, if "package.submodule.MyClass"
+                     is accessible from "package", it will use the shorter path.
+
+        Returns:
+            The CustomCode instance itself, allowing for method chaining.
+
+        Example:
+            ``` python
+            builder.create_value(my_obj, "secrets[0]").with_import("my_secrets", "secrets")
+            ```
+        """
         if simplify:
             module = _simplify_module_path(module, name)
         self._imports.append([module, name])

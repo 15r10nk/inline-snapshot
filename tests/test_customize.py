@@ -16,7 +16,7 @@ from inline_snapshot import customize
 from inline_snapshot import Builder
 from dirty_equals import IsStr
 
-class InlineSnapshotExtension:
+class InlineSnapshotPlugin:
     @customize
     def re_handler(self,value, builder: Builder):
         if value == IsStr(regex="[a-z]"):

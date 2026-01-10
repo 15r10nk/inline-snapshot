@@ -127,9 +127,9 @@ dependencies = [
 ]
 
 [tool.hatch.envs.docs.scripts]
-build = "mkdocs build --strict"
+build = "mkdocs build --strict {args}"
 export-deps = "pip freeze"
-serve = "mkdocs serve --livereload"
+serve = "mkdocs serve --livereload {args}"
 
 
 [tool.hatch.envs.default]

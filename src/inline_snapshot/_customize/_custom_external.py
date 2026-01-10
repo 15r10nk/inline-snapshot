@@ -10,7 +10,6 @@ from inline_snapshot._change import ChangeBase
 from inline_snapshot._change import ExternalChange
 from inline_snapshot._external._external_location import ExternalLocation
 from inline_snapshot._external._format._protocol import get_format_handler
-from inline_snapshot._global_state import state
 
 from ._custom import Custom
 
@@ -25,6 +24,8 @@ class CustomExternal(Custom):
         return f(self.value)
 
     def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+        from inline_snapshot._global_state import state
+
         storage_name = self.storage or state().config.default_storage
 
         format = get_format_handler(self.value, self.format or "")

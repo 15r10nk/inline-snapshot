@@ -502,7 +502,7 @@ class L:
 from inline_snapshot import customize
 from helper import L
 
-class InlineSnapshotExtension:
+class InlineSnapshotPlugin:
     @customize
     def handle_L(self,value,builder):
         if isinstance(value,L):

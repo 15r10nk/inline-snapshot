@@ -1,5 +1,6 @@
 from inline_snapshot._external._diff import BinaryDiff
 from inline_snapshot._external._diff import TextDiff
+from inline_snapshot.plugin._context_variable import ContextVariable
 
 from ._code_repr import HasRepr
 from ._code_repr import customize_repr
@@ -18,7 +19,7 @@ from ._is import Is
 from ._types import Category
 from ._types import Snapshot
 from ._unmanaged import declare_unmanaged
-from .plugin._spec import customize
+from .plugin import customize
 from .version import __version__
 
 __all__ = [
@@ -40,7 +41,7 @@ __all__ = [
     "declare_unmanaged",
     "get_snapshot_value",
     "__version__",
-    "customize",
     "Custom",
     "Builder",
+    "ContextVariable",
 ]
