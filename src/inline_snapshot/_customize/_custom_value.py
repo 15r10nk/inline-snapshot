@@ -4,6 +4,8 @@ import ast
 import importlib
 from typing import Generator
 
+from typing_extensions import Self
+
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._change import ChangeBase
 from inline_snapshot._code_repr import HasRepr
@@ -59,7 +61,7 @@ class CustomCode(Custom):
     def _needed_imports(self):
         yield from self._imports
 
-    def with_import(self, module, name, simplify=True):
+    def with_import(self, module: str, name: str, simplify: bool = True) -> Self:
         """
         Adds a `from module import name` statement to the generated code.
 

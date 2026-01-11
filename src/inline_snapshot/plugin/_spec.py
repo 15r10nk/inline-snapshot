@@ -53,7 +53,7 @@ class InlineSnapshotPluginSpec:
                         `name` and `value` attributes.
 
         Returns:
-            (Custom): created using [Builder][inline_snapshot.Builder] `create_*` methods.
+            (Custom): created using [Builder][inline_snapshot.plugin.Builder] `create_*` methods.
             (None): if this handler doesn't apply to the given value.
             (Something else): when the next handler should process the value.
 
