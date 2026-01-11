@@ -24,10 +24,10 @@ class CustomSequence(Custom, CustomSequenceTypes):
     def _map(self, f):
         return f(self.value_type([x._map(f) for x in self.value]))
 
-    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+    def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
         values = []
         for v in self.value:
-            value = yield from v.repr(context)
+            value = yield from v._code_repr(context)
             values.append(value)
 
         trailing_comma = self.trailing_comma and len(self.value) == 1

@@ -182,7 +182,7 @@ class NewAdapter:
         if old_node is None:
             new_code = ""
         else:
-            new_code = yield from new_value.repr(self.context)
+            new_code = yield from new_value._code_repr(self.context)
 
         if (
             isinstance(old_node, ast.JoinedStr)
@@ -191,7 +191,7 @@ class NewAdapter:
         ):
             if not old_value._eval() == new_value._eval():
 
-                value = only_value(new_value.repr(self.context))
+                value = only_value(new_value._code_repr(self.context))
                 warnings.warn_explicit(
                     f"inline-snapshot will be able to fix f-strings in the future.\nThe current string value is:\n   {value}",
                     filename=self.context.file._source.filename,
@@ -267,7 +267,7 @@ class NewAdapter:
                 old_position += 1
             elif c == "i":
                 new_value_element = next(new)
-                new_code = yield from new_value_element.repr(self.context)
+                new_code = yield from new_value_element._code_repr(self.context)
                 result.append(new_value_element)
                 to_insert[old_position].append((new_code, new_value_element))
             elif c == "d":
@@ -349,8 +349,8 @@ class NewAdapter:
                 if to_insert:
                     new_code = []
                     for k, v in to_insert:
-                        new_code_key = yield from k.repr(self.context)
-                        new_code_value = yield from v.repr(self.context)
+                        new_code_key = yield from k._code_repr(self.context)
+                        new_code_value = yield from v._code_repr(self.context)
                         new_code.append((new_code_key, new_code_value))
 
                     yield DictInsert(
@@ -368,8 +368,8 @@ class NewAdapter:
         if to_insert:
             new_code = []
             for k, v in to_insert:
-                new_code_key = yield from k.repr(self.context)
-                new_code_value = yield from v.repr(self.context)
+                new_code_key = yield from k._code_repr(self.context)
+                new_code_value = yield from v._code_repr(self.context)
                 new_code.append(
                     (
                         new_code_key,
@@ -444,7 +444,7 @@ class NewAdapter:
 
         if old_args_len < len(new_args):
             for insert_pos, value in list(enumerate(new_args))[old_args_len:]:
-                new_code = yield from value.repr(self.context)
+                new_code = yield from value._code_repr(self.context)
                 yield CallArg(
                     flag=flag,
                     file=self.context.file,
@@ -498,7 +498,7 @@ class NewAdapter:
 
                 if to_insert:
                     for key, value in to_insert:
-                        new_code = yield from value.repr(self.context)
+                        new_code = yield from value._code_repr(self.context)
                         yield CallArg(
                             flag=flag,
                             file=self.context.file,
@@ -515,7 +515,7 @@ class NewAdapter:
         if to_insert:
 
             for key, value in to_insert:
-                new_code = yield from value.repr(self.context)
+                new_code = yield from value._code_repr(self.context)
 
                 yield CallArg(
                     flag=flag,

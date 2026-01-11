@@ -49,7 +49,7 @@ class CustomCode(Custom):
     def _map(self, f):
         return f(self.value)
 
-    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+    def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
         yield from ()
         return self.repr_str
 

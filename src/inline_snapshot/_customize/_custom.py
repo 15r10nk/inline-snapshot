@@ -35,7 +35,7 @@ class Custom(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+    def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
         raise NotImplementedError()
 
     def _eval(self):

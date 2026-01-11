@@ -19,11 +19,11 @@ class CustomDict(Custom):
     def _map(self, f):
         return f({k._map(f): v._map(f) for k, v in self.value.items()})
 
-    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+    def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
         values = []
         for k, v in self.value.items():
-            key = yield from k.repr(context)
-            value = yield from v.repr(context)
+            key = yield from k._code_repr(context)
+            value = yield from v._code_repr(context)
             values.append(f"{key}: {value}")
 
         return f"{{{ ', '.join(values)}}}"

@@ -13,7 +13,7 @@ class CustomUndefined(Custom):
     def __init__(self):
         self.value = undefined
 
-    def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+    def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
         yield from ()
         return "..."
 

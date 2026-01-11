@@ -35,7 +35,7 @@ class CollectionValue(GenericValue):
             return self._return(item in self._old_value._eval())
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
-        code = yield from self._new_value.repr(self._context)
+        code = yield from self._new_value._code_repr(self._context)
         return code
 
     def _get_changes(self) -> Iterator[ChangeBase]:
@@ -59,7 +59,9 @@ class CollectionValue(GenericValue):
                 continue
 
             # check for update
-            new_code = yield from self.to_custom(old_value._eval()).repr(self._context)
+            new_code = yield from self.to_custom(old_value._eval())._code_repr(
+                self._context
+            )
 
             if self._file.code_changed(old_node, new_code):
 
@@ -76,7 +78,7 @@ class CollectionValue(GenericValue):
         new_values = []
         for v in self._new_value.value:
             if v not in self._old_value.value:
-                new_code = yield from v.repr(self._context)
+                new_code = yield from v._code_repr(self._context)
                 new_codes.append(new_code)
                 new_values.append(v._eval())
 
