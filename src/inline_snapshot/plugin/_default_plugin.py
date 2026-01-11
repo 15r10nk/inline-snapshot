@@ -181,16 +181,17 @@ class InlineSnapshotPlugin:
         if not all(type(n) == str for n in f):
             return
 
-        # TODO handle with builder.Default
-
         return builder.create_call(
             type(value),
             [],
             {
-                field: getattr(value, field)
+                field: (
+                    getattr(value, field)
+                    if field not in value._field_defaults
+                    or getattr(value, field) != value._field_defaults[field]
+                    else builder.create_default(value._field_defaults[field])
+                )
                 for field in value._fields
-                if field not in value._field_defaults
-                or getattr(value, field) != value._field_defaults[field]
             },
             {},
         )
