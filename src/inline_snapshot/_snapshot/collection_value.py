@@ -26,13 +26,13 @@ class CollectionValue(GenericValue):
         if isinstance(self._new_value, CustomUndefined):
             self._new_value = CustomList([self.to_custom(item)])
         else:
-            if item not in self._new_value.eval():
+            if item not in self._new_value._eval():
                 self._new_value.value.append(self.to_custom(item))
 
         if ignore_old_value() or isinstance(self._old_value, CustomUndefined):
             return True
         else:
-            return self._return(item in self._old_value.eval())
+            return self._return(item in self._old_value._eval())
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
         code = yield from self._new_value.repr(self._context)
@@ -59,7 +59,7 @@ class CollectionValue(GenericValue):
                 continue
 
             # check for update
-            new_code = yield from self.to_custom(old_value.eval()).repr(self._context)
+            new_code = yield from self.to_custom(old_value._eval()).repr(self._context)
 
             if self._file.code_changed(old_node, new_code):
 
@@ -78,7 +78,7 @@ class CollectionValue(GenericValue):
             if v not in self._old_value.value:
                 new_code = yield from v.repr(self._context)
                 new_codes.append(new_code)
-                new_values.append(v.eval())
+                new_values.append(v._eval())
 
         if new_codes:
             yield ListInsert(

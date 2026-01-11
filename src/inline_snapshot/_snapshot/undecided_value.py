@@ -89,7 +89,7 @@ class UndecidedValue(GenericValue):
     def _get_changes(self) -> Iterator[ChangeBase]:
         assert isinstance(self._new_value, CustomUndefined)
 
-        new_value = self.to_custom(self._old_value.eval())
+        new_value = self.to_custom(self._old_value._eval())
 
         adapter = NewAdapter(self._context)
 

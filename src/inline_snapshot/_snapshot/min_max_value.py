@@ -25,12 +25,12 @@ class MinMaxValue(GenericValue):
             self._new_value = self.to_custom(other)
             if isinstance(self._old_value, CustomUndefined) or ignore_old_value():
                 return True
-            return self._return(self.cmp(self._old_value.eval(), other))
+            return self._return(self.cmp(self._old_value._eval(), other))
         else:
-            if not self.cmp(self._new_value.eval(), other):
+            if not self.cmp(self._new_value._eval(), other):
                 self._new_value = self.to_custom(other)
 
-        return self._return(self.cmp(self._visible_value().eval(), other))
+        return self._return(self.cmp(self._visible_value()._eval(), other))
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
         code = yield from self._new_value.repr(self._context)
@@ -39,9 +39,9 @@ class MinMaxValue(GenericValue):
     def _get_changes(self) -> Iterator[ChangeBase]:
         new_code = yield from self._new_code()
 
-        if not self.cmp(self._old_value.eval(), self._new_value.eval()):
+        if not self.cmp(self._old_value._eval(), self._new_value._eval()):
             flag = "fix"
-        elif not self.cmp(self._new_value.eval(), self._old_value.eval()):
+        elif not self.cmp(self._new_value._eval(), self._old_value._eval()):
             flag = "trim"
         elif self._file.code_changed(self._ast_node, new_code):
             flag = "update"
@@ -53,8 +53,8 @@ class MinMaxValue(GenericValue):
             file=self._file,
             new_code=new_code,
             flag=flag,
-            old_value=self._old_value.eval(),
-            new_value=self._new_value.eval(),
+            old_value=self._old_value._eval(),
+            new_value=self._new_value._eval(),
         )
 
 

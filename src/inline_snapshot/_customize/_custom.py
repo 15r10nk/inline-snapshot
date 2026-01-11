@@ -24,11 +24,11 @@ class Custom(ABC):
     original_value: Any
 
     def __hash__(self):
-        return hash(self.eval())
+        return hash(self._eval())
 
     def __eq__(self, other):
         assert isinstance(other, Custom)
-        return self.eval() == other.eval()
+        return self._eval() == other._eval()
 
     @abstractmethod
     def _map(self, f):
@@ -38,7 +38,7 @@ class Custom(ABC):
     def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
         raise NotImplementedError()
 
-    def eval(self):
+    def _eval(self):
         return self._map(lambda a: a)
 
     def _needed_imports(self):

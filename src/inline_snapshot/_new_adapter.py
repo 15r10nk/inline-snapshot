@@ -108,7 +108,7 @@ def reeval_CustomUndefined(old_value, value):
 
 def reeval_CustomCode(old_value: CustomCode, value: CustomCode):
 
-    if not old_value.eval() == value.eval():
+    if not old_value._eval() == value._eval():
         raise UsageError(
             "snapshot value should not change. Use Is(...) for dynamic snapshot parts."
         )
@@ -189,7 +189,7 @@ class NewAdapter:
             and isinstance(new_value, CustomCode)
             and isinstance(new_value.value, str)
         ):
-            if not old_value.eval() == new_value.eval():
+            if not old_value._eval() == new_value._eval():
 
                 value = only_value(new_value.repr(self.context))
                 warnings.warn_explicit(
@@ -200,7 +200,7 @@ class NewAdapter:
                 )
             return old_value
 
-        if not old_value.eval() == new_value.original_value:
+        if not old_value._eval() == new_value.original_value:
             if isinstance(old_value, CustomUndefined):
                 flag = "create"
             else:
@@ -218,7 +218,7 @@ class NewAdapter:
             file=self.context.file,
             new_code=new_code,
             flag=flag,
-            old_value=old_value.eval(),
+            old_value=old_value._eval(),
             new_value=new_value,
         )
 
@@ -239,7 +239,7 @@ class NewAdapter:
 
         if old_node is not None:
             assert isinstance(
-                old_node, ast.List if isinstance(old_value.eval(), list) else ast.Tuple
+                old_node, ast.List if isinstance(old_value._eval(), list) else ast.Tuple
             )
             assert isinstance(old_node, (ast.List, ast.Tuple))
 
@@ -311,7 +311,7 @@ class NewAdapter:
                     node_value = ast.literal_eval(node)
                 except Exception:
                     continue
-                assert node_value == value2.eval()
+                assert node_value == value2._eval()
         else:
             pass  # pragma: no cover
 
@@ -400,7 +400,7 @@ class NewAdapter:
 
         result_args = []
 
-        flag = "update" if old_value.eval() == new_value.original_value else "fix"
+        flag = "update" if old_value._eval() == new_value.original_value else "fix"
 
         if flag == "update":
 

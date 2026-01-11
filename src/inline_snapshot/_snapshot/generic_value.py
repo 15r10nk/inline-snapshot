@@ -93,7 +93,7 @@ class GenericValue(SnapshotBase):
         raise NotImplementedError()
 
     def __repr__(self):
-        return repr(self._visible_value().eval())
+        return repr(self._visible_value()._eval())
 
     def _type_error(self, op):
         __tracebackhide__ = True
