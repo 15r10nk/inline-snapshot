@@ -13,6 +13,7 @@ from typing import List
 from typing import Optional
 from typing import TypeVar
 
+import isort.api
 import pytest
 from executing import is_pytest_compatible
 
@@ -390,6 +391,15 @@ uuid.uuid4=f
             assert last_code is not None
             test_files = {"tests/test_example.py": last_code}
         else:
+            code = isort.api.sort_code_string(
+                code,
+                config=isort.Config(
+                    profile="black",
+                    combine_as_imports=True,
+                    lines_between_sections=0,
+                ),
+            )
+            block.code = code
             test_files = {"tests/test_example.py": code}
 
         example = Example({**std_files, **test_files})

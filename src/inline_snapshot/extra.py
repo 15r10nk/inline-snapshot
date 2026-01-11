@@ -83,9 +83,9 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
 
         <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
         ``` python
+        import sys
         from inline_snapshot import snapshot
         from inline_snapshot.extra import prints
-        import sys
 
 
         def test_prints():
@@ -98,9 +98,9 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
 
         <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
         ``` python hl_lines="7 8 9"
+        import sys
         from inline_snapshot import snapshot
         from inline_snapshot.extra import prints
-        import sys
 
 
         def test_prints():
@@ -114,11 +114,11 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
     === "ignore stdout"
 
         <!-- inline-snapshot: outcome-passed=1 -->
-        ``` python hl_lines="3 9 10"
+        ``` python hl_lines="2 9 10"
+        import sys
+        from dirty_equals import IsStr
         from inline_snapshot import snapshot
         from inline_snapshot.extra import prints
-        from dirty_equals import IsStr
-        import sys
 
 
         def test_prints():
@@ -168,9 +168,9 @@ def warns(
 
         <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
         ``` python
+        from warnings import warn
         from inline_snapshot import snapshot
         from inline_snapshot.extra import warns
-        from warnings import warn
 
 
         def test_warns():
@@ -182,9 +182,9 @@ def warns(
 
         <!-- inline-snapshot: create fix outcome-passed=1 outcome-errors=1 -->
         ``` python hl_lines="7"
+        from warnings import warn
         from inline_snapshot import snapshot
         from inline_snapshot.extra import warns
-        from warnings import warn
 
 
         def test_warns():
@@ -272,9 +272,9 @@ class Transformed:
 
     <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
     ``` python
-    from inline_snapshot.extra import Transformed
-    from inline_snapshot import snapshot
     import re
+    from inline_snapshot import snapshot
+    from inline_snapshot.extra import Transformed
 
 
     class Thing:
@@ -337,9 +337,9 @@ def transformation(func):
 
     <!-- inline-snapshot: create first_block outcome-passed=1 -->
     ``` python
-    from inline_snapshot.extra import transformation
-    from inline_snapshot import snapshot
     import re
+    from inline_snapshot import snapshot
+    from inline_snapshot.extra import transformation
 
 
     class Thing:

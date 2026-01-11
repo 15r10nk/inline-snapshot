@@ -60,6 +60,7 @@ dev = [
     "attrs>=24.3.0",
     "pydantic>=1",
     "black==25.1.0"
+    "isort"
 ]
 
 [project.entry-points.pytest11]
@@ -169,18 +170,7 @@ matrix.extra-deps.dependencies = [
 ]
 
 [tool.hatch.envs.hatch-test]
-extra-dependencies = [
-  "inline-snapshot[black,dirty-equals]",
-  "dirty-equals>=0.9.0",
-  "hypothesis>=6.75.5",
-  "mypy>=1.2.0 ; implementation_name == 'cpython'",
-  "pyright>=1.1.359",
-  "pytest-freezer>=0.4.8",
-  "pytest-mock>=3.14.0",
-  "black==25.1.0",
-  "setuptools"
-  "attrs",
-]
+dependency-groups=["dev"]
 env-vars.TOP = "{root}"
 
 [tool.hatch.envs.hatch-test.scripts]
@@ -190,13 +180,9 @@ cov-combine = "coverage combine"
 cov-report=["coverage report","coverage html"]
 
 [tool.hatch.envs.types]
+dependency-groups=["dev"]
 extra-dependencies = [
-  "inline-snapshot[black,dirty-equals]",
   "mypy>=1.0.0",
-  "hypothesis>=6.75.5",
-  "pydantic",
-  "attrs",
-  "typing-extensions"
 ]
 
 [[tool.hatch.envs.types.matrix]]

@@ -117,8 +117,8 @@ You could initialize a test like this:
 
 <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
 ``` python
-from inline_snapshot import snapshot
 import datetime
+from inline_snapshot import snapshot
 
 
 def get_data():
@@ -136,8 +136,8 @@ If you use `--inline-snapshot=create`, inline-snapshot will record the current `
 
 <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
 ``` python hl_lines="13 14 15"
-from inline_snapshot import snapshot
 import datetime
+from inline_snapshot import snapshot
 
 
 def get_data():
@@ -157,9 +157,9 @@ To avoid the test failing in future runs, replace the `datetime` with [dirty-equ
 
 <!-- inline-snapshot: first_block outcome-passed=1 -->
 ``` python
-from inline_snapshot import snapshot
-from dirty_equals import IsDatetime
 import datetime
+from dirty_equals import IsDatetime
+from inline_snapshot import snapshot
 
 
 def get_data():
@@ -182,9 +182,9 @@ Say a different part of the return data changes, such as the `payload` value:
 
 <!-- inline-snapshot: outcome-failed=1 outcome-errors=1 -->
 ``` python hl_lines="9"
-from inline_snapshot import snapshot
-from dirty_equals import IsDatetime
 import datetime
+from dirty_equals import IsDatetime
+from inline_snapshot import snapshot
 
 
 def get_data():
@@ -207,9 +207,9 @@ Re-running the test with `--inline-snapshot=fix` will update the snapshot to mat
 
 <!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
 ``` python hl_lines="17"
-from inline_snapshot import snapshot
-from dirty_equals import IsDatetime
 import datetime
+from dirty_equals import IsDatetime
+from inline_snapshot import snapshot
 
 
 def get_data():
@@ -270,7 +270,7 @@ It tells inline-snapshot that the developer wants control over some part of the 
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python
-from inline_snapshot import snapshot, Is
+from inline_snapshot import Is, snapshot
 
 current_version = "1.5"
 
@@ -292,7 +292,7 @@ The snapshot does not need to be fixed when `current_version` changes in the fut
 === "original code"
     <!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
     ``` python
-    from inline_snapshot import snapshot, Is
+    from inline_snapshot import Is, snapshot
 
 
     def test_function():
@@ -303,7 +303,7 @@ The snapshot does not need to be fixed when `current_version` changes in the fut
 === "--inline-snapshot=fix"
     <!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
     ``` python hl_lines="6"
-    from inline_snapshot import snapshot, Is
+    from inline_snapshot import Is, snapshot
 
 
     def test_function():
@@ -348,8 +348,8 @@ The following example shows how this can be used to run a tests with two differe
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python
+from my_lib import get_schema, version
 from inline_snapshot import snapshot
-from my_lib import version, get_schema
 
 
 def test_function():
@@ -368,8 +368,8 @@ The advantage of this approach is that the test uses always the correct values f
 You can also extract the version logic into its own function.
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python
-from inline_snapshot import snapshot, Snapshot
-from my_lib import version, get_schema
+from my_lib import get_schema, version
+from inline_snapshot import Snapshot, snapshot
 
 
 def version_snapshot(v1: Snapshot, v2: Snapshot):

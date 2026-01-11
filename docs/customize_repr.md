@@ -73,8 +73,8 @@ This implementation is then used by inline-snapshot if `repr()` is called during
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python
-from inline_snapshot import snapshot
 from my_class import MyClass
+from inline_snapshot import snapshot
 
 
 def test_my_class():
@@ -97,8 +97,8 @@ You can also use `repr()` inside `__repr__()`, if you want to make your own type
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python
-from inline_snapshot import snapshot
 from enum import Enum
+from inline_snapshot import snapshot
 
 
 class Pair:

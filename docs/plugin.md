@@ -139,8 +139,8 @@ This allows you to influence the code that is created by inline-snapshot.
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python title="test_square.py"
-from inline_snapshot import snapshot
 from rect import Rect
+from inline_snapshot import snapshot
 
 
 def test_square():
@@ -178,10 +178,9 @@ As explained in the [customize hook specification][inline_snapshot.plugin.Inline
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python title="test_is_now.py"
-from inline_snapshot import snapshot
 from datetime import datetime
-
 from dirty_equals import IsNow  # (1)!
+from inline_snapshot import snapshot
 
 
 def test_is_now():
@@ -214,9 +213,7 @@ class InlineSnapshotPlugin:
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 outcome-errors=1 -->
 ``` python title="test_long_strings.py"
-from inline_snapshot import snapshot
-
-from inline_snapshot import external
+from inline_snapshot import external, snapshot
 
 
 def test_long_strings():
@@ -301,8 +298,8 @@ The problem is that `--inline-snapshot=create` puts your secret into your test.
 
 <!-- inline-snapshot: create first_block outcome-passed=1 -->
 ``` python
-from inline_snapshot import snapshot
 from get_data import get_data
+from inline_snapshot import snapshot
 
 
 def test_my_class():
@@ -336,8 +333,8 @@ Inline-snapshot will now create the correct code and import statement when you r
 
 <!-- inline-snapshot: update outcome-passed=1 -->
 ``` python hl_lines="4 5 9"
-from inline_snapshot import snapshot
 from get_data import get_data
+from inline_snapshot import snapshot
 
 from my_secrets import secrets
 
