@@ -311,7 +311,7 @@ from inline_snapshot import outsource
 import datetime
 import pytest
 from freezegun.api import FakeDatetime,FakeDate
-from inline_snapshot import customize
+from inline_snapshot.plugin import customize
 
 class InlineSnapshotPlugin:
     @customize

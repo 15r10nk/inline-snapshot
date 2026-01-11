@@ -499,7 +499,7 @@ class L:
         return other.l==self.l
 """,
             "tests/conftest.py": """\
-from inline_snapshot import customize
+from inline_snapshot.plugin import customize
 from helper import L
 
 class InlineSnapshotPlugin:

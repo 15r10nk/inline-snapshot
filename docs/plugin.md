@@ -75,8 +75,8 @@ You can define a hook in your `conftest.py` that checks if your value is a squar
 <!-- inline-snapshot-lib-set: conftest.py -->
 ``` python title="conftest.py"
 from rect import Rect
-from inline_snapshot import customize
-from inline_snapshot import Builder
+from inline_snapshot.plugin import customize
+from inline_snapshot.plugin import Builder
 
 
 class InlineSnapshotPlugin:
@@ -109,8 +109,8 @@ It can also be used to instruct inline-snapshot to use specific dirty-equals exp
 
 <!-- inline-snapshot-lib-set: conftest.py -->
 ``` python title="conftest.py"
-from inline_snapshot import customize
-from inline_snapshot import Builder
+from inline_snapshot.plugin import customize
+from inline_snapshot.plugin import Builder
 from dirty_equals import IsNow
 
 
@@ -149,8 +149,8 @@ def test_is_now():
 
 <!-- inline-snapshot-lib-set: conftest.py -->
 ``` python title="conftest.py"
-from inline_snapshot import customize
-from inline_snapshot import Builder
+from inline_snapshot.plugin import customize
+from inline_snapshot.plugin import Builder
 from dirty_equals import IsNow
 
 
@@ -189,8 +189,8 @@ Customize hooks accept `local_vars` and `global_vars` as arguments that can be u
 
 <!-- inline-snapshot-lib-set: conftest.py -->
 ``` python title="conftest.py"
-from inline_snapshot import customize
-from inline_snapshot import Builder
+from inline_snapshot.plugin import customize
+from inline_snapshot.plugin import Builder
 
 
 class InlineSnapshotPlugin:
@@ -267,7 +267,7 @@ What you can do now, instead of replacing `"some_other_secret"` with `secrets[1]
 <!-- inline-snapshot-lib-set: conftest.py -->
 ``` python title="conftest.py"
 from my_secrets import secrets
-from inline_snapshot import customize, Builder
+from inline_snapshot.plugin import customize, Builder
 
 
 class InlineSnapshotPlugin:

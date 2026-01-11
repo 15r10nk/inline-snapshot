@@ -12,8 +12,8 @@ def test_custom_dirty_equal(original, flag):
     Example(
         {
             "tests/conftest.py": """\
-from inline_snapshot import customize
-from inline_snapshot import Builder
+from inline_snapshot.plugin import customize
+from inline_snapshot.plugin import Builder
 from dirty_equals import IsStr
 
 class InlineSnapshotPlugin:

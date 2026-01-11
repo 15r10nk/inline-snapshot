@@ -10,8 +10,8 @@ from .._change import ChangeBase
 from .._change import Delete
 from .._change import DictInsert
 from .._global_state import state
-from .._inline_snapshot import UndecidedValue
 from .generic_value import GenericValue
+from .undecided_value import UndecidedValue
 
 
 class DictValue(GenericValue):
