@@ -65,6 +65,9 @@ class Builder:
     def create_external(
         self, value: Any, format: str | None = None, storage: str | None = None
     ):
+        """
+        Creates a new `external()` with the given format and storage.
+        """
 
         return CustomExternal(value, format=format, storage=storage)
 
@@ -73,7 +76,7 @@ class Builder:
         Creates an intermediate node for a list-expression which can be used as a result for your customization function.
 
         `create_list([1,2,3])` becomes `[1,2,3]` in the code.
-        List elements are recursively converted into CustomNodes.
+        List elements don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
         custom = [self._get_handler(v) for v in value]
         return CustomList(value=custom)
@@ -83,7 +86,7 @@ class Builder:
         Creates an intermediate node for a tuple-expression which can be used as a result for your customization function.
 
         `create_tuple((1, 2, 3))` becomes `(1, 2, 3)` in the code.
-        Tuple elements are recursively converted into CustomNodes.
+        Tuple elements don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
         custom = [self._get_handler(v) for v in value]
         return CustomTuple(value=custom)
@@ -95,7 +98,7 @@ class Builder:
         Creates an intermediate node for a function call expression which can be used as a result for your customization function.
 
         `create_call(MyClass, [arg1, arg2], {'key': value})` becomes `MyClass(arg1, arg2, key=value)` in the code.
-        Function, arguments, and keyword arguments are recursively converted into CustomNodes.
+        Function, arguments, and keyword arguments don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
         function = self._get_handler(function)
         posonly_args = [self._get_handler(arg) for arg in posonly_args]
@@ -114,7 +117,7 @@ class Builder:
         Creates an intermediate node for a default value which can be used as a result for your customization function.
 
         Default values are not included in the generated code when they match the actual default.
-        The value is recursively converted into a CustomNode.
+        The value doesn't have to be a Custom node and is converted by inline-snapshot if needed.
         """
         return CustomDefault(value=self._get_handler(value))
 
@@ -123,7 +126,7 @@ class Builder:
         Creates an intermediate node for a dict-expression which can be used as a result for your customization function.
 
         `create_dict({'key': 'value'})` becomes `{'key': 'value'}` in the code.
-        Dict keys and values are recursively converted into CustomNodes.
+        Dict keys and values don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
         custom = {self._get_handler(k): self._get_handler(v) for k, v in value.items()}
         return CustomDict(value=custom)
@@ -135,7 +138,6 @@ class Builder:
         `create_code(value, '{value-1!r}+1')` becomes `4+1` in the code for a given `value=5`.
         Use this when you need to control the exact string representation of a value.
 
-        You can use `.with_import(module,name)` to create an import in the code.
-        `create_code(Color.red,"Color.red").with_import("my_colors","Color")` will create a `from my_colors import Color` if needed and `Color.red` in the code.
+        You can use [`.with_import(module,name)`][inline_snapshot.plugin.CustomCode.with_import] to create an import in the code.
         """
         return CustomCode(value, repr)
