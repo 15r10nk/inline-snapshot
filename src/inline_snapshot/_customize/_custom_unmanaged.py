@@ -18,5 +18,5 @@ class CustomUnmanaged(Custom):
         yield from ()  # pragma: no cover
         return "'unmanaged'"
 
-    def map(self, f):
+    def _map(self, f):
         return f(self.value)

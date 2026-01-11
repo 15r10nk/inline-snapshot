@@ -31,7 +31,7 @@ class Custom(ABC):
         return self.eval() == other.eval()
 
     @abstractmethod
-    def map(self, f):
+    def _map(self, f):
         raise NotImplementedError()
 
     @abstractmethod
@@ -39,7 +39,7 @@ class Custom(ABC):
         raise NotImplementedError()
 
     def eval(self):
-        return self.map(lambda a: a)
+        return self._map(lambda a: a)
 
     def _needed_imports(self):
         yield from ()

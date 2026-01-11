@@ -20,8 +20,8 @@ class CustomDefault(Custom):
         # this should never be called because default values are never converted into code
         assert False
 
-    def map(self, f):
-        return self.value.map(f)
+    def _map(self, f):
+        return self.value._map(f)
 
     def _needed_imports(self):
         yield from self.value._needed_imports()
@@ -72,10 +72,10 @@ class CustomCall(Custom):
         else:
             return unwrap_default(self.kwargs[pos_or_str])
 
-    def map(self, f):
-        return self._function.map(f)(
-            *[f(x.map(f)) for x in self._args],
-            **{k: f(v.map(f)) for k, v in self.kwargs.items()},
+    def _map(self, f):
+        return self._function._map(f)(
+            *[f(x._map(f)) for x in self._args],
+            **{k: f(v._map(f)) for k, v in self.kwargs.items()},
         )
 
     def _needed_imports(self):

@@ -17,5 +17,5 @@ class CustomUndefined(Custom):
         yield from ()
         return "..."
 
-    def map(self, f):
+    def _map(self, f):
         return f(undefined)

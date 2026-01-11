@@ -21,8 +21,8 @@ class CustomSequenceTypes:
 class CustomSequence(Custom, CustomSequenceTypes):
     value: list[Custom] = field(compare=False)
 
-    def map(self, f):
-        return f(self.value_type([x.map(f) for x in self.value]))
+    def _map(self, f):
+        return f(self.value_type([x._map(f) for x in self.value]))
 
     def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
         values = []

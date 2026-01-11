@@ -16,8 +16,8 @@ class CustomDict(Custom):
     node_type = ast.Dict
     value: dict[Custom, Custom] = field(compare=False)
 
-    def map(self, f):
-        return f({k.map(f): v.map(f) for k, v in self.value.items()})
+    def _map(self, f):
+        return f({k._map(f): v._map(f) for k, v in self.value.items()})
 
     def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
         values = []

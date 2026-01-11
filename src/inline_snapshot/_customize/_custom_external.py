@@ -20,7 +20,7 @@ class CustomExternal(Custom):
     format: str | None = None
     storage: str | None = None
 
-    def map(self, f):
+    def _map(self, f):
         return f(self.value)
 
     def repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:

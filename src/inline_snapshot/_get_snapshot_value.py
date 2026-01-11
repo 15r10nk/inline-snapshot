@@ -13,7 +13,7 @@ from ._types import Snapshot
 
 def unwrap(value):
     if isinstance(value, GenericValue):
-        return value._visible_value().map(lambda v: unwrap(v)[0]), True
+        return value._visible_value()._map(lambda v: unwrap(v)[0]), True
 
     if isinstance(value, Outsourced):
         return (value.data, True)
