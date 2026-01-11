@@ -1,3 +1,5 @@
+from inline_snapshot._customize._custom_value import CustomCode
+
 from .._customize._builder import Builder
 from .._customize._custom import Custom
 from ._context_variable import ContextVariable
@@ -12,4 +14,5 @@ __all__ = (
     "Builder",
     "ContextVariable",
     "Custom",
+    "CustomCode",
 )
