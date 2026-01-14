@@ -1,4 +1,4 @@
-from inline_snapshot._customize._custom_value import CustomCode
+from inline_snapshot._customize._custom_code import CustomCode
 
 from .._customize._builder import Builder
 from .._customize._custom import Custom

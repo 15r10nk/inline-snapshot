@@ -20,12 +20,12 @@ from inline_snapshot._compare_context import compare_context
 from inline_snapshot._customize._custom import Custom
 from inline_snapshot._customize._custom_call import CustomCall
 from inline_snapshot._customize._custom_call import CustomDefault
+from inline_snapshot._customize._custom_code import CustomCode
 from inline_snapshot._customize._custom_dict import CustomDict
 from inline_snapshot._customize._custom_sequence import CustomList
 from inline_snapshot._customize._custom_sequence import CustomSequence
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
-from inline_snapshot._customize._custom_value import CustomCode
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._generator_utils import only_value
 from inline_snapshot.syntax_warnings import InlineSnapshotInfo

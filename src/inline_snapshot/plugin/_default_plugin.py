@@ -142,7 +142,7 @@ class InlineSnapshotPlugin:
 
     @customize
     def source_file_name_handler(self, value, builder: Builder, global_vars):
-        if value == global_vars["__file__"]:
+        if "__file__" in global_vars and value == global_vars["__file__"]:
             return builder.create_code(value, "__file__")
 
     @customize

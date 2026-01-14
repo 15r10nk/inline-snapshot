@@ -11,11 +11,11 @@ from inline_snapshot._exceptions import UsageError
 from ._custom import Custom
 from ._custom_call import CustomCall
 from ._custom_call import CustomDefault
+from ._custom_code import CustomCode
 from ._custom_dict import CustomDict
 from ._custom_external import CustomExternal
 from ._custom_sequence import CustomList
 from ._custom_sequence import CustomTuple
-from ._custom_value import CustomCode
 
 
 @dataclass
