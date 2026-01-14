@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
+from typing import Callable
 
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._compare_context import compare_context
@@ -71,7 +72,7 @@ class Builder:
 
         return CustomExternal(value, format=format, storage=storage)
 
-    def create_list(self, value) -> Custom:
+    def create_list(self, value: list) -> Custom:
         """
         Creates an intermediate node for a list-expression which can be used as a result for your customization function.
 
@@ -81,7 +82,7 @@ class Builder:
         custom = [self._get_handler(v) for v in value]
         return CustomList(value=custom)
 
-    def create_tuple(self, value) -> Custom:
+    def create_tuple(self, value: tuple) -> Custom:
         """
         Creates an intermediate node for a tuple-expression which can be used as a result for your customization function.
 
@@ -106,7 +107,7 @@ class Builder:
         return value
 
     def create_call(
-        self, function, posonly_args=[], kwargs={}, kwonly_args={}
+        self, function: Custom | Callable, posonly_args=[], kwargs={}, kwonly_args={}
     ) -> Custom:
         """
         Creates an intermediate node for a function call expression which can be used as a result for your customization function.
@@ -126,7 +127,7 @@ class Builder:
             _kwonly=kwonly_args,
         )
 
-    def create_dict(self, value) -> Custom:
+    def create_dict(self, value: dict) -> Custom:
         """
         Creates an intermediate node for a dict-expression which can be used as a result for your customization function.
 
@@ -136,7 +137,7 @@ class Builder:
         custom = {self._get_handler(k): self._get_handler(v) for k, v in value.items()}
         return CustomDict(value=custom)
 
-    def create_code(self, value, repr: str | None = None) -> CustomCode:
+    def create_code(self, value: Any, repr: str | None = None) -> CustomCode:
         """
         Creates an intermediate node for a value with a custom representation which can be used as a result for your customization function.
 

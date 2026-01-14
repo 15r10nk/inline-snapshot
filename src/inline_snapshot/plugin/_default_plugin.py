@@ -10,6 +10,8 @@ from pathlib import Path
 from pathlib import PurePath
 from types import BuiltinFunctionType
 from types import FunctionType
+from typing import Any
+from typing import Dict
 
 from inline_snapshot._customize._builder import Builder
 from inline_snapshot._customize._custom_undefined import CustomUndefined
@@ -53,9 +55,15 @@ class InlineSnapshotPlugin:
             return builder.create_call(Counter, [dict(value)])
 
     @customize
-    def function_handler(self, value, builder: Builder):
-        if isinstance(value, FunctionType):
-            qualname = value.__qualname__
+    def function_and_type_handler(
+        self, value, builder: Builder, local_vars: Dict[str, Any]
+    ):
+        if isinstance(value, (FunctionType, type)):
+            for name, local_value in local_vars.items():
+                if local_value is value:
+                    return builder.create_code(value, name)
+
+            qualname = value.__qualname__.split("[")[0]
             name = qualname.split(".")[0]
             return builder.create_code(value, qualname).with_import(
                 value.__module__, name
@@ -65,15 +73,6 @@ class InlineSnapshotPlugin:
     def builtin_function_handler(self, value, builder: Builder):
         if isinstance(value, BuiltinFunctionType):
             return builder.create_code(value, value.__name__)
-
-    @customize
-    def type_handler(self, value, builder: Builder):
-        if isinstance(value, type):
-            qualname = value.__qualname__.split("[")[0]
-            name = qualname.split(".")[0]
-            return builder.create_code(value, qualname).with_import(
-                value.__module__, name
-            )
 
     @customize
     def path_handler(self, value, builder: Builder):
@@ -140,6 +139,11 @@ class InlineSnapshotPlugin:
                     f"{qualname}.{flag.name}" for flag in type(value) if flag in value
                 ),
             ).with_import(type(value).__module__, name)
+
+    @customize
+    def source_file_name_handler(self, value, builder: Builder, global_vars):
+        if value == global_vars["__file__"]:
+            return builder.create_code(value, "__file__")
 
     @customize
     def dataclass_handler(self, value, builder: Builder):
