@@ -152,19 +152,15 @@ class InlineSnapshotPlugin:
             for field in fields(value):  # type: ignore
                 if field.repr:
                     field_value = getattr(value, field.name)
-                    is_default = False
 
-                    if field.default != MISSING and field.default == field_value:
-                        is_default = True
+                    if field.default != MISSING:
+                        field_value = builder.with_default(field_value, field.default)
 
-                    if (
-                        field.default_factory != MISSING
-                        and field.default_factory() == field_value
-                    ):
-                        is_default = True
+                    if field.default_factory != MISSING:
+                        field_value = builder.with_default(
+                            field_value, field.default_factory()
+                        )
 
-                    if is_default:
-                        field_value = builder.create_default(field_value)
                     kwargs[field.name] = field_value
 
             return builder.create_call(type(value), [], kwargs, {})
@@ -188,8 +184,9 @@ class InlineSnapshotPlugin:
                 field: (
                     getattr(value, field)
                     if field not in value._field_defaults
-                    or getattr(value, field) != value._field_defaults[field]
-                    else builder.create_default(value._field_defaults[field])
+                    else builder.with_default(
+                        getattr(value, field), value._field_defaults[field]
+                    )
                 )
                 for field in value._fields
             },
@@ -264,7 +261,6 @@ else:
                 for field in attrs.fields(type(value)):
                     if field.repr:
                         field_value = getattr(value, field.name)
-                        is_default = False
 
                         if field.default is not attrs.NOTHING:
 
@@ -277,12 +273,9 @@ else:
                                     else field.default.factory(value)
                                 )
                             )
-
-                            if default_value == field_value:
-                                is_default = True
-
-                        if is_default:
-                            field_value = builder.create_default(field_value)
+                            field_value = builder.with_default(
+                                field_value, default_value
+                            )
 
                         kwargs[field.name] = field_value
 
@@ -314,7 +307,7 @@ else:
 
     class InlineSnapshotPydanticPlugin:
         @customize
-        def attrs_handler(self, value, builder: Builder):
+        def pydantic_model_handler(self, value, builder: Builder):
 
             if isinstance(value, BaseModel):
 
@@ -323,22 +316,19 @@ else:
                 for name, field in get_fields(value).items():  # type: ignore
                     if getattr(field, "repr", True):
                         field_value = getattr(value, name)
-                        is_default = False
 
                         if (
                             field.default is not PydanticUndefined
                             and field.default == field_value
                         ):
-                            is_default = True
+                            field_value = builder.with_default(
+                                field_value, field.default
+                            )
 
-                        if (
-                            field.default_factory is not None
-                            and field.default_factory() == field_value
-                        ):
-                            is_default = True
-
-                        if is_default:
-                            field_value = builder.create_default(field_value)
+                        elif field.default_factory is not None:
+                            field_value = builder.with_default(
+                                field_value, field.default_factory()
+                            )
 
                         kwargs[name] = field_value
 

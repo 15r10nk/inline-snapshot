@@ -5,6 +5,7 @@ from typing import Any
 
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._compare_context import compare_context
+from inline_snapshot._exceptions import UsageError
 from inline_snapshot.plugin._context_variable import ContextVariable
 
 from ._custom import Custom
@@ -62,11 +63,6 @@ class Builder:
         result.__dict__["original_value"] = v
         return result
 
-    def with_default(self, value: Any, default: Any):
-        if value == default:
-            return CustomDefault(value=self._get_handler(value))
-        return value
-
     def create_external(
         self, value: Any, format: str | None = None, storage: str | None = None
     ):
@@ -96,6 +92,20 @@ class Builder:
         custom = [self._get_handler(v) for v in value]
         return CustomTuple(value=custom)
 
+    def with_default(self, value: Any, default: Any):
+        """
+        Creates an intermediate node for a default value which can be used as an argument for create_call.
+
+        Arguments are not included in the generated code when they match the actual default.
+        The value doesn't have to be a Custom node and is converted by inline-snapshot if needed.
+        """
+        if isinstance(default, Custom):
+            raise UsageError("default value can not be an Custom value")
+
+        if value == default:
+            return CustomDefault(value=self._get_handler(value))
+        return value
+
     def create_call(
         self, function, posonly_args=[], kwargs={}, kwonly_args={}
     ) -> Custom:
@@ -116,15 +126,6 @@ class Builder:
             _kwargs=kwargs,
             _kwonly=kwonly_args,
         )
-
-    def create_default(self, value) -> Custom:
-        """
-        Creates an intermediate node for a default value which can be used as a result for your customization function.
-
-        Default values are not included in the generated code when they match the actual default.
-        The value doesn't have to be a Custom node and is converted by inline-snapshot if needed.
-        """
-        return CustomDefault(value=self._get_handler(value))
 
     def create_dict(self, value) -> Custom:
         """
