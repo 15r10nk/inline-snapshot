@@ -242,10 +242,10 @@ from inline_snapshot.plugin import Builder
 
 class InlineSnapshotPlugin:
     @customize
-    def local_var_handler(self, value, local_vars):
-        for local in local_vars:
-            if local.name.startswith("v_") and local.value == value:
-                return local
+    def local_var_handler(self, value, builder, local_vars):
+        for var_name, var_value in local_vars.items():
+            if var_name.startswith("v_") and var_value == value:
+                return builder.create_code(value, var_name)
 ```
 
 We check all local variables to see if they match our naming convention and are equal to the value that is part of our snapshot, and return the local variable if we find one that fits the criteria.
@@ -365,7 +365,7 @@ def test_my_class():
 ::: inline_snapshot.plugin
     options:
       heading_level: 3
-      members: [hookimpl,customize,Builder,Custom,CustomCode,ContextVariable]
+      members: [hookimpl,customize,Builder,Custom,CustomCode]
       show_root_heading: false
       show_bases: false
       show_source: false

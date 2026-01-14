@@ -6,7 +6,6 @@ from typing import Any
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._compare_context import compare_context
 from inline_snapshot._exceptions import UsageError
-from inline_snapshot.plugin._context_variable import ContextVariable
 
 from ._custom import Custom
 from ._custom_call import CustomCall
@@ -31,19 +30,19 @@ class Builder:
             self._snapshot_context is not None
             and (frame := self._snapshot_context.frame) is not None
         ):
-            local_vars = [
-                ContextVariable(var_name, var_value)
+            local_vars = {
+                var_name: var_value
                 for var_name, var_value in frame.locals.items()
                 if "@" not in var_name
-            ]
-            global_vars = [
-                ContextVariable(var_name, var_value)
+            }
+            global_vars = {
+                var_name: var_value
                 for var_name, var_value in frame.globals.items()
                 if "@" not in var_name
-            ]
+            }
         else:
-            local_vars = []
-            global_vars = []
+            local_vars = {}
+            global_vars = {}
 
         result = v
 

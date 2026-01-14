@@ -1,11 +1,10 @@
 from functools import partial
 from typing import Any
-from typing import List
+from typing import Dict
 
 import pluggy
 
 from inline_snapshot._customize._builder import Builder
-from inline_snapshot.plugin._context_variable import ContextVariable
 
 inline_snapshot_plugin_name = "inline-snapshot"
 
@@ -31,8 +30,8 @@ class InlineSnapshotPluginSpec:
         self,
         value: Any,
         builder: Builder,
-        local_vars: List[ContextVariable],
-        global_vars: List[ContextVariable],
+        local_vars: Dict[str, Any],
+        global_vars: Dict[str, Any],
     ) -> Any:
         """
         The customize hook is called every time a snapshot value should be converted into code.
@@ -46,11 +45,9 @@ class InlineSnapshotPluginSpec:
                    This is the actual runtime value from your test.
             builder: A Builder instance providing methods to construct custom code representations.
                     Use methods like `create_call()`, `create_dict()`, `create_external()`, etc.
-            local_vars: List of local variables available in the current scope, each containing
-                       `name` and `value` attributes. Useful for referencing existing variables
-                       instead of creating new literals.
-            global_vars: List of global variables available in the current scope, each containing
-                        `name` and `value` attributes.
+            local_vars: Dictionary mapping variable names to their values in the local scope.
+                       Useful for referencing existing variables instead of creating new literals.
+            global_vars: Dictionary mapping variable names to their values in the global scope.
 
         Returns:
             (Custom): created using [Builder][inline_snapshot.plugin.Builder] `create_*` methods.
