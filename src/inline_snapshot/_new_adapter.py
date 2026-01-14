@@ -463,14 +463,14 @@ class NewAdapter:
             old_keywords = {kw.arg: kw.value for kw in old_node.keywords}
 
         for kw_arg, kw_value in old_keywords.items():
-            if kw_arg not in new_kwargs or isinstance(
-                new_kwargs[kw_arg], CustomDefault
-            ):
+            missing = kw_arg not in new_kwargs
+            if missing or isinstance(new_kwargs[kw_arg], CustomDefault):
                 # delete entries
                 yield Delete(
                     (
                         "update"
-                        if old_value.argument(kw_arg) == new_value.argument(kw_arg)
+                        if not missing
+                        and old_value.argument(kw_arg) == new_value.argument(kw_arg)
                         else flag
                     ),
                     self.context.file,

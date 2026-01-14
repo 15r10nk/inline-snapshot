@@ -6,7 +6,7 @@ from pathlib import Path
 
 from inline_snapshot._exceptions import UsageError
 
-from ._code_repr import value_code_repr
+from ._code_repr import real_repr
 
 
 def link(text, link=None):
@@ -156,7 +156,7 @@ def clone(obj):
 inline-snapshot uses `copy.deepcopy` to copy objects,
 but the copied object is not equal to the original one:
 
-value = {value_code_repr(obj)}
+value = {real_repr(obj)}
 copied_value = copy.deepcopy(value)
 assert value == copied_value
 
@@ -164,3 +164,11 @@ Please fix the way your object is copied or your __eq__ implementation.
 """
         )
     return new
+
+
+def clone_if_equal(obj):
+    new = copy.deepcopy(obj)
+    if obj == new:
+        return new
+    else:
+        return obj

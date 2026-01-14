@@ -80,6 +80,7 @@ class CustomCode(Custom):
             builder.create_value(my_obj, "secrets[0]").with_import("my_secrets", "secrets")
             ```
         """
+        name = name.split("[")[0]
         if simplify:
             module = _simplify_module_path(module, name)
         self._imports.append([module, name])

@@ -123,7 +123,14 @@ def ensure_import(filename, imports, recorder: ChangeRecorder):
 
     last_import = None
     for node in tree.body:
-        if not isinstance(node, (ast.ImportFrom, ast.Import)):
+        if not (
+            isinstance(node, (ast.ImportFrom, ast.Import))
+            or (
+                isinstance(node, ast.Expr)
+                and isinstance(node.value, ast.Constant)
+                and isinstance(node.value.value, str)
+            )
+        ):
             break
         last_import = node
 

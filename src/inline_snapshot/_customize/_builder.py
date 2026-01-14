@@ -62,6 +62,11 @@ class Builder:
         result.__dict__["original_value"] = v
         return result
 
+    def with_default(self, value: Any, default: Any):
+        if value == default:
+            return CustomDefault(value=self._get_handler(value))
+        return value
+
     def create_external(
         self, value: Any, format: str | None = None, storage: str | None = None
     ):

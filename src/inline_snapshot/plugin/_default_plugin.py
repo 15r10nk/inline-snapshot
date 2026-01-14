@@ -70,7 +70,7 @@ class InlineSnapshotPlugin:
     @customize
     def type_handler(self, value, builder: Builder):
         if isinstance(value, type):
-            qualname = value.__qualname__
+            qualname = value.__qualname__.split("[")[0]
             name = qualname.split(".")[0]
             return builder.create_code(value, qualname).with_import(
                 value.__module__, name

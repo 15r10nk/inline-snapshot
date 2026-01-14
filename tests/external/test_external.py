@@ -527,6 +527,28 @@ from os import chdir
     )
 
 
+def test_ensure_imports_with_docstring(tmp_path):
+    file = tmp_path / "file.py"
+    file.write_bytes(
+        b"""\
+''' docstring '''
+from __future__ import annotations
+"""
+    )
+
+    with apply_changes() as recorder:
+        ensure_import(file, {"os": ["chdir"]}, recorder)
+
+    assert file.read_text("utf-8") == snapshot(
+        """\
+''' docstring '''
+from __future__ import annotations
+
+from os import chdir
+"""
+    )
+
+
 def test_new_externals(project):
     project.pyproject(
         """\

@@ -685,3 +685,90 @@ def test_list():
             }
         ),
     )
+
+
+def test_dataclass_custom_init():
+
+    Example(
+        """\
+from dataclasses import dataclass
+from inline_snapshot import snapshot
+
+@dataclass(init=False)
+class A:
+    _a:int
+
+    def __init__(self,a:int=None,_a:int=None):
+        self._a=a or _a
+
+    @property
+    def a(self):
+        return self._a
+
+
+def test_A():
+    assert A(a=5) == snapshot(A(_a=5))
+    assert A(a=5) == snapshot(A(a=5))
+
+    assert A(a=5) == snapshot(A(_a=4))
+    assert A(a=5) == snapshot(A(a=4))
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from dataclasses import dataclass
+from inline_snapshot import snapshot
+
+@dataclass(init=False)
+class A:
+    _a:int
+
+    def __init__(self,a:int=None,_a:int=None):
+        self._a=a or _a
+
+    @property
+    def a(self):
+        return self._a
+
+
+def test_A():
+    assert A(a=5) == snapshot(A(_a=5))
+    assert A(a=5) == snapshot(A(a=5))
+
+    assert A(a=5) == snapshot(A(_a=5))
+    assert A(a=5) == snapshot(A(_a=5))
+"""
+            }
+        ),
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from dataclasses import dataclass
+from inline_snapshot import snapshot
+
+@dataclass(init=False)
+class A:
+    _a:int
+
+    def __init__(self,a:int=None,_a:int=None):
+        self._a=a or _a
+
+    @property
+    def a(self):
+        return self._a
+
+
+def test_A():
+    assert A(a=5) == snapshot(A(_a=5))
+    assert A(a=5) == snapshot(A(_a=5))
+
+    assert A(a=5) == snapshot(A(_a=5))
+    assert A(a=5) == snapshot(A(_a=5))
+"""
+            }
+        ),
+    )
