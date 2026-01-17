@@ -322,9 +322,9 @@ class InlineSnapshotPlugin:
     def secret_handler(self, value, builder: Builder):
         for i, secret in enumerate(secrets):
             if value == secret:
-                return builder.create_code(secret, f"secrets[{i}]").with_import(
-                    "my_secrets", "secrets"
-                )
+                return builder.create_code(
+                    secret, f"secrets[{i}]"
+                ).with_import_from("my_secrets", "secrets")
 ```
 
 The [`create_code()`][inline_snapshot.plugin.Builder.create_code] method takes the actual value and its desired code representation, then [`with_import()`][inline_snapshot.plugin.CustomCode.with_import] adds the necessary import statement.

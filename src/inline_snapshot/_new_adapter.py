@@ -224,12 +224,18 @@ class NewAdapter:
 
         def needed_imports(value: Custom):
             imports: dict[str, set] = defaultdict(set)
-            for module, name in value._needed_imports():
-                imports[module].add(name)
-            return imports
+            module_imports: set[str] = set()
+            for import_info in value._needed_imports():
+                if len(import_info) == 2:
+                    module, name = import_info
+                    imports[module].add(name)
+                elif len(import_info) == 1:
+                    module_imports.add(import_info[0])
+            return imports, module_imports
 
-        if imports := needed_imports(new_value):
-            yield RequiredImports(flag, self.context.file, imports)
+        imports, module_imports = needed_imports(new_value)
+        if imports or module_imports:
+            yield RequiredImports(flag, self.context.file, imports, module_imports)
 
         return new_value
 

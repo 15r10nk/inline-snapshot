@@ -152,11 +152,19 @@ class SnapshotReference(SnapshotRefBase):
             )
 
             imports: dict[str, set[str]] = defaultdict(set)
-            for module, name in self._value._needed_imports():
-                imports[module].add(name)
+            module_imports: set[str] = set()
+            for import_info in self._value._needed_imports():
+                if len(import_info) == 2:
+                    module, name = import_info
+                    imports[module].add(name)
+                elif len(import_info) == 1:
+                    module_imports.add(import_info[0])
 
             yield RequiredImports(
-                flag="create", file=self._value._file, imports=imports
+                flag="create",
+                file=self._value._file,
+                imports=imports,
+                module_imports=module_imports,
             )
 
         else:

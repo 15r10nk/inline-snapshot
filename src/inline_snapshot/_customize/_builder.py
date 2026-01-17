@@ -144,6 +144,6 @@ class Builder:
         `create_code(value, '{value-1!r}+1')` becomes `4+1` in the code for a given `value=5`.
         Use this when you need to control the exact string representation of a value.
 
-        You can use [`.with_import(module,name)`][inline_snapshot.plugin.CustomCode.with_import] to create an import in the code.
+        You can use [`.with_import_from(module,name)`][inline_snapshot.plugin.CustomCode.with_import_from] to create an import in the code.
         """
         return CustomCode(value, repr)

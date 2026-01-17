@@ -495,7 +495,7 @@ from os import getcwd
     )
 
     with apply_changes() as recorder:
-        ensure_import(file, {"os": ["chdir", "environ"]}, recorder)
+        ensure_import(file, {"os": ["chdir", "environ"]}, set(), recorder)
 
     assert file.read_text("utf-8") == snapshot(
         """\
@@ -516,7 +516,7 @@ from os import environ # comment
     )
 
     with apply_changes() as recorder:
-        ensure_import(file, {"os": ["chdir"]}, recorder)
+        ensure_import(file, {"os": ["chdir"]}, set(), recorder)
 
     assert file.read_text("utf-8") == snapshot(
         """\
@@ -537,7 +537,7 @@ from __future__ import annotations
     )
 
     with apply_changes() as recorder:
-        ensure_import(file, {"os": ["chdir"]}, recorder)
+        ensure_import(file, {"os": ["chdir"]}, set(), recorder)
 
     assert file.read_text("utf-8") == snapshot(
         """\

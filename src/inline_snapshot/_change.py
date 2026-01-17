@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import dataclasses
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -119,6 +120,7 @@ class Change(ChangeBase):
 @dataclass()
 class RequiredImports(Change):
     imports: dict[str, set[str]]
+    module_imports: set[str] = dataclasses.field(default_factory=set)
 
 
 @dataclass()
@@ -277,6 +279,7 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
 
     # file -> module -> names
     imports_by_file: dict[str, dict[str, set]] = defaultdict(lambda: defaultdict(set))
+    module_imports_by_file: dict[str, set] = defaultdict(set)
 
     for change in all_changes:
         if isinstance(change, Delete):
@@ -292,12 +295,16 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
             sources[node] = change.file
         elif isinstance(change, RequiredImports):
             for module, names in change.imports.items():
-                imports_by_file[change.filename][module] |= set(names)
+                imports_by_file[change.file.filename][module] |= set(names)
+            for module in change.module_imports:
+                module_imports_by_file[change.file.filename].add(module)
         else:
             change.apply(recorder)
 
-    for filename, imports in imports_by_file.items():
-        ensure_import(filename, imports, recorder)
+    for filename in set(imports_by_file) | set(module_imports_by_file):
+        imports = imports_by_file.get(filename, defaultdict(set))
+        module_imports = module_imports_by_file.get(filename, set())
+        ensure_import(filename, imports, module_imports, recorder)
 
     for parent, changes in by_parent.items():
         source = sources[parent]

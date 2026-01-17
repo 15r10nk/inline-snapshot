@@ -65,7 +65,7 @@ class InlineSnapshotPlugin:
 
             qualname = value.__qualname__.split("[")[0]
             name = qualname.split(".")[0]
-            return builder.create_code(value, qualname).with_import(
+            return builder.create_code(value, qualname).with_import_from(
                 value.__module__, name
             )
 
@@ -123,7 +123,7 @@ class InlineSnapshotPlugin:
 
             return builder.create_code(
                 value, f"{type(value).__qualname__}.{value.name}"
-            ).with_import(type(value).__module__, name)
+            ).with_import_from(type(value).__module__, name)
 
     # -8<- [end:Enum]
 
@@ -138,7 +138,7 @@ class InlineSnapshotPlugin:
                 " | ".join(
                     f"{qualname}.{flag.name}" for flag in type(value) if flag in value
                 ),
-            ).with_import(type(value).__module__, name)
+            ).with_import_from(type(value).__module__, name)
 
     @customize
     def source_file_name_handler(self, value, builder: Builder, global_vars):
@@ -219,7 +219,7 @@ class InlineSnapshotPlugin:
         if is_dirty_equal(value) and builder._build_new_value:
 
             if isinstance(value, type):
-                return builder.create_code(value, value.__name__).with_import(
+                return builder.create_code(value, value.__name__).with_import_from(
                     "dirty_equals", value.__name__
                 )
             else:

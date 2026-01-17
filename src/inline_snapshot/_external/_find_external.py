@@ -26,6 +26,14 @@ def contains_import(tree, module, name):
     return False
 
 
+def contains_module_import(tree, module):
+    for node in tree.body:
+        if isinstance(node, ast.Import):
+            if any(alias.name == module for alias in node.names):
+                return True
+    return False
+
+
 def used_externals_in(
     filename: Path, source: Union[str, ast.Module], check_import=True
 ) -> List[ExternalLocation]:
@@ -98,7 +106,7 @@ def module_name_of(filename: str | os.PathLike) -> Optional[str]:
     return ".".join(parts)
 
 
-def ensure_import(filename, imports, recorder: ChangeRecorder):
+def ensure_import(filename, imports, module_imports, recorder: ChangeRecorder):
     source = Source.for_filename(filename)
 
     change = recorder.new_change()
@@ -107,6 +115,7 @@ def ensure_import(filename, imports, recorder: ChangeRecorder):
     token = source.asttokens()
 
     to_add = []
+    modules_to_add = []
 
     my_module = module_name_of(filename)
 
@@ -118,6 +127,14 @@ def ensure_import(filename, imports, recorder: ChangeRecorder):
         for name in sorted(names):
             if not contains_import(tree, module, name):
                 to_add.append((module, name))
+
+    for module in sorted(module_imports):
+        if module == my_module:
+            continue
+        if module == "builtins":
+            continue
+        if not contains_module_import(tree, module):
+            modules_to_add.append(module)
 
     assert isinstance(tree, ast.Module)
 
@@ -147,7 +164,12 @@ def ensure_import(filename, imports, recorder: ChangeRecorder):
         position = end_of(last_token)
 
     code = ""
+    for module in modules_to_add:
+        code += f"import {module}\n"
     for module, name in to_add:
-        code += f"\nfrom {module} import {name}\n"
+        code += f"from {module} import {name}\n"
+
+    if code:
+        code = "\n" + code
 
     change.insert(position, code, filename=filename)

@@ -40,7 +40,7 @@ class CustomCode(Custom):
                 ast.parse(self.repr_str)
             except SyntaxError:
                 self.repr_str = HasRepr(type(value), self.repr_str).__repr__()
-                self.with_import("inline_snapshot", "HasRepr")
+                self.with_import_from("inline_snapshot", "HasRepr")
         else:
             self.repr_str = repr_str
 
@@ -61,7 +61,7 @@ class CustomCode(Custom):
     def _needed_imports(self):
         yield from self._imports
 
-    def with_import(self, module: str, name: str, simplify: bool = True) -> Self:
+    def with_import_from(self, module: str, name: str, simplify: bool = True) -> Self:
         """
         Adds a `from module import name` statement to the generated code.
 
@@ -77,12 +77,33 @@ class CustomCode(Custom):
 
         Example:
             ``` python
-            builder.create_value(my_obj, "secrets[0]").with_import("my_secrets", "secrets")
+            builder.create_code(my_obj, "secrets[0]").with_import_from(
+                "my_secrets", "secrets"
+            )
             ```
         """
         name = name.split("[")[0]
         if simplify:
             module = _simplify_module_path(module, name)
         self._imports.append([module, name])
+
+        return self
+
+    def with_import(self, module: str) -> Self:
+        """
+        Adds an `import module` statement to the generated code.
+
+        Arguments:
+            module: The module path to import (e.g., "os.path" or "collections.abc").
+
+        Returns:
+            The CustomCode instance itself, allowing for method chaining.
+
+        Example:
+            ``` python
+            builder.create_code(my_obj, "os.path.join('a', 'b')").with_import("os.path")
+            ```
+        """
+        self._imports.append((module,))
 
         return self
