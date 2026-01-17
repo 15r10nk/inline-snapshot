@@ -8,7 +8,7 @@ from typing_extensions import Self
 
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._change import ChangeBase
-from inline_snapshot._change import RequiredImports
+from inline_snapshot._change import RequiredImport
 from inline_snapshot._code_repr import HasRepr
 from inline_snapshot._code_repr import value_code_repr
 from inline_snapshot._utils import clone
@@ -60,13 +60,9 @@ class CustomCode(Custom):
         file = context.file if context else None
 
         for module in self._module_imports:
-            yield RequiredImports(
-                flag="fix", file=file, imports={}, module_imports=[module]
-            )
+            yield RequiredImport(flag="fix", file=file, module=module)
         for module, name in self._imports:
-            yield RequiredImports(
-                flag="fix", file=file, imports={module: {name}}, module_imports=[]
-            )
+            yield RequiredImport(flag="fix", file=file, module=module, name=name)
 
         return self.repr_str
 

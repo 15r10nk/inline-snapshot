@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import ast
-import dataclasses
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -118,11 +117,9 @@ class Change(ChangeBase):
 
 
 @dataclass()
-class RequiredImports(Change):
-    # module:str
-    # name:Optional[str]
-    imports: dict[str, set[str]]
-    module_imports: set[str] = dataclasses.field(default_factory=set)
+class RequiredImport(Change):
+    module: str
+    name: str | None = None
 
 
 @dataclass()
@@ -295,11 +292,11 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
             node = cast(EnhancedAST, change.node)
             by_parent[node].append(change)
             sources[node] = change.file
-        elif isinstance(change, RequiredImports):
-            for module, names in change.imports.items():
-                imports_by_file[change.file.filename][module] |= set(names)
-            for module in change.module_imports:
-                module_imports_by_file[change.file.filename].add(module)
+        elif isinstance(change, RequiredImport):
+            if change.name:
+                imports_by_file[change.file.filename][change.module].add(change.name)
+            else:
+                module_imports_by_file[change.file.filename].add(change.module)
         else:
             change.apply(recorder)
 

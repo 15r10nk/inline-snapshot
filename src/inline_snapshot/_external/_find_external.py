@@ -2,8 +2,10 @@ import ast
 import os
 from dataclasses import replace
 from pathlib import Path
+from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Set
 from typing import Union
 
 from executing import Source
@@ -106,7 +108,12 @@ def module_name_of(filename: str | os.PathLike) -> Optional[str]:
     return ".".join(parts)
 
 
-def ensure_import(filename, imports, module_imports, recorder: ChangeRecorder):
+def ensure_import(
+    filename,
+    imports: Dict[str, Set[str]],
+    module_imports: Set[str],
+    recorder: ChangeRecorder,
+):
     source = Source.for_filename(filename)
 
     change = recorder.new_change()
@@ -114,11 +121,9 @@ def ensure_import(filename, imports, module_imports, recorder: ChangeRecorder):
     tree = source.tree
     token = source.asttokens()
 
-    to_add = []
-    modules_to_add = []
-
     my_module = module_name_of(filename)
 
+    code = ""
     for module, names in imports.items():
         if module == my_module:
             continue
@@ -126,7 +131,7 @@ def ensure_import(filename, imports, module_imports, recorder: ChangeRecorder):
             continue
         for name in sorted(names):
             if not contains_import(tree, module, name):
-                to_add.append((module, name))
+                code += f"from {module} import {name}\n"
 
     for module in sorted(module_imports):
         if module == my_module:
@@ -134,10 +139,11 @@ def ensure_import(filename, imports, module_imports, recorder: ChangeRecorder):
         if module == "builtins":
             continue
         if not contains_module_import(tree, module):
-            modules_to_add.append(module)
+            code += f"import {module}\n"
 
     assert isinstance(tree, ast.Module)
 
+    # find source position
     last_import = None
     for node in tree.body:
         if not (
@@ -163,13 +169,6 @@ def ensure_import(filename, imports, module_imports, recorder: ChangeRecorder):
                 break
         position = end_of(last_token)
 
-    code = ""
-    for module in modules_to_add:
-        code += f"import {module}\n"
-    for module, name in to_add:
-        code += f"from {module} import {name}\n"
-
     if code:
         code = "\n" + code
-
-    change.insert(position, code, filename=filename)
+        change.insert(position, code, filename=filename)

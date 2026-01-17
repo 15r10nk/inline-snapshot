@@ -8,7 +8,7 @@ from typing import Generator
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._change import ChangeBase
 from inline_snapshot._change import ExternalChange
-from inline_snapshot._change import RequiredImports
+from inline_snapshot._change import RequiredImport
 from inline_snapshot._external._external_location import ExternalLocation
 from inline_snapshot._external._format._protocol import get_format_handler
 
@@ -53,8 +53,6 @@ class CustomExternal(Custom):
             location,
             format,
         )
-        yield RequiredImports(
-            "create", context.file, {"inline_snapshot": ["external"]}, []
-        )
+        yield RequiredImport("create", context.file, "inline_snapshot", "external")
 
         return f"external({location.to_str()!r})"
