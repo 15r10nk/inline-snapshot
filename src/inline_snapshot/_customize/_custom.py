@@ -40,6 +40,3 @@ class Custom(ABC):
 
     def _eval(self):
         return self._map(lambda a: a)
-
-    def _needed_imports(self):
-        yield from ()

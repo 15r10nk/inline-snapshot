@@ -51,7 +51,7 @@ def test_captcha():
             "size": "200x100",
             "difficulty": 8,
             "picture": external(
-                "uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.png"
+                "uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.png"
             ),
         }
     )

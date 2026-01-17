@@ -27,8 +27,3 @@ class CustomDict(Custom):
             values.append(f"{key}: {value}")
 
         return f"{{{ ', '.join(values)}}}"
-
-    def _needed_imports(self):
-        for k, v in self.value.items():
-            yield from k._needed_imports()
-            yield from v._needed_imports()

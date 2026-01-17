@@ -19,7 +19,7 @@ def test_basic(check_update):
     assert check_update(
         "assert outsource('text') == snapshot()", flags="create"
     ) == snapshot(
-        "assert outsource('text') == snapshot(external(\"uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt\"))"
+        "assert outsource('text') == snapshot(external(\"uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt\"))"
     )
 
 
@@ -272,7 +272,7 @@ def test_a():
 from inline_snapshot import external
 
 def test_a():
-    assert outsource("test") == snapshot(external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt"))
+    assert outsource("test") == snapshot(external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"))
 """
     )
 
@@ -478,7 +478,7 @@ test_something()
 from inline_snapshot import external
 def test_something():
     from inline_snapshot import outsource,snapshot
-    assert outsource("test") == snapshot(external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt"))
+    assert outsource("test") == snapshot(external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"))
 test_something()
     \
 """
@@ -626,15 +626,15 @@ def test_something():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
+                "tests/__inline_snapshot__/test_something/test_something/eb1167b3-67a9-4378-bc65-c1e582e2e662.txt": "foo",
                 "tests/__inline_snapshot__/test_something/test_something/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt": "foo",
-                "tests/__inline_snapshot__/test_something/test_something/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "foo",
                 "tests/test_something.py": """\
 
 from inline_snapshot import external, snapshot,outsource
 
 def test_something():
-    assert outsource("foo") == snapshot(external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"))
-    assert "foo" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+    assert outsource("foo") == snapshot(external("uuid:eb1167b3-67a9-4378-bc65-c1e582e2e662.txt"))
+    assert "foo" == external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt")
 """,
             }
         ),

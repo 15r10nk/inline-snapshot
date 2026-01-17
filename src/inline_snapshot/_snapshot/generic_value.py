@@ -77,9 +77,6 @@ class GenericValue(SnapshotBase):
             or isinstance(self._old_value, CustomUndefined)
         )
 
-    def _needed_imports(self):
-        yield from self._new_value._needed_imports()
-
     def _visible_value(self):
         if self._ignore_old():
             return self._new_value

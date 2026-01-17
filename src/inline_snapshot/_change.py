@@ -119,6 +119,8 @@ class Change(ChangeBase):
 
 @dataclass()
 class RequiredImports(Change):
+    # module:str
+    # name:Optional[str]
     imports: dict[str, set[str]]
     module_imports: set[str] = dataclasses.field(default_factory=set)
 

@@ -1,6 +1,5 @@
 import ast
 import inspect
-from collections import defaultdict
 from typing import Any
 from typing import Iterator
 from typing import TypeVar
@@ -11,12 +10,12 @@ from executing import Source
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._adapter_context import FrameContext
 from inline_snapshot._customize._custom_undefined import CustomUndefined
+from inline_snapshot._generator_utils import with_flag
 from inline_snapshot._source_file import SourceFile
 from inline_snapshot._types import SnapshotRefBase
 
 from ._change import CallArg
 from ._change import ChangeBase
-from ._change import RequiredImports
 from ._global_state import state
 from ._sentinels import undefined
 from ._snapshot.undecided_value import UndecidedValue
@@ -139,7 +138,7 @@ class SnapshotReference(SnapshotRefBase):
             if isinstance(self._value._new_value, CustomUndefined):
                 return
 
-            new_code = yield from self._value._new_code()
+            new_code = yield from with_flag(self._value._new_code(), "create")
 
             yield CallArg(
                 flag="create",
@@ -149,22 +148,6 @@ class SnapshotReference(SnapshotRefBase):
                 arg_name=None,
                 new_code=new_code,
                 new_value=self._value._new_value,
-            )
-
-            imports: dict[str, set[str]] = defaultdict(set)
-            module_imports: set[str] = set()
-            for import_info in self._value._needed_imports():
-                if len(import_info) == 2:
-                    module, name = import_info
-                    imports[module].add(name)
-                elif len(import_info) == 1:
-                    module_imports.add(import_info[0])
-
-            yield RequiredImports(
-                flag="create",
-                file=self._value._file,
-                imports=imports,
-                module_imports=module_imports,
             )
 
         else:

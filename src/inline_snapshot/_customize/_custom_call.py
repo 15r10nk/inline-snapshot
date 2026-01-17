@@ -23,9 +23,6 @@ class CustomDefault(Custom):
     def _map(self, f):
         return self.value._map(f)
 
-    def _needed_imports(self):
-        yield from self.value._needed_imports()
-
 
 def unwrap_default(value):
     if isinstance(value, CustomDefault):
@@ -77,14 +74,3 @@ class CustomCall(Custom):
             *[f(x._map(f)) for x in self._args],
             **{k: f(v._map(f)) for k, v in self.kwargs.items()},
         )
-
-    def _needed_imports(self):
-        yield from self._function._needed_imports()
-        for v in self._args:
-            yield from v._needed_imports()
-
-        for v in self._kwargs.values():
-            yield from v._needed_imports()
-
-        for v in self._kwonly.values():
-            yield from v._needed_imports()

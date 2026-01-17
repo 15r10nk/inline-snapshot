@@ -15,7 +15,6 @@ from inline_snapshot._change import Delete
 from inline_snapshot._change import DictInsert
 from inline_snapshot._change import ListInsert
 from inline_snapshot._change import Replace
-from inline_snapshot._change import RequiredImports
 from inline_snapshot._compare_context import compare_context
 from inline_snapshot._customize._custom import Custom
 from inline_snapshot._customize._custom_call import CustomCall
@@ -27,7 +26,9 @@ from inline_snapshot._customize._custom_sequence import CustomSequence
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._exceptions import UsageError
+from inline_snapshot._generator_utils import make_gen_map
 from inline_snapshot._generator_utils import only_value
+from inline_snapshot._generator_utils import split_gen
 from inline_snapshot.syntax_warnings import InlineSnapshotInfo
 from inline_snapshot.syntax_warnings import InlineSnapshotSyntaxWarning
 
@@ -179,10 +180,7 @@ class NewAdapter:
         assert isinstance(new_value, Custom)
         assert isinstance(old_node, (ast.expr, type(None))), old_node
 
-        if old_node is None:
-            new_code = ""
-        else:
-            new_code = yield from new_value._code_repr(self.context)
+        new_code, new_changes = split_gen(new_value._code_repr(self.context))
 
         if (
             isinstance(old_node, ast.JoinedStr)
@@ -213,6 +211,10 @@ class NewAdapter:
             # equal and equal repr
             return old_value
 
+        for change in new_changes:
+            change.flag = flag
+            yield change
+
         yield Replace(
             node=old_node,
             file=self.context.file,
@@ -221,21 +223,6 @@ class NewAdapter:
             old_value=old_value._eval(),
             new_value=new_value,
         )
-
-        def needed_imports(value: Custom):
-            imports: dict[str, set] = defaultdict(set)
-            module_imports: set[str] = set()
-            for import_info in value._needed_imports():
-                if len(import_info) == 2:
-                    module, name = import_info
-                    imports[module].add(name)
-                elif len(import_info) == 1:
-                    module_imports.add(import_info[0])
-            return imports, module_imports
-
-        imports, module_imports = needed_imports(new_value)
-        if imports or module_imports:
-            yield RequiredImports(flag, self.context.file, imports, module_imports)
 
         return new_value
 
@@ -408,20 +395,12 @@ class NewAdapter:
 
         flag = "update" if old_value._eval() == new_value.original_value else "fix"
 
-        if flag == "update":
-
-            def intercept(stream):
-                while True:
-                    try:
-                        change = next(stream)
-                        if change.flag == "fix":
-                            change.flag = "update"
-                        yield change
-                    except StopIteration as stop:
-                        return stop.value
-
-        else:
-            intercept = lambda a: a
+        @make_gen_map
+        def intercept(change):
+            if flag == "update":
+                if change.flag == "fix":
+                    change.flag = "update"
+            return change
 
         old_node_args: Sequence[ast.expr | None]
         if old_node:

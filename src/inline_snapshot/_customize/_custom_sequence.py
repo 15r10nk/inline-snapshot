@@ -33,10 +33,6 @@ class CustomSequence(Custom, CustomSequenceTypes):
         trailing_comma = self.trailing_comma and len(self.value) == 1
         return f"{self.braces[0]}{', '.join(values)}{', ' if trailing_comma else ''}{self.braces[1]}"
 
-    def _needed_imports(self):
-        for v in self.value:
-            yield from v._needed_imports()
-
 
 class CustomList(CustomSequence):
     node_type = ast.List
