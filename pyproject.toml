@@ -59,7 +59,7 @@ dev = [
     "coverage-enable-subprocess>=1.0",
     "attrs>=24.3.0",
     "pydantic>=1",
-    "black==25.1.0"
+    "black==25.1.0",
     "isort"
 ]
 
