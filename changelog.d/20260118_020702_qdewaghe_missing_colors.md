@@ -1,3 +1,3 @@
 ### Fixed
 
-- pytest --color flag is now respected 
+- pytest --color flag is now respected
