@@ -1,5 +1,6 @@
 import ast
 from dataclasses import dataclass
+from typing import Optional
 
 from inline_snapshot._source_file import SourceFile
 
@@ -13,7 +14,7 @@ class FrameContext:
 @dataclass
 class AdapterContext:
     file: SourceFile
-    frame: FrameContext | None
+    frame: Optional[FrameContext]
     qualname: str
 
     def eval(self, node):

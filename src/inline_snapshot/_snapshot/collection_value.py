@@ -1,6 +1,7 @@
 import ast
 from typing import Generator
 from typing import Iterator
+from typing import Union
 
 from inline_snapshot._customize._custom_sequence import CustomList
 from inline_snapshot._customize._custom_undefined import CustomUndefined
@@ -16,7 +17,7 @@ from .generic_value import ignore_old_value
 
 class CollectionValue(GenericValue):
     _current_op = "x in snapshot"
-    _ast_node: ast.List | ast.Tuple
+    _ast_node: Union[ast.List, ast.Tuple]
     _new_value: CustomList
 
     def __contains__(self, item):

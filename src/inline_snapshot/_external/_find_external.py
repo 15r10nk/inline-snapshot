@@ -76,7 +76,7 @@ def used_externals_in(
     return usages
 
 
-def module_name_of(filename: str | os.PathLike) -> Optional[str]:
+def module_name_of(filename: Union[str, os.PathLike]) -> Optional[str]:
     path = Path(filename).resolve()
 
     if path.suffix != ".py":

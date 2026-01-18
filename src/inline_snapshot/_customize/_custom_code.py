@@ -57,12 +57,12 @@ class CustomCode(Custom):
         return f(self.value)
 
     def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
-        file = context.file if context else None
-
         for module in self._module_imports:
-            yield RequiredImport(flag="fix", file=file, module=module)
+            yield RequiredImport(flag="fix", file=context.file, module=module)
         for module, name in self._imports:
-            yield RequiredImport(flag="fix", file=file, module=module, name=name)
+            yield RequiredImport(
+                flag="fix", file=context.file, module=module, name=name
+            )
 
         return self.repr_str
 
@@ -93,7 +93,7 @@ class CustomCode(Custom):
         name = name.split("[")[0]
         if simplify:
             module = _simplify_module_path(module, name)
-        self._imports.append([module, name])
+        self._imports.append((module, name))
 
         return self
 

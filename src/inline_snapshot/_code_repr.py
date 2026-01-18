@@ -78,7 +78,10 @@ def customize_repr(f):
 
 
 def code_repr(obj):
-    with mock_repr(None):
+    from inline_snapshot._adapter_context import AdapterContext
+
+    context = AdapterContext(None, None, "<qualname>")
+    with mock_repr(context):
         return repr(obj)
 
 
