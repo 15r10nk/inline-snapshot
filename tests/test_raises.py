@@ -19,3 +19,9 @@ two lines\
         )
     ):
         raise ValueError("with\ntwo lines")
+
+    with raises(snapshot("SystemExit: 1")):
+        exit(1)
+
+    with raises(snapshot("KeyboardInterrupt: ")):
+        raise KeyboardInterrupt
