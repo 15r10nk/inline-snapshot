@@ -164,11 +164,3 @@ Please fix the way your object is copied or your __eq__ implementation.
 """
         )
     return new
-
-
-def clone_if_equal(obj):
-    new = copy.deepcopy(obj)
-    if obj == new:
-        return new
-    else:
-        return obj

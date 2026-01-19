@@ -14,8 +14,10 @@ from ._custom import Custom
 class CustomUnmanaged(Custom):
     value: Any
 
-    def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
-        yield from ()  # pragma: no cover
+    def _code_repr(
+        self, context: AdapterContext
+    ) -> Generator[ChangeBase, None, str]:  # pragma: no cover
+        yield from ()
         return "'unmanaged'"
 
     def _map(self, f):
