@@ -431,7 +431,7 @@ def raises(exception: Snapshot[str]):
 
     try:
         yield
-    except Exception as ex:
+    except BaseException as ex:
         msg = str(ex)
         if "\n" in msg:
             assert f"{type(ex).__name__}:\n{ex}" == exception
