@@ -170,8 +170,15 @@ class InlineSnapshotPlugin:
             capture._global_capturing.in_.suspend()
 
         try:
-
-            self.session.show_report(Console(highlight=False))
+            self.session.show_report(
+                Console(
+                    highlight=False,
+                    no_color=config.getoption("color") == "no",
+                    color_system=(
+                        "standard" if config.getoption("color") == "yes" else "auto"
+                    ),
+                )
+            )
 
         finally:
             if suspend_capture:

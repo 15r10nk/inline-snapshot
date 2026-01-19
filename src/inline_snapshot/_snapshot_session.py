@@ -102,11 +102,13 @@ def apply_changes(flag, console):
             result = Confirm.ask(
                 f"Do you want to {link('fix','https://15r10nk.github.io/inline-snapshot/fix_assert/')} these assertions?",
                 default=False,
+                console=console(),
             )
         else:
             result = Confirm.ask(
                 f"Do you want to {category_link(flag)} these snapshots?",
                 default=False,
+                console=console(),
             )
 
         console().print()
