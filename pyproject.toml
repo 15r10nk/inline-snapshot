@@ -13,6 +13,7 @@ classifiers = [
   "Operating System :: OS Independent",
   "Topic :: Software Development :: Testing",
   "Programming Language :: Python",
+  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -33,7 +34,7 @@ description = "golden master/snapshot/approval testing library which puts the va
 keywords = []
 name = "inline-snapshot"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dynamic=["version"]
 
 [project.optional-dependencies]
@@ -58,6 +59,7 @@ dev = [
     "coverage-enable-subprocess>=1.0",
     "attrs>=24.3.0",
     "pydantic>=1",
+    "black==25.1.0"
 ]
 
 [project.entry-points.pytest11]
@@ -149,7 +151,7 @@ dependencies=["pysource-minimize"]
 scripts.test=["python testing/generate_tests.py"]
 
 [[tool.hatch.envs.hatch-test.matrix]]
-python = ["3.13", "3.12", "3.11", "3.10", "3.9", "3.8","pypy3.9","pypy3.10"]
+python = ["3.13", "3.12", "3.11", "3.10", "3.9","pypy3.9","pypy3.10"]
 extra-deps=["low","hight"]
 
 [[tool.hatch.envs.hatch-test.matrix]]
@@ -171,6 +173,7 @@ extra-dependencies = [
   "pyright>=1.1.359",
   "pytest-freezer>=0.4.8",
   "pytest-mock>=3.14.0",
+  "black==25.1.0"
 ]
 env-vars.TOP = "{root}"
 
@@ -191,7 +194,7 @@ extra-dependencies = [
 ]
 
 [[tool.hatch.envs.types.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12","3.13","3.14"]
+python = ["3.9", "3.10", "3.11", "3.12","3.13","3.14"]
 
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/inline_snapshot tests}"

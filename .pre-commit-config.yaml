@@ -58,6 +58,8 @@ repos:
 - hooks:
   - id: blacken-docs
     args: [-l80]
+    additional_dependencies:
+    - black==25.1.0
   repo: https://github.com/adamchainz/blacken-docs
   rev: 1.19.1
 
