@@ -156,7 +156,8 @@ def test_a():
 @pytest.mark.parametrize(
     "original,flag", [("MyClass('value')", "update"), ("'wrong'", "fix")]
 )
-def test_with_import_preserves_existing(original, flag):
+@pytest.mark.parametrize("existing_import", ["\nimport mymodule\n", ""])
+def test_with_import_preserves_existing(original, flag, existing_import):
     """Test that with_import preserves existing import statements."""
 
     Example(
@@ -187,8 +188,8 @@ class MyClass:
 from inline_snapshot import snapshot
 from mymodule import MyClass
 
-import mymodule
-import os
+import os # just another import
+{existing_import}\
 
 def test_a():
     assert snapshot({original}) == MyClass("value")
@@ -202,8 +203,9 @@ def test_a():
 from inline_snapshot import snapshot
 from mymodule import MyClass
 
+import os # just another import
+
 import mymodule
-import os
 
 def test_a():
     assert snapshot(mymodule.MyClass("value")) == MyClass("value")

@@ -31,7 +31,9 @@ def contains_import(tree, module, name):
 def contains_module_import(tree, module):
     for node in tree.body:
         if isinstance(node, ast.Import):
-            if any(alias.name == module for alias in node.names):
+            if any(
+                alias.name == module and alias.asname is None for alias in node.names
+            ):
                 return True
     return False
 
@@ -135,10 +137,6 @@ def ensure_import(
                 code += f"from {module} import {name}\n"
 
     for module in sorted(module_imports):
-        if module == my_module_name:
-            continue
-        if module == "builtins":
-            continue
         if not contains_module_import(tree, module):
             code += f"import {module}\n"
 
