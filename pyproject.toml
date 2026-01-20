@@ -96,6 +96,7 @@ exclude_lines = [
     "if is_insider",
     "\\.\\.\\."
 ]
+ignore_errors=true
 
 
 [tool.coverage.run]

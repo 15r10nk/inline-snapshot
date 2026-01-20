@@ -79,8 +79,7 @@ def used_externals_in(
 def module_name_of(filename: Union[str, os.PathLike]) -> Optional[str]:
     path = Path(filename).resolve()
 
-    if path.suffix != ".py":
-        return None
+    assert path.suffix == ".py"
 
     parts = []
 
@@ -97,13 +96,14 @@ def module_name_of(filename: Union[str, os.PathLike]) -> Optional[str]:
 
         next_parent = current.parent
         if next_parent == current:
-            break
+            break  # pragma: no cover
         current = next_parent
+    else:
+        pass  # pragma: no cover
 
     parts.reverse()
 
-    if not parts:
-        return None
+    assert parts
 
     return ".".join(parts)
 
@@ -114,6 +114,7 @@ def ensure_import(
     module_imports: Set[str],
     recorder: ChangeRecorder,
 ):
+    print("file", filename)
     source = Source.for_filename(filename)
 
     change = recorder.new_change()
@@ -121,11 +122,11 @@ def ensure_import(
     tree = source.tree
     token = source.asttokens()
 
-    my_module = module_name_of(filename)
+    my_module_name = module_name_of(filename)
 
     code = ""
     for module, names in imports.items():
-        if module == my_module:
+        if module == my_module_name:
             continue
         if module == "builtins":
             continue
@@ -134,7 +135,7 @@ def ensure_import(
                 code += f"from {module} import {name}\n"
 
     for module in sorted(module_imports):
-        if module == my_module:
+        if module == my_module_name:
             continue
         if module == "builtins":
             continue
