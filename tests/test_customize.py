@@ -247,3 +247,45 @@ Customized value does not match original value: 100 != 42\
 """
         ),
     )
+
+
+@pytest.mark.parametrize("original,flag", [("'wrong'", "fix"), ("", "create")])
+def test_global_var_lookup(original, flag):
+    """Test that create_code can look up global variables."""
+
+    Example(
+        {
+            "conftest.py": """\
+from inline_snapshot.plugin import customize
+from inline_snapshot.plugin import Builder
+
+class InlineSnapshotPlugin:
+    @customize
+    def use_global(self, value, builder: Builder):
+        if value == "test_value":
+            return builder.create_code("GLOBAL_VAR")
+""",
+            "test_something.py": f"""\
+from inline_snapshot import snapshot
+
+GLOBAL_VAR = "test_value"
+
+def test_a():
+    assert snapshot({original}) == "test_value"
+""",
+        }
+    ).run_inline(
+        [f"--inline-snapshot={flag}"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot
+
+GLOBAL_VAR = "test_value"
+
+def test_a():
+    assert snapshot(GLOBAL_VAR) == "test_value"
+"""
+            }
+        ),
+    )

@@ -79,6 +79,8 @@ class CustomCode(Custom):
                     module=_simplify_module_path(imp.module, imp.name),
                     name=imp.name,
                 )
+            else:
+                assert False
 
         return self.repr_str
 

@@ -176,6 +176,8 @@ class Builder:
                     # from module import name
                     module = importlib.import_module(imp.module)
                     import_vars[imp.name] = getattr(module, imp.name)
+                else:
+                    assert False
         return import_vars
 
     def create_code(
