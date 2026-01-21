@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from typing import Any
 from typing import Callable
 
 from inline_snapshot._adapter_context import AdapterContext
+from inline_snapshot._sentinels import undefined
+
+missing = undefined
 from inline_snapshot._compare_context import compare_context
 from inline_snapshot._exceptions import UsageError
 
@@ -12,6 +16,8 @@ from ._custom import Custom
 from ._custom_call import CustomCall
 from ._custom_call import CustomDefault
 from ._custom_code import CustomCode
+from ._custom_code import Import
+from ._custom_code import ImportFrom
 from ._custom_dict import CustomDict
 from ._custom_external import CustomExternal
 from ._custom_sequence import CustomList
@@ -27,24 +33,6 @@ class Builder:
 
         from inline_snapshot._global_state import state
 
-        if (
-            self._snapshot_context is not None
-            and (frame := self._snapshot_context.frame) is not None
-        ):
-            local_vars = {
-                var_name: var_value
-                for var_name, var_value in frame.locals.items()
-                if "@" not in var_name
-            }
-            global_vars = {
-                var_name: var_value
-                for var_name, var_value in frame.globals.items()
-                if "@" not in var_name
-            }
-        else:
-            local_vars = {}
-            global_vars = {}
-
         result = v
 
         while not isinstance(result, Custom):
@@ -52,8 +40,8 @@ class Builder:
                 r = state().pm.hook.customize(
                     value=result,
                     builder=self,
-                    local_vars=local_vars,
-                    global_vars=global_vars,
+                    local_vars=self._get_local_vars,
+                    global_vars=self._get_global_vars,
                 )
             if r is None:
                 result = CustomCode(result)
@@ -61,6 +49,13 @@ class Builder:
                 result = r
 
         result.__dict__["original_value"] = v
+
+        if not isinstance(v, Custom) and self._build_new_value:
+            if result._eval() != v:
+                raise UsageError(
+                    f"Customized value does not match original value: {result._eval()!r} != {v!r}"
+                )
+
         return result
 
     def create_external(
@@ -137,13 +132,95 @@ class Builder:
         custom = {self._get_handler(k): self._get_handler(v) for k, v in value.items()}
         return CustomDict(value=custom)
 
-    def create_code(self, value: Any, repr: str | None = None) -> CustomCode:
+    @cached_property
+    def _get_local_vars(self):
+        """Get local vars from snapshot context."""
+        if (
+            self._snapshot_context is not None
+            and (frame := self._snapshot_context.frame) is not None
+        ):
+            return {
+                var_name: var_value
+                for var_name, var_value in frame.locals.items()
+                if "@" not in var_name
+            }
+        return {}
+
+    @cached_property
+    def _get_global_vars(self):
+        """Get global vars from snapshot context."""
+        if (
+            self._snapshot_context is not None
+            and (frame := self._snapshot_context.frame) is not None
+        ):
+            return {
+                var_name: var_value
+                for var_name, var_value in frame.globals.items()
+                if "@" not in var_name
+            }
+        return {}
+
+    def _build_import_vars(self, imports):
+        """Build import vars from imports parameter."""
+        import_vars = {}
+        if imports:
+            import importlib
+
+            for imp in imports:
+                if isinstance(imp, Import):
+                    # import module - makes top-level package available
+                    importlib.import_module(imp.module)
+                    top_level = imp.module.split(".")[0]
+                    import_vars[top_level] = importlib.import_module(top_level)
+                elif isinstance(imp, ImportFrom):
+                    # from module import name
+                    module = importlib.import_module(imp.module)
+                    import_vars[imp.name] = getattr(module, imp.name)
+        return import_vars
+
+    def create_code(
+        self, code: str, *, imports: list[Import | ImportFrom] = []
+    ) -> Custom:
         """
         Creates an intermediate node for a value with a custom representation which can be used as a result for your customization function.
 
-        `create_code(value, '{value-1!r}+1')` becomes `4+1` in the code for a given `value=5`.
+        `create_code('{value-1!r}+1')` becomes `4+1` in the code.
         Use this when you need to control the exact string representation of a value.
 
-        You can use [`.with_import_from(module,name)`][inline_snapshot.plugin.CustomCode.with_import_from] to create an import in the code.
+        Arguments:
+            code: Custom string representation to evaluate. This is required and will be evaluated using the snapshot context.
+            imports: Optional list of Import and ImportFrom objects to add required imports to the generated code.
+                     Example: `imports=[Import("os"), ImportFrom("pathlib", "Path")]`
         """
-        return CustomCode(value, repr)
+        import_vars = None
+
+        # Try direct variable lookup for simple identifiers (fastest)
+        if code.isidentifier():
+            # Direct lookup with proper precedence: local > import > global
+            if code in self._get_local_vars:
+                return CustomCode(self._get_local_vars[code], code, imports)
+
+            # Build import vars only if needed
+            import_vars = self._build_import_vars(imports)
+            if code in import_vars:
+                return CustomCode(import_vars[code], code, imports)
+
+            if code in self._get_global_vars:
+                return CustomCode(self._get_global_vars[code], code, imports)
+
+        # Try ast.literal_eval for simple literals (fast and safe)
+        try:
+            import ast
+
+            return CustomCode(ast.literal_eval(code), code, imports)
+        except (ValueError, SyntaxError):
+            # Fall back to eval with context for complex expressions
+            # Build evaluation context with proper precedence: global < import < local
+            if import_vars is None:
+                import_vars = self._build_import_vars(imports)
+            eval_context = {
+                **self._get_global_vars,
+                **import_vars,
+                **self._get_local_vars,
+            }
+            return CustomCode(eval(code, eval_context), code, imports)

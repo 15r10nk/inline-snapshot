@@ -1,4 +1,5 @@
-from inline_snapshot._customize._custom_code import CustomCode
+from inline_snapshot._customize._custom_code import Import
+from inline_snapshot._customize._custom_code import ImportFrom
 
 from .._customize._builder import Builder
 from .._customize._custom import Custom
@@ -12,5 +13,6 @@ __all__ = (
     "hookimpl",
     "Builder",
     "Custom",
-    "CustomCode",
+    "Import",
+    "ImportFrom",
 )

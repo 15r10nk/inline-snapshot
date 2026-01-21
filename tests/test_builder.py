@@ -13,7 +13,7 @@ class InlineSnapshotPlugin:
     @customize
     def handler(self,value,builder):
         if value==5:
-            return builder.with_default(5,builder.create_code(8))
+            return builder.with_default(5,builder.create_code("8"))
 """,
             "test_a.py": """\
 from inline_snapshot import snapshot

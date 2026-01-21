@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import ast
 import importlib
+from dataclasses import dataclass
 from typing import Generator
-
-from typing_extensions import Self
 
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._change import ChangeBase
@@ -14,6 +13,21 @@ from inline_snapshot._code_repr import value_code_repr
 from inline_snapshot._utils import clone
 
 from ._custom import Custom
+
+
+@dataclass(frozen=True)
+class Import:
+    """Represents an import statement: `import module`"""
+
+    module: str
+
+
+@dataclass(frozen=True)
+class ImportFrom:
+    """Represents a from-import statement: `from module import name`"""
+
+    module: str
+    name: str
 
 
 def _simplify_module_path(module: str, name: str) -> str:
@@ -29,14 +43,12 @@ def _simplify_module_path(module: str, name: str) -> str:
 
 
 class CustomCode(Custom):
-    _imports: list[tuple[str, str]]
-    _module_imports: list[str]
+    _imports: list[Import | ImportFrom]
 
-    def __init__(self, value, repr_str=None):
+    def __init__(self, value, repr_str=None, imports: list[Import | ImportFrom] = []):
         assert not isinstance(value, Custom)
         value = clone(value)
-        self._imports = []
-        self._module_imports = []
+        self._imports = list(imports)
 
         if repr_str is None:
             self.repr_str = value_code_repr(value)
@@ -45,7 +57,7 @@ class CustomCode(Custom):
                 ast.parse(self.repr_str)
             except SyntaxError:
                 self.repr_str = HasRepr(type(value), self.repr_str).__repr__()
-                self.with_import_from("inline_snapshot", "HasRepr")
+                self._imports.append(ImportFrom("inline_snapshot", "HasRepr"))
         else:
             self.repr_str = repr_str
 
@@ -57,61 +69,18 @@ class CustomCode(Custom):
         return f(self.value)
 
     def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
-        for module in self._module_imports:
-            yield RequiredImport(flag="fix", file=context.file, module=module)
-        for module, name in self._imports:
-            yield RequiredImport(
-                flag="fix", file=context.file, module=module, name=name
-            )
+        for imp in self._imports:
+            if isinstance(imp, Import):
+                yield RequiredImport(flag="fix", file=context.file, module=imp.module)
+            elif isinstance(imp, ImportFrom):
+                yield RequiredImport(
+                    flag="fix",
+                    file=context.file,
+                    module=_simplify_module_path(imp.module, imp.name),
+                    name=imp.name,
+                )
 
         return self.repr_str
 
     def __repr__(self):
         return f"CustomValue({self.repr_str})"
-
-    def with_import_from(self, module: str, name: str, simplify: bool = True) -> Self:
-        """
-        Adds a `from module import name` statement to the generated code.
-
-        Arguments:
-            module: The module path to import from (e.g., "my_module" or "package.submodule").
-            name: The name to import from the module (e.g., "MyClass" or "my_function").
-            simplify: If True (default), attempts to find the shortest valid import path
-                     by checking parent modules. For example, if "package.submodule.MyClass"
-                     is accessible from "package", it will use the shorter path.
-
-        Returns:
-            The CustomCode instance itself, allowing for method chaining.
-
-        Example:
-            ``` python
-            builder.create_code(my_obj, "secrets[0]").with_import_from(
-                "my_secrets", "secrets"
-            )
-            ```
-        """
-        name = name.split("[")[0]
-        if simplify:
-            module = _simplify_module_path(module, name)
-        self._imports.append((module, name))
-
-        return self
-
-    def with_import(self, module: str) -> Self:
-        """
-        Adds an `import module` statement to the generated code.
-
-        Arguments:
-            module: The module path to import (e.g., "os.path" or "collections.abc").
-
-        Returns:
-            The CustomCode instance itself, allowing for method chaining.
-
-        Example:
-            ``` python
-            builder.create_code(my_obj, "os.path.join('a', 'b')").with_import("os.path")
-            ```
-        """
-        self._module_imports.append(module)
-
-        return self

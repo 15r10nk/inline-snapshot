@@ -8,7 +8,7 @@
         @customize
         def my_class_handler(value, builder):
             if isinstance(value, MyClass):
-                return builder.create_code(value, "my_class_repr")
+                return builder.create_code("my_class_repr")
     ```
 
     instead of

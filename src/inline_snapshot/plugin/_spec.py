@@ -68,12 +68,12 @@ class InlineSnapshotPluginSpec:
                     @customize
                     def binary_numbers(self, value, builder, local_vars, global_vars):
                         if isinstance(value, int):
-                            return builder.create_code(value, bin(value))
+                            return builder.create_code(bin(value))
 
                     @customize
                     def repeated_strings(self, value, builder):
                         if isinstance(value, str) and value == value[0] * len(value):
-                            return builder.create_code(value, f"'{value[0]}'*{len(value)}")
+                            return builder.create_code(f"'{value[0]}'*{len(value)}")
                 ```
 
             === "by method name"
@@ -83,10 +83,10 @@ class InlineSnapshotPluginSpec:
                 class InlineSnapshotPlugin:
                     def customize(self, value, builder, local_vars, global_vars):
                         if isinstance(value, int):
-                            return builder.create_code(value, bin(value))
+                            return builder.create_code(bin(value))
 
                         if isinstance(value, str) and value == value[0] * len(value):
-                            return builder.create_code(value, f"'{value[0]}'*{len(value)}")
+                            return builder.create_code(f"'{value[0]}'*{len(value)}")
                 ```
 
 

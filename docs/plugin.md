@@ -245,7 +245,7 @@ class InlineSnapshotPlugin:
     def local_var_handler(self, value, builder, local_vars):
         for var_name, var_value in local_vars.items():
             if var_name.startswith("v_") and var_value == value:
-                return builder.create_code(value, var_name)
+                return builder.create_code(var_name)
 ```
 
 We check all local variables to see if they match our naming convention and are equal to the value that is part of our snapshot, and return the local variable if we find one that fits the criteria.
@@ -314,7 +314,7 @@ What you can do now, instead of replacing `"some_other_secret"` with `secrets[1]
 <!-- inline-snapshot-lib-set: conftest.py -->
 ``` python title="conftest.py"
 from my_secrets import secrets
-from inline_snapshot.plugin import customize, Builder
+from inline_snapshot.plugin import customize, Builder, ImportFrom
 
 
 class InlineSnapshotPlugin:
@@ -323,11 +323,12 @@ class InlineSnapshotPlugin:
         for i, secret in enumerate(secrets):
             if value == secret:
                 return builder.create_code(
-                    secret, f"secrets[{i}]"
-                ).with_import_from("my_secrets", "secrets")
+                    f"secrets[{i}]",
+                    imports=[ImportFrom("my_secrets", "secrets")],
+                )
 ```
 
-The [`create_code()`][inline_snapshot.plugin.Builder.create_code] method takes the actual value and its desired code representation, then [`with_import()`][inline_snapshot.plugin.CustomCode.with_import] adds the necessary import statement.
+The [`create_code()`][inline_snapshot.plugin.Builder.create_code] method takes the desired code representation. The `imports` parameter adds the necessary import statements.
 
 Inline-snapshot will now create the correct code and import statement when you run your tests with `--inline-snapshot=update`.
 
@@ -365,7 +366,7 @@ def test_my_class():
 ::: inline_snapshot.plugin
     options:
       heading_level: 3
-      members: [hookimpl,customize,Builder,Custom,CustomCode]
+      members: [hookimpl,customize,Builder,Custom,Import,ImportFrom]
       show_root_heading: false
       show_bases: false
       show_source: false

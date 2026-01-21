@@ -14,6 +14,7 @@ from typing import Any
 from typing import Dict
 
 from inline_snapshot._customize._builder import Builder
+from inline_snapshot._customize._custom_code import ImportFrom
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._external._outsource import Outsourced
@@ -47,7 +48,7 @@ class InlineSnapshotPlugin:
 
             assert ast.literal_eval(triple_quoted_string) == value
 
-            return builder.create_code(value, triple_quoted_string)
+            return builder.create_code(triple_quoted_string)
 
     @customize(tryfirst=True)
     def counter_handler(self, value, builder: Builder):
@@ -61,18 +62,18 @@ class InlineSnapshotPlugin:
         if isinstance(value, (FunctionType, type)):
             for name, local_value in local_vars.items():
                 if local_value is value:
-                    return builder.create_code(value, name)
+                    return builder.create_code(name)
 
             qualname = value.__qualname__.split("[")[0]
             name = qualname.split(".")[0]
-            return builder.create_code(value, qualname).with_import_from(
-                value.__module__, name
+            return builder.create_code(
+                qualname, imports=[ImportFrom(value.__module__, name)]
             )
 
     @customize
     def builtin_function_handler(self, value, builder: Builder):
         if isinstance(value, BuiltinFunctionType):
-            return builder.create_code(value, value.__name__)
+            return builder.create_code(value.__name__)
 
     @customize
     def path_handler(self, value, builder: Builder):
@@ -100,17 +101,17 @@ class InlineSnapshotPlugin:
     def set_handler(self, value, builder: Builder):
         if isinstance(value, set):
             if len(value) == 0:
-                return builder.create_code(value, "set()")
+                return builder.create_code("set()")
             else:
                 return builder.create_code(
-                    value, "{" + ", ".join(self.sort_set_values(value)) + "}"
+                    "{" + ", ".join(self.sort_set_values(value)) + "}"
                 )
 
     @customize
     def frozenset_handler(self, value, builder: Builder):
         if isinstance(value, frozenset):
             if len(value) == 0:
-                return builder.create_code(value, "frozenset()")
+                return builder.create_code("frozenset()")
             else:
                 return builder.create_call(frozenset, [set(value)])
 
@@ -122,8 +123,9 @@ class InlineSnapshotPlugin:
             name = qualname.split(".")[0]
 
             return builder.create_code(
-                value, f"{type(value).__qualname__}.{value.name}"
-            ).with_import_from(type(value).__module__, name)
+                f"{type(value).__qualname__}.{value.name}",
+                imports=[ImportFrom(type(value).__module__, name)],
+            )
 
     # -8<- [end:Enum]
 
@@ -134,16 +136,16 @@ class InlineSnapshotPlugin:
             name = qualname.split(".")[0]
 
             return builder.create_code(
-                value,
                 " | ".join(
                     f"{qualname}.{flag.name}" for flag in type(value) if flag in value
                 ),
-            ).with_import_from(type(value).__module__, name)
+                imports=[ImportFrom(type(value).__module__, name)],
+            )
 
     @customize
     def source_file_name_handler(self, value, builder: Builder, global_vars):
         if "__file__" in global_vars and value == global_vars["__file__"]:
-            return builder.create_code(value, "__file__")
+            return builder.create_code("__file__")
 
     @customize
     def dataclass_handler(self, value, builder: Builder):
@@ -219,8 +221,9 @@ class InlineSnapshotPlugin:
         if is_dirty_equal(value) and builder._build_new_value:
 
             if isinstance(value, type):
-                return builder.create_code(value, value.__name__).with_import_from(
-                    "dirty_equals", value.__name__
+                return builder.create_code(
+                    value.__name__,
+                    imports=[ImportFrom("dirty_equals", value.__name__)],
                 )
             else:
                 from dirty_equals import IsNow

@@ -97,7 +97,7 @@ def test_with_import(original, flag):
         {
             "conftest.py": """\
 from inline_snapshot.plugin import customize
-from inline_snapshot.plugin import Builder
+from inline_snapshot.plugin import Builder, Import
 from pkg.subpkg import ComplexObj
 
 class InlineSnapshotPlugin:
@@ -105,9 +105,9 @@ class InlineSnapshotPlugin:
     def complex_handler(self, value, builder: Builder):
         if isinstance(value, ComplexObj):
             return builder.create_code(
-                value,
-                f"mod1.helper(pkg.subpkg.create({value.a!r}, {value.b!r}))"
-            ).with_import("mod1").with_import("pkg.subpkg")
+                f"mod1.helper(pkg.subpkg.create({value.a!r}, {value.b!r}))",
+                imports=[Import("mod1"), Import("pkg.subpkg")]
+            )
 """,
             "mod1.py": """\
 def helper(obj):
@@ -164,7 +164,7 @@ def test_with_import_preserves_existing(original, flag, existing_import):
         {
             "conftest.py": """\
 from inline_snapshot.plugin import customize
-from inline_snapshot.plugin import Builder
+from inline_snapshot.plugin import Builder, Import
 from mymodule import MyClass
 
 class InlineSnapshotPlugin:
@@ -172,9 +172,9 @@ class InlineSnapshotPlugin:
     def myclass_handler(self, value, builder: Builder):
         if isinstance(value, MyClass):
             return builder.create_code(
-                value,
-                f"mymodule.MyClass({value.value!r})"
-            ).with_import("mymodule")
+                f"mymodule.MyClass({value.value!r})",
+                imports=[Import("mymodule")]
+            )
 """,
             "mymodule.py": """\
 class MyClass:
@@ -213,3 +213,37 @@ def test_a():
             }
         ),
     ).run_inline()
+
+
+def test_customized_value_mismatch_error():
+    """Test that UsageError is raised when customized value doesn't match original."""
+
+    Example(
+        {
+            "conftest.py": """\
+from inline_snapshot.plugin import customize
+from inline_snapshot.plugin import Builder
+
+class InlineSnapshotPlugin:
+    @customize
+    def bad_handler(self, value, builder: Builder):
+        if value == 42:
+            # Return a CustomCode with wrong value - repr evaluates to 100 but original is 42
+            return builder.create_code("100")
+""",
+            "test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert snapshot() == 42
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        raises=snapshot(
+            """\
+UsageError:
+Customized value does not match original value: 100 != 42\
+"""
+        ),
+    )
