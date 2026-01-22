@@ -159,3 +159,32 @@ def test_number():
             }
         ),
     )
+
+
+def test_is_now_without_approx() -> None:
+    """Test that IsNow handler correctly removes 'approx' kwarg."""
+
+    Example(
+        """\
+from datetime import datetime
+from dirty_equals import IsNow
+from inline_snapshot import snapshot
+
+def test_time():
+    assert datetime.now() == snapshot()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from datetime import datetime
+from dirty_equals import IsNow
+from inline_snapshot import snapshot
+
+def test_time():
+    assert datetime.now() == snapshot(IsNow())
+"""
+            }
+        ),
+    )

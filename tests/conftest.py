@@ -124,7 +124,7 @@ from inline_snapshot import outsource
                         sys.modules[filename.stem] = module
                         spec.loader.exec_module(module)
                     else:
-                        raise RuntimeError(f"Could not load module from {filename}")
+                        assert False, f"Could not load module from {filename}"
                 except AssertionError:
                     traceback.print_exc()
                     error = True

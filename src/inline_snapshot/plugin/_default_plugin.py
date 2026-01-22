@@ -215,26 +215,6 @@ class InlineSnapshotPlugin:
         if value is undefined:
             return CustomUndefined()
 
-    @customize(tryfirst=True)
-    def dirty_equals_handler(self, value, builder: Builder):
-
-        if is_dirty_equal(value) and builder._build_new_value:
-
-            if isinstance(value, type):
-                return builder.create_code(
-                    value.__name__,
-                    imports=[ImportFrom("dirty_equals", value.__name__)],
-                )
-            else:
-                from dirty_equals import IsNow
-                from dirty_equals._utils import Omit
-
-                args = [a for a in value._repr_args if a is not Omit]
-                kwargs = {k: a for k, a in value._repr_kwargs.items() if a is not Omit}
-                if type(value) == IsNow:
-                    kwargs.pop("approx")
-                return builder.create_call(type(value), args, kwargs)
-
     @customize
     def outsource_handler(self, value, builder: Builder):
         if isinstance(value, Outsourced):
@@ -244,10 +224,56 @@ class InlineSnapshotPlugin:
 
 
 try:
+    pass
+except ImportError:  # pragma: no cover
+
+    class InlineSnapshotDirtyEqualsPlugin:
+        pass
+
+else:
+    import datetime
+
+    from dirty_equals import IsNow
+    from dirty_equals._utils import Omit
+
+    class InlineSnapshotDirtyEqualsPlugin:
+        @customize(tryfirst=True)
+        def dirty_equals_handler(self, value, builder: Builder):
+
+            if is_dirty_equal(value) and builder._build_new_value:
+
+                if isinstance(value, type):
+                    return builder.create_code(
+                        value.__name__,
+                        imports=[ImportFrom("dirty_equals", value.__name__)],
+                    )
+                else:
+
+                    args = [a for a in value._repr_args if a is not Omit]
+                    kwargs = {
+                        k: a for k, a in value._repr_kwargs.items() if a is not Omit
+                    }
+                    if type(value) == IsNow:
+                        kwargs.pop("approx")
+                        if (
+                            isinstance(delta := kwargs["delta"], datetime.timedelta)
+                            and delta.total_seconds() == 2
+                        ):
+                            kwargs.pop("delta")
+                    return builder.create_call(type(value), args, kwargs)
+
+        @customize(tryfirst=True)
+        def is_now_handler(self, value, builder: Builder):
+            if value == IsNow():
+                return IsNow()
+
+
+try:
     import attrs
 except ImportError:  # pragma: no cover
 
-    pass
+    class InlineSnapshotAttrsPlugin:
+        pass
 
 else:
 
@@ -286,7 +312,9 @@ else:
 try:
     import pydantic
 except ImportError:  # pragma: no cover
-    pass
+
+    class InlineSnapshotPydanticPlugin:
+        pass
 
 else:
     # import pydantic

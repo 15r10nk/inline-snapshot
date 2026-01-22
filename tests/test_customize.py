@@ -289,3 +289,31 @@ def test_a():
             }
         ),
     )
+
+
+@pytest.mark.parametrize("original,flag", [("'wrong'", "fix"), ("", "create")])
+def test_file_handler(original, flag):
+    """Test that __file__ handler creates correct code."""
+
+    Example(
+        {
+            "test_something.py": f"""\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert snapshot({original}) == __file__
+""",
+        }
+    ).run_inline(
+        [f"--inline-snapshot={flag}"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert snapshot(__file__) == __file__
+"""
+            }
+        ),
+    )

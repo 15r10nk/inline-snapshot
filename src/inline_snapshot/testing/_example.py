@@ -355,9 +355,9 @@ class Example:
                                 conftest_module
                             )
                         else:
-                            raise UsageError(
-                                f"Could not load conftest from {conftest_path}"
-                            )
+                            assert (
+                                False
+                            ), f"Could not load conftest from {conftest_path}"
 
                     tests_found = False
                     for filename in tmp_path.rglob("test_*.py"):
@@ -372,7 +372,7 @@ class Example:
                             sys.modules[filename.stem] = module
                             spec.loader.exec_module(module)
                         else:
-                            raise UsageError(f"Could not load module from {filename}")
+                            assert False, f"Could not load module from {filename}"
 
                         # run all test_* functions
                         tests = [
