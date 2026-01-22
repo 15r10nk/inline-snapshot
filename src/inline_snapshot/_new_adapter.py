@@ -119,10 +119,9 @@ def reeval_CustomCode(old_value: CustomCode, value: CustomCode):
 
 def reeval_CustomCall(old_value: CustomCall, value: CustomCall):
     return CustomCall(
-        reeval(old_value._function, value._function),
-        [reeval(a, b) for a, b in zip(old_value._args, value._args)],
-        {k: reeval(old_value._kwargs[k], value._kwargs[k]) for k in old_value._kwargs},
-        {k: reeval(old_value._kwonly[k], value._kwonly[k]) for k in old_value._kwonly},
+        reeval(old_value.function, value.function),
+        [reeval(a, b) for a, b in zip(old_value.args, value.args)],
+        {k: reeval(old_value.kwargs[k], value.kwargs[k]) for k in old_value.kwargs},
     )
 
 
@@ -443,7 +442,7 @@ class NewAdapter:
         # keyword arguments
         result_kwargs = {}
         if old_node is None:
-            old_keywords = {key: None for key in old_value._kwargs.keys()}
+            old_keywords = {key: None for key in old_value.kwargs.keys()}
         else:
             old_keywords = {kw.arg: kw.value for kw in old_node.keywords}
 
@@ -516,9 +515,9 @@ class NewAdapter:
             (
                 yield from intercept(
                     self.compare(
-                        old_value._function,
+                        old_value.function,
                         old_node.func if old_node else None,
-                        new_value._function,
+                        new_value.function,
                     )
                 )
             ),

@@ -102,7 +102,7 @@ class Builder:
         return value
 
     def create_call(
-        self, function: Custom | Callable, posonly_args=[], kwargs={}, kwonly_args={}
+        self, function: Custom | Callable, posonly_args=[], kwargs={}
     ) -> Custom:
         """
         Creates an intermediate node for a function call expression which can be used as a result for your customization function.
@@ -113,13 +113,11 @@ class Builder:
         function = self._get_handler(function)
         posonly_args = [self._get_handler(arg) for arg in posonly_args]
         kwargs = {k: self._get_handler(arg) for k, arg in kwargs.items()}
-        kwonly_args = {k: self._get_handler(arg) for k, arg in kwonly_args.items()}
 
         return CustomCall(
-            _function=function,
-            _args=posonly_args,
-            _kwargs=kwargs,
-            _kwonly=kwonly_args,
+            function=function,
+            args=posonly_args,
+            kwargs=kwargs,
         )
 
     def create_dict(self, value: dict) -> Custom:

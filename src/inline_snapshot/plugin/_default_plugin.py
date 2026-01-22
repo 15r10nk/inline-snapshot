@@ -168,7 +168,7 @@ class InlineSnapshotPlugin:
 
                     kwargs[field.name] = field_value
 
-            return builder.create_call(type(value), [], kwargs, {})
+            return builder.create_call(type(value), [], kwargs)
 
     @customize
     def namedtuple_handler(self, value, builder: Builder):
@@ -195,14 +195,13 @@ class InlineSnapshotPlugin:
                 )
                 for field in value._fields
             },
-            {},
         )
 
     @customize(tryfirst=True)
     def defaultdict_handler(self, value, builder: Builder):
         if isinstance(value, defaultdict):
             return builder.create_call(
-                type(value), [value.default_factory, dict(value)], {}, {}
+                type(value), [value.default_factory, dict(value)], {}
             )
 
     @customize
@@ -306,7 +305,7 @@ else:
 
                         kwargs[field.name] = field_value
 
-                return builder.create_call(type(value), [], kwargs, {})
+                return builder.create_call(type(value), [], kwargs)
 
 
 try:
@@ -361,4 +360,4 @@ else:
 
                         kwargs[name] = field_value
 
-                return builder.create_call(type(value), [], kwargs, {})
+                return builder.create_call(type(value), [], kwargs)

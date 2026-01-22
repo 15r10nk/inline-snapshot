@@ -344,20 +344,15 @@ class Example:
                         spec = importlib.util.spec_from_file_location(
                             f"conftest_{conftest_path.parent.name}", conftest_path
                         )
-                        if spec and spec.loader:
-                            conftest_module = importlib.util.module_from_spec(spec)
-                            sys.modules[spec.name] = conftest_module
-                            conftest_module.__file__ = str(conftest_path)
-                            spec.loader.exec_module(conftest_module)
+                        assert spec and spec.loader
 
-                            # Register customize hooks from this conftest
-                            session.register_customize_hooks_from_module(
-                                conftest_module
-                            )
-                        else:
-                            assert (
-                                False
-                            ), f"Could not load conftest from {conftest_path}"
+                        conftest_module = importlib.util.module_from_spec(spec)
+                        sys.modules[spec.name] = conftest_module
+                        conftest_module.__file__ = str(conftest_path)
+                        spec.loader.exec_module(conftest_module)
+
+                        # Register customize hooks from this conftest
+                        session.register_customize_hooks_from_module(conftest_module)
 
                     tests_found = False
                     for filename in tmp_path.rglob("test_*.py"):
@@ -367,12 +362,11 @@ class Example:
                         spec = importlib.util.spec_from_file_location(
                             filename.stem, filename
                         )
-                        if spec and spec.loader:
-                            module = importlib.util.module_from_spec(spec)
-                            sys.modules[filename.stem] = module
-                            spec.loader.exec_module(module)
-                        else:
-                            assert False, f"Could not load module from {filename}"
+                        assert spec and spec.loader
+
+                        module = importlib.util.module_from_spec(spec)
+                        sys.modules[filename.stem] = module
+                        spec.loader.exec_module(module)
 
                         # run all test_* functions
                         tests = [

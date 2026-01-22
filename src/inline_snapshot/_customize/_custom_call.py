@@ -33,10 +33,9 @@ def unwrap_default(value):
 @dataclass(frozen=True)
 class CustomCall(Custom):
     node_type = ast.Call
-    _function: Custom = field(compare=False)
-    _args: list[Custom] = field(compare=False)
-    _kwargs: dict[str, Custom] = field(compare=False)
-    _kwonly: dict[str, Custom] = field(default_factory=dict, compare=False)
+    function: Custom = field(compare=False)
+    args: list[Custom] = field(compare=False)
+    kwargs: dict[str, Custom] = field(compare=False)
 
     def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
         args = []
@@ -49,28 +48,16 @@ class CustomCall(Custom):
                 value = yield from v._code_repr(context)
                 args.append(f"{k}={value}")
 
-        return f"{yield from self._function._code_repr(context)}({', '.join(args)})"
-
-    @property
-    def args(self):
-        return self._args
-
-    @property
-    def all_pos_args(self):
-        return [*self._args, *self._kwargs.values()]
-
-    @property
-    def kwargs(self):
-        return {**self._kwargs, **self._kwonly}
+        return f"{yield from self.function._code_repr(context)}({', '.join(args)})"
 
     def argument(self, pos_or_str):
         if isinstance(pos_or_str, int):
-            return unwrap_default(self.all_pos_args[pos_or_str])
+            return unwrap_default(self.args[pos_or_str])
         else:
             return unwrap_default(self.kwargs[pos_or_str])
 
     def _map(self, f):
-        return self._function._map(f)(
-            *[f(x._map(f)) for x in self._args],
+        return self.function._map(f)(
+            *[f(x._map(f)) for x in self.args],
             **{k: f(v._map(f)) for k, v in self.kwargs.items()},
         )

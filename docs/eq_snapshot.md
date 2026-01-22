@@ -135,9 +135,11 @@ def test_function():
 If you use `--inline-snapshot=create`, inline-snapshot will record the current `datetime` in the snapshot:
 
 <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-``` python hl_lines="13 14 15"
+``` python hl_lines="4 5 15"
 import datetime
 from inline_snapshot import snapshot
+
+from dirty_equals import IsNow
 
 
 def get_data():
@@ -148,42 +150,16 @@ def get_data():
 
 
 def test_function():
-    assert get_data() == snapshot(
-        {"date": datetime.datetime(2024, 3, 14, 0, 0), "payload": "some data"}
-    )
+    assert get_data() == snapshot({"date": IsNow(), "payload": "some data"})
 ```
-
-To avoid the test failing in future runs, replace the `datetime` with [dirty-equals' `IsDatetime()`](https://dirty-equals.helpmanual.io/latest/types/datetime/#dirty_equals.IsDatetime):
-
-<!-- inline-snapshot: first_block outcome-passed=1 -->
-``` python
-import datetime
-from dirty_equals import IsDatetime
-from inline_snapshot import snapshot
-
-
-def get_data():
-    return {
-        "date": datetime.datetime.utcnow(),
-        "payload": "some data",
-    }
-
-
-def test_function():
-    assert get_data() == snapshot(
-        {
-            "date": IsDatetime(),
-            "payload": "some data",
-        }
-    )
-```
+Inline-snapshot uses [dirty-equals `IsNow()`](https://dirty-equals.helpmanual.io/latest/types/datetime/#dirty_equals.IsDatetime) by default when the value is equal to the current time to avoid the test failing in future runs.
 
 Say a different part of the return data changes, such as the `payload` value:
 
 <!-- inline-snapshot: outcome-failed=1 outcome-errors=1 -->
-``` python hl_lines="9"
+``` python hl_lines="3 9 14 15 16 17 18 19"
 import datetime
-from dirty_equals import IsDatetime
+from dirty_equals import IsNow
 from inline_snapshot import snapshot
 
 
@@ -197,7 +173,7 @@ def get_data():
 def test_function():
     assert get_data() == snapshot(
         {
-            "date": IsDatetime(),
+            "date": IsNow(),
             "payload": "some data",
         }
     )
@@ -208,7 +184,7 @@ Re-running the test with `--inline-snapshot=fix` will update the snapshot to mat
 <!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
 ``` python hl_lines="17"
 import datetime
-from dirty_equals import IsDatetime
+from dirty_equals import IsNow
 from inline_snapshot import snapshot
 
 
@@ -222,7 +198,7 @@ def get_data():
 def test_function():
     assert get_data() == snapshot(
         {
-            "date": IsDatetime(),
+            "date": IsNow(),
             "payload": "data changed for some good reason",
         }
     )
