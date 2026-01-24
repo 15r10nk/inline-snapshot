@@ -396,9 +396,8 @@ class NewAdapter:
 
         @make_gen_map
         def intercept(change):
-            if flag == "update":
-                if change.flag == "fix":
-                    change.flag = "update"
+            if flag == "update" and change.flag == "fix":
+                change.flag = "update"
             return change
 
         old_node_args: Sequence[ast.expr | None]

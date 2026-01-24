@@ -322,3 +322,40 @@ def test_a():
             }
         ),
     )
+
+
+def test_datetime_types():
+    """Test that datetime types generate correct snapshots with proper imports."""
+
+    Example(
+        {
+            "test_something.py": """\
+from datetime import datetime, date, time, timedelta
+from inline_snapshot import snapshot
+
+def test_datetime_types():
+    assert snapshot() == datetime(2024, 1, 15, 10, 30, 45, 123456)
+    assert snapshot() == date(2024, 1, 15)
+    assert snapshot() == time(10, 30, 45, 123456)
+    assert snapshot() == timedelta(days=1, hours=2, minutes=30)
+    assert snapshot() == timedelta(seconds=5, microseconds=123456)
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from datetime import datetime, date, time, timedelta
+from inline_snapshot import snapshot
+
+def test_datetime_types():
+    assert snapshot(datetime(2024, 1, 15, hour=10, minute=30, second=45, microsecond=123456)) == datetime(2024, 1, 15, 10, 30, 45, 123456)
+    assert snapshot(date(2024, 1, 15)) == date(2024, 1, 15)
+    assert snapshot(time(hour=10, minute=30, second=45, microsecond=123456)) == time(10, 30, 45, 123456)
+    assert snapshot(timedelta(days=1, seconds=9000)) == timedelta(days=1, hours=2, minutes=30)
+    assert snapshot(timedelta(seconds=5, microseconds=123456)) == timedelta(seconds=5, microseconds=123456)
+"""
+            }
+        ),
+    ).run_inline()

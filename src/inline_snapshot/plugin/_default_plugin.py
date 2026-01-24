@@ -76,6 +76,50 @@ class InlineSnapshotPlugin:
             return builder.create_code(value.__name__)
 
     @customize
+    def datetime_handler(self, value, builder: Builder):
+        import datetime
+
+        if isinstance(value, datetime.datetime):
+            return builder.create_call(
+                datetime.datetime,
+                [value.year, value.month, value.day],
+                {
+                    "hour": builder.with_default(value.hour, 0),
+                    "minute": builder.with_default(value.minute, 0),
+                    "second": builder.with_default(value.second, 0),
+                    "microsecond": builder.with_default(value.microsecond, 0),
+                },
+            )
+
+        if isinstance(value, datetime.date):
+            return builder.create_call(
+                datetime.date, [value.year, value.month, value.day]
+            )
+
+        if isinstance(value, datetime.time):
+            return builder.create_call(
+                datetime.time,
+                [],
+                {
+                    "hour": builder.with_default(value.hour, 0),
+                    "minute": builder.with_default(value.minute, 0),
+                    "second": builder.with_default(value.second, 0),
+                    "microsecond": builder.with_default(value.microsecond, 0),
+                },
+            )
+
+        if isinstance(value, datetime.timedelta):
+            return builder.create_call(
+                datetime.timedelta,
+                [],
+                {
+                    "days": builder.with_default(value.days, 0),
+                    "seconds": builder.with_default(value.seconds, 0),
+                    "microseconds": builder.with_default(value.microseconds, 0),
+                },
+            )
+
+    @customize
     def path_handler(self, value, builder: Builder):
         if isinstance(value, Path):
             return builder.create_call(Path, [value.as_posix()])

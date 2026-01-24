@@ -93,21 +93,21 @@ def enter_snapshot_context():
     try:
         from .plugin._default_plugin import InlineSnapshotAttrsPlugin
     except ImportError:
-        pass
+        pass  # pragma: no cover
     else:
         _current.pm.register(InlineSnapshotAttrsPlugin())
 
     try:
         from .plugin._default_plugin import InlineSnapshotPydanticPlugin
     except ImportError:
-        pass
+        pass  # pragma: no cover
     else:
         _current.pm.register(InlineSnapshotPydanticPlugin())
 
     try:
         from .plugin._default_plugin import InlineSnapshotDirtyEqualsPlugin
     except ImportError:
-        pass
+        pass  # pragma: no cover
     else:
         _current.pm.register(InlineSnapshotDirtyEqualsPlugin())
 
