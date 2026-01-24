@@ -243,7 +243,12 @@ def test_a():
         raises=snapshot(
             """\
 UsageError:
-Customized value does not match original value: 100 != 42\
+Customized value does not match original value:
+
+original_value=42
+
+customized_value=100
+customized_representation=CustomCode('100')
 """
         ),
     )

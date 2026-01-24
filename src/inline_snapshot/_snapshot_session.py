@@ -2,6 +2,7 @@ import os
 import sys
 import tokenize
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Dict
 from typing import List
 
@@ -248,10 +249,20 @@ class SnapshotSession:
 
         self.registered_modules.add(module.__file__)
 
+        hooks = {}
+
         for name in dir(module):
             obj = getattr(module, name, None)
             if isinstance(obj, type) and name.startswith("InlineSnapshot"):
                 state().pm.register(obj(), name=f"<conftest {name} {module.__file__}>")
+
+            if hasattr(obj, "inline_snapshot_impl"):
+                hooks[name] = obj
+
+        if hooks:
+            state().pm.register(
+                SimpleNamespace(**hooks), name=f"<conftest {module.__file__}>"
+            )
 
     @staticmethod
     def test_enter():

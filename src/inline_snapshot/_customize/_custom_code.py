@@ -85,4 +85,4 @@ class CustomCode(Custom):
         return self.repr_str
 
     def __repr__(self):
-        return f"CustomValue({self.repr_str})"
+        return f"CustomCode({self.repr_str!r})"

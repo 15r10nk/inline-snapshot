@@ -40,13 +40,13 @@ class CustomCall(Custom):
     def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
         args = []
         for a in self.args:
-            v = yield from a._code_repr(context)
-            args.append(v)
+            code = yield from a._code_repr(context)
+            args.append(code)
 
         for k, v in self.kwargs.items():
             if not isinstance(v, CustomDefault):
-                value = yield from v._code_repr(context)
-                args.append(f"{k}={value}")
+                code = yield from v._code_repr(context)
+                args.append(f"{k}={code}")
 
         return f"{yield from self.function._code_repr(context)}({', '.join(args)})"
 

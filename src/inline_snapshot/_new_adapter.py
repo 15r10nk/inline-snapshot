@@ -444,7 +444,9 @@ class NewAdapter:
         if old_node is None:
             old_keywords = {key: None for key in old_value.kwargs.keys()}
         else:
-            old_keywords = {kw.arg: kw.value for kw in old_node.keywords}
+            old_keywords = {
+                kw.arg: kw.value for kw in old_node.keywords if kw.arg is not None
+            }
 
         for kw_arg, kw_value in old_keywords.items():
             missing = kw_arg not in new_kwargs

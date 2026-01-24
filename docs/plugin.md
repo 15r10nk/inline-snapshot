@@ -36,7 +36,19 @@ It searches for plugins in:
 
 Loading plugins from the `conftest.py` files is the recommended way when you want to change the behavior of inline-snapshot in your own project.
 
-The plugins are searched in your `conftest.py` and the name has to start with `InlineSnapshot*`. Each plugin which is loaded from your `conftest.py` is active globally for all your tests.
+Simply use `@customize` on functions directly in your `conftest.py`:
+
+``` python
+from inline_snapshot.plugin import customize
+
+
+@customize
+def my_handler(value, builder):
+    # your logic
+    pass
+```
+
+All customizations defined in your `conftest.py` are active globally for all your tests.
 
 ### Creating a Plugin Package
 
@@ -44,7 +56,7 @@ To distribute inline-snapshot plugins as a package, register your plugin class u
 
 === "pyproject.toml (recommended)"
     ``` toml
-    [project.entry-points.inline-snapshot]
+    [project.entry-points.inline_snapshot]
     my_plugin = "my_package.plugin:MyInlineSnapshotPlugin"
     ```
 
@@ -53,8 +65,8 @@ To distribute inline-snapshot plugins as a package, register your plugin class u
     setup(
         name="my-inline-snapshot-plugin",
         entry_points={
-            "inline-snapshot": [
-                "my_plugin = my_package.plugin:MyInlineSnapshotPlugin",
+            "inline_snapshot": [
+                "my_plugin = my_package.plugin",
             ],
         },
     )
@@ -66,17 +78,11 @@ Your plugin class should contain methods decorated with `@customize`, just like 
 from inline_snapshot.plugin import customize, Builder
 
 
-class MyInlineSnapshotPlugin:
-    """
-    This class will be instantiated by inline-snapshot when the package is installed.
-    Typically used by library authors who want to provide inline-snapshot integration.
-    """
-
-    @customize
-    def my_custom_handler(self, value, builder: Builder):
-        # Your customization logic here
-        if isinstance(value, YourCustomType):
-            return builder.create_call(YourCustomType, [value.arg])
+@customize
+def my_custom_handler(value, builder: Builder):
+    # Your customization logic here
+    if isinstance(value, YourCustomType):
+        return builder.create_call(YourCustomType, [value.arg])
 ```
 
 Once installed, the plugin will be automatically loaded by inline-snapshot.
@@ -128,11 +134,10 @@ from inline_snapshot.plugin import customize
 from inline_snapshot.plugin import Builder
 
 
-class InlineSnapshotPlugin:
-    @customize
-    def square_handler(self, value, builder: Builder):
-        if isinstance(value, Rect) and value.width == value.height:
-            return builder.create_call(Rect.make_square, [value.width])
+@customize
+def square_handler(value, builder: Builder):
+    if isinstance(value, Rect) and value.width == value.height:
+        return builder.create_call(Rect.make_square, [value.width])
 ```
 
 This allows you to influence the code that is created by inline-snapshot.
@@ -167,11 +172,10 @@ from inline_snapshot.plugin import Builder
 from dirty_equals import IsNow
 
 
-class InlineSnapshotPlugin:
-    @customize
-    def is_now_handler(self, value):
-        if value == IsNow():
-            return IsNow
+@customize
+def is_now_handler(value):
+    if value == IsNow():
+        return IsNow
 ```
 
 As explained in the [customize hook specification][inline_snapshot.plugin.InlineSnapshotPluginSpec.customize], you can return types other than Custom objects. Inline-snapshot includes a built-in handler in its default plugin that converts dirty-equals expressions back into source code, which is why you can return `IsNow` directly without using the builder. This approach is much simpler than using `builder.create_call()` for complex dirty-equals expressions.
@@ -204,11 +208,10 @@ from inline_snapshot.plugin import customize
 from inline_snapshot.plugin import Builder
 
 
-class InlineSnapshotPlugin:
-    @customize
-    def long_string_handler(self, value, builder: Builder):
-        if isinstance(value, str) and value.count("\n") > 5:
-            return builder.create_external(value)
+@customize
+def long_string_handler(value, builder: Builder):
+    if isinstance(value, str) and value.count("\n") > 5:
+        return builder.create_external(value)
 ```
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 outcome-errors=1 -->
@@ -240,12 +243,11 @@ from inline_snapshot.plugin import customize
 from inline_snapshot.plugin import Builder
 
 
-class InlineSnapshotPlugin:
-    @customize
-    def local_var_handler(self, value, builder, local_vars):
-        for var_name, var_value in local_vars.items():
-            if var_name.startswith("v_") and var_value == value:
-                return builder.create_code(var_name)
+@customize
+def local_var_handler(value, builder, local_vars):
+    for var_name, var_value in local_vars.items():
+        if var_name.startswith("v_") and var_value == value:
+            return builder.create_code(var_name)
 ```
 
 We check all local variables to see if they match our naming convention and are equal to the value that is part of our snapshot, and return the local variable if we find one that fits the criteria.
@@ -317,15 +319,14 @@ from my_secrets import secrets
 from inline_snapshot.plugin import customize, Builder, ImportFrom
 
 
-class InlineSnapshotPlugin:
-    @customize
-    def secret_handler(self, value, builder: Builder):
-        for i, secret in enumerate(secrets):
-            if value == secret:
-                return builder.create_code(
-                    f"secrets[{i}]",
-                    imports=[ImportFrom("my_secrets", "secrets")],
-                )
+@customize
+def secret_handler(value, builder: Builder):
+    for i, secret in enumerate(secrets):
+        if value == secret:
+            return builder.create_code(
+                f"secrets[{i}]",
+                imports=[ImportFrom("my_secrets", "secrets")],
+            )
 ```
 
 The [`create_code()`][inline_snapshot.plugin.Builder.create_code] method takes the desired code representation. The `imports` parameter adds the necessary import statements.

@@ -53,7 +53,14 @@ class Builder:
         if not isinstance(v, Custom) and self._build_new_value:
             if result._eval() != v:
                 raise UsageError(
-                    f"Customized value does not match original value: {result._eval()!r} != {v!r}"
+                    f"""\
+Customized value does not match original value:
+
+original_value={v!r}
+
+customized_value={result._eval()!r}
+customized_representation={result!r}
+"""
                 )
 
         return result

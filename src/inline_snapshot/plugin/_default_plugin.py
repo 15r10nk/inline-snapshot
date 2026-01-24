@@ -226,8 +226,7 @@ try:
     pass
 except ImportError:  # pragma: no cover
 
-    class InlineSnapshotDirtyEqualsPlugin:
-        pass
+    pass
 
 else:
     import datetime
@@ -271,8 +270,7 @@ try:
     import attrs
 except ImportError:  # pragma: no cover
 
-    class InlineSnapshotAttrsPlugin:
-        pass
+    pass
 
 else:
 
@@ -312,8 +310,7 @@ try:
     import pydantic
 except ImportError:  # pragma: no cover
 
-    class InlineSnapshotPydanticPlugin:
-        pass
+    pass
 
 else:
     # import pydantic

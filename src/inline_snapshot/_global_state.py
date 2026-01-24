@@ -86,15 +86,30 @@ def enter_snapshot_context():
 
     _current.pm.add_hookspecs(InlineSnapshotPluginSpec)
 
-    from .plugin._default_plugin import InlineSnapshotAttrsPlugin
-    from .plugin._default_plugin import InlineSnapshotDirtyEqualsPlugin
     from .plugin._default_plugin import InlineSnapshotPlugin
-    from .plugin._default_plugin import InlineSnapshotPydanticPlugin
 
     _current.pm.register(InlineSnapshotPlugin())
-    _current.pm.register(InlineSnapshotAttrsPlugin())
-    _current.pm.register(InlineSnapshotPydanticPlugin())
-    _current.pm.register(InlineSnapshotDirtyEqualsPlugin())
+
+    try:
+        from .plugin._default_plugin import InlineSnapshotAttrsPlugin
+    except ImportError:
+        pass
+    else:
+        _current.pm.register(InlineSnapshotAttrsPlugin())
+
+    try:
+        from .plugin._default_plugin import InlineSnapshotPydanticPlugin
+    except ImportError:
+        pass
+    else:
+        _current.pm.register(InlineSnapshotPydanticPlugin())
+
+    try:
+        from .plugin._default_plugin import InlineSnapshotDirtyEqualsPlugin
+    except ImportError:
+        pass
+    else:
+        _current.pm.register(InlineSnapshotDirtyEqualsPlugin())
 
     _current.pm.load_setuptools_entrypoints(inline_snapshot_plugin_name)
 

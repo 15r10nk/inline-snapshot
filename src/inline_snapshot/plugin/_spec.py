@@ -6,7 +6,7 @@ import pluggy
 
 from inline_snapshot._customize._builder import Builder
 
-inline_snapshot_plugin_name = "inline-snapshot"
+inline_snapshot_plugin_name = "inline_snapshot"
 
 hookspec = pluggy.HookspecMarker(inline_snapshot_plugin_name)
 """
