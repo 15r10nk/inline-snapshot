@@ -129,20 +129,6 @@ class Delete(Change):
 
 
 @dataclass()
-class AddArgument(Change):
-    node: ast.Call
-
-    position: int | None
-    name: str | None
-
-    new_code: str
-    new_value: Any
-
-    def __post_init__(self):
-        self.new_code = self.file.format_expression(self.new_code)
-
-
-@dataclass()
 class ListInsert(Change):
     node: ast.List | ast.Tuple
     position: int
