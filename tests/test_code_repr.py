@@ -19,33 +19,91 @@ from inline_snapshot.testing import Example
 
 def test_enum(check_update):
 
-    assert (
-        check_update(
-            """
+    Example(
+        {
+            "color.py": """
 from enum import Enum
 
 class color(Enum):
     val="val"
 
+def get_color():
+    return [color.val,color.val]
 
-assert [color.val] == snapshot()
+             """,
+            "test_color.py": """\
+from inline_snapshot import snapshot
+from color import get_color
 
-    """,
-            flags="create",
-        )
-        == snapshot(
-            """\
+def test_enum():
+    assert get_color() == snapshot()
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_color.py": """\
+from inline_snapshot import snapshot
+from color import get_color
 
-from enum import Enum
+from color import color
 
-class color(Enum):
-    val="val"
-
-
-assert [color.val] == snapshot([color.val])
-
+def test_enum():
+    assert get_color() == snapshot([color.val, color.val])
 """
-        )
+            }
+        ),
+    )
+
+
+def test_path():
+
+    Example(
+        """\
+from pathlib import Path,PurePath
+from inline_snapshot import snapshot
+
+folder="a"
+
+def test_a():
+    assert Path(folder,"b.txt") == snapshot()
+    assert PurePath(folder,"b.txt") == snapshot()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from pathlib import Path,PurePath
+from inline_snapshot import snapshot
+
+folder="a"
+
+def test_a():
+    assert Path(folder,"b.txt") == snapshot(Path("a/b.txt"))
+    assert PurePath(folder,"b.txt") == snapshot(PurePath("a/b.txt"))
+"""
+            }
+        ),
+    ).replace(
+        '"a"', '"c"'
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from pathlib import Path,PurePath
+from inline_snapshot import snapshot
+
+folder="c"
+
+def test_a():
+    assert Path(folder,"b.txt") == snapshot(Path("c/b.txt"))
+    assert PurePath(folder,"b.txt") == snapshot(PurePath("c/b.txt"))
+"""
+            }
+        ),
     )
 
 
@@ -334,11 +392,21 @@ def test_datatypes_explicit():
     assert code_repr(default_dict) == snapshot("defaultdict(list, {5: [2], 3: [1]})")
 
 
-def test_tuple():
+def test_fake_tuple1():
 
     class FakeTuple(tuple):
-        def __init__(self):
-            self._fields = 5
+        _fields = 5
+
+        def __repr__(self):
+            return "FakeTuple()"
+
+    assert code_repr(FakeTuple()) == snapshot("FakeTuple()")
+
+
+def test_fake_tuple2():
+
+    class FakeTuple(tuple):
+        _fields = (1, 2)
 
         def __repr__(self):
             return "FakeTuple()"
@@ -347,9 +415,11 @@ def test_tuple():
 
 
 def test_invalid_repr(check_update):
-    assert (
-        check_update(
-            """\
+
+    Example(
+        """\
+from inline_snapshot import snapshot
+
 class Thing:
     def __repr__(self):
         return "+++"
@@ -359,24 +429,32 @@ class Thing:
             return NotImplemented
         return True
 
-assert Thing() == snapshot()
-""",
-            flags="create",
-        )
-        == snapshot(
-            """\
-class Thing:
-    def __repr__(self):
-        return "+++"
-
-    def __eq__(self,other):
-        if not isinstance(other,Thing):
-            return NotImplemented
-        return True
-
-assert Thing() == snapshot(HasRepr(Thing, "+++"))
+def test_a():
+    assert Thing() == snapshot()
 """
-        )
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+from inline_snapshot import HasRepr
+
+class Thing:
+    def __repr__(self):
+        return "+++"
+
+    def __eq__(self,other):
+        if not isinstance(other,Thing):
+            return NotImplemented
+        return True
+
+def test_a():
+    assert Thing() == snapshot(HasRepr(Thing, "+++"))
+"""
+            }
+        ),
     )
 
 

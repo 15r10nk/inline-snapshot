@@ -34,7 +34,7 @@ from inline_snapshot import snapshot
 def test_something():
     assert 1==snapshot(1)
     assert 1==snapshot(1)
-    assert list(range(20)) == snapshot([0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10 ,11 ,12 ,13 ,14 ,15 ,16 ,17 ,18 ,19 ])
+    assert list(range(20)) == snapshot([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
 """
             }
         ),
@@ -60,8 +60,8 @@ created and you can ignore this message.
 | +    assert 1==snapshot(1)                                                   |
 |      assert 1==snapshot(2)                                                   |
 | -    assert list(range(20)) == snapshot()                                    |
-| +    assert list(range(20)) == snapshot([0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10    |
-| ,11 ,12 ,13 ,14 ,15 ,16 ,17 ,18 ,19 ])                                       |
+| +    assert list(range(20)) == snapshot([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,   |
+| 11, 12, 13, 14, 15, 16, 17, 18, 19])                                         |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used create
 
@@ -74,8 +74,8 @@ These changes will be applied, because you used create
 |      assert 1==snapshot(1)                                                   |
 | -    assert 1==snapshot(2)                                                   |
 | +    assert 1==snapshot(1)                                                   |
-|      assert list(range(20)) == snapshot([0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10    |
-| ,11 ,12 ,13 ,14 ,15 ,16 ,17 ,18 ,19 ])                                       |
+|      assert list(range(20)) == snapshot([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,   |
+| 11, 12, 13, 14, 15, 16, 17, 18, 19])                                         |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used fix
 

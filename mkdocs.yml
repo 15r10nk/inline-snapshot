@@ -47,6 +47,7 @@ nav:
     - Pytest: pytest.md
     - PyCharm: pycharm.md
   - Categories: categories.md
+  - Plugin: plugin.md
   - Code generation: code_generation.md
   - Limitations: limitations.md
   - Alternatives: alternatives.md

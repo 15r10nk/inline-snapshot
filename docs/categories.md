@@ -184,8 +184,10 @@ It is recommended to use trim only if you run your complete test suite.
 ### Update
 
 Changes in the update category do not change the value of the snapshot, just its representation.
-These updates are not shown by default in your reports and can be enabled with [show-updates](configuration.md/#show-updates).
-The reason might be that `#!python repr()` of the object has changed or that inline-snapshot provides some new logic which changes the representation. Like with the strings in the following example:
+These updates are not shown by default in your reports, because it can be confusing for users who uses inline-snapshot the first time or want to change the snapshot values manual.
+Updates can be enabled with [show-updates](configuration.md/#show-updates).
+
+The reason for updates might be that `#!python repr()` of the object has changed or that inline-snapshot provides some new logic which changes the representation. Like with the strings in the following example:
 
 
 === "original"
@@ -254,7 +256,7 @@ The reason might be that `#!python repr()` of the object has changed or that inl
     ```
 
 
-The approval of this type of changes is easier, because inline-snapshot assures that the value has not changed.
+The approval of this type of changes is easier, because the update category assures that the value has not changed.
 
 The goal of inline-snapshot is to generate the values for you in the correct format so that no manual editing is required.
 This improves your productivity and saves time.
@@ -270,5 +272,5 @@ You can agree with inline-snapshot and accept the changes or you can use one of 
 
 4. you can also open an [issue](https://github.com/15r10nk/inline-snapshot/issues?q=is%3Aissue%20state%3Aopen%20label%3Aupdate_related) if you have a specific problem with the way inline-snapshot generates the code.
 
-!!! note:
-    [#177](https://github.com/15r10nk/inline-snapshot/issues/177) will give the developer more control about how snapshots are created. *update* will them become much more useful.
+!!! note
+    [#177](https://github.com/15r10nk/inline-snapshot/issues/177) will give the developer more control about how snapshots are created. *update* will then become much more useful.

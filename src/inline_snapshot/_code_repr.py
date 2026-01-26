@@ -1,10 +1,18 @@
-import ast
-from enum import Enum
-from enum import Flag
+from __future__ import annotations
+
+import warnings
+from contextlib import contextmanager
 from functools import singledispatch
-from types import BuiltinFunctionType
-from types import FunctionType
+from typing import TYPE_CHECKING
 from unittest import mock
+
+from typing_extensions import deprecated
+
+from inline_snapshot._generator_utils import only_value
+
+if TYPE_CHECKING:
+    from inline_snapshot._adapter_context import AdapterContext
+
 
 real_repr = repr
 
@@ -35,19 +43,9 @@ class HasRepr:
             if type(other) is not self._type:
                 return False
 
-        other_repr = code_repr(other)
-        return other_repr == self._str_repr or other_repr == repr(self)
-
-
-def used_hasrepr(tree):
-    return [
-        n
-        for n in ast.walk(tree)
-        if isinstance(n, ast.Call)
-        and isinstance(n.func, ast.Name)
-        and n.func.id == "HasRepr"
-        and len(n.args) == 2
-    ]
+        with mock_repr(None):
+            other_repr = value_code_repr(other)
+        return other_repr == self._str_repr or other_repr == real_repr(self)
 
 
 @singledispatch
@@ -55,6 +53,7 @@ def code_repr_dispatch(value):
     return real_repr(value)
 
 
+@deprecated("use @customize instead")
 def customize_repr(f):
     """Register a function which should be used to get the code representation
     of a object.
@@ -71,24 +70,37 @@ def customize_repr(f):
     * __repr__() of your class returns a valid code representation,
     * and __repr__() uses `repr()` to get the representation of the child objects
     """
+    warnings.warn(
+        "@customize_repr is deprecated, @customize should be used instead",
+        DeprecationWarning,
+    )
     code_repr_dispatch.register(f)
 
 
 def code_repr(obj):
+    from inline_snapshot._adapter_context import AdapterContext
 
-    with mock.patch("builtins.repr", mocked_code_repr):
-        return mocked_code_repr(obj)
+    context = AdapterContext(None, None, "<qualname>")
+    with mock_repr(context):
+        return repr(obj)
 
 
-def mocked_code_repr(obj):
-    from inline_snapshot._adapter.adapter import get_adapter_type
+@contextmanager
+def mock_repr(context: AdapterContext):
+    def new_repr(obj):
+        from inline_snapshot._customize._builder import Builder
 
-    adapter = get_adapter_type(obj)
-    assert adapter is not None
-    return adapter.repr(obj)
+        return only_value(
+            Builder(_snapshot_context=context)._get_handler(obj)._code_repr(context)
+        )
+
+    with mock.patch("builtins.repr", new_repr):
+        yield
 
 
 def value_code_repr(obj):
+    assert repr is not real_repr, "@mock_repr is missing"
+
     if not type(obj) == type(obj):  # pragma: no cover
         # this was caused by https://github.com/samuelcolvin/dirty-equals/issues/104
         # dispatch will not work in cases like this
@@ -98,70 +110,4 @@ def value_code_repr(obj):
 
     result = code_repr_dispatch(obj)
 
-    try:
-        ast.parse(result)
-    except SyntaxError:
-        return real_repr(HasRepr(type(obj), result))
-
     return result
-
-
-# -8<- [start:Enum]
-@customize_repr
-def _(value: Enum):
-    return f"{type(value).__qualname__}.{value.name}"
-
-
-# -8<- [end:Enum]
-
-
-@customize_repr
-def _(value: Flag):
-    name = type(value).__qualname__
-    return " | ".join(f"{name}.{flag.name}" for flag in type(value) if flag in value)
-
-
-def sort_set_values(set_values):
-    is_sorted = False
-    try:
-        set_values = sorted(set_values)
-        is_sorted = True
-    except TypeError:
-        pass
-
-    set_values = list(map(repr, set_values))
-    if not is_sorted:
-        set_values = sorted(set_values)
-
-    return set_values
-
-
-@customize_repr
-def _(value: set):
-    if len(value) == 0:
-        return "set()"
-
-    return "{" + ", ".join(sort_set_values(value)) + "}"
-
-
-@customize_repr
-def _(value: frozenset):
-    if len(value) == 0:
-        return "frozenset()"
-
-    return "frozenset({" + ", ".join(sort_set_values(value)) + "})"
-
-
-@customize_repr
-def _(value: type):
-    return value.__qualname__
-
-
-@customize_repr
-def _(value: FunctionType):
-    return value.__qualname__
-
-
-@customize_repr
-def _(value: BuiltinFunctionType):
-    return value.__name__

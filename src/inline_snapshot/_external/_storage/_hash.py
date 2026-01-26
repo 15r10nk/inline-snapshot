@@ -93,11 +93,13 @@ class HashStorage(StorageProtocol):
 
         if len(files) > 1:
             raise StorageLookupError(
-                f"hash collision files={sorted(f.name for f in  files)}"
+                f"hash collision files={sorted(f.name for f in  files)}", files=files
             )
 
         if not files:
-            raise StorageLookupError(f"hash {name!r} is not found in the HashStorage")
+            raise StorageLookupError(
+                f"hash {name!r} is not found in the HashStorage", files=[]
+            )
 
         return files[0]
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from inline_snapshot._adapter.adapter import AdapterContext
+from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._change import CallArg
 from inline_snapshot._change import Replace
 from inline_snapshot._exceptions import UsageError
@@ -32,6 +32,9 @@ def is_inside_testdir(path: Path) -> bool:
 
 @declare_unmanaged
 class External(ExternalBase):
+    _original_location: ExternalLocation
+    _location: ExternalLocation
+
     def __init__(self, name: str, expr, context: AdapterContext):
         """External objects are used to move some data outside the source code.
         You should not instantiate this class directly, but by using `external()` instead.

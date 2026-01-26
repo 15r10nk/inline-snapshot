@@ -14,6 +14,7 @@ from asttokens.util import Token
 from executing.executing import EnhancedAST
 
 from inline_snapshot._external._external_location import Location
+from inline_snapshot._external._find_external import ensure_import
 from inline_snapshot._source_file import SourceFile
 
 from ._rewrite_code import ChangeRecorder
@@ -116,29 +117,27 @@ class Change(ChangeBase):
 
 
 @dataclass()
+class RequiredImport(Change):
+    module: str
+    name: str | None = None
+
+
+@dataclass()
 class Delete(Change):
-    node: ast.AST
+    node: ast.AST | None
     old_value: Any
 
 
 @dataclass()
-class AddArgument(Change):
-    node: ast.Call
-
-    position: int | None
-    name: str | None
-
-    new_code: str
-    new_value: Any
-
-
-@dataclass()
 class ListInsert(Change):
-    node: ast.List
+    node: ast.List | ast.Tuple
     position: int
 
     new_code: list[str]
     new_values: list[Any]
+
+    def __post_init__(self):
+        self.new_code = [self.file.format_expression(v) for v in self.new_code]
 
 
 @dataclass()
@@ -148,6 +147,12 @@ class DictInsert(Change):
 
     new_code: list[tuple[str, str]]
     new_values: list[tuple[Any, Any]]
+
+    def __post_init__(self):
+        self.new_code = [
+            (self.file.format_expression(k), self.file.format_expression(v))
+            for k, v in self.new_code
+        ]
 
 
 @dataclass()
@@ -163,6 +168,9 @@ class Replace(Change):
         range = self.file.asttokens().get_text_positions(self.node, False)
         change.replace(range, self.new_code, filename=self.filename)
 
+    def __post_init__(self):
+        self.new_code = self.file.format_expression(self.new_code)
+
 
 @dataclass()
 class CallArg(Change):
@@ -172,6 +180,9 @@ class CallArg(Change):
 
     new_code: str
     new_value: Any
+
+    def __post_init__(self):
+        self.new_code = self.file.format_expression(self.new_code)
 
 
 TokenRange = Tuple[Token, Token]
@@ -251,6 +262,10 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
     )
     sources: dict[EnhancedAST, SourceFile] = {}
 
+    # file -> module -> names
+    imports_by_file: dict[str, dict[str, set]] = defaultdict(lambda: defaultdict(set))
+    module_imports_by_file: dict[str, set] = defaultdict(set)
+
     for change in all_changes:
         if isinstance(change, Delete):
             node = cast(EnhancedAST, change.node).parent
@@ -263,8 +278,18 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
             node = cast(EnhancedAST, change.node)
             by_parent[node].append(change)
             sources[node] = change.file
+        elif isinstance(change, RequiredImport):
+            if change.name:
+                imports_by_file[change.file.filename][change.module].add(change.name)
+            else:
+                module_imports_by_file[change.file.filename].add(change.module)
         else:
             change.apply(recorder)
+
+    for filename in set(imports_by_file) | set(module_imports_by_file):
+        imports = imports_by_file.get(filename, defaultdict(set))
+        module_imports = module_imports_by_file.get(filename, set())
+        ensure_import(filename, imports, module_imports, recorder)
 
     for parent, changes in by_parent.items():
         source = sources[parent]
@@ -320,7 +345,7 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
                             else len(parent.args) + len(parent.keywords)
                         )
                         to_insert[position].append(
-                            f"{change.arg_name} = {change.new_code}"
+                            f"{change.arg_name}={change.new_code}"
                         )
                     else:
                         assert change.arg_pos is not None

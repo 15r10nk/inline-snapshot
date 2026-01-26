@@ -48,7 +48,7 @@ class UuidStorage(StorageProtocol):
         if location.path in external_files():
             return external_files()[location.path]
         else:
-            raise StorageLookupError(location)
+            raise StorageLookupError(location, files=[])
 
     def store(self, location: ExternalLocation, file_path: Path):
         snapshot_path = self._get_path(location)

@@ -814,6 +814,7 @@ def test_storage_dir_config(project, tmp_path, storage_dir):
             "pyproject.toml": f"""\
 [tool.inline-snapshot]
 storage-dir = {str(storage_dir)!r}
+default-storage="hash"
 """,
             "tests/test_a.py": """\
 from inline_snapshot import outsource, snapshot
@@ -871,6 +872,7 @@ def test_find_pyproject_in_parent_directories():
             "pyproject.toml": """\
 [tool.inline-snapshot]
 hash-length=2
+default-storage="hash"
 """,
             "project/pytest.ini": "",
             "project/test_something.py": """\
@@ -904,6 +906,7 @@ def test_find_pyproject_in_workspace_project():
             "sub_project/pyproject.toml": """\
 [tool.inline-snapshot]
 hash-length=2
+default-storage="hash"
 """,
             "pyproject.toml": "[tool.pytest.ini_options]",
             "sub_project/test_something.py": """\

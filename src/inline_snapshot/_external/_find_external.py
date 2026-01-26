@@ -1,7 +1,11 @@
 import ast
+import os
 from dataclasses import replace
 from pathlib import Path
+from typing import Dict
 from typing import List
+from typing import Optional
+from typing import Set
 from typing import Union
 
 from executing import Source
@@ -21,6 +25,16 @@ def contains_import(tree, module, name):
             and any(alias.name == name for alias in node.names)
         ):
             return True
+    return False
+
+
+def contains_module_import(tree, module):
+    for node in tree.body:
+        if isinstance(node, ast.Import):
+            if any(
+                alias.name == module and alias.asname is None for alias in node.names
+            ):
+                return True
     return False
 
 
@@ -64,7 +78,44 @@ def used_externals_in(
     return usages
 
 
-def ensure_import(filename, imports, recorder: ChangeRecorder):
+def module_name_of(filename: Union[str, os.PathLike]) -> Optional[str]:
+    path = Path(filename).resolve()
+
+    assert path.suffix == ".py"
+
+    parts = []
+
+    if path.name != "__init__.py":
+        parts.append(path.stem)
+
+    current = path.parent
+
+    while current != current.root:
+        if not (current / "__init__.py").exists():
+            break
+
+        parts.append(current.name)
+
+        next_parent = current.parent
+        if next_parent == current:
+            break  # pragma: no cover
+        current = next_parent
+    else:
+        pass  # pragma: no cover
+
+    parts.reverse()
+
+    assert parts
+
+    return ".".join(parts)
+
+
+def ensure_import(
+    filename,
+    imports: Dict[str, Set[str]],
+    module_imports: Set[str],
+    recorder: ChangeRecorder,
+):
     source = Source.for_filename(filename)
 
     change = recorder.new_change()
@@ -72,18 +123,35 @@ def ensure_import(filename, imports, recorder: ChangeRecorder):
     tree = source.tree
     token = source.asttokens()
 
-    to_add = []
+    my_module_name = module_name_of(filename)
 
+    code = ""
     for module, names in imports.items():
-        for name in names:
+        if module == my_module_name:
+            continue
+        if module == "builtins":
+            continue
+        for name in sorted(names):
             if not contains_import(tree, module, name):
-                to_add.append((module, name))
+                code += f"from {module} import {name}\n"
+
+    for module in sorted(module_imports):
+        if not contains_module_import(tree, module):
+            code += f"import {module}\n"
 
     assert isinstance(tree, ast.Module)
 
+    # find source position
     last_import = None
     for node in tree.body:
-        if not isinstance(node, (ast.ImportFrom, ast.Import)):
+        if not (
+            isinstance(node, (ast.ImportFrom, ast.Import))
+            or (
+                isinstance(node, ast.Expr)
+                and isinstance(node.value, ast.Constant)
+                and isinstance(node.value.value, str)
+            )
+        ):
             break
         last_import = node
 
@@ -99,8 +167,6 @@ def ensure_import(filename, imports, recorder: ChangeRecorder):
                 break
         position = end_of(last_token)
 
-    code = ""
-    for module, name in to_add:
-        code += f"\nfrom {module} import {name}\n"
-
-    change.insert(position, code, filename=filename)
+    if code:
+        code = "\n" + code
+        change.insert(position, code, filename=filename)

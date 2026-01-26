@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Generator
 
-from inline_snapshot._adapter.adapter import AdapterContext
+from inline_snapshot._adapter_context import AdapterContext
 
 
 class Location:
