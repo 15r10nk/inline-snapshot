@@ -1,6 +1,6 @@
 
 !!! warning "deprecated"
-    `@customize_repr` will be removed in the future because `@customize` provides the same and even more features.
+    `@customize_repr` will be removed in the future because [`@customize`](plugin.md#customize-examples) provides the same and even more features.
     You should use
 
     ``` python title="conftest.py"
@@ -24,7 +24,7 @@
 
 That said, what is/was `@customize_repr` for?
 
-`repr()` can be used to convert a python object into a source code representation of the object, but this does not work for every type.
+`repr()` can be used to convert a Python object into a source code representation of the object, but this does not work for every type.
 Here are some examples:
 
 ```pycon
@@ -69,7 +69,7 @@ def _(value: MyClass):
     return f"{MyClass.__qualname__}({' '.join(value.values) !r})"
 ```
 
-This implementation is then used by inline-snapshot if `repr()` is called during the code generation, but not in normal code.
+This implementation is then used by inline-snapshot if `repr()` is called during code generation, but not in normal code.
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python
@@ -83,17 +83,17 @@ def test_my_class():
     # normal repr
     assert repr(e) == "['1', '5', 'hello']"
 
-    # the special implementation to convert the Enum into a code
+    # the special implementation to convert the Enum into code
     assert e == snapshot(MyClass("1 5 hello"))
 ```
 
 !!! note
-    The example above can be better handled with `@customize` as shown in the documentation there.
+    The example above can be better handled with [`@customize`](plugin.md#customize-examples) as shown in the [plugin documentation](plugin.md).
 
 
 ## customize recursive repr
 
-You can also use `repr()` inside `__repr__()`, if you want to make your own type compatible with inline-snapshot.
+You can also use `repr()` inside `__repr__()` if you want to make your own type compatible with inline-snapshot.
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python
@@ -124,7 +124,7 @@ E = Enum("E", ["a", "b"])
 
 def test_enum():
 
-    # the special repr implementation is used recursive here
+    # the special repr implementation is used recursively here
     # to convert every Enum to the correct representation
     assert Pair(E.a, [E.b]) == snapshot(Pair(E.a, [E.b]))
 ```
@@ -136,7 +136,7 @@ def test_enum():
     This implementation allows inline-snapshot to use the custom `repr()` recursively, but it does not allow you to use [unmanaged](/eq_snapshot.md#unmanaged-snapshot-values) snapshot values like `#!python Pair(Is(some_var),5)`
 
 
-you can also customize the representation of data types in other libraries:
+You can also customize the representation of data types in other libraries:
 
 ``` python
 from inline_snapshot import customize_repr

@@ -116,7 +116,6 @@ def ensure_import(
     module_imports: Set[str],
     recorder: ChangeRecorder,
 ):
-    print("file", filename)
     source = Source.for_filename(filename)
 
     change = recorder.new_change()

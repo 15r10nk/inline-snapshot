@@ -1,6 +1,6 @@
 
 
-inline-snapshot provides a plugin architecture based on [pluggy](https://pluggy.readthedocs.io/en/latest/index.html) which can be used to extend and customize it.
+inline-snapshot provides a plugin architecture based on [pluggy](https://pluggy.readthedocs.io/en/latest/index.html) that can be used to extend and customize it.
 
 ## Overview
 
@@ -27,14 +27,15 @@ Plugins can:
 
 ## Plugin Discovery
 
-inline-snapshot loads the plugins at the beginning of the session.
+inline-snapshot loads plugins at the beginning of the session.
 It searches for plugins in:
+
 * installed packages with an `inline-snapshot` entry point
 * your pytest `conftest.py` files
 
 ### Loading Plugins from conftest.py
 
-Loading plugins from the `conftest.py` files is the recommended way when you want to change the behavior of inline-snapshot in your own project.
+Loading plugins from `conftest.py` files is the recommended way when you want to change the behavior of inline-snapshot in your own project.
 
 Simply use `@customize` on functions directly in your `conftest.py`:
 
@@ -178,7 +179,10 @@ def is_now_handler(value):
         return IsNow
 ```
 
-As explained in the [customize hook specification][inline_snapshot.plugin.InlineSnapshotPluginSpec.customize], you can return types other than Custom objects. Inline-snapshot includes a built-in handler in its default plugin that converts dirty-equals expressions back into source code, which is why you can return `IsNow` directly without using the builder. This approach is much simpler than using `builder.create_call()` for complex dirty-equals expressions.
+As explained in the [customize hook specification][inline_snapshot.plugin.
+InlineSnapshotPluginSpec.customize], you can return types other than Custom objects.
+inline-snapshot includes a built-in handler in its default plugin that converts dirty-equals expressions back into source code, which is why you can return `IsNow` directly without using the builder.
+This approach is much simpler than using `builder.create_call()` for complex dirty-equals expressions.
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python title="test_is_now.py"
@@ -191,10 +195,10 @@ def test_is_now():
     assert datetime.now() == snapshot(IsNow)
 ```
 
-1. Inline-snapshot also creates the imports when they are missing
+1. inline-snapshot also creates the imports when they are missing
 
 !!! important
-    Inline-snapshot will never change the dirty-equals expressions in your code because they are [unmanaged](eq_snapshot.md#unmanaged-snapshot-values).
+    inline-snapshot will never change the dirty-equals expressions in your code because they are [unmanaged](eq_snapshot.md#unmanaged-snapshot-values).
     Using `@customize` with dirty-equals is a one-way ticket. Once the code is created, inline-snapshot does not know if it was created by inline-snapshot itself or by the user and will not change it when you change the `@customize` implementation, because it has to assume that it was created by the user.
 
 
@@ -234,7 +238,7 @@ c\
 
 ### Reusing local variables
 
-There are times when your local or global variables become part of your snapshots, like uuids or user names.
+There are times when your local or global variables become part of your snapshots, like UUIDs or user names.
 Customize hooks accept `local_vars` and `global_vars` as arguments that can be used to generate the code.
 
 <!-- inline-snapshot-lib-set: conftest.py -->
@@ -269,7 +273,7 @@ def test_user():
     assert get_data(v_user) == snapshot({"user": v_user, "age": 55})
 ```
 
-Inline-snapshot uses `v_user` because it met the criteria in your customization hook, but not `some_number` because it does not start with `v_`.
+inline-snapshot uses `v_user` because it met the criteria in your customization hook, but not `some_number` because it does not start with `v_`.
 You can also do this only for specific types of objects or for a whitelist of variable names.
 It is up to you to set the rules that work best in your project.
 
@@ -331,7 +335,7 @@ def secret_handler(value, builder: Builder):
 
 The [`create_code()`][inline_snapshot.plugin.Builder.create_code] method takes the desired code representation. The `imports` parameter adds the necessary import statements.
 
-Inline-snapshot will now create the correct code and import statement when you run your tests with `--inline-snapshot=update`.
+inline-snapshot will now create the correct code and import statement when you run your tests with `--inline-snapshot=update`.
 
 <!-- inline-snapshot: update outcome-passed=1 -->
 ``` python hl_lines="4 5 9"

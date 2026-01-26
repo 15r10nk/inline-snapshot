@@ -447,7 +447,6 @@ uuid.uuid4=f
         )
 
         linenum = 1
-        hl_lines = ""
 
         if last_code is not None and "first_block" not in options:
             changed_lines = []

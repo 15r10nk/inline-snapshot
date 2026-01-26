@@ -331,7 +331,6 @@ class NewAdapter:
                 if isinstance(old_node, ast.Dict):
                     node = old_node.values[list(old_value.value.keys()).index(key)]
                 else:
-                    assert False
                     node = None
                 # check values with same keys
                 result[key] = yield from self.compare(
@@ -426,8 +425,8 @@ class NewAdapter:
                     )
 
         if old_args_len < len(new_args):
-            for insert_pos, value in list(enumerate(new_args))[old_args_len:]:
-                new_code = yield from value._code_repr(self.context)
+            for insert_pos, insert_value in list(enumerate(new_args))[old_args_len:]:
+                new_code = yield from insert_value._code_repr(self.context)
                 yield CallArg(
                     flag=flag,
                     file=self.context.file,
@@ -435,7 +434,7 @@ class NewAdapter:
                     arg_pos=insert_pos,
                     arg_name=None,
                     new_code=new_code,
-                    new_value=value,
+                    new_value=insert_value,
                 )
 
         # keyword arguments
@@ -482,14 +481,14 @@ class NewAdapter:
                 )
 
                 if to_insert:
-                    for key, value in to_insert:
+                    for insert_key, value in to_insert:
                         new_code = yield from value._code_repr(self.context)
                         yield CallArg(
                             flag=flag,
                             file=self.context.file,
                             node=old_node,
                             arg_pos=insert_pos,
-                            arg_name=key,
+                            arg_name=insert_key,
                             new_code=new_code,
                             new_value=value,
                         )

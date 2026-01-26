@@ -1,4 +1,5 @@
 import ast
+import datetime
 from collections import Counter
 from collections import defaultdict
 from dataclasses import MISSING
@@ -77,7 +78,6 @@ class InlineSnapshotPlugin:
 
     @customize
     def datetime_handler(self, value, builder: Builder):
-        import datetime
 
         if isinstance(value, datetime.datetime):
             return builder.create_call(
@@ -133,10 +133,12 @@ class InlineSnapshotPlugin:
             set_values = sorted(set_values)
             is_sorted = True
         except TypeError:
+            # can not be sorted by value
             pass
 
         set_values = list(map(repr, set_values))
         if not is_sorted:
+            # sort by string representation
             set_values = sorted(set_values)
 
         return set_values
@@ -267,15 +269,11 @@ class InlineSnapshotPlugin:
 
 
 try:
-    pass
+    import dirty_equals
 except ImportError:  # pragma: no cover
-
     pass
-
 else:
-    import datetime
 
-    from dirty_equals import IsNow
     from dirty_equals._utils import Omit
 
     class InlineSnapshotDirtyEqualsPlugin:
@@ -295,7 +293,7 @@ else:
                     kwargs = {
                         k: a for k, a in value._repr_kwargs.items() if a is not Omit
                     }
-                    if type(value) == IsNow:
+                    if type(value) == dirty_equals.IsNow:
                         kwargs.pop("approx")
                         if (
                             isinstance(delta := kwargs["delta"], datetime.timedelta)
@@ -306,8 +304,8 @@ else:
 
         @customize(tryfirst=True)
         def is_now_handler(self, value, builder: Builder):
-            if value == IsNow():
-                return IsNow()
+            if value == dirty_equals.IsNow():
+                return dirty_equals.IsNow()
 
 
 try:
