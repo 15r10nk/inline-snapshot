@@ -3,6 +3,9 @@ import copy
 import token
 from collections import namedtuple
 from pathlib import Path
+from types import BuiltinFunctionType
+from types import FunctionType
+from types import MethodType
 
 from inline_snapshot._exceptions import UsageError
 
@@ -149,6 +152,9 @@ class simple_token(namedtuple("simple_token", "type,string")):
 
 
 def clone(obj):
+    if isinstance(obj, (type, FunctionType, BuiltinFunctionType, MethodType)):
+        return obj
+
     new = copy.deepcopy(obj)
     if not obj == new:
         raise UsageError(

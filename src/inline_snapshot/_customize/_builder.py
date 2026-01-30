@@ -51,7 +51,19 @@ class Builder:
         result.__dict__["original_value"] = v
 
         if not isinstance(v, Custom) and self._build_new_value:
-            if result._eval() != v:
+            is_same = False
+            v_eval = result._eval()
+
+            if (
+                hasattr(v, "__pydantic_generic_metadata__")
+                and v.__pydantic_generic_metadata__["origin"] == v_eval
+            ):
+                is_same = True
+
+            if not is_same and v_eval == v:
+                is_same = True
+
+            if not is_same:
                 raise UsageError(
                     f"""\
 Customized value does not match original value:
