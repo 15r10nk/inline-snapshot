@@ -121,6 +121,43 @@ def test_something():
     )
 
 
+def test_dataclass_add_arguments():
+    Example(
+        """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+
+@dataclass
+class A:
+    a:int
+    b:int=2
+
+def test_something():
+    for _ in [1,2]:
+        assert A(a=1,b=5) == snapshot(A(a=1))
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot import snapshot,Is
+from dataclasses import dataclass,field
+
+@dataclass
+class A:
+    a:int
+    b:int=2
+
+def test_something():
+    for _ in [1,2]:
+        assert A(a=1,b=5) == snapshot(A(a=1, b=5))
+"""
+            }
+        ),
+    )
+
+
 def test_dataclass_positional_arguments():
     Example(
         """\
@@ -153,7 +190,7 @@ class A:
 
 def test_something():
     for _ in [1,2]:
-        assert A(a=1) == snapshot(A(1,2))
+        assert A(a=1) == snapshot(A(a=1))
 """
             }
         ),
@@ -374,7 +411,7 @@ def test_something():
     assert A(a=3) == snapshot(A(**{"a":5})),"not equal"
 """
         ).run_inline(
-            ["--inline-snapshot=fix"],
+            ["--inline-snapshot=report"],
             raises=snapshot(
                 """\
 AssertionError:
@@ -414,7 +451,7 @@ class A:
     c:int=0
 
 def test_something():
-    assert A(a=3,b=3,c=3) == snapshot(A(a = 3, b=3, c = 3)),"not equal"
+    assert A(a=3,b=3,c=3) == snapshot(A(a=3, b=3, c=3)),"not equal"
 """
             }
         ),
@@ -450,12 +487,8 @@ def test_something():
 
 def test_remove_positional_argument():
     Example(
-        """\
-from inline_snapshot import snapshot
-
-from inline_snapshot._adapter.generic_call_adapter import GenericCallAdapter,Argument
-
-
+        {
+            "tests/helper.py": """\
 class L:
     def __init__(self,*l):
         self.l=l
@@ -464,20 +497,21 @@ class L:
         if not isinstance(other,L):
             return NotImplemented
         return other.l==self.l
+""",
+            "tests/conftest.py": """\
+from inline_snapshot.plugin import customize
+from helper import L
 
-class LAdapter(GenericCallAdapter):
-    @classmethod
-    def check_type(cls, value_type):
-        return issubclass(value_type,L)
+class InlineSnapshotPlugin:
+    @customize
+    def handle_L(self,value,builder):
+        if isinstance(value,L):
+            return builder.create_call(L,value.l)
+""",
+            "tests/test_something.py": """\
+from inline_snapshot import snapshot
+from helper import L
 
-    @classmethod
-    def arguments(cls, value):
-        return ([Argument(x) for x in value.l],{})
-
-    @classmethod
-    def argument(cls, value, pos_or_name):
-        assert isinstance(pos_or_name,int)
-        return value.l[pos_or_name]
 
 def test_L1():
     for _ in [1,2]:
@@ -490,39 +524,16 @@ def test_L2():
 def test_L3():
     for _ in [1,2]:
         assert L(1,2) == snapshot(L(1, 2)), "not equal"
-"""
+""",
+        }
     ).run_pytest(returncode=snapshot(1)).run_pytest(
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
                 "tests/test_something.py": """\
 from inline_snapshot import snapshot
+from helper import L
 
-from inline_snapshot._adapter.generic_call_adapter import GenericCallAdapter,Argument
-
-
-class L:
-    def __init__(self,*l):
-        self.l=l
-
-    def __eq__(self,other):
-        if not isinstance(other,L):
-            return NotImplemented
-        return other.l==self.l
-
-class LAdapter(GenericCallAdapter):
-    @classmethod
-    def check_type(cls, value_type):
-        return issubclass(value_type,L)
-
-    @classmethod
-    def arguments(cls, value):
-        return ([Argument(x) for x in value.l],{})
-
-    @classmethod
-    def argument(cls, value, pos_or_name):
-        assert isinstance(pos_or_name,int)
-        return value.l[pos_or_name]
 
 def test_L1():
     for _ in [1,2]:
@@ -670,6 +681,93 @@ class container:
 def test_list():
     l=container(5)
     assert l == snapshot(container(a=5)), "not equal"
+"""
+            }
+        ),
+    )
+
+
+def test_dataclass_custom_init():
+
+    Example(
+        """\
+from dataclasses import dataclass
+from inline_snapshot import snapshot
+
+@dataclass(init=False)
+class A:
+    _a:int
+
+    def __init__(self,a:int=None,_a:int=None):
+        self._a=a or _a
+
+    @property
+    def a(self):
+        return self._a
+
+
+def test_A():
+    assert A(a=5) == snapshot(A(_a=5))
+    assert A(a=5) == snapshot(A(a=5))
+
+    assert A(a=5) == snapshot(A(_a=4))
+    assert A(a=5) == snapshot(A(a=4))
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from dataclasses import dataclass
+from inline_snapshot import snapshot
+
+@dataclass(init=False)
+class A:
+    _a:int
+
+    def __init__(self,a:int=None,_a:int=None):
+        self._a=a or _a
+
+    @property
+    def a(self):
+        return self._a
+
+
+def test_A():
+    assert A(a=5) == snapshot(A(_a=5))
+    assert A(a=5) == snapshot(A(a=5))
+
+    assert A(a=5) == snapshot(A(_a=5))
+    assert A(a=5) == snapshot(A(_a=5))
+"""
+            }
+        ),
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from dataclasses import dataclass
+from inline_snapshot import snapshot
+
+@dataclass(init=False)
+class A:
+    _a:int
+
+    def __init__(self,a:int=None,_a:int=None):
+        self._a=a or _a
+
+    @property
+    def a(self):
+        return self._a
+
+
+def test_A():
+    assert A(a=5) == snapshot(A(_a=5))
+    assert A(a=5) == snapshot(A(_a=5))
+
+    assert A(a=5) == snapshot(A(_a=5))
+    assert A(a=5) == snapshot(A(_a=5))
 """
             }
         ),

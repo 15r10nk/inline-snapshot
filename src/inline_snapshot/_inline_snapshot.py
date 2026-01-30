@@ -7,13 +7,15 @@ from typing import cast
 
 from executing import Source
 
+from inline_snapshot._adapter_context import AdapterContext
+from inline_snapshot._adapter_context import FrameContext
+from inline_snapshot._customize._custom_undefined import CustomUndefined
+from inline_snapshot._generator_utils import with_flag
 from inline_snapshot._source_file import SourceFile
 from inline_snapshot._types import SnapshotRefBase
 
-from ._adapter.adapter import AdapterContext
-from ._adapter.adapter import FrameContext
 from ._change import CallArg
-from ._change import Change
+from ._change import ChangeBase
 from ._global_state import state
 from ._sentinels import undefined
 from ._snapshot.undecided_value import UndecidedValue
@@ -125,18 +127,18 @@ class SnapshotReference(SnapshotRefBase):
     def create_raw(obj, context: AdapterContext):
         return obj
 
-    def _changes(self) -> Iterator[Change]:
+    def _changes(self) -> Iterator[ChangeBase]:
 
         if (
-            self._value._old_value is undefined
+            isinstance(self._value._old_value, CustomUndefined)
             if self._expr is None
             else not self._expr.node.args
         ):
 
-            if self._value._new_value is undefined:
+            if isinstance(self._value._new_value, CustomUndefined):
                 return
 
-            new_code = self._value._new_code()
+            new_code = yield from with_flag(self._value._new_code(), "create")
 
             yield CallArg(
                 flag="create",

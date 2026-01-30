@@ -1,26 +1,84 @@
+import ast
+from typing import Any
 from typing import Iterator
 
-from inline_snapshot._adapter.adapter import adapter_map
+from inline_snapshot._compare_context import compare_only
+from inline_snapshot._customize._custom import Custom
+from inline_snapshot._customize._custom_call import CustomCall
+from inline_snapshot._customize._custom_code import CustomCode
+from inline_snapshot._customize._custom_dict import CustomDict
+from inline_snapshot._customize._custom_sequence import CustomList
+from inline_snapshot._customize._custom_sequence import CustomTuple
+from inline_snapshot._customize._custom_undefined import CustomUndefined
+from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
+from inline_snapshot._new_adapter import NewAdapter
+from inline_snapshot._new_adapter import warn_star_expression
+from inline_snapshot._unmanaged import is_unmanaged
 
-from .._adapter.adapter import AdapterContext
-from .._adapter.adapter import get_adapter_type
-from .._change import Change
-from .._change import Replace
-from .._sentinels import undefined
-from .._unmanaged import Unmanaged
-from .._unmanaged import map_unmanaged
-from .._utils import value_to_token
+from .._adapter_context import AdapterContext
+from .._change import ChangeBase
 from .generic_value import GenericValue
+
+
+class AstToCustom:
+
+    def __init__(self, context):
+        self.eval = context.eval
+        self.context = context
+
+    def convert(self, value: Any, node: ast.expr):
+        if is_unmanaged(value):
+            return CustomUnmanaged(value)
+
+        if warn_star_expression(node, self.context):
+            return self.convert_generic(value, node)
+
+        t = type(node).__name__
+        return getattr(self, "convert_" + t, self.convert_generic)(value, node)
+
+    def eval_convert(self, node):
+        return self.convert(self.eval(node), node)
+
+    def convert_generic(self, value: Any, node: ast.expr):
+        if value is ...:
+            return CustomUndefined()
+        else:
+            return CustomCode(value, ast.unparse(node))
+
+    def convert_Call(self, value: Any, node: ast.Call):
+        return CustomCall(
+            self.eval_convert(node.func),
+            [self.eval_convert(a) for a in node.args],
+            {kw.arg: self.eval_convert(kw.value) for kw in node.keywords if kw.arg},
+        )
+
+    def convert_List(self, value: list, node: ast.List):
+
+        return CustomList([self.convert(v, n) for v, n in zip(value, node.elts)])
+
+    def convert_Tuple(self, value: tuple, node: ast.Tuple):
+        return CustomTuple([self.convert(v, n) for v, n in zip(value, node.elts)])
+
+    def convert_Dict(self, value: dict, node: ast.Dict):
+        return CustomDict(
+            {
+                self.convert(k, k_node): self.convert(v, v_node)
+                for (k, v), k_node, v_node in zip(value.items(), node.keys, node.values)
+                if k_node is not None
+            }
+        )
 
 
 class UndecidedValue(GenericValue):
     def __init__(self, old_value, ast_node, context: AdapterContext):
-
-        old_value = adapter_map(old_value, map_unmanaged)
-        self._old_value = old_value
-        self._new_value = undefined
-        self._ast_node = ast_node
         self._context = context
+        self._ast_node = ast_node
+
+        old_value = self.value_to_custom(old_value)
+
+        assert isinstance(old_value, Custom)
+        self._old_value = old_value
+        self._new_value = CustomUndefined()
 
     def _change(self, cls):
         self.__class__ = cls
@@ -28,35 +86,21 @@ class UndecidedValue(GenericValue):
     def _new_code(self):
         assert False
 
-    def _get_changes(self) -> Iterator[Change]:
+    def _get_changes(self) -> Iterator[ChangeBase]:
+        assert isinstance(self._new_value, CustomUndefined)
 
-        def handle(node, obj):
+        new_value = self.to_custom(self._old_value._eval())
 
-            adapter = get_adapter_type(obj)
-            if adapter is not None and hasattr(adapter, "items"):
-                for item in adapter.items(obj, node):
-                    yield from handle(item.node, item.value)
-                return
+        adapter = NewAdapter(self._context)
 
-            if not isinstance(obj, Unmanaged) and node is not None:
-                new_token = value_to_token(obj)
-                if self._file._token_of_node(node) != new_token:
-                    new_code = self._file._token_to_code(new_token)
-
-                    yield Replace(
-                        node=self._ast_node,
-                        file=self._file,
-                        new_code=new_code,
-                        flag="update",
-                        old_value=self._old_value,
-                        new_value=self._old_value,
-                    )
-
-        yield from handle(self._ast_node, self._old_value)
-
-    # functions which determine the type
+        for change in adapter.compare(self._old_value, self._ast_node, new_value):
+            assert change.flag == "update", change
+            yield change
 
     def __eq__(self, other):
+        if compare_only():
+            return False
+
         from .._snapshot.eq_value import EqValue
 
         self._change(EqValue)
@@ -74,11 +118,11 @@ class UndecidedValue(GenericValue):
         self._change(MaxValue)
         return self >= other
 
-    def __contains__(self, other):
+    def __contains__(self, item):
         from .._snapshot.collection_value import CollectionValue
 
         self._change(CollectionValue)
-        return other in self
+        return item in self
 
     def __getitem__(self, item):
         from .._snapshot.dict_value import DictValue

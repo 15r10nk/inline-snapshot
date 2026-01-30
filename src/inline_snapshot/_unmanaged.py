@@ -8,9 +8,8 @@ except ImportError:  # pragma: no cover
 else:
 
     def is_dirty_equal(value):
-        return isinstance(value, dirty_equals.DirtyEquals) or (
-            isinstance(value, type) and issubclass(value, dirty_equals.DirtyEquals)
-        )
+        t = value if isinstance(value, type) else type(value)
+        return any(x is dirty_equals.DirtyEquals for x in t.__mro__)
 
 
 def update_allowed(value):
@@ -29,23 +28,3 @@ def declare_unmanaged(data_type):
     global unmanaged_types
     unmanaged_types.append(data_type)
     return data_type
-
-
-class Unmanaged:
-    def __init__(self, value):
-        self.value = value
-
-    def __eq__(self, other):
-        assert not isinstance(other, Unmanaged)
-
-        return self.value == other
-
-    def __repr__(self):
-        return repr(self.value)
-
-
-def map_unmanaged(value):
-    if is_unmanaged(value):
-        return Unmanaged(value)
-    else:
-        return value

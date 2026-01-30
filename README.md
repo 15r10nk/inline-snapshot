@@ -85,9 +85,9 @@ def test_something():
 The following examples show how you can use inline-snapshot in your tests. Take a look at the
 [documentation](https://15r10nk.github.io/inline-snapshot/latest) if you want to know more.
 
-<!-- inline-snapshot: create fix trim first_block outcome-passed=1 -->
+<!-- inline-snapshot: create fix trim first_block outcome-passed=1 outcome-errors=1 -->
 ``` python
-from inline_snapshot import snapshot, outsource, external
+from inline_snapshot import external, outsource, snapshot
 
 
 def test_something():
@@ -135,9 +135,9 @@ strings\
 
 <!-- inline-snapshot: create fix trim first_block outcome-passed=1 -->
 ``` python
-from inline_snapshot import snapshot
 import subprocess as sp
 import sys
+from inline_snapshot import snapshot
 
 
 def run_python(cmd, stdout=None, stderr=None):

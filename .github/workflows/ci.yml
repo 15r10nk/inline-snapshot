@@ -122,7 +122,8 @@ jobs:
         uvx coverage html --skip-covered --skip-empty
 
         # Report and write to summary.
-        uvx coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+        uvx coverage report --format=markdown --skip-covered --skip-empty -m >> $GITHUB_STEP_SUMMARY
+        uvx coverage report --skip-covered --skip-empty -m > htmlcov/report.txt
 
         # Report again and fail if under 100%.
         uvx coverage report --fail-under=100

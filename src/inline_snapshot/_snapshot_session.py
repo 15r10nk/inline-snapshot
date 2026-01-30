@@ -1,8 +1,8 @@
-import ast
 import os
 import sys
 import tokenize
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Dict
 from typing import List
 
@@ -21,8 +21,6 @@ from . import _config
 from ._change import ChangeBase
 from ._change import ExternalRemove
 from ._change import apply_all
-from ._code_repr import used_hasrepr
-from ._external._find_external import ensure_import
 from ._external._find_external import used_externals_in
 from ._flags import Flags
 from ._global_state import state
@@ -242,6 +240,32 @@ def filter_changes(changes, snapshot_changes, console):
 
 class SnapshotSession:
 
+    def __init__(self):
+        self.registered_modules = set()
+
+    def register_customize_hooks_from_module(self, module):
+        """Find and register functions decorated with @customize from a module"""
+
+        if module.__file__ in self.registered_modules:
+            return
+
+        self.registered_modules.add(module.__file__)
+
+        hooks = {}
+
+        for name in dir(module):
+            obj = getattr(module, name, None)
+            if isinstance(obj, type) and name.startswith("InlineSnapshot"):
+                state().pm.register(obj(), name=f"<conftest {name} {module.__file__}>")
+
+            if hasattr(obj, "inline_snapshot_impl"):
+                hooks[name] = obj
+
+        if hooks:
+            state().pm.register(
+                SimpleNamespace(**hooks), name=f"<conftest {module.__file__}>"
+            )
+
     @staticmethod
     def test_enter():
         state().missing_values = 0
@@ -336,10 +360,12 @@ class SnapshotSession:
             state().active = "disable" not in flags
             state().update_flags = Flags(flags & categories)
 
-        if state().config.storage_dir is None:
-            state().config.storage_dir = project_root / ".inline-snapshot"
+        storage_dir = state().config.storage_dir
+        if storage_dir is None:
+            storage_dir = project_root / ".inline-snapshot"
+            state().config.storage_dir = storage_dir
 
-        state().all_storages = default_storages(state().config.storage_dir)
+        state().all_storages = default_storages(storage_dir)
 
         if flags - {"short-report", "disable"} and not is_pytest_compatible():
 
@@ -455,26 +481,5 @@ class SnapshotSession:
 
             for change in used_changes:
                 change.apply_external_changes()
-
-            for test_file in cr.files():
-                tree = ast.parse(test_file.new_code())
-                used_externals = used_externals_in(
-                    test_file.filename, tree, check_import=False
-                )
-
-                required_imports = []
-
-                if used_externals:
-                    required_imports.append("external")
-
-                if used_hasrepr(tree):
-                    required_imports.append("HasRepr")
-
-                if required_imports:
-                    ensure_import(
-                        test_file.filename,
-                        {"inline_snapshot": required_imports},
-                        cr,
-                    )
 
             cr.fix_all()

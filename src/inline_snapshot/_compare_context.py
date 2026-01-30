@@ -13,5 +13,7 @@ def compare_context():
     global _eq_check_only
     old_eq_only = _eq_check_only
     _eq_check_only = True
-    yield
-    _eq_check_only = old_eq_only
+    try:
+        yield
+    finally:
+        _eq_check_only = old_eq_only

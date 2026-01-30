@@ -1,37 +1,18 @@
 import ast
-import copy
-from typing import Any
+from typing import Generator
 from typing import Iterator
 
-from .._adapter.adapter import AdapterContext
-from .._adapter.adapter import get_adapter_type
-from .._change import Change
-from .._code_repr import code_repr
-from .._exceptions import UsageError
+from inline_snapshot._adapter_context import AdapterContext
+from inline_snapshot._code_repr import mock_repr
+from inline_snapshot._customize._builder import Builder
+from inline_snapshot._customize._custom import Custom
+from inline_snapshot._customize._custom_undefined import CustomUndefined
+from inline_snapshot._new_adapter import reeval
+
+from .._change import ChangeBase
 from .._global_state import state
-from .._sentinels import undefined
 from .._types import SnapshotBase
-from .._unmanaged import Unmanaged
 from .._unmanaged import declare_unmanaged
-from .._unmanaged import update_allowed
-
-
-def clone(obj):
-    new = copy.deepcopy(obj)
-    if not obj == new:
-        raise UsageError(
-            f"""\
-inline-snapshot uses `copy.deepcopy` to copy objects,
-but the copied object is not equal to the original one:
-
-value = {code_repr(obj)}
-copied_value = copy.deepcopy(value)
-assert value == copied_value
-
-Please fix the way your object is copied or your __eq__ implementation.
-"""
-        )
-    return new
 
 
 def ignore_old_value():
@@ -40,11 +21,14 @@ def ignore_old_value():
 
 @declare_unmanaged
 class GenericValue(SnapshotBase):
-    _new_value: Any
-    _old_value: Any
+    _new_value: Custom
+    _old_value: Custom
     _current_op = "undefined"
-    _ast_node: ast.Expr
+    _ast_node: ast.expr
     _context: AdapterContext
+
+    def get_builder(self, **args):
+        return Builder(_snapshot_context=self._context, **args)
 
     def _return(self, result, new_result=True):
 
@@ -52,7 +36,12 @@ class GenericValue(SnapshotBase):
             state().incorrect_values += 1
         flags = state().update_flags
 
-        if flags.fix or flags.create or flags.update or self._old_value is undefined:
+        if (
+            flags.fix
+            or flags.create
+            or flags.update
+            or isinstance(self._old_value, CustomUndefined)
+        ):
             return new_result
         return result
 
@@ -60,45 +49,32 @@ class GenericValue(SnapshotBase):
     def _file(self):
         return self._context.file
 
-    def get_adapter(self, value):
-        return get_adapter_type(value)(self._context)
+    def to_custom(self, value, **args):
+        with mock_repr(self._context):
+            return self.get_builder(**args)._get_handler(value)
+
+    def value_to_custom(self, value):
+        if isinstance(value, Custom):
+            return value
+
+        if self._ast_node is None:
+            return self.to_custom(value)
+        else:
+            from inline_snapshot._snapshot.undecided_value import AstToCustom
+
+            return AstToCustom(self._context).convert(value, self._ast_node)
 
     def _re_eval(self, value, context: AdapterContext):
         self._context = context
 
-        def re_eval(old_value, node, value):
-            if isinstance(old_value, Unmanaged):
-                old_value.value = value
-                return
-
-            assert type(old_value) is type(value)
-
-            adapter = self.get_adapter(old_value)
-            if adapter is not None and hasattr(adapter, "items"):
-                old_items = adapter.items(old_value, node)
-                new_items = adapter.items(value, node)
-                assert len(old_items) == len(new_items)
-
-                for old_item, new_item in zip(old_items, new_items):
-                    re_eval(old_item.value, old_item.node, new_item.value)
-
-            else:
-                if update_allowed(old_value):
-                    if not old_value == value:
-                        raise UsageError(
-                            "snapshot value should not change. Use Is(...) for dynamic snapshot parts."
-                        )
-                else:
-                    assert False, "old_value should be converted to Unmanaged"
-
-        re_eval(self._old_value, self._ast_node, value)
+        self._old_value = reeval(self._old_value, self.value_to_custom(value))
 
     def _ignore_old(self):
         return (
             state().update_flags.fix
             or state().update_flags.update
             or state().update_flags.create
-            or self._old_value is undefined
+            or isinstance(self._old_value, CustomUndefined)
         )
 
     def _visible_value(self):
@@ -107,14 +83,14 @@ class GenericValue(SnapshotBase):
         else:
             return self._old_value
 
-    def _get_changes(self) -> Iterator[Change]:
+    def _get_changes(self) -> Iterator[ChangeBase]:
         raise NotImplementedError()
 
-    def _new_code(self):
+    def _new_code(self) -> Generator[ChangeBase, None, str]:
         raise NotImplementedError()
 
     def __repr__(self):
-        return repr(self._visible_value())
+        return repr(self._visible_value()._eval())
 
     def _type_error(self, op):
         __tracebackhide__ = True
@@ -122,22 +98,22 @@ class GenericValue(SnapshotBase):
             f"This snapshot cannot be use with `{op}`, because it was previously used with `{self._current_op}`"
         )
 
-    def __eq__(self, _other):
+    def __eq__(self, other):
         __tracebackhide__ = True
         self._type_error("==")
 
-    def __le__(self, _other):
+    def __le__(self, other):
         __tracebackhide__ = True
         self._type_error("<=")
 
-    def __ge__(self, _other):
+    def __ge__(self, other):
         __tracebackhide__ = True
         self._type_error(">=")
 
-    def __contains__(self, _other):
+    def __contains__(self, item):
         __tracebackhide__ = True
         self._type_error("in")
 
-    def __getitem__(self, _item):
+    def __getitem__(self, item):
         __tracebackhide__ = True
         self._type_error("snapshot[key]")

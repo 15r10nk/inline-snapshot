@@ -1,6 +1,5 @@
 from typing import TypeVar
 
-from ._adapter.adapter import adapter_map
 from ._exceptions import UsageError
 from ._external._external import External
 from ._external._external_file import ExternalFile
@@ -10,21 +9,20 @@ from ._global_state import state
 from ._is import Is
 from ._snapshot.generic_value import GenericValue
 from ._types import Snapshot
-from ._unmanaged import Unmanaged
 
 
 def unwrap(value):
     if isinstance(value, GenericValue):
-        return adapter_map(value._visible_value(), lambda v: unwrap(v)[0]), True
+        return value._visible_value()._map(lambda v: unwrap(v)[0]), True
+
+    if isinstance(value, Outsourced):
+        return (value.data, True)
 
     if isinstance(value, (External, Outsourced, ExternalFile)):
         try:
             return unwrap(value._load_value())[0], True
         except (UsageError, StorageLookupError):
             return (None, False)
-
-    if isinstance(value, Unmanaged):
-        return unwrap(value.value)[0], True
 
     if isinstance(value, Is):
         return value.value, True

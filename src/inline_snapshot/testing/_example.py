@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import importlib.util
 import os
 import platform
 import random
 import re
 import subprocess as sp
 import sys
-import tokenize
 import traceback
 import uuid
 from argparse import ArgumentParser
@@ -14,7 +14,6 @@ from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any
 from typing import Callable
 from unittest.mock import patch
 
@@ -319,6 +318,11 @@ class Example:
                     raise StopTesting(message)
 
                 snapshot_flags = set()
+                old_modules = sys.modules
+                old_path = sys.path[:]
+                # Add tmp_path to sys.path so modules can be imported normally
+                sys.path.insert(0, str(tmp_path))
+
                 try:
                     enter_snapshot_context()
                     session.load_config(
@@ -332,21 +336,42 @@ class Example:
                     report_output = StringIO()
                     console = Console(file=report_output, width=80)
 
+                    # Load and register all conftest.py files first
+                    for conftest_path in tmp_path.rglob("conftest.py"):
+                        print("load> conftest", conftest_path)
+
+                        # Load conftest module using importlib
+                        spec = importlib.util.spec_from_file_location(
+                            f"conftest_{conftest_path.parent.name}", conftest_path
+                        )
+                        assert spec and spec.loader
+
+                        conftest_module = importlib.util.module_from_spec(spec)
+                        sys.modules[spec.name] = conftest_module
+                        conftest_module.__file__ = str(conftest_path)
+                        spec.loader.exec_module(conftest_module)
+
+                        # Register customize hooks from this conftest
+                        session.register_customize_hooks_from_module(conftest_module)
+
                     tests_found = False
                     for filename in tmp_path.rglob("test_*.py"):
-                        globals: dict[str, Any] = {}
-                        print("run> pytest-inline", filename)
-                        with tokenize.open(filename) as f:
-                            code = f.read()
-                        exec(
-                            compile(code, filename, "exec"),
-                            globals,
+                        print("run> pytest-inline", filename, *args)
+
+                        # Load module using importlib
+                        spec = importlib.util.spec_from_file_location(
+                            filename.stem, filename
                         )
+                        assert spec and spec.loader
+
+                        module = importlib.util.module_from_spec(spec)
+                        sys.modules[filename.stem] = module
+                        spec.loader.exec_module(module)
 
                         # run all test_* functions
                         tests = [
                             v
-                            for k, v in globals.items()
+                            for k, v in module.__dict__.items()
                             if (k.startswith("test_") or k == "test") and callable(v)
                         ]
                         tests_found |= len(tests) != 0
@@ -378,6 +403,8 @@ class Example:
                 except StopTesting as e:
                     assert stderr == f"ERROR: {e}\n"
                 finally:
+                    sys.modules = old_modules
+                    sys.path = old_path
                     leave_snapshot_context()
 
             if reported_categories is not None:
@@ -445,6 +472,7 @@ class Example:
         Returns:
             A new Example instance containing the changed files.
         """
+
         self.dump_files()
 
         with TemporaryDirectory() as dir:
