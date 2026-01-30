@@ -181,3 +181,42 @@ def test_something():
         ),
         returncode=1,
     )
+
+
+def test_pydantic_generic_class():
+    Example(
+        """\
+from typing import Generic, TypeVar
+from inline_snapshot import snapshot
+from pydantic import BaseModel
+
+I=TypeVar("I")
+class C(BaseModel,Generic[I]):
+    a:int
+
+def test_a():
+    c=C[int](a=5)
+
+    assert c == snapshot()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from typing import Generic, TypeVar
+from inline_snapshot import snapshot
+from pydantic import BaseModel
+
+I=TypeVar("I")
+class C(BaseModel,Generic[I]):
+    a:int
+
+def test_a():
+    c=C[int](a=5)
+
+    assert c == snapshot(C(a=5))
+"""
+            }
+        ),
+    ).run_inline()
