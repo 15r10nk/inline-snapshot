@@ -158,7 +158,7 @@ class NewAdapter:
                 else True
             )
             and (
-                isinstance(old_value, (CustomCall, CustomSequence))
+                isinstance(old_value, (CustomCall, CustomSequence, CustomDict))
                 if old_node is None
                 else True
             )
