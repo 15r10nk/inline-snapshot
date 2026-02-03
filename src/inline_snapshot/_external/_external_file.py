@@ -39,7 +39,9 @@ class ExternalFile(ExternalBase, SnapshotRefBase):
         try:
             return self._format.decode(self._filename)
         except FileNotFoundError:
-            raise StorageLookupError(f"can not read {self._filename}")
+            raise StorageLookupError(
+                f"can not read {self._filename}", files=[self._filename]
+            )
 
 
 def external_file(path: Union[Path, str], *, format: Optional[str] = None):
