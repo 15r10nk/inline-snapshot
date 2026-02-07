@@ -87,3 +87,7 @@ def test_dataclass(try_snapshot_disable):
     assert s == A(a=outsource(5), b=2)
 
     assert inspect(get_snapshot_value(s)) == snapshot("A(a=5, b=2)")
+
+
+def test_no_assert():
+    assert get_snapshot_value(snapshot([])) == []

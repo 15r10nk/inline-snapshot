@@ -15,7 +15,7 @@ from ._unmanaged import Unmanaged
 
 def unwrap(value):
     if isinstance(value, GenericValue):
-        return adapter_map(value._visible_value(), lambda v: unwrap(v)[0]), True
+        return adapter_map(value._old_value, lambda v: unwrap(v)[0]), True
 
     if isinstance(value, (External, Outsourced, ExternalFile)):
         try:
