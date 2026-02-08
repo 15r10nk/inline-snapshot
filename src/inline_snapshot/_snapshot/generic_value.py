@@ -58,7 +58,9 @@ class GenericValue(SnapshotBase):
             return value
 
         if self._ast_node is None:
-            return self.to_custom(value)
+            from inline_snapshot._snapshot.undecided_value import ValueToCustom
+
+            return ValueToCustom(self._context).convert(value)
         else:
             from inline_snapshot._snapshot.undecided_value import AstToCustom
 

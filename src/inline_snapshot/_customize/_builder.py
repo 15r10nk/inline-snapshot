@@ -28,6 +28,13 @@ from ._custom_sequence import CustomTuple
 class Builder:
     _snapshot_context: AdapterContext
     _build_new_value: bool = False
+    _recursive: bool = True
+
+    def _get_handler_recursive(self, v) -> Custom:
+        if self._recursive:
+            return self._get_handler(v)
+        else:
+            return v
 
     def _get_handler(self, v) -> Custom:
 
@@ -93,7 +100,7 @@ customized_representation={result!r}
         `create_list([1,2,3])` becomes `[1,2,3]` in the code.
         List elements don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
-        custom = [self._get_handler(v) for v in value]
+        custom = [self._get_handler_recursive(v) for v in value]
         return CustomList(value=custom)
 
     def create_tuple(self, value: tuple) -> Custom:
@@ -103,7 +110,7 @@ customized_representation={result!r}
         `create_tuple((1, 2, 3))` becomes `(1, 2, 3)` in the code.
         Tuple elements don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
-        custom = [self._get_handler(v) for v in value]
+        custom = [self._get_handler_recursive(v) for v in value]
         return CustomTuple(value=custom)
 
     def with_default(self, value: Any, default: Any):
@@ -117,7 +124,7 @@ customized_representation={result!r}
             raise UsageError("default value can not be an Custom value")
 
         if value == default:
-            return CustomDefault(value=self._get_handler(value))
+            return CustomDefault(value=self._get_handler_recursive(value))
         return value
 
     def create_call(
@@ -129,9 +136,9 @@ customized_representation={result!r}
         `create_call(MyClass, [arg1, arg2], {'key': value})` becomes `MyClass(arg1, arg2, key=value)` in the code.
         Function, arguments, and keyword arguments don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
-        function = self._get_handler(function)
-        posonly_args = [self._get_handler(arg) for arg in posonly_args]
-        kwargs = {k: self._get_handler(arg) for k, arg in kwargs.items()}
+        function = self._get_handler_recursive(function)
+        posonly_args = [self._get_handler_recursive(arg) for arg in posonly_args]
+        kwargs = {k: self._get_handler_recursive(arg) for k, arg in kwargs.items()}
 
         return CustomCall(
             function=function,
@@ -146,7 +153,10 @@ customized_representation={result!r}
         `create_dict({'key': 'value'})` becomes `{'key': 'value'}` in the code.
         Dict keys and values don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
-        custom = {self._get_handler(k): self._get_handler(v) for k, v in value.items()}
+        custom = {
+            self._get_handler_recursive(k): self._get_handler_recursive(v)
+            for k, v in value.items()
+        }
         return CustomDict(value=custom)
 
     @cached_property

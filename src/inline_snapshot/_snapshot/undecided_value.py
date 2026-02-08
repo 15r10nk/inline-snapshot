@@ -2,9 +2,12 @@ import ast
 from typing import Any
 from typing import Iterator
 
+from inline_snapshot._code_repr import mock_repr
 from inline_snapshot._compare_context import compare_only
+from inline_snapshot._customize._builder import Builder
 from inline_snapshot._customize._custom import Custom
 from inline_snapshot._customize._custom_call import CustomCall
+from inline_snapshot._customize._custom_call import CustomDefault
 from inline_snapshot._customize._custom_code import CustomCode
 from inline_snapshot._customize._custom_dict import CustomDict
 from inline_snapshot._customize._custom_sequence import CustomList
@@ -21,6 +24,7 @@ from .generic_value import GenericValue
 
 
 class AstToCustom:
+    context: AdapterContext
 
     def __init__(self, context):
         self.eval = context.eval
@@ -66,6 +70,56 @@ class AstToCustom:
                 for (k, v), k_node, v_node in zip(value.items(), node.keys, node.values)
                 if k_node is not None
             }
+        )
+
+
+class ValueToCustom:
+    """this implementation is for cpython <= 3.10 only.
+    It works similar to AstToCustom but can not handle calls
+    """
+
+    context: AdapterContext
+
+    def __init__(self, context):
+        self.context = context
+
+    def convert(self, value: Any):
+        if is_unmanaged(value):
+            return CustomUnmanaged(value)
+
+        if isinstance(value, CustomDefault):
+            return self.convert(value.value)
+
+        t = type(value).__name__
+        return getattr(self, "convert_" + t, self.convert_generic)(value)
+
+    def convert_generic(self, value: Any) -> Custom:
+        if value is ...:
+            return CustomUndefined()
+        else:
+            with mock_repr(self.context):
+                result = Builder(self.context, _recursive=False)._get_handler(value)
+            if isinstance(result, CustomCall) and result.function == type(value):
+                function = self.convert(result.function)
+                posonly_args = [self.convert(arg) for arg in result.args]
+                kwargs = {k: self.convert(arg) for k, arg in result.kwargs.items()}
+
+                return CustomCall(
+                    function=function,
+                    args=posonly_args,
+                    kwargs=kwargs,
+                )
+            return CustomCode(value, "<unknown>")
+
+    def convert_list(self, value: list):
+        return CustomList([self.convert(v) for v in value])
+
+    def convert_tuple(self, value: tuple):
+        return CustomTuple([self.convert(v) for v in value])
+
+    def convert_dict(self, value: dict):
+        return CustomDict(
+            {self.convert(k): self.convert(v) for (k, v) in value.items()}
         )
 
 
