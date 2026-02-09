@@ -55,7 +55,7 @@ class Builder:
             else:
                 result = r
 
-        result.__dict__["original_value"] = v
+        result.__dict__["original_value"] = v._eval() if isinstance(v, Custom) else v
 
         if not isinstance(v, Custom) and self._build_new_value:
             is_same = False

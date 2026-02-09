@@ -359,3 +359,48 @@ def test_datetime_types():
             }
         ),
     ).run_inline()
+
+
+def test_custom_children():
+    Example(
+        {
+            "c.py": """\
+from dataclasses import dataclass
+
+@dataclass
+class C:
+    i:int
+""",
+            "conftest.py": """\
+from inline_snapshot.plugin import customize
+from c import C
+
+@customize
+def handler(value,builder):
+    if isinstance(value,C) and value.i==2:
+        return builder.create_call(C,[],{"i":builder.create_code("1+1")})
+             """,
+            "test_example.py": """\
+from inline_snapshot import snapshot
+from c import C
+
+def test():
+    assert C(i=2) == snapshot()
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_example.py": """\
+from inline_snapshot import snapshot
+from c import C
+
+def test():
+    assert C(i=2) == snapshot(C(i=1 + 1))
+"""
+            }
+        ),
+    ).run_inline(
+        ["--inline-snapshot=fix"]
+    )
