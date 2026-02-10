@@ -1,6 +1,7 @@
 import pytest
 from executing import is_pytest_compatible
 
+from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
 
 
@@ -28,3 +29,46 @@ def test_foo():
 """,
         }
     ).run_pytest()
+
+
+def test_custom_default_case_in_ValueToCustom(executing_used):
+    Example(
+        """\
+from inline_snapshot import snapshot
+from dataclasses import dataclass
+
+@dataclass
+class A:
+    a:int=5
+
+def test_something():
+    assert A(a=3) == snapshot(A(a=5)),"not equal"
+"""
+    ).run_inline(
+        changed_files=snapshot({}),
+        raises=snapshot(
+            """\
+AssertionError:
+not equal\
+"""
+        ),
+    )
+
+
+def test_tuple_case_in_ValueToCustom(executing_used):
+    Example(
+        """\
+from inline_snapshot import snapshot
+from dataclasses import dataclass
+
+@dataclass
+class A:
+    a:int=5
+
+def test_something():
+    assert (1,2) == snapshot((1,2)),"not equal"
+"""
+    ).run_inline(
+        changed_files=snapshot({}),
+        raises=snapshot(None),
+    )
