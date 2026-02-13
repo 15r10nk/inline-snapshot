@@ -177,4 +177,4 @@ jobs:
       if: ${{ steps.check-version.outputs.should_continue == 'true' }}
       env:
         GITHUB_TOKEN: ${{ github.token }}
-      run: scriv github-release
+      run: uvx scriv github-release
