@@ -7469,37 +7469,18 @@ For top level release notes, leave all the headers commented out.
 
 <h3 id="exec-1--added_1">Added<a class="headerlink" href="#exec-1--added_1" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Support for import statement generation for all types and user-customized code.</li>
-<li>Added a new way to customize snapshot creation with <code>@customize</code>.</li>
-<li>Added a plugin system which allows you to reuse customizations across multiple projects.</li>
+<li>Support for <a href="https://15r10nk.github.io/inline-snapshot/latest/plugin/#inline_snapshot.plugin.Builder.create_code">import statement generation</a> for all types and user-customized code.</li>
+<li>Added a new way to customize snapshot creation with <a href="https://15r10nk.github.io/inline-snapshot/latest/plugin/#inline_snapshot.plugin.InlineSnapshotPluginSpec.customize"><code>@customize</code></a>.</li>
+<li>Added a <a href="https://15r10nk.github.io/inline-snapshot/latest/plugin/#creating-a-plugin-package">plugin system</a> which allows you to reuse customizations across multiple projects.</li>
+<li>Added support for <a href="https://15r10nk.github.io/inline-snapshot/latest/plugin/#conditional-external-objects">conditional external</a> storage to automatically store values in external files based on custom criteria (e.g., string length, data size).</li>
 <li>Added built-in handlers for <code>datetime.datetime</code>, <code>date</code>, <code>time</code>, and <code>timedelta</code> that generate clean snapshots with proper imports.</li>
-<li>Added support for conditional external storage to automatically store values in external files based on custom criteria (e.g., string length, data size).</li>
 <li>Generates <code>__file__</code> instead of the filename string of the current source file.</li>
 <li>Uses dirty-equals <code>IsNow()</code> instead of the current datetime when the time value equals the current time.</li>
 </ul>
-<!--
-### Changed
-
-- A bullet item for the Changed category.
-
--->
 <h3 id="exec-1--deprecated">Deprecated<a class="headerlink" href="#exec-1--deprecated" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Deprecated <code>@customize_repr</code> which can be replaced with <code>@customize</code>.</li>
 </ul>
-<!--
-### Fixed
-
-- A bullet item for the Fixed category.
-
--->
-<!--
-### Security
-
-- A bullet item for the Security category.
-
--->
-
 <h3 id="exec-1--fixed">Fixed<a class="headerlink" href="#exec-1--fixed" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>raises</code> catches BaseException instead of Exception. This ensures that SystemExit and KeyboardInterrupt are also caught.</li>
