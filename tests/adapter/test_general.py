@@ -45,3 +45,25 @@ def test_thing():
         assert (i,) == (Is(i),)
 """
     ).run_pytest(["--inline-snapshot=short-report"], report=snapshot(""))
+
+
+def test_usageerror_unmanaged():
+
+    Example(
+        """\
+from inline_snapshot import snapshot,Is
+
+
+def test_thing():
+    assert [Is(5)] == snapshot([6])
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        report=snapshot(""),
+        raises=snapshot(
+            """\
+UsageError:
+unmanaged values can not be compared with snapshots\
+"""
+        ),
+    )

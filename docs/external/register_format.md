@@ -129,8 +129,8 @@ The custom format is then used every time a `NumberSet` is compared with an empt
 === "example"
     <!-- inline-snapshot: create first_block outcome-failed=1 -->
     ``` python
-    from inline_snapshot import external
     from number_set import NumberSet
+    from inline_snapshot import external
 
 
     def test():

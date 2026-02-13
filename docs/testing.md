@@ -5,8 +5,8 @@ The following example shows how you can use the `Example` class to test what inl
 
 <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
 ``` python
-from inline_snapshot.testing import Example
 from inline_snapshot import snapshot
+from inline_snapshot.testing import Example
 
 
 def test_something():
@@ -30,8 +30,8 @@ Inline-snapshot will then populate the empty snapshots.
 
 <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
 ``` python hl_lines="17 18 19 20 21 22 23 24 25 26"
-from inline_snapshot.testing import Example
 from inline_snapshot import snapshot
+from inline_snapshot.testing import Example
 
 
 def test_something():
@@ -68,8 +68,8 @@ This allows for more complex tests where you create one example and perform mult
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python
-from inline_snapshot.testing import Example
 from inline_snapshot import snapshot
+from inline_snapshot.testing import Example
 
 
 def test_something():
@@ -116,8 +116,8 @@ You can also use the same example multiple times and call different methods on i
 
 <!-- inline-snapshot: create fix first_block outcome-failed=1 -->
 ``` python
-from inline_snapshot.testing import Example
 from inline_snapshot import snapshot
+from inline_snapshot.testing import Example
 
 
 def test_something():

@@ -126,9 +126,32 @@ class InlineSnapshotPlugin:
     def __init__(self):
         self.session = SnapshotSession()
 
+    @pytest.hookimpl(tryfirst=True)
+    def pytest_plugin_registered(self, plugin, manager):
+        """Register @customize hooks from conftest.py files"""
+        # Skip internal plugins
+
+        if not hasattr(plugin, "__file__") or plugin.__file__ is None:
+            return
+
+        # Only process conftest.py files
+        if "conftest.py" not in plugin.__file__:
+            return
+
+        self.session.register_customize_hooks_from_module(plugin)
+
     @pytest.hookimpl
     def pytest_configure(self, config):
         enter_snapshot_context()
+
+        # Register customize hooks from all already loaded conftest.py files
+        for plugin in config.pluginmanager.get_plugins():
+            if (
+                hasattr(plugin, "__file__")
+                and plugin.__file__
+                and "conftest.py" in plugin.__file__
+            ):
+                self.session.register_customize_hooks_from_module(plugin)
 
         # setup default flags
         if is_pytest_compatible():

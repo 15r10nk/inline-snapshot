@@ -64,7 +64,7 @@ The `external()` function can also be used inside other data structures.
 
 <!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
 ``` python
-from inline_snapshot import snapshot, external
+from inline_snapshot import external, snapshot
 
 
 def test_something():
@@ -75,7 +75,7 @@ def test_something():
 
 <!-- inline-snapshot: create fix outcome-passed=1 outcome-errors=1 -->
 ``` python hl_lines="6 7 8 9 10 11 12 13"
-from inline_snapshot import snapshot, external
+from inline_snapshot import external, snapshot
 
 
 def test_something():
@@ -176,7 +176,7 @@ You must specify the suffix in this case.
 
 <!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
 ``` python
-from inline_snapshot import register_format_alias, external
+from inline_snapshot import external, register_format_alias
 
 register_format_alias(".html", ".txt")
 
@@ -189,7 +189,7 @@ inline-snapshot uses the given suffix to create an external snapshot.
 
 <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
 ``` python hl_lines="7 8 9"
-from inline_snapshot import register_format_alias, external
+from inline_snapshot import external, register_format_alias
 
 register_format_alias(".html", ".txt")
 

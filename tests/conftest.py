@@ -1,3 +1,4 @@
+import importlib.util
 import os
 import platform
 import re
@@ -24,6 +25,7 @@ from inline_snapshot._format import format_code
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot._rewrite_code import ChangeRecorder
 from inline_snapshot._types import Category
+from inline_snapshot.testing._example import deterministic_uuid
 
 pytest_plugins = "pytester"
 
@@ -102,7 +104,7 @@ from inline_snapshot import outsource
             print("input:")
             print(textwrap.indent(source, " |", lambda line: True).rstrip())
 
-            with snapshot_env() as state:
+            with snapshot_env() as state, deterministic_uuid():
                 recorder = ChangeRecorder()
                 state.update_flags = flags
                 state.all_storages["hash"] = inline_snapshot._external.HashStorage(
@@ -113,7 +115,16 @@ from inline_snapshot import outsource
                 error = False
 
                 try:
-                    exec(compile(filename.read_text("utf-8"), filename, "exec"), {})
+                    # Load module using importlib
+                    spec = importlib.util.spec_from_file_location(
+                        filename.stem, filename
+                    )
+                    if spec and spec.loader:
+                        module = importlib.util.module_from_spec(spec)
+                        sys.modules[filename.stem] = module
+                        spec.loader.exec_module(module)
+                    else:
+                        assert False, f"Could not load module from {filename}"
                 except AssertionError:
                     traceback.print_exc()
                     error = True
@@ -300,21 +311,35 @@ from inline_snapshot import outsource
 import datetime
 import pytest
 from freezegun.api import FakeDatetime,FakeDate
-from inline_snapshot import customize_repr
+from inline_snapshot.plugin import customize
 
-@customize_repr
-def _(value:FakeDatetime):
-    return value.__repr__().replace("FakeDatetime","datetime.datetime")
+class InlineSnapshotPlugin:
+    @customize
+    def fakedatetime_handler(self,value,builder):
+        if isinstance(value,FakeDatetime):
+            return builder.create_code(value.__repr__().replace("FakeDatetime","datetime.datetime"))
 
-@customize_repr
-def _(value:FakeDate):
-    return value.__repr__().replace("FakeDate","datetime.date")
+    @customize
+    def fakedate_handler(self,value,builder):
+        if isinstance(value,FakeDate):
+            return builder.create_code(value.__repr__().replace("FakeDate","datetime.date"))
 
 
 @pytest.fixture(autouse=True)
 def set_time(freezer):
         freezer.move_to(datetime.datetime(2024, 3, 14, 0, 0, 0, 0))
         yield
+
+import uuid
+import random
+
+rd = random.Random(0)
+
+def f():
+    return uuid.UUID(int=rd.getrandbits(128), version=4)
+
+uuid.uuid4 = f
+
 """
             )
 

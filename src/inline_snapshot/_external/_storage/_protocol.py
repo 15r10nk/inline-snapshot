@@ -8,7 +8,9 @@ from .._external_location import ExternalLocation
 
 
 class StorageLookupError(Exception):
-    pass
+    def __init__(self, msg, files):
+        super().__init__(msg)
+        self.files = files
 
 
 class StorageProtocol:

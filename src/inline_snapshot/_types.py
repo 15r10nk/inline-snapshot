@@ -35,7 +35,7 @@ class Snapshot(Protocol[T]):
     <!-- inline-snapshot: create fix trim first_block outcome-passed=2 -->
     ``` python
     from typing import Optional
-    from inline_snapshot import snapshot, Snapshot
+    from inline_snapshot import Snapshot, snapshot
 
     # required snapshots
 

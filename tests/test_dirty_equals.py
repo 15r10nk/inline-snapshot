@@ -159,3 +159,77 @@ def test_number():
             }
         ),
     )
+
+
+def test_is_now_without_approx() -> None:
+    """Test that IsNow handler correctly removes 'approx' kwarg."""
+
+    Example(
+        """\
+from datetime import datetime
+from dirty_equals import IsNow
+from inline_snapshot import snapshot
+
+def test_time():
+    assert datetime.now() == snapshot()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from datetime import datetime
+from dirty_equals import IsNow
+from inline_snapshot import snapshot
+
+def test_time():
+    assert datetime.now() == snapshot(IsNow())
+"""
+            }
+        ),
+    )
+
+
+def test_is_now_with_delta() -> None:
+    """Test that IsNow handler works with custom delta parameter in customization."""
+
+    Example(
+        {
+            "conftest.py": """\
+from datetime import timedelta
+from inline_snapshot.plugin import customize
+from dirty_equals import IsNow
+
+@customize
+def is_now_with_tolerance(value):
+    if value == IsNow(delta=timedelta(minutes=10)):
+        return IsNow(delta=timedelta(minutes=10))
+""",
+            "test_something.py": """\
+from datetime import datetime, timedelta
+from inline_snapshot import snapshot
+
+def test_time():
+    # Compare a time from 5 minutes ago with snapshot
+    past_time = datetime.now() - timedelta(minutes=5)
+    assert past_time == snapshot()
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from datetime import datetime, timedelta
+from inline_snapshot import snapshot
+
+from dirty_equals import IsNow
+
+def test_time():
+    # Compare a time from 5 minutes ago with snapshot
+    past_time = datetime.now() - timedelta(minutes=5)
+    assert past_time == snapshot(IsNow(delta=timedelta(seconds=600)))
+"""
+            }
+        ),
+    ).run_inline()

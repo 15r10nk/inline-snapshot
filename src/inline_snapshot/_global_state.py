@@ -12,7 +12,10 @@ from typing import Generator
 from typing import Literal
 from uuid import uuid4
 
+import pluggy
+
 from inline_snapshot._config import Config
+from inline_snapshot.plugin._spec import inline_snapshot_plugin_name
 
 if TYPE_CHECKING:
     from inline_snapshot._external._format._protocol import Format
@@ -50,6 +53,10 @@ class State:
         default_factory=lambda: TemporaryDirectory(prefix="inline-snapshot-")
     )
 
+    pm: pluggy.PluginManager = field(
+        default_factory=lambda: pluggy.PluginManager(inline_snapshot_plugin_name)
+    )
+
     def new_tmp_path(self, suffix: str) -> Path:
         assert self.tmp_dir is not None
         return Path(self.tmp_dir.name) / f"tmp-path-{uuid4()}{suffix}"
@@ -74,6 +81,37 @@ def enter_snapshot_context():
     _current = State()
     _current.all_formats = dict(latest.all_formats)
     _current.config = deepcopy(latest.config)
+
+    from .plugin._spec import InlineSnapshotPluginSpec
+
+    _current.pm.add_hookspecs(InlineSnapshotPluginSpec)
+
+    from .plugin._default_plugin import InlineSnapshotPlugin
+
+    _current.pm.register(InlineSnapshotPlugin())
+
+    try:
+        from .plugin._default_plugin import InlineSnapshotAttrsPlugin
+    except ImportError:  # pragma: no cover
+        pass
+    else:
+        _current.pm.register(InlineSnapshotAttrsPlugin())
+
+    try:
+        from .plugin._default_plugin import InlineSnapshotPydanticPlugin
+    except ImportError:  # pragma: no cover
+        pass
+    else:
+        _current.pm.register(InlineSnapshotPydanticPlugin())
+
+    try:
+        from .plugin._default_plugin import InlineSnapshotDirtyEqualsPlugin
+    except ImportError:  # pragma: no cover
+        pass
+    else:
+        _current.pm.register(InlineSnapshotDirtyEqualsPlugin())
+
+    _current.pm.load_setuptools_entrypoints(inline_snapshot_plugin_name)
 
 
 def leave_snapshot_context():

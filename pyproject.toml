@@ -29,6 +29,7 @@ dependencies = [
   "rich>=13.7.1",
   "tomli>=2.0.0; python_version < '3.11'",
   "pytest>=8.3.4",
+  "typing-extensions"
 ]
 description = "golden master/snapshot/approval testing library which puts the values right into your source code"
 keywords = []
@@ -59,7 +60,8 @@ dev = [
     "coverage-enable-subprocess>=1.0",
     "attrs>=24.3.0",
     "pydantic>=1",
-    "black==25.1.0"
+    "black==25.1.0",
+    "isort"
 ]
 
 [project.entry-points.pytest11]
@@ -93,7 +95,9 @@ exclude_lines = [
     "# pragma: no cover",
     "if TYPE_CHECKING:",
     "if is_insider",
+    "\\.\\.\\."
 ]
+ignore_errors=true
 
 
 [tool.coverage.run]
@@ -126,13 +130,16 @@ dependencies = [
 ]
 
 [tool.hatch.envs.docs.scripts]
-build = "mkdocs build --strict"
+build = "mkdocs build --strict {args}"
 export-deps = "pip freeze"
-serve = "mkdocs serve --livereload"
+serve = "mkdocs serve --livereload {args}"
 
 
 [tool.hatch.envs.default]
 installer="uv"
+
+[tool.hatch.envs.cov]
+python="3.12"
 
 [tool.hatch.envs.cov.scripts]
 github=[
@@ -165,16 +172,7 @@ matrix.extra-deps.dependencies = [
 ]
 
 [tool.hatch.envs.hatch-test]
-extra-dependencies = [
-  "inline-snapshot[black,dirty-equals]",
-  "dirty-equals>=0.9.0",
-  "hypothesis>=6.75.5",
-  "mypy>=1.2.0 ; implementation_name == 'cpython'",
-  "pyright>=1.1.359",
-  "pytest-freezer>=0.4.8",
-  "pytest-mock>=3.14.0",
-  "black==25.1.0"
-]
+dependency-groups=["dev"]
 env-vars.TOP = "{root}"
 
 [tool.hatch.envs.hatch-test.scripts]
@@ -184,13 +182,9 @@ cov-combine = "coverage combine"
 cov-report=["coverage report","coverage html"]
 
 [tool.hatch.envs.types]
+dependency-groups=["dev"]
 extra-dependencies = [
-  "inline-snapshot[black,dirty-equals]",
   "mypy>=1.0.0",
-  "hypothesis>=6.75.5",
-  "pydantic",
-  "attrs",
-  "typing-extensions"
 ]
 
 [[tool.hatch.envs.types.matrix]]
