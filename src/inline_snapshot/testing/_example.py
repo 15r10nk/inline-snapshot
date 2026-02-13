@@ -563,7 +563,7 @@ class Example:
                         [
                             line
                             for line in result_stdout.splitlines()
-                            if line and line[:2] in ("> ", "E ")
+                            if line and (line.startswith("> ") or line.startswith("E "))
                         ]
                     )
                     + "\n"

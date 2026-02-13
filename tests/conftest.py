@@ -265,7 +265,7 @@ class RunResult:
 
     def errorLines(self):
         result = self._join_lines(
-            [line for line in self.stdout.lines if line and line[:2] in ("> ", "E ")]
+            [line for line in self.stdout.lines if line and (line.startswith("> ") or line.startswith("E "))]
         )
         return result
 
@@ -410,9 +410,10 @@ uuid.uuid4 = f
                 ):
 
                     if stdin:
-                        result = pytester.run("pytest", *args, stdin=stdin)
+                        # runpytest doesn't support stdin, fall back to run
+                        result = pytester.run(sys.executable, "-mpytest", *args, stdin=stdin)
                     else:
-                        result = pytester.run("pytest", *args)
+                        result = pytester.runpytest(*args)
             finally:
                 os.environ.update(old_environ)
 
