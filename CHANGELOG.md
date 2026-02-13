@@ -1,4 +1,33 @@
 
+<a id='changelog-0.32.0'></a>
+# 0.32.0 — 2026-02-13
+
+## Removed
+
+- removed support for python 3.8 because it is end-of-life
+
+## Added
+
+- `pathlib.Path/PurePath` values are now never stored as `Posix/WindowsPath` or their Pure variants, which improves the writing of platform independent tests.
+
+- Support for [import statement generation](https://15r10nk.github.io/inline-snapshot/latest/plugin/#inline_snapshot.plugin.Builder.create_code) for all types and user-customized code.
+- Added a new way to customize snapshot creation with [`@customize`](https://15r10nk.github.io/inline-snapshot/latest/plugin/#inline_snapshot.plugin.InlineSnapshotPluginSpec.customize).
+- Added a [plugin system](https://15r10nk.github.io/inline-snapshot/latest/plugin/#creating-a-plugin-package) which allows you to reuse customizations across multiple projects.
+- Added support for [conditional external](https://15r10nk.github.io/inline-snapshot/latest/plugin/#conditional-external-objects) storage to automatically store values in external files based on custom criteria (e.g., string length, data size).
+- Added built-in handlers for `datetime.datetime`, `date`, `time`, and `timedelta` that generate clean snapshots with proper imports.
+- Generates `__file__` instead of the filename string of the current source file.
+- Uses dirty-equals `IsNow()` instead of the current datetime when the time value equals the current time.
+
+## Deprecated
+
+- Deprecated `@customize_repr` which can be replaced with `@customize`.
+
+## Fixed
+
+- `raises` catches BaseException instead of Exception. This ensures that SystemExit and KeyboardInterrupt are also caught.
+
+- pytest --color flag is now respected
+
 <a id='changelog-0.31.1'></a>
 # 0.31.1 — 2025-11-07
 
