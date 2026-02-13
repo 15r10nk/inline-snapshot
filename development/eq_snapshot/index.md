@@ -98,8 +98,8 @@ Then you can start using dirty-equals expressions inside snapshots.
 For example, say you have a function that returns a dictionary that contains a variable `datetime`. You could initialize a test like this:
 
 ```
-from inline_snapshot import snapshot
 import datetime
+from inline_snapshot import snapshot
 
 
 def get_data():
@@ -116,8 +116,10 @@ def test_function():
 If you use `--inline-snapshot=create`, inline-snapshot will record the current `datetime` in the snapshot:
 
 ```
-from inline_snapshot import snapshot
 import datetime
+from inline_snapshot import snapshot
+
+from dirty_equals import IsNow
 
 
 def get_data():
@@ -128,41 +130,17 @@ def get_data():
 
 
 def test_function():
-    assert get_data() == snapshot(
-        {"date": datetime.datetime(2024, 3, 14, 0, 0), "payload": "some data"}
-    )
+    assert get_data() == snapshot({"date": IsNow(), "payload": "some data"})
 ```
 
-To avoid the test failing in future runs, replace the `datetime` with [dirty-equals' `IsDatetime()`](https://dirty-equals.helpmanual.io/latest/types/datetime/#dirty_equals.IsDatetime):
-
-```
-from inline_snapshot import snapshot
-from dirty_equals import IsDatetime
-import datetime
-
-
-def get_data():
-    return {
-        "date": datetime.datetime.utcnow(),
-        "payload": "some data",
-    }
-
-
-def test_function():
-    assert get_data() == snapshot(
-        {
-            "date": IsDatetime(),
-            "payload": "some data",
-        }
-    )
-```
+Inline-snapshot uses [dirty-equals `IsNow()`](https://dirty-equals.helpmanual.io/latest/types/datetime/#dirty_equals.IsDatetime) by default when the value is equal to the current time to avoid the test failing in future runs.
 
 Say a different part of the return data changes, such as the `payload` value:
 
 ```
-from inline_snapshot import snapshot
-from dirty_equals import IsDatetime
 import datetime
+from dirty_equals import IsNow
+from inline_snapshot import snapshot
 
 
 def get_data():
@@ -175,7 +153,7 @@ def get_data():
 def test_function():
     assert get_data() == snapshot(
         {
-            "date": IsDatetime(),
+            "date": IsNow(),
             "payload": "some data",
         }
     )
@@ -184,9 +162,9 @@ def test_function():
 Re-running the test with `--inline-snapshot=fix` will update the snapshot to match the new value of `payload`, while keeping the `date` as a dirty-equals expression:
 
 ```
-from inline_snapshot import snapshot
-from dirty_equals import IsDatetime
 import datetime
+from dirty_equals import IsNow
+from inline_snapshot import snapshot
 
 
 def get_data():
@@ -199,7 +177,7 @@ def get_data():
 def test_function():
     assert get_data() == snapshot(
         {
-            "date": IsDatetime(),
+            "date": IsNow(),
             "payload": "data changed for some good reason",
         }
     )
@@ -244,7 +222,7 @@ You cannot use a snapshot for every dirty-equals argument, but only for those th
 `Is()` can be used to put runtime values inside snapshots. It tells inline-snapshot that the developer wants control over some part of the snapshot.
 
 ```
-from inline_snapshot import snapshot, Is
+from inline_snapshot import Is, snapshot
 
 current_version = "1.5"
 
@@ -264,7 +242,7 @@ The snapshot does not need to be fixed when `current_version` changes in the fut
 `Is()` can also be used when the snapshot is evaluated multiple times, which is useful in loops or parametrized tests.
 
 ```
-from inline_snapshot import snapshot, Is
+from inline_snapshot import Is, snapshot
 
 
 def test_function():
@@ -273,7 +251,7 @@ def test_function():
 ```
 
 ```
-from inline_snapshot import snapshot, Is
+from inline_snapshot import Is, snapshot
 
 
 def test_function():
@@ -293,6 +271,8 @@ This is useful to describe version specific parts of snapshots by replacing the 
 
 The following example shows how this can be used to run a tests with two different library versions:
 
+my_lib.py
+
 ```
 version = 1
 
@@ -300,6 +280,8 @@ version = 1
 def get_schema():
     return [{"name": "var_1", "type": "int"}]
 ```
+
+my_lib.py
 
 ```
 version = 2
@@ -310,8 +292,8 @@ def get_schema():
 ```
 
 ```
+from my_lib import get_schema, version
 from inline_snapshot import snapshot
-from my_lib import version, get_schema
 
 
 def test_function():
@@ -330,8 +312,8 @@ The advantage of this approach is that the test uses always the correct values f
 You can also extract the version logic into its own function.
 
 ```
-from inline_snapshot import snapshot, Snapshot
-from my_lib import version, get_schema
+from my_lib import get_schema, version
+from inline_snapshot import Snapshot, snapshot
 
 
 def version_snapshot(v1: Snapshot, v2: Snapshot):

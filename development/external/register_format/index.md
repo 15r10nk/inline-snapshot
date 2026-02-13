@@ -124,8 +124,8 @@ class NumberSet:
 The custom format is then used every time a `NumberSet` is compared with an empty external.
 
 ```
-from inline_snapshot import external
 from number_set import NumberSet
+from inline_snapshot import external
 
 
 def test():

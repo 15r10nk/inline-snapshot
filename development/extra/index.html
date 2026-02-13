@@ -738,6 +738,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../code_generation/" class="md-nav__link">
         
   
@@ -2047,9 +2075,9 @@ The following example shows how <code>Transformed</code> is used inside a dictio
 </code></pre></div>
 <p>Or to normalize strings.</p>
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformed</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformed</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">Thing</span><span class="p">:</span>
@@ -2261,9 +2289,9 @@ The following example shows how <code>Transformed</code> is used inside a dictio
 <a id="__codelineno-0-272" name="__codelineno-0-272"></a>
 <a id="__codelineno-0-273" name="__codelineno-0-273"></a><span class="sd">    &lt;!-- inline-snapshot: create fix first_block outcome-passed=1 --&gt;</span>
 <a id="__codelineno-0-274" name="__codelineno-0-274"></a><span class="sd">    ``` python</span>
-<a id="__codelineno-0-275" name="__codelineno-0-275"></a><span class="sd">    from inline_snapshot.extra import Transformed</span>
+<a id="__codelineno-0-275" name="__codelineno-0-275"></a><span class="sd">    import re</span>
 <a id="__codelineno-0-276" name="__codelineno-0-276"></a><span class="sd">    from inline_snapshot import snapshot</span>
-<a id="__codelineno-0-277" name="__codelineno-0-277"></a><span class="sd">    import re</span>
+<a id="__codelineno-0-277" name="__codelineno-0-277"></a><span class="sd">    from inline_snapshot.extra import Transformed</span>
 <a id="__codelineno-0-278" name="__codelineno-0-278"></a>
 <a id="__codelineno-0-279" name="__codelineno-0-279"></a>
 <a id="__codelineno-0-280" name="__codelineno-0-280"></a><span class="sd">    class Thing:</span>
@@ -2513,9 +2541,9 @@ the output if needed.</p>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p><!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">prints</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">prints</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_prints</span><span class="p">():</span>
@@ -2526,9 +2554,9 @@ the output if needed.</p>
 </div>
 <div class="tabbed-block">
 <p><!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">prints</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">prints</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_prints</span><span class="p">():</span>
@@ -2541,10 +2569,10 @@ the output if needed.</p>
 </div>
 <div class="tabbed-block">
 <p><!-- inline-snapshot: outcome-passed=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">prints</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">dirty_equals</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsStr</span>
-</span><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">dirty_equals</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsStr</span>
+</span><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">prints</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_prints</span><span class="p">():</span>
@@ -2643,9 +2671,9 @@ the output if needed.</p>
 <a id="__codelineno-0-83" name="__codelineno-0-83"></a>
 <a id="__codelineno-0-84" name="__codelineno-0-84"></a><span class="sd">        &lt;!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 --&gt;</span>
 <a id="__codelineno-0-85" name="__codelineno-0-85"></a><span class="sd">        ``` python</span>
-<a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="sd">        from inline_snapshot import snapshot</span>
-<a id="__codelineno-0-87" name="__codelineno-0-87"></a><span class="sd">        from inline_snapshot.extra import prints</span>
-<a id="__codelineno-0-88" name="__codelineno-0-88"></a><span class="sd">        import sys</span>
+<a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="sd">        import sys</span>
+<a id="__codelineno-0-87" name="__codelineno-0-87"></a><span class="sd">        from inline_snapshot import snapshot</span>
+<a id="__codelineno-0-88" name="__codelineno-0-88"></a><span class="sd">        from inline_snapshot.extra import prints</span>
 <a id="__codelineno-0-89" name="__codelineno-0-89"></a>
 <a id="__codelineno-0-90" name="__codelineno-0-90"></a>
 <a id="__codelineno-0-91" name="__codelineno-0-91"></a><span class="sd">        def test_prints():</span>
@@ -2658,9 +2686,9 @@ the output if needed.</p>
 <a id="__codelineno-0-98" name="__codelineno-0-98"></a>
 <a id="__codelineno-0-99" name="__codelineno-0-99"></a><span class="sd">        &lt;!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 --&gt;</span>
 <a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="sd">        ``` python hl_lines=&quot;7 8 9&quot;</span>
-<a id="__codelineno-0-101" name="__codelineno-0-101"></a><span class="sd">        from inline_snapshot import snapshot</span>
-<a id="__codelineno-0-102" name="__codelineno-0-102"></a><span class="sd">        from inline_snapshot.extra import prints</span>
-<a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="sd">        import sys</span>
+<a id="__codelineno-0-101" name="__codelineno-0-101"></a><span class="sd">        import sys</span>
+<a id="__codelineno-0-102" name="__codelineno-0-102"></a><span class="sd">        from inline_snapshot import snapshot</span>
+<a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="sd">        from inline_snapshot.extra import prints</span>
 <a id="__codelineno-0-104" name="__codelineno-0-104"></a>
 <a id="__codelineno-0-105" name="__codelineno-0-105"></a>
 <a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="sd">        def test_prints():</span>
@@ -2674,11 +2702,11 @@ the output if needed.</p>
 <a id="__codelineno-0-114" name="__codelineno-0-114"></a><span class="sd">    === &quot;ignore stdout&quot;</span>
 <a id="__codelineno-0-115" name="__codelineno-0-115"></a>
 <a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="sd">        &lt;!-- inline-snapshot: outcome-passed=1 --&gt;</span>
-<a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="sd">        ``` python hl_lines=&quot;3 9 10&quot;</span>
-<a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="sd">        from inline_snapshot import snapshot</span>
-<a id="__codelineno-0-119" name="__codelineno-0-119"></a><span class="sd">        from inline_snapshot.extra import prints</span>
-<a id="__codelineno-0-120" name="__codelineno-0-120"></a><span class="sd">        from dirty_equals import IsStr</span>
-<a id="__codelineno-0-121" name="__codelineno-0-121"></a><span class="sd">        import sys</span>
+<a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="sd">        ``` python hl_lines=&quot;2 9 10&quot;</span>
+<a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="sd">        import sys</span>
+<a id="__codelineno-0-119" name="__codelineno-0-119"></a><span class="sd">        from dirty_equals import IsStr</span>
+<a id="__codelineno-0-120" name="__codelineno-0-120"></a><span class="sd">        from inline_snapshot import snapshot</span>
+<a id="__codelineno-0-121" name="__codelineno-0-121"></a><span class="sd">        from inline_snapshot.extra import prints</span>
 <a id="__codelineno-0-122" name="__codelineno-0-122"></a>
 <a id="__codelineno-0-123" name="__codelineno-0-123"></a>
 <a id="__codelineno-0-124" name="__codelineno-0-124"></a><span class="sd">        def test_prints():</span>
@@ -2883,9 +2911,9 @@ the output if needed.</p>
         <p><code>@transformation</code> can be used to bind a function to <a class="autorefs autorefs-internal" title="            Transformed" href="#inline_snapshot.extra.Transformed">Transformed</a>,
 which simplifies your code if you want to use the same transformation multiple times.</p>
 <!-- inline-snapshot: create first_block outcome-passed=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">transformation</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">transformation</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">Thing</span><span class="p">:</span>
@@ -2975,9 +3003,9 @@ which simplifies your code if you want to use the same transformation multiple t
 <a id="__codelineno-0-337" name="__codelineno-0-337"></a>
 <a id="__codelineno-0-338" name="__codelineno-0-338"></a><span class="sd">    &lt;!-- inline-snapshot: create first_block outcome-passed=1 --&gt;</span>
 <a id="__codelineno-0-339" name="__codelineno-0-339"></a><span class="sd">    ``` python</span>
-<a id="__codelineno-0-340" name="__codelineno-0-340"></a><span class="sd">    from inline_snapshot.extra import transformation</span>
+<a id="__codelineno-0-340" name="__codelineno-0-340"></a><span class="sd">    import re</span>
 <a id="__codelineno-0-341" name="__codelineno-0-341"></a><span class="sd">    from inline_snapshot import snapshot</span>
-<a id="__codelineno-0-342" name="__codelineno-0-342"></a><span class="sd">    import re</span>
+<a id="__codelineno-0-342" name="__codelineno-0-342"></a><span class="sd">    from inline_snapshot.extra import transformation</span>
 <a id="__codelineno-0-343" name="__codelineno-0-343"></a>
 <a id="__codelineno-0-344" name="__codelineno-0-344"></a>
 <a id="__codelineno-0-345" name="__codelineno-0-345"></a><span class="sd">    class Thing:</span>
@@ -3106,9 +3134,9 @@ which simplifies your code if you want to use the same transformation multiple t
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p><!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">warns</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">warns</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_warns</span><span class="p">():</span>
@@ -3118,9 +3146,9 @@ which simplifies your code if you want to use the same transformation multiple t
 </div>
 <div class="tabbed-block">
 <p><!-- inline-snapshot: create fix outcome-passed=1 outcome-errors=1 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">warns</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">warns</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_warns</span><span class="p">():</span>
@@ -3227,9 +3255,9 @@ which simplifies your code if you want to use the same transformation multiple t
 <a id="__codelineno-0-168" name="__codelineno-0-168"></a>
 <a id="__codelineno-0-169" name="__codelineno-0-169"></a><span class="sd">        &lt;!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 --&gt;</span>
 <a id="__codelineno-0-170" name="__codelineno-0-170"></a><span class="sd">        ``` python</span>
-<a id="__codelineno-0-171" name="__codelineno-0-171"></a><span class="sd">        from inline_snapshot import snapshot</span>
-<a id="__codelineno-0-172" name="__codelineno-0-172"></a><span class="sd">        from inline_snapshot.extra import warns</span>
-<a id="__codelineno-0-173" name="__codelineno-0-173"></a><span class="sd">        from warnings import warn</span>
+<a id="__codelineno-0-171" name="__codelineno-0-171"></a><span class="sd">        from warnings import warn</span>
+<a id="__codelineno-0-172" name="__codelineno-0-172"></a><span class="sd">        from inline_snapshot import snapshot</span>
+<a id="__codelineno-0-173" name="__codelineno-0-173"></a><span class="sd">        from inline_snapshot.extra import warns</span>
 <a id="__codelineno-0-174" name="__codelineno-0-174"></a>
 <a id="__codelineno-0-175" name="__codelineno-0-175"></a>
 <a id="__codelineno-0-176" name="__codelineno-0-176"></a><span class="sd">        def test_warns():</span>
@@ -3241,9 +3269,9 @@ which simplifies your code if you want to use the same transformation multiple t
 <a id="__codelineno-0-182" name="__codelineno-0-182"></a>
 <a id="__codelineno-0-183" name="__codelineno-0-183"></a><span class="sd">        &lt;!-- inline-snapshot: create fix outcome-passed=1 outcome-errors=1 --&gt;</span>
 <a id="__codelineno-0-184" name="__codelineno-0-184"></a><span class="sd">        ``` python hl_lines=&quot;7&quot;</span>
-<a id="__codelineno-0-185" name="__codelineno-0-185"></a><span class="sd">        from inline_snapshot import snapshot</span>
-<a id="__codelineno-0-186" name="__codelineno-0-186"></a><span class="sd">        from inline_snapshot.extra import warns</span>
-<a id="__codelineno-0-187" name="__codelineno-0-187"></a><span class="sd">        from warnings import warn</span>
+<a id="__codelineno-0-185" name="__codelineno-0-185"></a><span class="sd">        from warnings import warn</span>
+<a id="__codelineno-0-186" name="__codelineno-0-186"></a><span class="sd">        from inline_snapshot import snapshot</span>
+<a id="__codelineno-0-187" name="__codelineno-0-187"></a><span class="sd">        from inline_snapshot.extra import warns</span>
 <a id="__codelineno-0-188" name="__codelineno-0-188"></a>
 <a id="__codelineno-0-189" name="__codelineno-0-189"></a>
 <a id="__codelineno-0-190" name="__codelineno-0-190"></a><span class="sd">        def test_warns():</span>

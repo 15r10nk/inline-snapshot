@@ -47,7 +47,9 @@ def test_captcha():
         {
             "size": "200x100",
             "difficulty": 8,
-            "picture": external("hash:0da2cc316111*.png"),
+            "picture": external(
+                "uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.png"
+            ),
         }
     )
 ```

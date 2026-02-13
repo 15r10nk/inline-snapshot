@@ -58,7 +58,7 @@ def test_something():
 The `external()` function can also be used inside other data structures.
 
 ```
-from inline_snapshot import snapshot, external
+from inline_snapshot import external, snapshot
 
 
 def test_something():
@@ -68,7 +68,7 @@ def test_something():
 ```
 
 ```
-from inline_snapshot import snapshot, external
+from inline_snapshot import external, snapshot
 
 
 def test_something():
@@ -152,7 +152,7 @@ inline-snapshot supports several built-in formats for external snapshots. The fo
 You can also use format aliases if you want to use specific file suffixes that have the same handling as existing formats. You must specify the suffix in this case.
 
 ```
-from inline_snapshot import register_format_alias, external
+from inline_snapshot import external, register_format_alias
 
 register_format_alias(".html", ".txt")
 
@@ -164,7 +164,7 @@ def test():
 inline-snapshot uses the given suffix to create an external snapshot.
 
 ```
-from inline_snapshot import register_format_alias, external
+from inline_snapshot import external, register_format_alias
 
 register_format_alias(".html", ".txt")
 

@@ -1,8 +1,8 @@
 You can use almost any python data type and also complex values like `datetime.date`, because `repr()` is used to convert the values to source code. The default `__repr__()` behaviour can be [customized](https://15r10nk.github.io/inline-snapshot/development/customize_repr/index.md). It might be necessary to import the right modules to match the `repr()` output.
 
 ```
-from inline_snapshot import snapshot
 import datetime
+from inline_snapshot import snapshot
 
 
 def something():
@@ -22,8 +22,8 @@ def test_something():
 ```
 
 ```
-from inline_snapshot import snapshot
 import datetime
+from inline_snapshot import snapshot
 
 
 def something():

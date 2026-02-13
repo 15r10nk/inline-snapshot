@@ -1,4 +1,32 @@
-`repr()` can be used to convert a python object into a source code representation of the object, but this does not work for every type. Here are some examples:
+deprecated
+
+`@customize_repr` will be removed in the future because [`@customize`](https://15r10nk.github.io/inline-snapshot/development/plugin/#customize-examples) provides the same and even more features. You should use
+
+conftest.py
+
+```
+class InlineSnapshotPlugin:
+    @customize
+    def my_class_handler(value, builder):
+        if isinstance(value, MyClass):
+            return builder.create_code("my_class_repr")
+```
+
+instead of
+
+conftest.py
+
+```
+@customize_repr
+def my_class_handler(value: MyClass):
+    return "my_class_repr"
+```
+
+`@customize` allows you not only to generate code but also imports and function calls which can be analysed by inline-snapshot.
+
+That said, what is/was `@customize_repr` for?
+
+`repr()` can be used to convert a Python object into a source code representation of the object, but this does not work for every type. Here are some examples:
 
 ```
 >>> repr(int)
@@ -12,56 +40,66 @@
 
 `customize_repr` can be used to overwrite the default `repr()` behaviour.
 
-The implementation for `Enum` looks like this:
+The implementation for `MyClass` could look like this:
+
+my_class.py
 
 ```
+class MyClass:
+    def __init__(self, values):
+        self.values = values.split()
+
+    def __repr__(self):
+        return repr(self.values)
+
+    def __eq__(self, other):
+        if not isinstance(other, MyClass):
+            return NotImplemented
+        return self.values == other.values
+```
+
+You can specify the `repr()` used by inline-snapshot in your *conftest.py*
+
+conftest.py
+
+```
+from my_class import MyClass
+from inline_snapshot import customize_repr
+
+
 @customize_repr
-def _(value: Enum):
-    return f"{type(value).__qualname__}.{value.name}"
+def _(value: MyClass):
+    return f"{MyClass.__qualname__}({' '.join(value.values) !r})"
 ```
 
-This implementation is then used by inline-snapshot if `repr()` is called during the code generation, but not in normal code.
+This implementation is then used by inline-snapshot if `repr()` is called during code generation, but not in normal code.
 
 ```
+from my_class import MyClass
 from inline_snapshot import snapshot
-from enum import Enum
 
 
-def test_enum():
-    E = Enum("E", ["a", "b"])
+def test_my_class():
+    e = MyClass("1 5 hello")
 
     # normal repr
-    assert repr(E.a) == "<E.a: 1>"
+    assert repr(e) == "['1', '5', 'hello']"
 
-    # the special implementation to convert the Enum into a code
-    assert E.a == snapshot(E.a)
+    # the special implementation to convert the Enum into code
+    assert e == snapshot(MyClass("1 5 hello"))
 ```
-
-## built-in data types
-
-inline-snapshot comes with a special implementation for the following types:
-
-- `builtins.builtin_function_or_method`
-- `builtins.frozenset`
-- `builtins.function`
-- `builtins.set`
-- `builtins.type`
-- `enum.Enum`
-- `enum.Flag`
-
-Please open an [issue](https://github.com/15r10nk/inline-snapshot/issues) if you found a built-in type which is not supported by inline-snapshot.
 
 Note
 
-Container types like `dict`, `list`, `tuple` or `dataclass` are handled in a different way, because inline-snapshot also needs to inspect these types to implement [unmanaged](https://15r10nk.github.io/inline-snapshot/development/eq_snapshot/#unmanaged-snapshot-values) snapshot values.
+The example above can be better handled with [`@customize`](https://15r10nk.github.io/inline-snapshot/development/plugin/#customize-examples) as shown in the [plugin documentation](https://15r10nk.github.io/inline-snapshot/development/plugin/index.md).
 
 ## customize recursive repr
 
-You can also use `repr()` inside `__repr__()`, if you want to make your own type compatible with inline-snapshot.
+You can also use `repr()` inside `__repr__()` if you want to make your own type compatible with inline-snapshot.
 
 ```
-from inline_snapshot import snapshot
 from enum import Enum
+from inline_snapshot import snapshot
 
 
 class Pair:
@@ -82,10 +120,12 @@ class Pair:
         return self.a == other.a and self.b == other.b
 
 
-def test_enum():
-    E = Enum("E", ["a", "b"])
+E = Enum("E", ["a", "b"])
 
-    # the special repr implementation is used recursive here
+
+def test_enum():
+
+    # the special repr implementation is used recursively here
     # to convert every Enum to the correct representation
     assert Pair(E.a, [E.b]) == snapshot(Pair(E.a, [E.b]))
 ```
@@ -98,7 +138,7 @@ Note
 
 This implementation allows inline-snapshot to use the custom `repr()` recursively, but it does not allow you to use [unmanaged](https://15r10nk.github.io/inline-snapshot/development/eq_snapshot/#unmanaged-snapshot-values) snapshot values like `Pair(Is(some_var),5)`
 
-you can also customize the representation of data types in other libraries:
+You can also customize the representation of data types in other libraries:
 
 ```
 from inline_snapshot import customize_repr
