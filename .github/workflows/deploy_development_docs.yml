@@ -19,6 +19,8 @@ jobs:
         key: docs-lock
         post_unlock: 'true'
         remove_key_when_unlock: 'true'
+        max_wait_seconds: '500'
+        wait_interval_seconds: '50'
 
     - run: pip install hatch
     - name: publish docs
