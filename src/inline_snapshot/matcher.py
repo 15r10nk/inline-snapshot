@@ -1,7 +1,3 @@
-from .pydantic_compatibility import PydanticUndefined
-from .pydantic_compatibility import get_fields
-
-
 class IsPydanticAttributes:
     def __init__(self, typ, /, **attributes):
         self.typ = typ
@@ -20,32 +16,26 @@ class IsPydanticAttributes:
         ):
             return NotImplemented
 
+        equal_attributes = {}
+
         for name, attribute in self.attributes.items():
             if not hasattr(other, name):
                 return False
-            if not getattr(other, name) == attribute:
+            other_attr = getattr(other, name)
+            if not other_attr == attribute:
                 return False
+            equal_attributes[name] = other_attr
 
-        for name, field in get_fields(other).items():  # type: ignore
-            if name in self.attributes:
-                continue
+        from pydantic import ValidationError
 
-            if not getattr(field, "repr", True):
-                continue
-
-            field_value = getattr(other, name)
-
-            if field.default is not PydanticUndefined and field.default == field_value:
-                continue
-
-            elif (
-                field.default_factory is not None
-                and field.default_factory() == field_value
-            ):
-                continue
+        try:
+            new_other = self.typ(**equal_attributes)
+        except ValidationError:
+            # cases like missing non-default arguments
             return False
 
-        return True
+        # check that all attributes which are not equal are equal to the default values
+        return new_other == other
 
     def __repr__(self):
         args = ", ".join(f"{k} = {v!r}" for k, v in self.attributes.items())
