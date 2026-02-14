@@ -38,4 +38,6 @@ class InlineSnapshotPydanticPlugin:
 
                     kwargs[name] = field_value
 
-            return builder.create_call(IsPydantic, [type(value)], kwargs)
+            return builder.create_call(
+                builder.create_subscript(IsPydantic, type(value)), [], kwargs
+            )
