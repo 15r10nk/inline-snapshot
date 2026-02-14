@@ -199,6 +199,9 @@ customized_representation={result!r}
         `create_call(MyClass, [arg1, arg2], {'key': value})` becomes `MyClass(arg1, arg2, key=value)` in the code.
         Function, arguments, and keyword arguments don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
+        assert isinstance(posonly_args, list)
+        assert isinstance(kwargs, dict)
+
         function = self._convert_child(function)
         posonly_args = [self._convert_child(arg) for arg in posonly_args]
         kwargs = {k: self._convert_child(arg) for k, arg in kwargs.items()}
