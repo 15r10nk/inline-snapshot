@@ -12,6 +12,7 @@ from inline_snapshot._customize._custom_code import CustomCode
 from inline_snapshot._customize._custom_dict import CustomDict
 from inline_snapshot._customize._custom_sequence import CustomList
 from inline_snapshot._customize._custom_sequence import CustomTuple
+from inline_snapshot._customize._custom_subscript import CustomSubscript
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._new_adapter import NewAdapter
@@ -71,6 +72,11 @@ class AstToCustom:
                 if k_node is not None
             }
         )
+
+    def convert_Subscript(self, value: Any, node: ast.Subscript):
+        obj = self.eval_convert(node.value)
+        index = self.eval_convert(node.slice)
+        return CustomSubscript(obj=obj, index=index)
 
 
 class ValueToCustom:

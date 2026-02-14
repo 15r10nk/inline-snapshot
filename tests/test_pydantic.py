@@ -23,7 +23,7 @@ def test_pydantic():
     assert m.dict()==snapshot()
 
     """
-    ).run_pytest(
+    ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
@@ -41,14 +41,13 @@ class M(BaseModel):
 
 def test_pydantic():
     m=M(size=5,name="Tom")
-    assert m==snapshot(IsPydantic(M, size=5, name="Tom"))
+    assert m==snapshot(IsPydantic[M](size=5, name="Tom"))
     assert m.dict()==snapshot({"size": 5, "name": "Tom", "age": 4})
 
     \
 """
             }
         ),
-        returncode=1,
     ).run_pytest(
         ["--inline-snapshot=disable"]
     )
@@ -83,7 +82,7 @@ class container(BaseModel):
     b: int = Field(default=5,repr=False)
 
 def test():
-    assert container(a=1,b=5) == snapshot(IsPydantic(container, a=1))
+    assert container(a=1,b=5) == snapshot(IsPydantic[container](a=1))
 """
             }
         ),
@@ -125,7 +124,7 @@ class A(BaseModel):
     c:list=Field(default_factory=list)
 
 def test_something():
-    assert A(a=1) == snapshot(IsPydantic(A, a=1))
+    assert A(a=1) == snapshot(IsPydantic[A](a=1))
 """
             }
         ),
@@ -186,7 +185,7 @@ class A(BaseModel):
 
 def test_something():
     for a in [1,2]:
-        assert A(a=2) == snapshot(IsPydantic(A, a=2))
+        assert A(a=2) == snapshot(IsPydantic[A](a=2))
 """
             }
         ),
@@ -232,7 +231,7 @@ class C(BaseModel,Generic[I]):
 def test_a():
     c=C[int](a=5)
 
-    assert c == snapshot(IsPydantic(C, a=5))
+    assert c == snapshot(IsPydantic[C](a=5))
 """
             }
         ),

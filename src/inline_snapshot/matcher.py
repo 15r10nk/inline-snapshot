@@ -2,7 +2,7 @@ from .pydantic_compatibility import PydanticUndefined
 from .pydantic_compatibility import get_fields
 
 
-class IsPydantic:
+class IsPydanticAttributes:
     def __init__(self, typ, /, **attributes):
         self.typ = typ
         self.attributes = attributes
@@ -46,3 +46,23 @@ class IsPydantic:
             return False
 
         return True
+
+    def __repr__(self):
+        args = ", ".join(f"{k} = {v!r}" for k, v in self.attributes.items())
+        return f"IsPydantic[{self.typ!r}]({args})"
+
+
+class IsPydanticMeta(type):
+    def __getitem__(self, typ):
+        return self(typ)
+
+
+class IsPydantic(metaclass=IsPydanticMeta):
+    def __init__(self, typ):
+        self.typ = typ
+
+    def __call__(self, **attributes) -> IsPydanticAttributes:
+        return IsPydanticAttributes(self.typ, **attributes)
+
+    def __repr__(self):
+        return f"IsPydantic[{self.typ!r}]"

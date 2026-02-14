@@ -19,7 +19,7 @@ else:
 
     else:
         # pydantic v2
-        from pydantic_core import PydanticUndefined
+        from pydantic_core import PydanticUndefined  # type: ignore[assignment]
 
         def get_fields(value):
             return type(value).model_fields

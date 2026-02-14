@@ -370,7 +370,10 @@ else:
                     if getattr(field, "repr", True):
                         field_value = getattr(value, name)
 
-                        if field.default is not PydanticUndefined:
+                        if (
+                            field.default is not PydanticUndefined
+                            and field.default == field_value
+                        ):
                             field_value = builder.with_default(
                                 field_value, field.default
                             )
@@ -382,4 +385,6 @@ else:
 
                         kwargs[name] = field_value
 
-                return builder.create_call(IsPydantic, [type(value)], kwargs)
+                return builder.create_call(
+                    builder.create_subscript(IsPydantic, type(value)), [], kwargs
+                )
