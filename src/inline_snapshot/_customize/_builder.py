@@ -138,6 +138,9 @@ customized_representation={result!r}
         `create_call(MyClass, [arg1, arg2], {'key': value})` becomes `MyClass(arg1, arg2, key=value)` in the code.
         Function, arguments, and keyword arguments don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
+        assert isinstance(posonly_args, list)
+        assert isinstance(kwargs, dict)
+
         function = self._get_handler_recursive(function)
         posonly_args = [self._get_handler_recursive(arg) for arg in posonly_args]
         kwargs = {k: self._get_handler_recursive(arg) for k, arg in kwargs.items()}
