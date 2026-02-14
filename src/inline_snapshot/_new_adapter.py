@@ -405,6 +405,7 @@ class NewAdapter:
         else:
             old_node_args = [None] * len(new_args)
 
+        # preserve existing args
         for i, (new_value_element, node) in enumerate(zip(new_args, old_node_args)):
             old_value_element = old_value.argument(i)
             result = yield from intercept(
@@ -436,6 +437,9 @@ class NewAdapter:
                     new_code=new_code,
                     new_value=insert_value,
                 )
+                result_args.append(insert_value)
+
+        assert len(result_args) == len(new_value.args)
 
         # keyword arguments
         result_kwargs = {}
@@ -463,7 +467,7 @@ class NewAdapter:
                 )
 
         to_insert = []
-        insert_pos = 0
+        insert_pos = len(result_args)
         for key, new_value_element in new_kwargs.items():
             if isinstance(new_value_element, CustomDefault):
                 continue

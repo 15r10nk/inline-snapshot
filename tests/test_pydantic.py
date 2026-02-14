@@ -32,6 +32,8 @@ def test_pydantic():
 from pydantic import BaseModel
 from inline_snapshot import snapshot
 
+from inline_snapshot.matcher import IsPydantic
+
 class M(BaseModel):
     size:int
     name:str
@@ -39,7 +41,7 @@ class M(BaseModel):
 
 def test_pydantic():
     m=M(size=5,name="Tom")
-    assert m==snapshot(M(size=5, name="Tom"))
+    assert m==snapshot(IsPydantic(M, size=5, name="Tom"))
     assert m.dict()==snapshot({"size": 5, "name": "Tom", "age": 4})
 
     \
@@ -74,12 +76,14 @@ def test():
 from inline_snapshot import snapshot
 from pydantic import BaseModel,Field
 
+from inline_snapshot.matcher import IsPydantic
+
 class container(BaseModel):
     a: int
     b: int = Field(default=5,repr=False)
 
 def test():
-    assert container(a=1,b=5) == snapshot(container(a=1))
+    assert container(a=1,b=5) == snapshot(IsPydantic(container, a=1))
 """
             }
         ),
@@ -113,13 +117,15 @@ from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 from pydantic import BaseModel,Field
 
+from inline_snapshot.matcher import IsPydantic
+
 class A(BaseModel):
     a:int
     b:int=2
     c:list=Field(default_factory=list)
 
 def test_something():
-    assert A(a=1) == snapshot(A(a=1))
+    assert A(a=1) == snapshot(IsPydantic(A, a=1))
 """
             }
         ),
@@ -169,6 +175,8 @@ def test_something():
 from inline_snapshot import snapshot
 from pydantic import BaseModel
 
+from inline_snapshot.matcher import IsPydantic
+
 class A(BaseModel):
     a:int
 
@@ -178,7 +186,7 @@ class A(BaseModel):
 
 def test_something():
     for a in [1,2]:
-        assert A(a=2) == snapshot(A(a=2))
+        assert A(a=2) == snapshot(IsPydantic(A, a=2))
 """
             }
         ),
@@ -215,6 +223,8 @@ from typing import Generic, TypeVar
 from inline_snapshot import snapshot
 from pydantic import BaseModel
 
+from inline_snapshot.matcher import IsPydantic
+
 I=TypeVar("I")
 class C(BaseModel,Generic[I]):
     a:int
@@ -222,7 +232,7 @@ class C(BaseModel,Generic[I]):
 def test_a():
     c=C[int](a=5)
 
-    assert c == snapshot(C(a=5))
+    assert c == snapshot(IsPydantic(C, a=5))
 """
             }
         ),
