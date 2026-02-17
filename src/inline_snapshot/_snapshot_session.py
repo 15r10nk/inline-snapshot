@@ -2,6 +2,7 @@ import os
 import sys
 import tokenize
 from pathlib import Path
+from types import FunctionType
 from types import SimpleNamespace
 from typing import Dict
 from typing import List
@@ -258,7 +259,7 @@ class SnapshotSession:
             if isinstance(obj, type) and name.startswith("InlineSnapshot"):
                 state().pm.register(obj(), name=f"<conftest {name} {module.__file__}>")
 
-            if hasattr(obj, "inline_snapshot_impl"):
+            if isinstance(obj, FunctionType) and hasattr(obj, "inline_snapshot_impl"):
                 hooks[name] = obj
 
         if hooks:
