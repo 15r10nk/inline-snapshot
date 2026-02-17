@@ -77,6 +77,21 @@ class InlineSnapshotPlugin:
             return builder.create_code(value.__name__)
 
     @customize
+    def timezone_handler(self, value, builder: Builder):
+        if isinstance(value, datetime.timezone):
+            # Handle timezone.utc specially - it's a constant, not a constructor call
+            if value == datetime.timezone.utc:
+                return builder.create_code(
+                    "timezone.utc",
+                    imports=[ImportFrom("datetime", "timezone")],
+                )
+
+            # For other timezone objects, use the constructor
+            offset = value.utcoffset(None)
+            tzname = value.tzname(None)
+            return builder.create_call(datetime.timezone, [offset, tzname])
+
+    @customize
     def datetime_handler(self, value, builder: Builder):
 
         if isinstance(value, datetime.datetime):
@@ -88,6 +103,7 @@ class InlineSnapshotPlugin:
                     "minute": builder.with_default(value.minute, 0),
                     "second": builder.with_default(value.second, 0),
                     "microsecond": builder.with_default(value.microsecond, 0),
+                    "tzinfo": builder.with_default(value.tzinfo, None),
                 },
             )
 
@@ -105,6 +121,7 @@ class InlineSnapshotPlugin:
                     "minute": builder.with_default(value.minute, 0),
                     "second": builder.with_default(value.second, 0),
                     "microsecond": builder.with_default(value.microsecond, 0),
+                    "tzinfo": builder.with_default(value.tzinfo, None),
                 },
             )
 
