@@ -1,4 +1,13 @@
 
+<a id='changelog-0.32.1'></a>
+# 0.32.1 — 2026-02-17
+
+## Fixed
+
+- Fixed handling of `datetime` and `time` objects with timezone information. The `tzinfo` parameter is now properly included in snapshots, and `timezone.utc` is represented with the correct import (`from datetime import timezone`).
+
+- Fixed customize hook registration to properly check if objects are functions before inspecting the `inline_snapshot_impl` attribute, preventing potential attribute errors when scanning conftest modules.
+
 <a id='changelog-0.32.0'></a>
 # 0.32.0 — 2026-02-13
 
