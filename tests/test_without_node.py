@@ -5,8 +5,9 @@ from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
 
 
-@pytest.mark.skipIf(
-    is_pytest_compatible, reason="this is only a problem when executing can return None"
+@pytest.mark.skipif(
+    is_pytest_compatible(),
+    reason="this is only a problem when executing can return None",
 )
 def test_without_node():
 

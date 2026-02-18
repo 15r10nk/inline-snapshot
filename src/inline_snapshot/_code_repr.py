@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import warnings
 from contextlib import contextmanager
 from functools import singledispatch
@@ -80,7 +81,12 @@ def customize_repr(f):
 def code_repr(obj):
     from inline_snapshot._adapter_context import AdapterContext
 
-    context = AdapterContext(None, None, "<qualname>")
+    frame = inspect.currentframe()
+    assert frame
+    frame = frame.f_back
+    assert frame
+
+    context = AdapterContext(frame)
     with mock_repr(context):
         return repr(obj)
 

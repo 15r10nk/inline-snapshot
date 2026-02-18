@@ -1,6 +1,11 @@
 import ast
+import sys
 from dataclasses import dataclass
-from typing import Optional
+from functools import cached_property
+from types import FrameType
+from typing import cast
+
+from executing import Source
 
 from inline_snapshot._source_file import SourceFile
 
@@ -11,11 +16,38 @@ class FrameContext:
     locals: dict
 
 
-@dataclass
 class AdapterContext:
-    file: SourceFile
-    frame: Optional[FrameContext]
-    qualname: str
+
+    _frame: FrameType
+
+    def __init__(self, frame: FrameType):
+        self._frame = frame
+
+    @cached_property
+    def expr(self):
+        return Source.executing(self._frame)
+
+    @property
+    def source(self) -> Source:
+        return cast(
+            Source,
+            getattr(self.expr, "source", None) if self.expr is not None else None,
+        )
+
+    @property
+    def file(self):
+        return SourceFile(self.source)
+
+    @property
+    def frame(self) -> FrameContext:
+        return FrameContext(globals=self._frame.f_globals, locals=self._frame.f_locals)
+
+    @cached_property
+    def qualname(self) -> str:
+        if sys.version_info >= (3, 11):
+            return self._frame.f_code.co_qualname
+        else:
+            return self.expr.code_qualname()
 
     def eval(self, node):
         assert self.frame is not None

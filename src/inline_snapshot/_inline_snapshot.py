@@ -3,15 +3,10 @@ import inspect
 from typing import Any
 from typing import Iterator
 from typing import TypeVar
-from typing import cast
-
-from executing import Source
 
 from inline_snapshot._adapter_context import AdapterContext
-from inline_snapshot._adapter_context import FrameContext
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._generator_utils import with_flag
-from inline_snapshot._source_file import SourceFile
 from inline_snapshot._types import SnapshotRefBase
 
 from ._change import CallArg
@@ -52,16 +47,7 @@ def create_snapshot(Type, obj, extra_frames=0):
         frame = frame.f_back
         assert frame is not None
 
-    expr = Source.executing(frame)
-
-    source = cast(Source, getattr(expr, "source", None) if expr is not None else None)
-    context = AdapterContext(
-        file=SourceFile(source),
-        frame=FrameContext(globals=frame.f_globals, locals=frame.f_locals),
-        qualname=expr.code_qualname(),
-    )
-
-    Type.check_context(context)
+    context = AdapterContext(frame)
 
     if not state().active:
         if obj is undefined:
@@ -71,17 +57,19 @@ def create_snapshot(Type, obj, extra_frames=0):
         else:
             return Type.create_raw(obj, context)
 
+    Type.check_context(context)
+
     key = id(frame.f_code), frame.f_lasti
 
     if key not in state().snapshots:
-        node = expr.node
+        node = context.expr.node
         if node is None:
             # we can run without knowing of the calling expression but we will not be able to fix code
             new = Type(obj, None, context)
             state().snapshots[key] = Type(obj, None, context)
         else:
             assert isinstance(node, ast.Call)
-            new = Type(obj, expr, context)
+            new = Type(obj, context.expr, context)
         state().snapshots[key] = new
     else:
         new = state().snapshots[key]

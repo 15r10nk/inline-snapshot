@@ -162,30 +162,22 @@ customized_representation={result!r}
     @cached_property
     def _get_local_vars(self):
         """Get local vars from snapshot context."""
-        if (
-            self._snapshot_context is not None
-            and (frame := self._snapshot_context.frame) is not None
-        ):
-            return {
-                var_name: var_value
-                for var_name, var_value in frame.locals.items()
-                if "@" not in var_name
-            }
-        return {}
+        frame = self._snapshot_context.frame
+        return {
+            var_name: var_value
+            for var_name, var_value in frame.locals.items()
+            if "@" not in var_name
+        }
 
     @cached_property
     def _get_global_vars(self):
         """Get global vars from snapshot context."""
-        if (
-            self._snapshot_context is not None
-            and (frame := self._snapshot_context.frame) is not None
-        ):
-            return {
-                var_name: var_value
-                for var_name, var_value in frame.globals.items()
-                if "@" not in var_name
-            }
-        return {}
+        frame = self._snapshot_context.frame
+        return {
+            var_name: var_value
+            for var_name, var_value in frame.globals.items()
+            if "@" not in var_name
+        }
 
     def _build_import_vars(self, imports):
         """Build import vars from imports parameter."""
