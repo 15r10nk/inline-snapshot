@@ -22,6 +22,7 @@ from ._custom_dict import CustomDict
 from ._custom_external import CustomExternal
 from ._custom_sequence import CustomList
 from ._custom_sequence import CustomTuple
+from ._custom_subscript import CustomSubscript
 
 
 @dataclass
@@ -136,6 +137,9 @@ customized_representation={result!r}
         `create_call(MyClass, [arg1, arg2], {'key': value})` becomes `MyClass(arg1, arg2, key=value)` in the code.
         Function, arguments, and keyword arguments don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
+        assert isinstance(posonly_args, list)
+        assert isinstance(kwargs, dict)
+
         function = self._get_handler_recursive(function)
         posonly_args = [self._get_handler_recursive(arg) for arg in posonly_args]
         kwargs = {k: self._get_handler_recursive(arg) for k, arg in kwargs.items()}
@@ -145,6 +149,17 @@ customized_representation={result!r}
             args=posonly_args,
             kwargs=kwargs,
         )
+
+    def create_subscript(self, obj, index):
+        """
+        Creates an intermediate node for a subscript expression which can be used as a result for your customization function.
+
+        `create_subscript(obj, index)` becomes `obj[index]` in the code.
+        Object and index don't have to be Custom nodes and are converted by inline-snapshot if needed.
+        """
+        obj = self._get_handler_recursive(obj)
+        index = self._get_handler_recursive(index)
+        return CustomSubscript(obj=obj, index=index)
 
     def create_dict(self, value: dict) -> Custom:
         """

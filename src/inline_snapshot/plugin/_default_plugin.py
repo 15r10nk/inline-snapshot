@@ -23,6 +23,7 @@ from inline_snapshot._sentinels import undefined
 from inline_snapshot._unmanaged import is_dirty_equal
 from inline_snapshot._unmanaged import is_unmanaged
 from inline_snapshot._utils import triple_quote
+from inline_snapshot.matcher import IsPydantic
 
 from ._spec import customize
 
@@ -366,28 +367,13 @@ else:
 
 
 try:
-    import pydantic
-except ImportError:  # pragma: no cover
-
-    pass
-
-else:
-    # import pydantic
-    if pydantic.version.VERSION.startswith("1."):
-        # pydantic v1
-        from pydantic.fields import Undefined as PydanticUndefined  # type: ignore[attr-defined,no-redef]
-
-        def get_fields(value):
-            return value.__fields__
-
-    else:
-        # pydantic v2
-        from pydantic_core import PydanticUndefined
-
-        def get_fields(value):
-            return type(value).model_fields
-
     from pydantic import BaseModel
+except ImportError:  # pragma: no cover
+    pass
+else:
+
+    from ..pydantic_compatibility import PydanticUndefined
+    from ..pydantic_compatibility import get_fields
 
     class InlineSnapshotPydanticPlugin:
         @customize
@@ -416,4 +402,6 @@ else:
 
                         kwargs[name] = field_value
 
-                return builder.create_call(type(value), [], kwargs)
+                return builder.create_call(
+                    builder.create_subscript(IsPydantic, type(value)), [], kwargs
+                )

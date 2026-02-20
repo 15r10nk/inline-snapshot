@@ -135,6 +135,28 @@ def reeval_CustomDict(old_value, value):
     )
 
 
+def reeval_CustomSubscript(old_value, value):
+    from inline_snapshot._customize._custom_subscript import CustomSubscript
+
+    # If values evaluate to the same thing, preserve the old structure
+    # but update the original_value to match the new value
+    if old_value._eval() == value._eval():
+        result = old_value
+        # Update the original_value to reflect the new runtime value
+        result.__dict__["original_value"] = value.original_value
+        return result
+
+    # If both are subscripts, recursively reeval components
+    if isinstance(value, CustomSubscript):
+        return CustomSubscript(
+            obj=reeval(old_value.obj, value.obj),
+            index=reeval(old_value.index, value.index),
+        )
+
+    # Otherwise return the new value
+    return value
+
+
 class NewAdapter:
 
     def __init__(self, context: AdapterContext):
@@ -159,6 +181,7 @@ class NewAdapter:
             )
             and (
                 isinstance(old_value, (CustomCall, CustomSequence, CustomDict))
+                or type(old_value).__name__ == "CustomSubscript"
                 if old_node is None
                 else True
             )
@@ -405,6 +428,7 @@ class NewAdapter:
         else:
             old_node_args = [None] * len(new_args)
 
+        # preserve existing args
         for i, (new_value_element, node) in enumerate(zip(new_args, old_node_args)):
             old_value_element = old_value.argument(i)
             result = yield from intercept(
@@ -436,6 +460,9 @@ class NewAdapter:
                     new_code=new_code,
                     new_value=insert_value,
                 )
+                result_args.append(insert_value)
+
+        assert len(result_args) == len(new_value.args)
 
         # keyword arguments
         result_kwargs = {}
@@ -463,7 +490,7 @@ class NewAdapter:
                 )
 
         to_insert = []
-        insert_pos = 0
+        insert_pos = len(result_args)
         for key, new_value_element in new_kwargs.items():
             if isinstance(new_value_element, CustomDefault):
                 continue
@@ -524,3 +551,39 @@ class NewAdapter:
             result_args,
             result_kwargs,
         )
+
+    def compare_CustomSubscript(
+        self, old_value, old_node: ast.Subscript | None, new_value
+    ) -> Generator[ChangeBase, None, Custom]:
+        from inline_snapshot._customize._custom_subscript import CustomSubscript
+
+        assert isinstance(old_value, CustomSubscript)
+        assert isinstance(new_value, CustomSubscript)
+
+        flag = "update" if old_value._eval() == new_value.original_value else "fix"
+
+        @make_gen_map
+        def intercept(change):
+            if flag == "update" and change.flag == "fix":
+                change.flag = "update"
+            return change
+
+        # Compare obj
+        result_obj = yield from intercept(
+            self.compare(
+                old_value.obj,
+                old_node.value if old_node else None,
+                new_value.obj,
+            )
+        )
+
+        # Compare index
+        result_index = yield from intercept(
+            self.compare(
+                old_value.index,
+                old_node.slice if old_node else None,
+                new_value.index,
+            )
+        )
+
+        return CustomSubscript(obj=result_obj, index=result_index)
