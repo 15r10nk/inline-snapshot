@@ -63,7 +63,7 @@ def test_list():
 
 
 @pytest.mark.no_rewriting
-def test_list_adapter_reeval(executing_used):
+def test_sequence_adapter_reeval(executing_used):
 
     Example(
         """\
@@ -73,6 +73,7 @@ def test_list():
 
     for i in (1,2,3):
         assert [1,i] == snapshot([1,Is(i)]),"not equal"
+        assert (1,i) == snapshot((1,Is(i))),"not equal"
 """
     ).run_inline(
         changed_files=snapshot({}),

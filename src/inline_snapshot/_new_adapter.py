@@ -23,6 +23,7 @@ from inline_snapshot._customize._custom_code import CustomCode
 from inline_snapshot._customize._custom_dict import CustomDict
 from inline_snapshot._customize._custom_sequence import CustomList
 from inline_snapshot._customize._custom_sequence import CustomSequence
+from inline_snapshot._customize._custom_sequence import CustomTuple
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._exceptions import UsageError
@@ -95,7 +96,9 @@ def reeval_CustomList(old_value: CustomList, value: CustomList):
     return CustomList([reeval(a, b) for a, b in zip(old_value.value, value.value)])
 
 
-reeval_CustomTuple = reeval_CustomList
+def reeval_CustomTuple(old_value: CustomTuple, value: CustomTuple):
+    assert len(old_value.value) == len(value.value)
+    return CustomTuple([reeval(a, b) for a, b in zip(old_value.value, value.value)])
 
 
 def reeval_CustomUnmanaged(old_value: CustomUnmanaged, value: CustomUnmanaged):
