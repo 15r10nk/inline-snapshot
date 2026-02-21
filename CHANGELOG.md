@@ -1,4 +1,11 @@
 
+<a id='changelog-0.32.2'></a>
+# 0.32.2 — 2026-02-21
+
+## Fixed
+
+- Tuples in snapshots were converted internally into lists if they were evaluated more than once ([#349](https://github.com/15r10nk/inline-snapshot/issues/349))
+
 <a id='changelog-0.32.1'></a>
 # 0.32.1 — 2026-02-17
 
