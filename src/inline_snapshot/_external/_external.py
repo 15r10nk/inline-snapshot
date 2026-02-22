@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 from pathlib import Path
+from types import FrameType
 
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._change import CallArg
@@ -12,6 +13,7 @@ from inline_snapshot._external._format._protocol import get_format_handler
 from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
 from inline_snapshot._global_state import state
 from inline_snapshot._inline_snapshot import create_snapshot
+from inline_snapshot._types import SnapshotRefBase
 from inline_snapshot._unmanaged import declare_unmanaged
 from inline_snapshot._utils import is_relative_to
 
@@ -31,11 +33,11 @@ def is_inside_testdir(path: Path) -> bool:
 
 
 @declare_unmanaged
-class External(ExternalBase):
+class External(ExternalBase, SnapshotRefBase):
     _original_location: ExternalLocation
     _location: ExternalLocation
 
-    def __init__(self, name: str, expr, context: AdapterContext):
+    def __init__(self, name: str, frame: FrameType):
         """External objects are used to move some data outside the source code.
         You should not instantiate this class directly, but by using `external()` instead.
 
@@ -46,27 +48,27 @@ class External(ExternalBase):
             name: the name of the external stored object which has the form "<hash>:<name>.<suffix>".
         """
 
-        self._expr = expr
-        self._context = context
+        self._context = AdapterContext(frame)
         self._original_name = name
 
-        self._location = ExternalLocation.from_name(name, context=context)
-        self._original_location = ExternalLocation.from_name(name, context=context)
+        self._location = ExternalLocation.from_name(name, context=self._context)
+        self._original_location = ExternalLocation.from_name(
+            name, context=self._context
+        )
 
-        super().__init__()
-
-    @staticmethod
-    def check_context(context: AdapterContext):
-        if not is_inside_testdir(Path(context.file.filename)):
+        if not is_inside_testdir(Path(self._context.file.filename)):
             raise UsageError(
                 "external() can only be used in files which are inside tests/ or any other folder defined by your tool.inline-snapshot.test-dir in pyproject.toml"
             )
+
+        super().__init__()
 
     def result(self):
         return self
 
     @classmethod
-    def create_raw(cls, obj, context: AdapterContext):
+    def create_raw(cls, obj, frame: FrameType):
+        context = AdapterContext(frame)
         return cls._load_value_from_location(
             ExternalLocation.from_name(obj, context=context)
         )
@@ -76,10 +78,10 @@ class External(ExternalBase):
         return get_format_handler_from_suffix(self._location.suffix or "")
 
     def _changes(self):
-        if self._expr is None:
-            node = None
-        else:
-            node = self._expr.node
+
+        node = self._context.expr.node
+
+        if node is not None:
             assert isinstance(node, ast.Call)
 
         new_name = self._location.to_str()

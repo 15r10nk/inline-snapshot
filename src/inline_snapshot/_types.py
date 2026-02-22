@@ -1,5 +1,6 @@
 """The following types are for type checking only."""
 
+from types import FrameType
 from typing import Iterator
 from typing import Literal
 from typing import Optional
@@ -20,8 +21,8 @@ class SnapshotRefBase:
         raise NotImplementedError
 
     @staticmethod
-    def check_context(context):
-        pass
+    def key_for(frame: FrameType):
+        return id(frame.f_code), frame.f_lasti
 
 
 class SnapshotBase:
