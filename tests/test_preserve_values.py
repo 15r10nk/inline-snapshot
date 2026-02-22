@@ -3,8 +3,10 @@ import sys
 
 import pytest
 
+from tests.conftest import check_update
 
-def test_fix_list_fix(check_update):
+
+def test_fix_list_fix():
     check_update(
         """assert [1,2]==snapshot([0+1,3])""",
         reported_flags="update,fix",
@@ -13,7 +15,7 @@ def test_fix_list_fix(check_update):
     )
 
 
-def test_fix_list_insert(check_update):
+def test_fix_list_insert():
     check_update(
         """assert [1,2,3,4,5,6]==snapshot([0+1,3])""",
         reported_flags="update,fix",
@@ -22,7 +24,7 @@ def test_fix_list_insert(check_update):
     )
 
 
-def test_fix_list_delete(check_update):
+def test_fix_list_delete():
     check_update(
         """assert [1,5]==snapshot([0+1,2,3,4,5])""",
         reported_flags="update,fix",
@@ -31,7 +33,7 @@ def test_fix_list_delete(check_update):
     )
 
 
-def test_fix_tuple_delete(check_update):
+def test_fix_tuple_delete():
     check_update(
         """assert (1,5)==snapshot((0+1,2,3,4,5))""",
         reported_flags="update,fix",
@@ -40,7 +42,7 @@ def test_fix_tuple_delete(check_update):
     )
 
 
-def test_fix_dict_change(check_update):
+def test_fix_dict_change():
     check_update(
         """assert {1:1, 2:2}==snapshot({1:0+1, 2:3})""",
         reported_flags="update,fix",
@@ -49,7 +51,7 @@ def test_fix_dict_change(check_update):
     )
 
 
-def test_fix_dict_remove(check_update):
+def test_fix_dict_remove():
     check_update(
         """assert {1:1}==snapshot({0:0, 1:0+1, 2:2})""",
         reported_flags="update,fix",
@@ -65,7 +67,7 @@ def test_fix_dict_remove(check_update):
     )
 
 
-def test_fix_dict_insert(check_update):
+def test_fix_dict_insert():
     check_update(
         """assert {0:"before",1:1,2:"after"}==snapshot({1:0+1})""",
         reported_flags="update,fix",
@@ -74,7 +76,7 @@ def test_fix_dict_insert(check_update):
     )
 
 
-def test_fix_dict_with_non_literal_keys(check_update):
+def test_fix_dict_with_non_literal_keys():
     check_update(
         """assert {1+2:"3"}==snapshot({1+2:"5"})""",
         reported_flags="fix",
@@ -86,7 +88,7 @@ def test_fix_dict_with_non_literal_keys(check_update):
 @pytest.mark.skipif(
     sys.version_info < (3, 8), reason="dirty equals has dropped the 3.7 support"
 )
-def test_no_update_for_dirty_equals(check_update):
+def test_no_update_for_dirty_equals():
     check_update(
         """\
     from dirty_equals import IsInt
@@ -102,7 +104,7 @@ assert {5:5,2:2}==snapshot({5:IsInt(),2:2})\
 
 
 # @pytest.mark.skipif(not hasattr(ast, "unparse"), reason="ast.unparse not available")
-def test_preserve_case_from_original_mr(check_update):
+def test_preserve_case_from_original_mr():
     check_update(
         """\
     left = {

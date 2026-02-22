@@ -16,6 +16,7 @@ def apply_changes():
 def path_transform(text):
     return text.replace("\\", "/")
 
+
 class Store:
     def __eq__(self, other):
         self.value = other

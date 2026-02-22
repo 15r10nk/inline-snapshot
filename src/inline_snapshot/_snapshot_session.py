@@ -431,11 +431,11 @@ class SnapshotSession:
                 change_list = list(snapshot._changes())
             except Exception as exception:
                 context = ""
-                if expr := getattr(snapshot, "_expr", None):
-                    code = expr.frame.f_code
+                if _context := getattr(snapshot, "_context", None):
+                    code = _context._frame.f_code
                     context = f"""
 file: {code.co_filename}
-line: {cast(ast.expr,expr.node).lineno}\
+line: {cast(ast.expr,_context.expr.node).lineno}\
 """
                 raise RuntimeError(
                     f"""
