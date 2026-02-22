@@ -19,7 +19,10 @@ def test_basic(check_update):
     check_update(
         "assert outsource('text') == snapshot()",
         flags="create",
-        expected_code="assert outsource('text') == snapshot(external(\"uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt\"))",
+        expected_code="""\
+from inline_snapshot import external
+assert outsource('text') == snapshot(external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"))\
+""",
     )
 
 
