@@ -1,5 +1,6 @@
 import ast
 
+from inline_snapshot.extra import Transformed
 import pytest
 from hypothesis import given
 from hypothesis.strategies import text
@@ -12,36 +13,42 @@ from inline_snapshot.testing import Example
 def test_string_update(check_update):
     # black --preview wraps strings to keep the line length.
     # string concatenation should produce updates.
-    assert (
-        check_update(
-            'assert "ab" == snapshot("a" "b")', reported_flags="", flags="update"
-        )
-        == 'assert "ab" == snapshot("a" "b")'
+    check_update(
+        'assert "ab" == snapshot("a" "b")',
+        reported_flags="",
+        flags="update",
+        expected_code='assert "ab" == snapshot("a" "b")',
     )
 
-    assert (
-        check_update(
-            'assert "ab" == snapshot("a"\n "b")', reported_flags="", flags="update"
-        )
-        == 'assert "ab" == snapshot("a"\n "b")'
+    check_update(
+        'assert "ab" == snapshot("a"\n "b")',
+        reported_flags="",
+        flags="update",
+        expected_code="""\
+assert "ab" == snapshot("a"
+ "b")\
+""",
     )
 
-    assert check_update(
-        'assert "ab\\nc" == snapshot("a"\n "b\\nc")', flags="update"
-    ) == snapshot(
-        '''\
+    check_update(
+        'assert "ab\\nc" == snapshot("a"\n "b\\nc")',
+        flags="update",
+        expected_code='''\
 assert "ab\\nc" == snapshot("""\\
 ab
 c\\
 """)\
-'''
+''',
     )
 
-    assert (
-        check_update(
-            'assert b"ab" == snapshot(b"a"\n b"b")', reported_flags="", flags="update"
-        )
-        == 'assert b"ab" == snapshot(b"a"\n b"b")'
+    check_update(
+        'assert b"ab" == snapshot(b"a"\n b"b")',
+        reported_flags="",
+        flags="update",
+        expected_code="""\
+assert b"ab" == snapshot(b"a"
+ b"b")\
+""",
     )
 
 
@@ -134,13 +141,12 @@ s = snapshot("""\\
 @pytest.fixture()
 def check_update2(check_update):
     def check(string, expected_str, reported_flags="update"):
-
-        result = check_update(
+        check_update(
             f"s = snapshot({string})\nassert {string} == s",
             reported_flags=reported_flags,
             flags="update",
+            expected_code=Transformed(lambda v:v.split("assert")[0].strip(),expected_str)
         )
-        assert result.split("assert")[0].strip() == expected_str
 
     return check
 

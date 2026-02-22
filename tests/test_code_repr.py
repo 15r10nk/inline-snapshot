@@ -168,9 +168,9 @@ def test_hasrepr_type():
 
 def test_enum_in_dataclass(check_update):
 
-    assert (
-        check_update(
-            """
+    Example(
+        """
+from inline_snapshot import snapshot
 from enum import Enum
 from dataclasses import dataclass
 
@@ -183,38 +183,41 @@ class container:
     bg: color=color.red
     fg: color=color.blue
 
-assert container(bg=color.red,fg=color.red) == snapshot()
-
-    """,
-            flags="create",
-        )
-        == snapshot(
-            """\
-
-from enum import Enum
-from dataclasses import dataclass
-
-class color(Enum):
-    red="red"
-    blue="blue"
-
-@dataclass
-class container:
-    bg: color=color.red
-    fg: color=color.blue
-
-assert container(bg=color.red,fg=color.red) == snapshot(container(fg=color.red))
-
+def test_a():
+    assert container(bg=color.red,fg=color.red) == snapshot()
 """
-        )
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+
+from inline_snapshot import snapshot
+from enum import Enum
+from dataclasses import dataclass
+
+class color(Enum):
+    red="red"
+    blue="blue"
+
+@dataclass
+class container:
+    bg: color=color.red
+    fg: color=color.blue
+
+def test_a():
+    assert container(bg=color.red,fg=color.red) == snapshot(container(fg=color.red))
+"""
+            }
+        ),
     )
 
 
 def test_flag(check_update):
 
-    assert (
-        check_update(
-            """
+    Example(
+        """\
+from inline_snapshot import snapshot
 from enum import Flag, auto
 
 class Color(Flag):
@@ -222,50 +225,47 @@ class Color(Flag):
     green = auto()
     blue = auto()
 
-assert Color.red | Color.blue == snapshot()
-
-    """,
-            flags="create",
-        )
-        == snapshot(
-            """\
-
-from enum import Flag, auto
-
-class Color(Flag):
-    red = auto()
-    green = auto()
-    blue = auto()
-
-assert Color.red | Color.blue == snapshot(Color.red | Color.blue)
-
+def test_a():
+    assert Color.red | Color.blue == snapshot()
 """
-        )
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot import snapshot
+from enum import Flag, auto
+
+class Color(Flag):
+    red = auto()
+    green = auto()
+    blue = auto()
+
+def test_a():    \n\
+    assert Color.red | Color.blue == snapshot(Color.red | Color.blue)
+"""
+            }
+        ),
     )
 
 
 def test_type(check_update):
 
-    assert (
-        check_update(
-            """\
+    check_update(
+        """\
+    class Color:
+        pass
+
+    assert [Color,int] == snapshot()
+
+        """,
+        flags="create",
+        expected_code="""\
 class Color:
     pass
 
-assert [Color,int] == snapshot()
-
-    """,
-            flags="create",
-        )
-        == snapshot(
-            """\
-class Color:
-    pass
-
-assert [Color,int] == snapshot([Color, int])
-
-"""
-        )
+assert [Color,int] == snapshot([Color, int])\
+""",
     )
 
 
