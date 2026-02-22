@@ -66,7 +66,6 @@ def create_snapshot(Type, obj, extra_frames=0):
         if node is None:
             # we can run without knowing of the calling expression but we will not be able to fix code
             new = Type(obj, None, context)
-            state().snapshots[key] = Type(obj, None, context)
         else:
             assert isinstance(node, ast.Call)
             new = Type(obj, context.expr, context)

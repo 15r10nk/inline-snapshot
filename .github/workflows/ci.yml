@@ -65,13 +65,10 @@ jobs:
           python-version: pypy3.10
 
     env:
+      TOP: ${{github.workspace}}
+      COVERAGE_PROCESS_START: ${{github.workspace}}/pyproject.toml
       PYTHONIOENCODING: utf-8
     steps:
-    - name: Set coverage environment variables
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        echo "TOP=${{github.workspace}}" >> $GITHUB_ENV
-        echo "COVERAGE_PROCESS_START=${{github.workspace}}/pyproject.toml" >> $GITHUB_ENV
     - name: Install gettext (macOS only)
       if: runner.os == 'macOS'
       run: |

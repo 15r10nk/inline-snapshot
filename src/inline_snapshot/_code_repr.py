@@ -18,6 +18,19 @@ if TYPE_CHECKING:
 real_repr = repr
 
 
+def adapter_context_for_parent_frame():
+    from inline_snapshot._adapter_context import AdapterContext
+
+    frame = inspect.currentframe()
+    assert frame
+    frame = frame.f_back
+    assert frame
+    frame = frame.f_back
+    assert frame
+
+    return AdapterContext(frame)
+
+
 class HasRepr:
     """This class is used for objects where `__repr__()` returns an non-
     parsable representation.
@@ -37,6 +50,7 @@ class HasRepr:
         return f"HasRepr({self._type.__qualname__}, {self._str_repr!r})"
 
     def __eq__(self, other):
+
         if isinstance(other, HasRepr):
             if other._type is not self._type:
                 return False
@@ -44,7 +58,7 @@ class HasRepr:
             if type(other) is not self._type:
                 return False
 
-        with mock_repr(None):
+        with mock_repr(adapter_context_for_parent_frame()):
             other_repr = value_code_repr(other)
         return other_repr == self._str_repr or other_repr == real_repr(self)
 
@@ -79,20 +93,14 @@ def customize_repr(f):
 
 
 def code_repr(obj):
-    from inline_snapshot._adapter_context import AdapterContext
-
-    frame = inspect.currentframe()
-    assert frame
-    frame = frame.f_back
-    assert frame
-
-    context = AdapterContext(frame)
-    with mock_repr(context):
+    with mock_repr(adapter_context_for_parent_frame()):
         return repr(obj)
 
 
 @contextmanager
 def mock_repr(context: AdapterContext):
+    assert context is not None
+
     def new_repr(obj):
         from inline_snapshot._customize._builder import Builder
 

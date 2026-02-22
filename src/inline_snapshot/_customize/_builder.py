@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import cached_property
 from typing import Any
 from typing import Callable
 
@@ -47,8 +46,8 @@ class Builder:
                 r = state().pm.hook.customize(
                     value=result,
                     builder=self,
-                    local_vars=self._get_local_vars,
-                    global_vars=self._get_global_vars,
+                    local_vars=self._local_vars,
+                    global_vars=self._global_vars,
                 )
             if r is None:
                 result = CustomCode(result)
@@ -159,25 +158,15 @@ customized_representation={result!r}
         }
         return CustomDict(value=custom)
 
-    @cached_property
-    def _get_local_vars(self):
+    @property
+    def _local_vars(self):
         """Get local vars from snapshot context."""
-        frame = self._snapshot_context.frame
-        return {
-            var_name: var_value
-            for var_name, var_value in frame.locals.items()
-            if "@" not in var_name
-        }
+        return self._snapshot_context.local_vars
 
-    @cached_property
-    def _get_global_vars(self):
+    @property
+    def _global_vars(self):
         """Get global vars from snapshot context."""
-        frame = self._snapshot_context.frame
-        return {
-            var_name: var_value
-            for var_name, var_value in frame.globals.items()
-            if "@" not in var_name
-        }
+        return self._snapshot_context.global_vars
 
     def _build_import_vars(self, imports):
         """Build import vars from imports parameter."""
@@ -218,16 +207,16 @@ customized_representation={result!r}
         # Try direct variable lookup for simple identifiers (fastest)
         if code.isidentifier():
             # Direct lookup with proper precedence: local > import > global
-            if code in self._get_local_vars:
-                return CustomCode(self._get_local_vars[code], code, imports)
+            if code in self._local_vars:
+                return CustomCode(self._local_vars[code], code, imports)
 
             # Build import vars only if needed
             import_vars = self._build_import_vars(imports)
             if code in import_vars:
                 return CustomCode(import_vars[code], code, imports)
 
-            if code in self._get_global_vars:
-                return CustomCode(self._get_global_vars[code], code, imports)
+            if code in self._global_vars:
+                return CustomCode(self._global_vars[code], code, imports)
 
         # Try ast.literal_eval for simple literals (fast and safe)
         try:
@@ -240,8 +229,8 @@ customized_representation={result!r}
             if import_vars is None:
                 import_vars = self._build_import_vars(imports)
             eval_context = {
-                **self._get_global_vars,
+                **self._global_vars,
                 **import_vars,
-                **self._get_local_vars,
+                **self._local_vars,
             }
             return CustomCode(eval(code, eval_context), code, imports)

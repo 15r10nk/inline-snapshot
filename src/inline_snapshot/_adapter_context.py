@@ -43,6 +43,24 @@ class AdapterContext:
         return FrameContext(globals=self._frame.f_globals, locals=self._frame.f_locals)
 
     @cached_property
+    def local_vars(self):
+        """Get local vars from snapshot context."""
+        return {
+            var_name: var_value
+            for var_name, var_value in self._frame.f_locals.items()
+            if "@" not in var_name
+        }
+
+    @cached_property
+    def global_vars(self):
+        """Get global vars from snapshot context."""
+        return {
+            var_name: var_value
+            for var_name, var_value in self._frame.f_globals.items()
+            if "@" not in var_name
+        }
+
+    @cached_property
     def qualname(self) -> str:
         if sys.version_info >= (3, 11):
             return self._frame.f_code.co_qualname
