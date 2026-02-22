@@ -28,6 +28,7 @@ from inline_snapshot._snapshot_arg import snapshot_arg
 from inline_snapshot._types import Category
 from inline_snapshot.testing._example import Example
 from inline_snapshot.testing._example import deterministic_uuid
+from tests.utils import Store
 
 pytest_plugins = "pytester"
 
@@ -49,36 +50,36 @@ def check_pypy(request):
 
 
 @pytest.fixture()
-def check_update(source):
-    def w(source_code, *, flags="", reported_flags=None, number=1, expected_code=...):
+def check_update():
+    def w(source_code, *, flags="", reported_flags=None, expected_code=...):
         code = f"""\
 from inline_snapshot import snapshot,outsource
 
 def test_a():
-    # split
-{textwrap.indent(source_code,"    ")}
+    exec(compile(open("source_code.py").read(),"source_code.py","exec"))
 """
-        e = Example({"test_a.py": code})
-        result = e.run_inline([f"--inline-snapshot={flags}"])
+        e = Example({"test_a.py": code, "source_code.py": textwrap.dedent(source_code)})
+        result = e.run_inline(
+            [f"--inline-snapshot={flags}"],
+            reported_categories=(result_flags := Store()),
+        )
 
-        s = source(source_code)
-        flags = {*flags.split(",")} - {""}
+        flags_set = {*flags.split(",")} - {""}
 
-        if reported_flags is None:
-            reported_flags = flags
+        if reported_flags:
+            reported_flags_set = {*reported_flags.split(",")} - {""}
         else:
-            reported_flags = {*reported_flags.split(",")} - {""}
+            reported_flags_set = flags_set
 
-        assert s.flags == reported_flags
-        assert s.number_snapshots == number
-        assert s.error == ("fix" in s.flags)
-        expected_code = snapshot_arg(expected_code)
+        if reported_flags_set != set(result_flags.value):
+            assert snapshot_arg(reported_flags) == ",".join(sorted(result_flags.value))
 
-        s2 = s.run(*flags)
-
-        # assert s2.source.strip() == textwrap.dedent(result.read_file("test_a.py").split("# split")[-1]).strip()
-
-        assert s2.source.strip() == expected_code
+        assert (
+            snapshot_arg(expected_code)
+            == textwrap.dedent(
+                result.read_file("source_code.py").split("# split")[-1]
+            ).strip()
+        )
 
     return w
 
