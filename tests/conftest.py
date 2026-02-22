@@ -24,7 +24,9 @@ from inline_snapshot._flags import Flags
 from inline_snapshot._format import format_code
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot._rewrite_code import ChangeRecorder
+from inline_snapshot._snapshot_arg import snapshot_arg
 from inline_snapshot._types import Category
+from inline_snapshot.testing._example import Example
 from inline_snapshot.testing._example import deterministic_uuid
 
 pytest_plugins = "pytester"
@@ -48,7 +50,17 @@ def check_pypy(request):
 
 @pytest.fixture()
 def check_update(source):
-    def w(source_code, *, flags="", reported_flags=None, number=1):
+    def w(source_code, *, flags="", reported_flags=None, number=1, expected_code=...):
+        code = f"""\
+from inline_snapshot import snapshot,outsource
+
+def test_a():
+    # split
+{textwrap.indent(source_code,"    ")}
+"""
+        e = Example({"test_a.py": code})
+        result = e.run_inline([f"--inline-snapshot={flags}"])
+
         s = source(source_code)
         flags = {*flags.split(",")} - {""}
 
@@ -60,10 +72,13 @@ def check_update(source):
         assert s.flags == reported_flags
         assert s.number_snapshots == number
         assert s.error == ("fix" in s.flags)
+        expected_code = snapshot_arg(expected_code)
 
         s2 = s.run(*flags)
 
-        return s2.source
+        # assert s2.source.strip() == textwrap.dedent(result.read_file("test_a.py").split("# split")[-1]).strip()
+
+        assert s2.source.strip() == expected_code
 
     return w
 
