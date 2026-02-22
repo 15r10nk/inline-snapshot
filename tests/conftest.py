@@ -15,6 +15,7 @@ from unittest import mock
 
 import black
 import executing
+from inline_snapshot._get_snapshot_value import get_snapshot_value
 import pytest
 
 import inline_snapshot._external
@@ -49,39 +50,43 @@ def check_pypy(request):
     yield
 
 
-@pytest.fixture()
-def check_update():
-    def w(source_code, *, flags="", reported_flags=None, expected_code=...):
-        code = f"""\
+def check_update(source_code, *, flags="", reported_flags=None, expected_code=...):
+    code = f"""\
 from inline_snapshot import snapshot,outsource
 
 def test_a():
     exec(compile(open("source_code.py").read(),"source_code.py","exec"))
 """
-        e = Example({"test_a.py": code, "source_code.py": textwrap.dedent(source_code)})
-        result = e.run_inline(
-            [f"--inline-snapshot={flags}"],
-            reported_categories=(result_flags := Store()),
-        )
+    e = Example(
+        {
+            "pyproject.toml": """\
+[tool.inline-snapshot]
+show-updates=true""",
+            "test_a.py": code,
+            "source_code.py": textwrap.dedent(source_code),
+        }
+    )
+    result = e.run_inline(
+        [f"--inline-snapshot={flags}"],
+        reported_categories=(result_flags := Store()),
+    )
 
-        flags_set = {*flags.split(",")} - {""}
+    flags_set = {*flags.split(",")} - {""}
 
-        if reported_flags:
-            reported_flags_set = {*reported_flags.split(",")} - {""}
-        else:
-            reported_flags_set = flags_set
+    if get_snapshot_value(reported_flags):
+        reported_flags_set = {*get_snapshot_value(reported_flags).split(",")} - {""}
+    else:
+        reported_flags_set = flags_set
 
-        if reported_flags_set != set(result_flags.value):
-            assert snapshot_arg(reported_flags) == ",".join(sorted(result_flags.value))
+    if reported_flags_set != set(result_flags.value):
+        assert snapshot_arg(reported_flags) == ",".join(sorted(result_flags.value))
 
-        assert (
-            snapshot_arg(expected_code)
-            == textwrap.dedent(
-                result.read_file("source_code.py").split("# split")[-1]
-            ).strip()
-        )
-
-    return w
+    assert (
+        snapshot_arg(expected_code)
+        == textwrap.dedent(
+            result.read_file("source_code.py").split("# split")[-1]
+        ).strip()
+    )
 
 
 @pytest.fixture()
