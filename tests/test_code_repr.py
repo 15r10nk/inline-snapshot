@@ -241,7 +241,7 @@ class Color(Flag):
     green = auto()
     blue = auto()
 
-def test_a():    \n\
+def test_a():
     assert Color.red | Color.blue == snapshot(Color.red | Color.blue)
 """
             }

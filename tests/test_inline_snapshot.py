@@ -176,7 +176,6 @@ def test_mutable_values(check_update):
     assert l==snapshot()
         """,
         flags="create",
-        number=2,
         expected_code="""\
 l=[1,2]
 assert l==snapshot([1, 2])
@@ -193,7 +192,6 @@ assert l==snapshot([1, 2, 3])\
     assert l<=snapshot()
         """,
         flags="create",
-        number=2,
         expected_code="""\
 l=[1,2]
 assert l<=snapshot([1, 2])
@@ -210,7 +208,6 @@ assert l<=snapshot([1, 2, 3])\
     assert l>=snapshot()
         """,
         flags="create",
-        number=2,
         expected_code="""\
 l=[1,2]
 assert l>=snapshot([1, 2])
@@ -227,7 +224,6 @@ assert l>=snapshot([1, 2, 3])\
     assert l in snapshot()
         """,
         flags="create",
-        number=2,
         expected_code="""\
 l=[1,2]
 assert l in snapshot([[1, 2]])
@@ -239,11 +235,15 @@ assert l in snapshot([[1, 2, 3]])\
 
 def test_comparison(check_update):
     check_update(
-        "assert 5==snapshot()", flags="create", expected_code="assert 5==snapshot(5)"
+        "assert 5==snapshot()",
+        flags="create",
+        expected_code="assert 5==snapshot(5)",
     )
 
     check_update(
-        "assert 5==snapshot(9)", flags="fix", expected_code="assert 5==snapshot(5)"
+        "assert 5==snapshot(9)",
+        flags="fix",
+        expected_code="assert 5==snapshot(5)",
     )
 
     check_update(
@@ -286,7 +286,9 @@ for a in [1,1,1]:
 
 def test_ge(check_update):
     check_update(
-        "assert 5<=snapshot()", flags="create", expected_code="assert 5<=snapshot(5)"
+        "assert 5<=snapshot()",
+        flags="create",
+        expected_code="assert 5<=snapshot(5)",
     )
 
     check_update(
@@ -326,18 +328,27 @@ assert 5==s["q"]\
     )
 
     check_update(
-        "assert 5<=snapshot(9)", flags="trim", expected_code="assert 5<=snapshot(5)"
+        "assert 5<=snapshot(9)",
+        flags="trim",
+        expected_code="assert 5<=snapshot(5)",
     )
 
     check_update(
-        "assert 5<=snapshot(3)", flags="fix", expected_code="assert 5<=snapshot(5)"
+        "assert 5<=snapshot(3)",
+        flags="fix",
+        expected_code="assert 5<=snapshot(5)",
     )
 
     check_update(
-        "assert snapshot(3) >= 5", flags="fix", expected_code="assert snapshot(5) >= 5"
+        "assert snapshot(3) >= 5",
+        flags="fix",
+        expected_code="assert snapshot(5) >= 5",
     )
 
-    check_update("assert 5<=snapshot(5)", expected_code="assert 5<=snapshot(5)")
+    check_update(
+        "assert 5<=snapshot(5)",
+        expected_code="assert 5<=snapshot(5)",
+    )
 
     check_update(
         "for i in range(5): assert i <=snapshot(2)",
