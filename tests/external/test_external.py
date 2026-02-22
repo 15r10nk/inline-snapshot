@@ -12,10 +12,11 @@ from inline_snapshot._global_state import snapshot_env
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
 
+from ..conftest import check_update
 from ..utils import apply_changes
 
 
-def test_basic(check_update):
+def test_basic():
     check_update(
         "assert outsource('text') == snapshot()",
         flags="create",

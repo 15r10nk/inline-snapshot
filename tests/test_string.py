@@ -1,16 +1,17 @@
 import ast
 
-from inline_snapshot.extra import Transformed
-import pytest
 from hypothesis import given
 from hypothesis.strategies import text
 
 from inline_snapshot import snapshot
+from inline_snapshot._snapshot_arg import snapshot_arg
 from inline_snapshot._utils import triple_quote
+from inline_snapshot.extra import Transformed
 from inline_snapshot.testing import Example
+from tests.conftest import check_update
 
 
-def test_string_update(check_update):
+def test_string_update():
     # black --preview wraps strings to keep the line length.
     # string concatenation should produce updates.
     check_update(
@@ -52,7 +53,7 @@ assert b"ab" == snapshot(b"a"
     )
 
 
-def test_string_newline(check_update2):
+def test_string_newline():
     check_update2(
         '"a\\nb"',
         snapshot(
@@ -138,20 +139,16 @@ s = snapshot("""\\
     )
 
 
-@pytest.fixture()
-def check_update2(check_update):
-    def check(string, expected_str, reported_flags="update"):
-        check_update(
-            f"s = snapshot({string})\nassert {string} == s",
-            reported_flags=reported_flags,
-            flags="update",
-            expected_code=Transformed(lambda v:v.split("assert")[0].strip(),expected_str)
-        )
-
-    return check
+def check_update2(string, expected_str=..., reported_flags="update"):
+    check_update(
+        f"s = snapshot({string})\nassert {string} == s",
+        reported_flags="",
+        flags="update",
+        expected_code=Transformed(lambda v: v.split("assert")[0].strip(), expected_str),
+    )
 
 
-def test_string_quote_choice(check_update2):
+def test_string_quote_choice():
     check_update2(
         "\" \\'\\'\\' \\'\\'\\' \\\"\\\"\\\"\\nother_line\"",
         snapshot(
@@ -341,3 +338,6 @@ def test_a():
             }
         ),
     )
+
+
+

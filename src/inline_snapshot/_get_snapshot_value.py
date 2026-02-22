@@ -1,5 +1,7 @@
 from typing import TypeVar
 
+from inline_snapshot._customize._custom_undefined import CustomUndefined
+
 from ._exceptions import UsageError
 from ._external._external import External
 from ._external._external_file import ExternalFile

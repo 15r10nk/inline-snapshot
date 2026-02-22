@@ -13,6 +13,7 @@ from inline_snapshot import snapshot
 from inline_snapshot._flags import Flags
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot.testing import Example
+from tests.conftest import check_update
 
 
 @pytest.mark.no_rewriting
@@ -167,7 +168,7 @@ def test_generic_multi(source, ops, executing_used):
         assert s2.source == s.source
 
 
-def test_mutable_values(check_update):
+def test_mutable_values():
     check_update(
         """
     l=[1,2]
@@ -233,7 +234,7 @@ assert l in snapshot([[1, 2, 3]])\
     )
 
 
-def test_comparison(check_update):
+def test_comparison():
     check_update(
         "assert 5==snapshot()",
         flags="create",
@@ -284,7 +285,7 @@ for a in [1,1,1]:
     )
 
 
-def test_ge(check_update):
+def test_ge():
     check_update(
         "assert 5<=snapshot()",
         flags="create",
@@ -363,7 +364,7 @@ assert 5==s["q"]\
     )
 
 
-def test_le(check_update):
+def test_le():
     check_update(
         "assert 5>=snapshot()", flags="create", expected_code="assert 5>=snapshot(5)"
     )
@@ -425,7 +426,7 @@ assert 5==s["q"]\
     )
 
 
-def test_contains(check_update):
+def test_contains():
     check_update(
         "assert 5 in snapshot()",
         flags="create",
@@ -473,7 +474,7 @@ assert 5 in s\
     )
 
 
-def test_getitem(check_update):
+def test_getitem():
     check_update(
         'assert 5 == snapshot()["test"]',
         flags="create",
@@ -565,7 +566,7 @@ assert 5 == s["q"]\
 #     )
 
 
-def test_plain(check_update, executing_used):
+def test_plain(executing_used):
     check_update("s = snapshot(5)", flags="", expected_code="s = snapshot(5)")
 
     check_update("s = snapshot()", flags="", expected_code="s = snapshot()")
@@ -575,7 +576,7 @@ def test_flags_repr():
     assert repr(Flags({"update"})) == "Flags({'update'})"
 
 
-def test_format_file(check_update):
+def test_format_file():
     check_update(
         'assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot()\n',
         flags="create",
@@ -593,7 +594,7 @@ assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot(
     )
 
 
-def test_format_value(check_update):
+def test_format_value():
     check_update(
         'assert ["aaaaaaaaaaaaaaaaa"] * 5==  snapshot()\n',
         flags="create",
@@ -609,7 +610,7 @@ assert ["aaaaaaaaaaaaaaaaa"] * 5==  snapshot([
     )
 
 
-def test_unused_snapshot(check_update):
+def test_unused_snapshot():
     check_update(
         "snapshot()\n",
         flags="create",
@@ -618,7 +619,7 @@ def test_unused_snapshot(check_update):
     )
 
 
-def test_type_error(check_update):
+def test_type_error():
     tests = ["5 == s", "5 <= s", "5 >= s", "5 in s", "5 == s[0]"]
 
     for test1, test2 in itertools.product(tests, tests):
@@ -638,7 +639,7 @@ assert {test2}
             assert test1 == test2
 
 
-def test_sub_snapshot_create(check_update):
+def test_sub_snapshot_create():
 
     check_update(
         """\
@@ -738,7 +739,7 @@ def test_b():
     )
 
 
-def test_different_snapshot_name(check_update):
+def test_different_snapshot_name():
 
     check_update(
         """\

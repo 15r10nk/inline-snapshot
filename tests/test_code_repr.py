@@ -15,9 +15,10 @@ from inline_snapshot import snapshot
 from inline_snapshot._code_repr import code_repr
 from inline_snapshot._sentinels import undefined
 from inline_snapshot.testing import Example
+from tests.conftest import check_update
 
 
-def test_enum(check_update):
+def test_enum():
 
     Example(
         {
@@ -166,7 +167,7 @@ def test_hasrepr_type():
     assert not HasRepr(str, "a") == HasRepr(str, "b")
 
 
-def test_enum_in_dataclass(check_update):
+def test_enum_in_dataclass():
 
     Example(
         """
@@ -213,7 +214,7 @@ def test_a():
     )
 
 
-def test_flag(check_update):
+def test_flag():
 
     Example(
         """\
@@ -249,7 +250,7 @@ def test_a():
     )
 
 
-def test_type(check_update):
+def test_type():
 
     check_update(
         """\
@@ -414,7 +415,7 @@ def test_fake_tuple2():
     assert code_repr(FakeTuple()) == snapshot("FakeTuple()")
 
 
-def test_invalid_repr(check_update):
+def test_invalid_repr():
 
     Example(
         """\

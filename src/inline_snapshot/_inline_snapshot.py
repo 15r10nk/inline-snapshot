@@ -1,9 +1,9 @@
+import ast
 import inspect
 from types import FrameType
 from typing import Any
 from typing import Iterator
 from typing import TypeVar
-from typing import cast
 
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._customize._custom_undefined import CustomUndefined
@@ -102,8 +102,8 @@ class SnapshotReference(SnapshotRefBase):
         return obj
 
     def __repr__(self):
-        if self._expr:
-            return ast.unparse(self._expr.node)
+        if self._context.expr.node:
+            return ast.unparse(self._context.expr.node)
         else:
             return "snapshot(...)"
 
