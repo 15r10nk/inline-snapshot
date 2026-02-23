@@ -1,5 +1,6 @@
 import contextlib
 import itertools
+import textwrap
 import warnings
 from collections import namedtuple
 from contextlib import nullcontext
@@ -12,6 +13,7 @@ from dirty_equals import AnyThing
 from inline_snapshot import snapshot
 from inline_snapshot._flags import Flags
 from inline_snapshot._global_state import snapshot_env
+from inline_snapshot._is import Is
 from inline_snapshot.testing import Example
 from tests.conftest import check_update
 
@@ -80,35 +82,36 @@ def _generate_test_codes():
     _generate_test_codes(),
     ids=lambda x: x if isinstance(x, str) else "",
 )
-def test_generic(source, code, reported_flag, executing_used):
+def test_generic(code, reported_flag, executing_used):
     all_flags = ["trim", "fix", "create", "update"]
 
-    s = source(code)
-    print("source:", code)
+    # s = source(code)
+    e = Example(
+        f"""\
+from inline_snapshot import snapshot
+def test_a():
+    {code}
+"""
+    )
 
-    if not executing_used and reported_flag == "update":
-        assert not s.flags
-    else:
-        assert list(s.flags) == [reported_flag]
-
-    assert (reported_flag == "fix") == s.error
+    e.run_inline(
+        reported_categories=(
+            [] if not executing_used and reported_flag == "update" else [reported_flag]
+        ),
+        raises=AnyThing(),
+    )
 
     for flag in all_flags:
         if flag == reported_flag:
             continue
         print("use flag:", flag)
-        s2 = s.run(flag)
-        assert s2.source == s.source
+        # no changes
+        e.run_inline([f"--inline-snapshot={flag}"], changed_files={}, raises=AnyThing())
 
     if not executing_used:
         return
 
-    s2 = s.run(reported_flag)
-    assert s2.flags == {reported_flag}
-
-    s3 = s2.run(*all_flags)
-    assert s3.flags == set()
-    assert s3.source == s2.source
+    e.run_inline([f"--inline-snapshot={reported_flag}"]).run_inline()
 
 
 @pytest.mark.parametrize(
@@ -118,7 +121,7 @@ def test_generic(source, code, reported_flag, executing_used):
         for ops in itertools.combinations(operations, 2)
     ],
 )
-def test_generic_multi(source, ops, executing_used):
+def test_generic_multi(ops, executing_used):
 
     def gen_code(ops, fixed, old_keys):
         keys = old_keys + [k for k in range(len(ops)) if k not in old_keys]
@@ -139,33 +142,41 @@ def test_generic_multi(source, ops, executing_used):
         for k, op in enumerate(ops):
             code += f'print({op.value} {op.op} s["k_{k}"]) # {op.flag} {op.svalue or "<undef>"} -> {op.fvalue}\n'
 
+        code = f"""\
+from inline_snapshot import snapshot
+def test_a():
+{textwrap.indent(code,"    ")}
+"""
         return code, new_keys
 
     all_flags = {op.flag for op in ops}
-
     keys = []
     code, keys = gen_code(ops, {}, keys)
-    s = source(code)
 
-    assert s.flags == all_flags - ({"update"} if not executing_used else set())
+    e = Example(code)
+    e.run_inline(
+        reported_categories=sorted(
+            all_flags - ({"update"} if not executing_used else set())
+        ),
+        raises=AnyThing(),
+    )
 
     if executing_used:
         for flags in itertools.permutations(all_flags):
-            s2 = s
+            e2 = e
             fixed_flags = set()
             for flag in flags:
-
-                s2 = s2.run(flag)
                 fixed_flags.add(flag)
                 code, keys = gen_code(ops, fixed_flags, keys)
-                assert s2.source == code
+                e2 = e2.run_inline(
+                    [f"--inline-snapshot={flag}"],
+                    changed_files=snapshot({"tests/test_something.py": Is(code)}),
+                )
 
-                s2 = s2.run()
-                assert s2.flags == all_flags - fixed_flags
+                e2 = e2.run_inline(reported_categories=sorted(all_flags - fixed_flags))
 
     for flag in {"update", "fix", "trim", "create"} - all_flags:
-        s2 = s.run(flag)
-        assert s2.source == s.source
+        e.run_inline([f"--inline-snapshot={flag}"], changed_files={})
 
 
 def test_mutable_values():
@@ -767,56 +778,65 @@ assert 4==inline_snapshot.snapshot(4)\
     )
 
 
-def test_quoting_change_is_no_update(source):
+def test_quoting_change_is_no_update():
 
-    s = source(
-        """\
+    s = (
+        Example(
+            """\
 from inline_snapshot import external,snapshot
 
 class X:
-    def __init__(self,a):
+    def __init__(self,a,b):
+        assert a==b
         self.a=a
-        pass
 
     def __repr__(self):
-        return f'X("{self.a}")'
+        return f'''X("{self.a}",\\'{self.a}\\')'''
 
     def __eq__(self,other):
         if not hasattr(other,"a"):
             return NotImplemented
         return other.a==self.a
 
-assert X("a") == snapshot()
+def test_a():
+    assert X("a","a") == snapshot()
 """
-    )
-    assert s.flags == snapshot({"create"})
-
-    s = s.run("create")
-
-    assert s.source == snapshot(
-        """\
+        )
+        .run_inline(
+            ["--inline-snapshot=create"],
+            changed_files=snapshot(
+                {
+                    "tests/test_something.py": """\
 from inline_snapshot import external,snapshot
 
 class X:
-    def __init__(self,a):
+    def __init__(self,a,b):
+        assert a==b
         self.a=a
-        pass
 
     def __repr__(self):
-        return f'X("{self.a}")'
+        return f'''X("{self.a}",\\'{self.a}\\')'''
 
     def __eq__(self,other):
         if not hasattr(other,"a"):
             return NotImplemented
         return other.a==self.a
 
-assert X("a") == snapshot(X("a"))
+def test_a():
+    assert X("a","a") == snapshot(X("a", "a"))
 """
+                }
+            ),
+            reported_categories=snapshot(["create"]),
+        )
+        .replace('"', "'")
     )
 
-    assert s.flags == snapshot({"create"})
-    s = s.run()
-    assert s.flags == snapshot(set())
+    s = s.run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot({}),
+        reported_categories=snapshot([]),
+    )
 
 
 def test_trailing_comma(project):
