@@ -2,7 +2,10 @@ import itertools
 import sys
 
 import pytest
+from dirty_equals import AnyThing
 
+from inline_snapshot._inline_snapshot import snapshot
+from inline_snapshot.testing._example import Example
 from tests.conftest import check_update
 
 
@@ -194,7 +197,7 @@ stuff = [
 
 @pytest.mark.parametrize("braces", ["[]", "()", "{}"])
 @pytest.mark.parametrize("value_specs", itertools.product(stuff, repeat=3))
-def test_generic(source, braces, value_specs):
+def test_generic(braces, value_specs):
     flags = set().union(*[e[3] for e in value_specs])
     all_flags = {
         frozenset(x) - {""}
@@ -221,24 +224,33 @@ def test_generic(source, braces, value_specs):
 
         return f"{braces[0]}{code}{comma}{braces[1]}"
 
+    def gen_code(a, b):
+        return f"""\
+from inline_snapshot import snapshot
+def test_a():
+    assert {a}==snapshot({b})
+"""
+
     c1 = build(spec[0] for spec in value_specs)
     c2 = build(spec[1] for spec in value_specs)
-    code = f"assert {c2}==snapshot({c1})"
+    code = gen_code(c2, c1)
 
-    s1 = source(code)
-    print("source:", code)
+    # s1 = source(code)
+    e1 = Example(code)
 
-    assert set(s1.flags) == flags
-
-    assert ("fix" in flags) == s1.error
+    # check that the flags are reported
+    e1.run_inline(
+        reported_categories=sorted(flags),
+        raises=snapshot("AssertionError:\n") if "fix" in flags else snapshot(None),
+    )
 
     for f in all_flags:
         c3 = build([(spec[1] if spec[3] & f else spec[0]) for spec in value_specs])
-        new_code = f"assert {c2}==snapshot({c3})"
+        new_code = gen_code(c2, c3)
 
-        print(f"{set(f)}:")
-        print("  ", code)
-        print("  ", new_code)
-        s2 = s1.run(*f)
-        assert s2.source == new_code
-        # assert s2.flags== flags-f
+        f = ",".join(sorted(f))
+        e2 = e1.run_inline(
+            [f"--inline-snapshot={f}"] if f else [],
+            raises=AnyThing(),
+        )
+        assert e2.read_file("tests/test_something.py") == new_code
