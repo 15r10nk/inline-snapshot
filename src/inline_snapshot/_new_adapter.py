@@ -467,7 +467,7 @@ class NewAdapter:
                 )
 
         to_insert = []
-        insert_pos = 0
+        insert_pos = len(old_value.args)
         for key, new_value_element in new_kwargs.items():
             if isinstance(new_value_element, CustomDefault):
                 continue

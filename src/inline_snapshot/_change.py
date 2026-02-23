@@ -338,23 +338,28 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
             to_insert = DefaultDict(list)
 
             other_call_args: list[CallArg] = []
+            call_args: list[CallArg] = []
+
             for change in changes:
                 if isinstance(change, CallArg):
-                    assert not (change.arg_name is None and change.arg_pos is None)
-                    if change.arg_name is None:
-                        assert change.arg_pos is not None
-                        to_insert[change.arg_pos].append(change.new_code)
-                    else:
-                        other_call_args.append(change)
+                    call_args.append(change)
+
+            max_pos = len(parent.args)
+
+            for change in sorted(call_args, key=lambda arg: arg.arg_pos or 0):
+                if change.arg_name is None:
+                    assert change.arg_pos is not None
+                    to_insert[min(change.arg_pos, max_pos)].append(change.new_code)
+                else:
+                    other_call_args.append(change)
 
             end_pos = (
                 max([len(parent.args) + len(parent.keywords), *to_insert.keys()]) + 1
             )
 
             for change in other_call_args:
-                if isinstance(change, CallArg):
-                    position = change.arg_pos if change.arg_pos is not None else end_pos
-                    to_insert[position].append(f"{change.arg_name}={change.new_code}")
+                position = change.arg_pos if change.arg_pos is not None else end_pos
+                to_insert[position].append(f"{change.arg_name}={change.new_code}")
 
             generic_sequence_update(
                 source,

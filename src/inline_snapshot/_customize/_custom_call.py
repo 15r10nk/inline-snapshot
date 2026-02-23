@@ -70,5 +70,3 @@ class CustomCall(Custom):
             raise TypeError(
                 f"can not call {self.function}({', '.join(map(str,call_args))})"
             ) from e
-
-            raise

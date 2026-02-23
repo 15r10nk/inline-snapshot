@@ -62,7 +62,6 @@ dev = [
     "pydantic>=1",
     "black==25.1.0",
     "isort",
-    "pandas>=3.0.0"
 ]
 
 [project.entry-points.pytest11]
