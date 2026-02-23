@@ -439,6 +439,7 @@ class NewAdapter:
                     new_code=new_code,
                     new_value=insert_value,
                 )
+                result_args.append(insert_value)
 
         # keyword arguments
         result_kwargs = {}
@@ -508,7 +509,7 @@ class NewAdapter:
                     flag=flag,
                     file=self.context.file,
                     node=old_node,
-                    arg_pos=insert_pos,
+                    arg_pos=None,
                     arg_name=key,
                     new_code=new_code,
                     new_value=value,

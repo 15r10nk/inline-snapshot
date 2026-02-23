@@ -153,13 +153,15 @@ from inline_snapshot import snapshot
 def test_pandas_timestamp():
     dt = Timestamp("2024-01-31 13:00:00+0000", tz="UTC")
     assert dt == snapshot()
+
     dt2 = Timestamp("2024-01-31 13:00:00")
     assert dt2 == snapshot()
+
     dt3 = Timestamp("2023-10-29 18:21:52.888000+0000", tz="UTC")
     assert dt3 == snapshot()
-    # Crashes with TypeError: function missing required argument 'month' (pos 2)
-    # dt4 = Timestamp("2024-01-31 13:00:00")
-    # assert dt4 == snapshot(Timestamp("2024-01-31 13:00:00"))
+
+    dt4 = Timestamp("2024-01-31 13:00:00")
+    assert dt4 == snapshot(Timestamp("2024-01-31 13:00:00"))
 """,
         }
     ).run_inline(
@@ -177,8 +179,10 @@ from datetime import timezone
 def test_pandas_timestamp():
     dt = Timestamp("2024-01-31 13:00:00+0000", tz="UTC")
     assert dt == snapshot(datetime(2024, 1, 31, hour=13, tzinfo=timezone.utc))
+
     dt2 = Timestamp("2024-01-31 13:00:00")
     assert dt2 == snapshot(datetime(2024, 1, 31, hour=13))
+
     dt3 = Timestamp("2023-10-29 18:21:52.888000+0000", tz="UTC")
     assert dt3 == snapshot(
         datetime(
@@ -192,9 +196,49 @@ def test_pandas_timestamp():
             tzinfo=timezone.utc,
         )
     )
-    # Crashes with TypeError: function missing required argument 'month' (pos 2)
-    # dt4 = Timestamp("2024-01-31 13:00:00")
-    # assert dt4 == snapshot(Timestamp("2024-01-31 13:00:00"))
+
+    dt4 = Timestamp("2024-01-31 13:00:00")
+    assert dt4 == snapshot(Timestamp("2024-01-31 13:00:00"))
+"""
+            }
+        ),
+    ).run_inline(
+        ["--inline-snapshot=fix"], changed_files=snapshot({})
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from pandas import Timestamp
+from inline_snapshot import snapshot
+
+from datetime import datetime
+from datetime import timezone
+
+
+def test_pandas_timestamp():
+    dt = Timestamp("2024-01-31 13:00:00+0000", tz="UTC")
+    assert dt == snapshot(datetime(2024, 1, 31, hour=13, tzinfo=timezone.utc))
+
+    dt2 = Timestamp("2024-01-31 13:00:00")
+    assert dt2 == snapshot(datetime(2024, 1, 31, hour=13))
+
+    dt3 = Timestamp("2023-10-29 18:21:52.888000+0000", tz="UTC")
+    assert dt3 == snapshot(
+        datetime(
+            2023,
+            10,
+            29,
+            hour=18,
+            minute=21,
+            second=52,
+            microsecond=888000,
+            tzinfo=timezone.utc,
+        )
+    )
+
+    dt4 = Timestamp("2024-01-31 13:00:00")
+    assert dt4 == snapshot(datetime(2024, 1, 31, hour=13))
 """
             }
         ),

@@ -57,7 +57,18 @@ class CustomCall(Custom):
             return unwrap_default(self.kwargs[pos_or_str])
 
     def _map(self, f):
-        return self.function._map(f)(
-            *[f(x._map(f)) for x in self.args],
-            **{k: f(v._map(f)) for k, v in self.kwargs.items()},
-        )
+        args = [f(x._map(f)) for x in self.args]
+        kwargs = {k: f(v._map(f)) for k, v in self.kwargs.items()}
+
+        try:
+            return self.function._map(f)(
+                *args,
+                **kwargs,
+            )
+        except Exception as e:
+            call_args = args + [f"{k}={v}" for k, v in kwargs.items()]
+            raise TypeError(
+                f"can not call {self.function}({', '.join(map(str,call_args))})"
+            ) from e
+
+            raise
