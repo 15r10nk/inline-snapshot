@@ -78,7 +78,7 @@ class InlineSnapshotPlugin:
 
     @customize
     def timezone_handler(self, value, builder: Builder):
-        if isinstance(value, datetime.timezone):
+        if type(value) is datetime.timezone:
             # Handle timezone.utc specially - it's a constant, not a constructor call
             if value == datetime.timezone.utc:
                 return builder.create_code(
@@ -94,7 +94,7 @@ class InlineSnapshotPlugin:
     @customize
     def datetime_handler(self, value, builder: Builder):
 
-        if isinstance(value, datetime.datetime):
+        if type(value) is datetime.datetime:
             return builder.create_call(
                 datetime.datetime,
                 [value.year, value.month, value.day],
@@ -107,12 +107,12 @@ class InlineSnapshotPlugin:
                 },
             )
 
-        if isinstance(value, datetime.date):
+        if type(value) is datetime.date:
             return builder.create_call(
                 datetime.date, [value.year, value.month, value.day]
             )
 
-        if isinstance(value, datetime.time):
+        if type(value) is datetime.time:
             return builder.create_call(
                 datetime.time,
                 [],
@@ -125,7 +125,7 @@ class InlineSnapshotPlugin:
                 },
             )
 
-        if isinstance(value, datetime.timedelta):
+        if type(value) is datetime.timedelta:
             return builder.create_call(
                 datetime.timedelta,
                 [],

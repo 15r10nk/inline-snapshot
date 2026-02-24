@@ -236,9 +236,10 @@ def generic_sequence_update(
             last_token = new_last_token
             is_start = False
 
-    if len(parent_elements) in to_insert:
-        new_code += to_insert[len(parent_elements)]
-        elements += len(new_code)
+    for i, insert_elements in sorted(to_insert.items()):
+        if i >= len(parent_elements):
+            new_code += insert_elements
+            elements += len(new_code)
 
     if new_code or deleted or elements == 1 or len(parent_elements) <= 1:
         code = ", ".join(new_code)
@@ -336,20 +337,29 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
 
             to_insert = DefaultDict(list)
 
+            other_call_args: list[CallArg] = []
+            call_args: list[CallArg] = []
+
             for change in changes:
                 if isinstance(change, CallArg):
-                    if change.arg_name is not None:
-                        position = (
-                            change.arg_pos
-                            if change.arg_pos is not None
-                            else len(parent.args) + len(parent.keywords)
-                        )
-                        to_insert[position].append(
-                            f"{change.arg_name}={change.new_code}"
-                        )
-                    else:
-                        assert change.arg_pos is not None
-                        to_insert[change.arg_pos].append(change.new_code)
+                    call_args.append(change)
+
+            max_pos = len(parent.args)
+
+            for change in sorted(call_args, key=lambda arg: arg.arg_pos or 0):
+                if change.arg_name is None:
+                    assert change.arg_pos is not None
+                    to_insert[min(change.arg_pos, max_pos)].append(change.new_code)
+                else:
+                    other_call_args.append(change)
+
+            end_pos = (
+                max([len(parent.args) + len(parent.keywords), *to_insert.keys()]) + 1
+            )
+
+            for change in other_call_args:
+                position = change.arg_pos if change.arg_pos is not None else end_pos
+                to_insert[position].append(f"{change.arg_name}={change.new_code}")
 
             generic_sequence_update(
                 source,
