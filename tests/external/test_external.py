@@ -198,10 +198,10 @@ def test_something():
     )
 
 
-def test_pytest_compare_external(project):
-    project.setup(
+def test_pytest_compare_external():
+    Example(
         """\
-from inline_snapshot import external
+from inline_snapshot import external, snapshot, outsource
 
 def test_a():
     s=snapshot()
@@ -209,13 +209,13 @@ def test_a():
 
     assert outsource("test2") == s
         """
-    )
-    result = project.run("--inline-snapshot=create")
-
-    result = project.run()
-
-    assert result.errorLines() == snapshot(
-        """\
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        returncode=1,
+    ).run_pytest(
+        [],
+        error=snapshot(
+            """\
 >       assert outsource("test2") == s
 E       AssertionError: assert 'test2' == 'test'
 E         \n\
@@ -223,13 +223,15 @@ E         - test
 E         + test2
 E         ?     +
 """
+        ),
+        returncode=1,
     )
 
 
-def test_pytest_compare_external_bytes(project):
-    project.setup(
+def test_pytest_compare_external_bytes():
+    Example(
         """\
-from inline_snapshot import external
+from inline_snapshot import external, snapshot, outsource
 
 def test_a():
     s=snapshot()
@@ -237,83 +239,84 @@ def test_a():
 
     assert outsource(b"test2") == s
         """
-    )
-
-    result = project.run("--inline-snapshot=create")
-
-    assert result.errorLines() == (
-        snapshot(
-            """\
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        error=(
+            snapshot(
+                """\
 >       assert outsource(b"test2") == s
 E       AssertionError: assert b'test2' == b'test'
 E         \n\
 E         Use -v to get more diff
 """
-        )
-        if sys.version_info >= (3, 11)
-        else snapshot(
-            """\
+            )
+            if sys.version_info >= (3, 11)
+            else snapshot(
+                """\
 >       assert outsource(b"test2") == s
 E       AssertionError
 """
-        )
+            )
+        ),
+        returncode=1,
     )
 
 
-def test_pytest_existing_external_import(project):
-    project.setup(
+def test_pytest_existing_external_import():
+    Example(
         """\
-from inline_snapshot import external
+from inline_snapshot import external, snapshot, outsource
 
 def test_a():
     assert outsource("test") == snapshot()
 """
-    )
-
-    project.run("--inline-snapshot=create")
-
-    assert project.source == snapshot(
-        """\
-from inline_snapshot import external
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt": "test",
+                "tests/test_something.py": """\
+from inline_snapshot import external, snapshot, outsource
 
 def test_a():
     assert outsource("test") == snapshot(external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"))
-"""
+""",
+            }
+        ),
+        returncode=1,
     )
 
 
-def test_pytest_trim_external(project):
-    project.pyproject(
-        """\
+def test_pytest_trim_external():
+    e = (
+        Example(
+            {
+                "pyproject.toml": """\
 [tool.inline-snapshot]
 default-storage="hash"
-"""
-    )
+""",
+                "tests/test_a.py": """\
+from inline_snapshot import outsource, snapshot
 
-    project.setup(
-        """\
 def test_a():
     assert outsource("test") == snapshot()
 
     # split
 
     assert outsource("test2") == snapshot()
-        """
-    )
+        """,
+            }
+        )
+        .run_pytest(
+            ["--inline-snapshot=create"],
+            changed_files=snapshot(
+                {
+                    ".inline-snapshot/external/60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c752.txt": "test2",
+                    ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt": "test",
+                    "tests/test_a.py": """\
+from inline_snapshot import outsource, snapshot
 
-    project.run("--inline-snapshot=create")
-
-    assert project.storage() == snapshot(
-        [
-            "60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c752.txt",
-            "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt",
-        ]
-    )
-
-    assert project.source == snapshot(
-        """\
 from inline_snapshot import external
-
 
 def test_a():
     assert outsource("test") == snapshot(external("hash:9f86d081884c*.txt"))
@@ -321,95 +324,95 @@ def test_a():
     # split
 
     assert outsource("test2") == snapshot(external("hash:60303ae22b99*.txt"))
-        \
-"""
+        """,
+                }
+            ),
+            returncode=1,
+        )
+        .change_code(lambda code: code.split("# split")[0])
     )
 
-    project.setup(project.source.split("# split")[0])
-    result = project.run()
+    e.run_pytest([], report=snapshot(""), returncode=0)
 
-    assert project.storage() == snapshot(
-        [
-            "60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c752.txt",
-            "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt",
-        ]
-    )
-
-    assert result.report == snapshot("")
-
-    result = project.run("--inline-snapshot=trim")
-
-    assert project.storage() == snapshot(
-        ["9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt"]
+    e.run_pytest(
+        ["--inline-snapshot=trim"],
+        changed_files=snapshot(
+            {
+                ".inline-snapshot/external/60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c752.txt": None
+            }
+        ),
+        returncode=0,
     )
 
 
-def test_pytest_new_external(project):
-    project.pyproject(
-        """\
+def test_pytest_new_external():
+    Example(
+        {
+            "pyproject.toml": """\
 [tool.inline-snapshot]
 default-storage="hash"
-"""
-    )
+""",
+            "tests/test_a.py": """\
+from inline_snapshot import outsource, snapshot
 
-    project.setup(
-        """\
 def test_a():
     assert outsource("test") == snapshot()
-"""
-    )
-    project.run()
+""",
+        }
+    ).run_pytest(
+        [],
+        changed_files=snapshot({}),
+        returncode=1,
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt": "test",
+                "tests/test_a.py": """\
+from inline_snapshot import outsource, snapshot
 
-    assert project.storage() == snapshot([])
-
-    project.run("--inline-snapshot=create")
-
-    assert project.storage() == snapshot(
-        ["9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt"]
-    )
-
-
-def test_pytest_config_hash_length(project):
-    project.pyproject(
-        """\
-[tool.inline-snapshot]
-default-storage="hash"
-"""
-    )
-    project.setup(
-        """\
-def test_a():
-    assert outsource("test") == snapshot()
-"""
-    )
-    project.run("--inline-snapshot=create")
-    default_result = project.source
-
-    # default config
-    project.pyproject(
-        """
-[tool.inline-snapshot]
-    """
-    )
-    project.run("--inline-snapshot=create")
-    assert default_result == project.source
-
-    # set hash_length
-    project.pyproject(
-        """
-[tool.inline-snapshot]
-hash-length=5
-    """
-    )
-    project.run("--inline-snapshot=create")
-    assert project.source == snapshot(
-        """\
 from inline_snapshot import external
-
 
 def test_a():
     assert outsource("test") == snapshot(external("hash:9f86d081884c*.txt"))
-"""
+""",
+            }
+        ),
+        returncode=1,
+    )
+
+
+def test_pytest_config_hash_length():
+    Example(
+        {
+            "pyproject.toml": """\
+[tool.inline-snapshot]
+default-storage="hash"
+hash-length=5
+""",
+            "tests/test_a.py": """\
+from inline_snapshot import outsource, snapshot
+
+def test_a():
+    assert outsource("test") == snapshot()
+""",
+        }
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt": "test",
+                "tests/test_a.py": """\
+from inline_snapshot import outsource, snapshot
+
+from inline_snapshot import external
+
+def test_a():
+    assert outsource("test") == snapshot(external("hash:9f86d*.txt"))
+""",
+            }
+        ),
+        returncode=1,
     )
 
 
@@ -459,34 +462,29 @@ def test_uses_external():
     ) == snapshot([])
 
 
-def test_no_imports(project):
-    project.setup(
+def test_no_imports():
+    Example(
         """\
-# no imports
-
 def test_something():
     from inline_snapshot import outsource,snapshot
     assert outsource("test") == snapshot()
-test_something()
-    """
-    )
-
-    result = project.run("--inline-snapshot=create")
-
-    result.assert_outcomes(errors=1, passed=1)
-
-    assert project.source == snapshot(
-        """\
-# no imports
-
+"""
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        outcomes=snapshot({"passed": 1, "errors": 1}),
+        changed_files=snapshot(
+            {
+                "tests/__inline_snapshot__/test_something/test_something/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt": "test",
+                "tests/test_something.py": """\
 
 from inline_snapshot import external
 def test_something():
     from inline_snapshot import outsource,snapshot
     assert outsource("test") == snapshot(external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"))
-test_something()
-    \
-"""
+""",
+            }
+        ),
+        returncode=snapshot(1),
     )
 
 
@@ -554,36 +552,33 @@ from os import chdir
     )
 
 
-def test_new_externals(project):
-    project.pyproject(
-        """\
+def test_new_externals():
+    Example(
+        {
+            "pyproject.toml": """\
 [tool.inline-snapshot]
 default-storage="hash"
-"""
-    )
+""",
+            "tests/test_something.py": """\
+from inline_snapshot import outsource, snapshot
 
-    project.setup(
-        """
 
 def test_something():
     outsource("blub")
 
     assert outsource("foo") == snapshot()
 
-    """
-    )
+    """,
+        }
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                ".inline-snapshot/external/2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.txt": "foo",
+                "tests/test_something.py": """\
+from inline_snapshot import outsource, snapshot
 
-    project.run("--inline-snapshot=create")
-
-    assert project.storage() == snapshot(
-        ["2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.txt"]
-    )
-
-    assert project.source == snapshot(
-        """\
 from inline_snapshot import external
-
-
 
 
 def test_something():
@@ -591,14 +586,12 @@ def test_something():
 
     assert outsource("foo") == snapshot(external("hash:2c26b46b68ff*.txt"))
 
-    \
-"""
-    )
-
-    project.run()
-
-    assert project.storage() == snapshot(
-        ["2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.txt"]
+    """,
+            }
+        ),
+        returncode=1,
+    ).run_pytest(
+        [], changed_files=snapshot({}), returncode=0
     )
 
 

@@ -260,6 +260,48 @@ class Example:
             {name: file for name, file in self.files.items() if name != filename}
         )
 
+    def format(self, filename: str = "tests/test_something.py") -> Example:
+        """
+        Formats a Python file using black.
+
+        Arguments:
+            filename: the file to format (default: "tests/test_something.py").
+        """
+        from inline_snapshot._format import format_code
+
+        content = self.files[filename]
+        assert isinstance(content, str)
+
+        # Write files to temp directory so black can find pyproject.toml
+        with TemporaryDirectory() as dir:
+            tmp_path = Path(dir)
+            self._write_files(tmp_path)
+            file_path = tmp_path / filename
+            formatted = format_code(content, file_path)
+
+        return Example({**self.files, filename: formatted})
+
+    def is_formatted(self, filename: str = "tests/test_something.py") -> bool:
+        """
+        Checks if a Python file is properly formatted with black.
+
+        Arguments:
+            filename: the file to check (default: "tests/test_something.py").
+        """
+        from inline_snapshot._format import format_code
+
+        content = self.files[filename]
+        assert isinstance(content, str)
+
+        # Write files to temp directory so black can find pyproject.toml
+        with TemporaryDirectory() as dir:
+            tmp_path = Path(dir)
+            self._write_files(tmp_path)
+            file_path = tmp_path / filename
+            formatted = format_code(content, file_path)
+
+        return content == formatted
+
     def run_inline(
         self,
         args: list[str] = [],

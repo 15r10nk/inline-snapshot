@@ -12,6 +12,7 @@ from dirty_equals import AnyThing
 
 from inline_snapshot import snapshot
 from inline_snapshot._flags import Flags
+from inline_snapshot._format import format_code
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot._is import Is
 from inline_snapshot.testing import Example
@@ -839,10 +840,10 @@ def test_a():
     )
 
 
-def test_trailing_comma(project):
-
-    project.setup(
-        """\
+def test_trailing_comma():
+    Example(
+        format_code(
+            """\
 from inline_snapshot import external, snapshot
 
 class X:
@@ -860,18 +861,16 @@ class X:
 
 def test_thing():
     assert X("a" * 40, "a" * 40) == snapshot()
-"""
-    )
-
-    project.format()
-
-    result = project.run("--inline-snapshot=create")
-
-    assert result.report == snapshot(
-        """\
+""",
+            "",
+        )
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        report=snapshot(
+            """\
 ------------------------------- Create snapshots -------------------------------
-+----------------------------- tests/test_file.py -----------------------------+
-| @@ -19,4 +19,9 @@                                                            |
++-------------------------- tests/test_something.py ---------------------------+
+| @@ -16,4 +16,9 @@                                                            |
 |                                                                              |
 |                                                                              |
 |                                                                              |
@@ -884,13 +883,15 @@ def test_thing():
 | +        )                                                                   |
 | +    )                                                                       |
 +------------------------------------------------------------------------------+
-These changes will be applied, because you used create
+These changes will be applied, because you used create\
 """
+        ),
+        returncode=1,
+    ).run_pytest(
+        ["--inline-snapshot=report"],
+        report=snapshot(""),
+        returncode=0,
     )
-
-    result = project.run("--inline-snapshot=report")
-
-    assert result.report == snapshot("")
 
 
 @dataclass
