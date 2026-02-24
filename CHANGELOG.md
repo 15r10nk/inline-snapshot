@@ -1,4 +1,16 @@
 
+<a id='changelog-0.32.3'></a>
+# 0.32.3 — 2026-02-24
+
+## Changed
+
+- Improved performance of `snapshot()` by using lazy evaluation.
+
+## Fixed
+
+- Fixed code generation for Call objects created with `builder.create_call()`.
+- use the handler for datetime types only for the concrete types and not the subclasses.
+
 <a id='changelog-0.32.2'></a>
 # 0.32.2 — 2026-02-21
 
