@@ -37,12 +37,13 @@ def pytest_addoption(parser, pluginmanager):
 
     group.addoption(
         "--inline-snapshot",
-        metavar="(disable,short-report,report,review,create,update,trim,fix)*",
+        metavar="(disable,short-report,report,ai-report,review,create,update,trim,fix)*",
         dest="inline_snapshot",
         help="update specific snapshot values:\n"
         "disable: disable the snapshot logic\n"
         "short-report: show a short report\n"
         "report: show a longer report with a diff report\n"
+        "ai-report: token-efficient plain-text report for AI agents (auto-detected)\n"
         "review: allow to approve the changes interactive\n"
         "create: creates snapshots which are currently not defined\n"
         "update: update snapshots even if they are defined\n"

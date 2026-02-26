@@ -19,6 +19,7 @@ class Config:
     hash_length: int = 12
     default_flags: List[str] = field(default_factory=lambda: ["short-report"])
     default_flags_tui: List[str] = field(default_factory=lambda: ["short-report"])
+    default_flags_ai: List[str] = field(default_factory=lambda: ["ai-report"])
     shortcuts: Dict[str, List[str]] = field(default_factory=dict)
     format_command: str = ""
     storage_dir: Optional[Path] = None
@@ -50,6 +51,11 @@ def read_config(path: Path, config=Config()) -> Config:
 
     try:
         config.default_flags_tui = tool_config["default-flags-tui"]
+    except KeyError:
+        pass
+
+    try:
+        config.default_flags_ai = tool_config["default-flags-ai"]
     except KeyError:
         pass
 

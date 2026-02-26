@@ -1,3 +1,4 @@
+import io
 import os
 import sys
 import tokenize
@@ -64,6 +65,21 @@ def is_ci_run():
         "TRAVIS",
     )
     for var in ci_env_vars:
+        if os.environ.get(var, False):
+            return var
+    return False
+
+
+def is_ai_run():
+    """Detect AI coding agent environments (Claude Code, Cursor, Copilot Workspace, etc.).
+    Returns the name of the triggering env var, or False."""
+    ai_env_vars = (
+        "INLINE_SNAPSHOT_AI",  # explicit opt-in
+        "CLAUDE_CODE",  # Claude Code agent
+        "CURSOR_TRACE_ID",  # Cursor IDE
+        "COPILOT_WORKSPACE_ID",  # GitHub Copilot Workspace
+    )
+    for var in ai_env_vars:
         if os.environ.get(var, False):
             return var
     return False
@@ -164,6 +180,118 @@ def short_report(snapshot_changes, console):
         )
 
     return
+
+
+# Categories shown in ai-report mode ("update" is intentionally excluded:
+# it only changes code representation, never affects test outcomes).
+AI_REPORT_CATEGORIES = ["fix", "create", "trim"]
+
+
+def _render_rich_to_text(renderable) -> str:
+    """Render a Rich renderable to plain text without ANSI codes."""
+    buf = io.StringIO()
+    tmp_con = Console(file=buf, no_color=True, highlight=False, width=100)
+    tmp_con.print(renderable, markup=False, highlight=False)
+    return buf.getvalue().rstrip()
+
+
+def show_ai_report(changes, snapshot_changes, con, *, _header=True):
+    """Token-efficient plain-text report for AI coding agents.
+
+    Covers fix/create/trim only; skips 'update' (cosmetic repr changes that
+    don't affect test outcomes).
+
+    Returns the list of changes to apply (those whose category flag is also
+    active alongside ai-report, e.g. --inline-snapshot=fix,ai-report).
+
+    Pass _header=False when called for a second-pass (e.g. ExternalRemove trim)
+    to avoid printing a duplicate section header.
+    """
+    pending_categories = [f for f in AI_REPORT_CATEGORIES if changes[f]]
+    applied_categories = [f for f in pending_categories if f in state().flags]
+    pending_only = [f for f in pending_categories if f not in applied_categories]
+
+    sep = "=" * 60
+    lines = []
+    if _header:
+        lines += ["", sep, "inline-snapshot", sep]
+
+    if not pending_categories:
+        if _header:
+            lines += ["All snapshots are up to date.", sep]
+        print("\n".join(lines), file=con.file)
+        return []
+
+    # Summary: what was applied this run
+    for flag in applied_categories:
+        n = snapshot_changes[flag]
+        lines.append(f"Applied {flag}: {n} snapshot{'s' if n != 1 else ''}.")
+
+    # Summary: what still needs action
+    for flag in pending_only:
+        n = snapshot_changes[flag]
+        lines.append(
+            f"Pending {flag}: {n} snapshot{'s' if n != 1 else ''} need updating."
+        )
+
+    # Suggest the next command to run
+    failing = [f for f in ["fix", "create"] if f in pending_only]
+    trim_pending = "trim" in pending_only
+    if failing:
+        flag_str = ",".join(failing + (["trim"] if trim_pending else []))
+        lines.append(f"Run: pytest --lf --inline-snapshot={flag_str}")
+    elif trim_pending:
+        lines.append("Run: pytest --inline-snapshot=trim")
+
+    lines.append("")
+
+    # Per-category diffs (cumulative, same logic as filter_changes).
+    # Source-file changes go through ChangeRecorder; external file changes
+    # (ExternalChange / ExternalRemove) bypass it and expose diffs via rich_diff().
+    used_changes = []
+    for flag in AI_REPORT_CATEGORIES:
+        if not changes[flag]:
+            continue
+
+        cr = ChangeRecorder()
+        apply_all(used_changes, cr)
+        cr.virtual_write()
+        apply_all(changes[flag], cr)
+
+        # Source file diffs
+        for file in cr.files():
+            diff = file.diff()
+            if diff:
+                try:
+                    name = file.filename.resolve().relative_to(Path.cwd().resolve())
+                    name_str = name.as_posix()
+                except ValueError:
+                    name_str = str(file.filename)
+                lines.append(f"[{flag}] {name_str}")
+                for diff_line in diff.splitlines():
+                    lines.append(f"  {diff_line}")
+                lines.append("")
+
+        # External file diffs (ExternalChange / ExternalRemove)
+        for change in changes[flag]:
+            ext_diff = change.rich_diff()
+            if ext_diff is not None:
+                title, renderable = ext_diff
+                lines.append(f"[{flag}] {title}")
+                for diff_line in _render_rich_to_text(renderable).splitlines():
+                    lines.append(f"  {diff_line}")
+                lines.append("")
+
+        if flag in state().flags:
+            used_changes += changes[flag]
+
+    if applied_categories:
+        lines.append("Changes applied. Run: pytest --lf to verify.")
+
+    if _header:
+        lines.append(sep)
+    print("\n".join(lines), file=con.file)
+    return used_changes
 
 
 def filter_changes(changes, snapshot_changes, console):
@@ -306,7 +434,9 @@ class SnapshotSession:
 
         console = Console()
 
-        if is_ci_run():
+        if is_ai_run():
+            default_flags = state().config.default_flags_ai
+        elif is_ci_run():
             default_flags = {"disable"}
             state().disable_reason = "ci"
         elif console.is_terminal:
@@ -334,7 +464,9 @@ class SnapshotSession:
 
         # check flags
         unknown_flags = (
-            flags - categories - {"disable", "review", "report", "short-report"}
+            flags
+            - categories
+            - {"disable", "review", "report", "short-report", "ai-report"}
         )
 
         if unknown_flags:
@@ -452,7 +584,10 @@ snapshot.\
             short_report(snapshot_changes, console)
             return
 
-        used_changes = filter_changes(changes, snapshot_changes, console)
+        if "ai-report" in state().flags:
+            used_changes = show_ai_report(changes, snapshot_changes, con)
+        else:
+            used_changes = filter_changes(changes, snapshot_changes, console)
 
         cr = ChangeRecorder()
         apply_all(used_changes, cr)
@@ -488,7 +623,12 @@ snapshot.\
 
                 storage.check_externals(externals_for_storage)
 
-            used_changes += filter_changes(changes, snapshot_changes, console)
+            if "ai-report" in state().flags:
+                used_changes += show_ai_report(
+                    changes, snapshot_changes, con, _header=False
+                )
+            else:
+                used_changes += filter_changes(changes, snapshot_changes, console)
 
         report_problems(console)
 
