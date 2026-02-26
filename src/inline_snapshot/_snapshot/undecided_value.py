@@ -14,7 +14,6 @@ from inline_snapshot._customize._custom_sequence import CustomList
 from inline_snapshot._customize._custom_sequence import CustomTuple
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
-from inline_snapshot._new_adapter import NewAdapter
 from inline_snapshot._new_adapter import warn_star_expression
 from inline_snapshot._unmanaged import is_unmanaged
 
@@ -141,15 +140,8 @@ class UndecidedValue(GenericValue):
         assert False
 
     def _get_changes(self) -> Iterator[ChangeBase]:
-        assert isinstance(self._new_value, CustomUndefined)
-
-        new_value = self.to_custom(self._old_value._eval())
-
-        adapter = NewAdapter(self._context)
-
-        for change in adapter.compare(self._old_value, self._ast_node, new_value):
-            assert change.flag == "update", change
-            yield change
+        yield from ()
+        return
 
     def __eq__(self, other):
         if compare_only():
