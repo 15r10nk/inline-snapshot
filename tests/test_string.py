@@ -4,7 +4,6 @@ from hypothesis import given
 from hypothesis.strategies import text
 
 from inline_snapshot import snapshot
-from inline_snapshot._snapshot_arg import snapshot_arg
 from inline_snapshot._utils import triple_quote
 from inline_snapshot.extra import Transformed
 from inline_snapshot.testing import Example
@@ -54,181 +53,192 @@ assert b"ab" == snapshot(b"a"
 
 
 def test_string_newline():
-    check_update2(
+    check_string_update(
         '"a\\nb"',
         snapshot(
             '''\
-s = snapshot("""\\
+"""\\
 a
 b\\
-""")\
+"""\
 '''
         ),
     )
 
-    check_update2(
+    check_string_update(
         '"a\\"\\"\\"\\nb"',
         snapshot(
             """\
-s = snapshot('''\\
+'''\\
 a\"\"\"
 b\\
-''')\
+'''\
 """
         ),
     )
 
-    check_update2(
+    check_string_update(
         '"a\\"\\"\\"\\n\\\'\\\'\\\'b"',
-        '''\
-s = snapshot("""\\
+        snapshot(
+            '''\
+"""\\
 a\\"\\"\\"
 \'\'\'b\\
-""")\
-''',
+"""\
+'''
+        ),
     )
 
-    check_update2('b"a\\nb"', snapshot('s = snapshot(b"a\\nb")'), reported_flags="")
+    check_string_update('b"a\\nb"', snapshot('b"a\\nb"'))
 
-    check_update2(
+    check_string_update(
         '"\\n\\\'"',
         snapshot(
             '''\
-s = snapshot("""\\
+"""\\
 
 '\\
-""")\
+"""\
 '''
         ),
     )
 
-    check_update2(
+    check_string_update(
         '"\\n\\""',
         snapshot(
             '''\
-s = snapshot("""\\
+"""\\
 
 "\\
-""")\
+"""\
 '''
         ),
     )
 
-    check_update2(
+    check_string_update(
         "\"'''\\n\\\"\"",
         snapshot(
             '''\
-s = snapshot("""\\
+"""\\
 \'\'\'
 \\"\\
-""")\
+"""\
 '''
         ),
     )
 
-    check_update2(
+    check_string_update(
         '"\\n\b"',
         snapshot(
             '''\
-s = snapshot("""\\
+"""\\
 
 \\x08\\
-""")\
+"""\
 '''
         ),
     )
 
 
-def check_update2(string, expected_str=..., reported_flags="update"):
+def check_string_update(string, expected_str=...):
+    prefix = "s = snapshot("
+    suffix = ")"
+
     check_update(
-        f"s = snapshot({string})\nassert {string} == s",
-        reported_flags="",
+        f"{prefix}{string}{suffix}\nassert {string} == s",
         flags="update",
-        expected_code=Transformed(lambda v: v.split("assert")[0].strip(), expected_str),
+        expected_code=Transformed(
+            lambda v: v.split("assert")[0]
+            .strip()
+            .removeprefix(prefix)
+            .removesuffix(suffix),
+            expected_str,
+        ),
+        reported_flags="",
     )
 
 
 def test_string_quote_choice():
-    check_update2(
+    check_string_update(
         "\" \\'\\'\\' \\'\\'\\' \\\"\\\"\\\"\\nother_line\"",
         snapshot(
             '''\
-s = snapshot("""\\
+"""\\
  \'\'\' \'\'\' \\"\\"\\"
 other_line\\
-""")\
+"""\
 '''
         ),
     )
 
-    check_update2(
+    check_string_update(
         '" \\\'\\\'\\\' \\"\\"\\" \\"\\"\\"\\nother_line"',
         snapshot(
             """\
-s = snapshot('''\\
+'''\\
  \\'\\'\\' \"\"\" \"\"\"
 other_line\\
-''')\
+'''\
 """
         ),
     )
 
-    check_update2(
+    check_string_update(
         '"\\n\\""',
         snapshot(
             '''\
-s = snapshot("""\\
+"""\\
 
 "\\
-""")\
+"""\
 '''
         ),
     )
 
-    check_update2("'\\n'", snapshot("s = snapshot('\\n')"), reported_flags="")
-    check_update2("'abc\\n'", snapshot("s = snapshot('abc\\n')"), reported_flags="")
+    check_string_update("'\\n'", snapshot("'\\n'"))
+    check_string_update("'abc\\n'", snapshot("'abc\\n'"))
 
-    check_update2(
+    check_string_update(
         "'abc\\nabc'",
         snapshot(
             '''\
-s = snapshot("""\\
+"""\\
 abc
 abc\\
-""")\
+"""\
 '''
         ),
     )
 
-    check_update2(
+    check_string_update(
         "'\\nabc'",
         snapshot(
             '''\
-s = snapshot("""\\
+"""\\
 
 abc\\
-""")\
+"""\
 '''
         ),
     )
 
-    check_update2(
+    check_string_update(
         "'a\\na\\n'",
         snapshot(
             '''\
-s = snapshot("""\\
+"""\\
 a
 a
-""")\
+"""\
 '''
         ),
     )
 
-    check_update2(
+    check_string_update(
         '''"""\\
 a
 """''',
-        snapshot('s = snapshot("a\\n")'),
+        snapshot('"a\\n"'),
     )
 
 
@@ -338,6 +348,3 @@ def test_a():
             }
         ),
     )
-
-
-
