@@ -94,9 +94,9 @@ def test_fix_dict_with_non_literal_keys():
 def test_no_update_for_dirty_equals():
     check_update(
         """\
-    from dirty_equals import IsInt
-    assert {5:5,2:2}==snapshot({5:IsInt(),2:1+1})
-    """,
+from dirty_equals import IsInt
+assert {5:5,2:2}==snapshot({5:IsInt(),2:1+1})\
+""",
         reported_flags="update",
         flags="update",
         expected_code="""\
@@ -110,44 +110,44 @@ assert {5:5,2:2}==snapshot({5:IsInt(),2:2})\
 def test_preserve_case_from_original_mr():
     check_update(
         """\
-    left = {
-        "a": 1,
+left = {
+    "a": 1,
+    "b": {
+        "c": 2,
+        "d": [
+3,
+4,
+5,
+        ],
+    },
+    "e": (
+        {
+"f": 6,
+"g": 7,
+        },
+    ),
+}
+assert left == snapshot(
+    {
+        "a": 10,
         "b": {
-            "c": 2,
-            "d": [
-    3,
-    4,
+"c": 2 * 1 + 0,
+"d": [
+    int(3),
+    40,
     5,
-            ],
+],
+"h": 8,
         },
         "e": (
-            {
-    "f": 6,
-    "g": 7,
-            },
+{
+    "f": 3 + 3,
+},
+9,
         ),
     }
-    assert left == snapshot(
-        {
-            "a": 10,
-            "b": {
-    "c": 2 * 1 + 0,
-    "d": [
-        int(3),
-        40,
-        5,
-    ],
-    "h": 8,
-            },
-            "e": (
-    {
-        "f": 3 + 3,
-    },
-    9,
-            ),
-        }
-    )
-    """,
+)\
+""",
         reported_flags="update,fix",
         flags="fix",
         expected_code="""\

@@ -254,12 +254,11 @@ def test_type():
 
     check_update(
         """\
-    class Color:
-        pass
+class Color:
+    pass
 
-    assert [Color,int] == snapshot()
-
-        """,
+assert [Color,int] == snapshot()\
+""",
         flags="create",
         expected_code="""\
 class Color:
