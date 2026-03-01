@@ -3,9 +3,9 @@ import textwrap
 
 import black
 import executing
-from inline_snapshot._get_snapshot_value import get_snapshot_value
 import pytest
 
+from inline_snapshot._get_snapshot_value import get_snapshot_value
 from inline_snapshot._snapshot_arg import snapshot_arg
 from inline_snapshot.testing._example import Example
 from tests.utils import Store
