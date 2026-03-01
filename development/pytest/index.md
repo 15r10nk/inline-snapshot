@@ -34,7 +34,7 @@ def test_something():
 > pytest test_something.py --inline-snapshot=create,report
 ============================= test session starts ==============================
 platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0
-rootdir: /tmp/tmp.bJ1m0RBBUg
+rootdir: /tmp/tmp.tB7n1ZGjh2
 plugins: inline-snapshot-0.32.3
 collected 1 item
 
@@ -52,7 +52,7 @@ test_something.py .E                                                     [100%]
 │ +    assert 1 == snapshot(1)                                                 │
 │      assert 2 <= snapshot(5)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-These changes will be applied, because you used ]8;id=927222;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\
+These changes will be applied, because you used ]8;id=332124;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\
 
 ──────────────────────────────── Trim snapshots ────────────────────────────────
 ╭───────────────────────────── test_something.py ──────────────────────────────╮
@@ -65,8 +65,8 @@ These changes will be applied, because you used ]8;id=927222;https://15r10nk.git
 │ +    assert 2 <= snapshot(2)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 These changes are not applied.
-Use --inline-snapshot=]8;id=640195;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ to apply them, or use the interactive mode with 
---inline-snapshot=]8;id=820653;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
+Use --inline-snapshot=]8;id=536429;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ to apply them, or use the interactive mode with 
+--inline-snapshot=]8;id=664781;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
 
 
 
@@ -87,7 +87,7 @@ give a short report over which changes can be made to the snapshots
 > pytest test_something.py --inline-snapshot=short-report
 ============================= test session starts ==============================
 platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0
-rootdir: /tmp/tmp.kGfPTIVgFI
+rootdir: /tmp/tmp.WZ84pZaxw9
 plugins: inline-snapshot-0.32.3
 collected 1 item
 
@@ -106,7 +106,7 @@ your snapshot is missing one value.
 If you just created this value with --inline-snapshot=create, the value is now created and you can ignore this message.
 =========================== short test summary info ============================
 ERROR test_something.py::test_something - Failed: your snapshot is missing one value.
-========================== 1 passed, 1 error in 0.09s ==========================
+========================== 1 passed, 1 error in 0.08s ==========================
 ```
 
 Info
@@ -121,7 +121,7 @@ Shows a diff report over which changes can be made to the snapshots
 > pytest test_something.py --inline-snapshot=report
 ============================= test session starts ==============================
 platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0
-rootdir: /tmp/tmp.A8DZt1MnLc
+rootdir: /tmp/tmp.GwJrkVxdVo
 plugins: inline-snapshot-0.32.3
 collected 1 item
 
@@ -140,8 +140,8 @@ test_something.py .E                                                     [100%]
 │      assert 2 <= snapshot(5)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 These changes are not applied.
-Use --inline-snapshot=]8;id=944974;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\ to apply them, or use the interactive mode with 
---inline-snapshot=]8;id=900698;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
+Use --inline-snapshot=]8;id=73051;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\ to apply them, or use the interactive mode with 
+--inline-snapshot=]8;id=736673;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
 
 ──────────────────────────────── Trim snapshots ────────────────────────────────
 ╭───────────────────────────── test_something.py ──────────────────────────────╮
@@ -154,8 +154,8 @@ Use --inline-snapshot=]8;id=944974;https://15r10nk.github.io/inline-snapshot/lat
 │ +    assert 2 <= snapshot(2)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 These changes are not applied.
-Use --inline-snapshot=]8;id=854071;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ to apply them, or use the interactive mode with 
---inline-snapshot=]8;id=417511;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
+Use --inline-snapshot=]8;id=513829;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ to apply them, or use the interactive mode with 
+--inline-snapshot=]8;id=797206;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
 
 
 
@@ -165,7 +165,7 @@ your snapshot is missing one value.
 If you just created this value with --inline-snapshot=create, the value is now created and you can ignore this message.
 =========================== short test summary info ============================
 ERROR test_something.py::test_something - Failed: your snapshot is missing one value.
-========================== 1 passed, 1 error in 0.10s ==========================
+========================== 1 passed, 1 error in 0.11s ==========================
 ```
 
 ## --inline-snapshot=review
@@ -176,7 +176,7 @@ Shows a diff report for each category and ask if you want to apply the changes
 > pytest test_something.py --inline-snapshot=review
 ============================= test session starts ==============================
 platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0
-rootdir: /tmp/tmp.XT1sOMNVaN
+rootdir: /tmp/tmp.r7T1m4TCTC
 plugins: inline-snapshot-0.32.3
 collected 1 item
 
@@ -194,7 +194,7 @@ test_something.py .E                                                     [100%]
 │ +    assert 1 == snapshot(1)                                                 │
 │      assert 2 <= snapshot(5)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-Do you want to ]8;id=103574;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\ these snapshots? [y/n] (n): 
+Do you want to ]8;id=887609;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\ these snapshots? [y/n] (n): 
 ──────────────────────────────── Trim snapshots ────────────────────────────────
 ╭───────────────────────────── test_something.py ──────────────────────────────╮
 │ @@ -3,4 +3,4 @@                                                              │
@@ -205,7 +205,7 @@ Do you want to ]8;id=103574;https://15r10nk.github.io/inline-snapshot/latest/cat
 │ -    assert 2 <= snapshot(5)                                                 │
 │ +    assert 2 <= snapshot(2)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-Do you want to ]8;id=445568;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ these snapshots? [y/n] (n): 
+Do you want to ]8;id=558961;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ these snapshots? [y/n] (n): 
 
 
 ==================================== ERRORS ====================================
