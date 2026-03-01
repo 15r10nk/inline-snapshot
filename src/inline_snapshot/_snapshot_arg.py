@@ -1,3 +1,4 @@
+import ast
 from ast import Call
 from ast import Name
 from types import FrameType
@@ -99,6 +100,15 @@ class SnapshotArgReference(SnapshotRefBase):
 
         self._name = arg.id
 
+        function = expr.node
+        while not isinstance(function, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            function = function.parent
+
+        arg_pos = None
+        for i, arg in enumerate([*function.args.posonlyargs, *function.args.args]):
+            if arg.arg == self._name:
+                arg_pos = i
+
         call_frame = frame.f_back
         assert call_frame
 
@@ -106,10 +116,14 @@ class SnapshotArgReference(SnapshotRefBase):
         call_node = context.expr.node
 
         node = None
+
         if call_node is not None:
-            for kw in call_node.keywords:
-                if kw.arg == self._name:
-                    node = kw.value
+            if arg_pos is not None and len(call_node.args) > arg_pos:
+                node = call_node.args[arg_pos]
+            else:
+                for kw in call_node.keywords:
+                    if kw.arg == self._name:
+                        node = kw.value
 
         self._node = node
 

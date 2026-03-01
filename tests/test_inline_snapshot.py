@@ -182,12 +182,12 @@ def test_a():
 
 def test_mutable_values():
     check_update(
-        """
-    l=[1,2]
-    assert l==snapshot()
-    l.append(3)
-    assert l==snapshot()
-        """,
+        """\
+l=[1,2]
+assert l==snapshot()
+l.append(3)
+assert l==snapshot()\
+""",
         flags="create",
         expected_code="""\
 l=[1,2]
@@ -198,12 +198,12 @@ assert l==snapshot([1, 2, 3])\
     )
 
     check_update(
-        """
-    l=[1,2]
-    assert l<=snapshot()
-    l.append(3)
-    assert l<=snapshot()
-        """,
+        """\
+l=[1,2]
+assert l<=snapshot()
+l.append(3)
+assert l<=snapshot()\
+""",
         flags="create",
         expected_code="""\
 l=[1,2]
@@ -214,12 +214,12 @@ assert l<=snapshot([1, 2, 3])\
     )
 
     check_update(
-        """
-    l=[1,2]
-    assert l>=snapshot()
-    l.append(3)
-    assert l>=snapshot()
-        """,
+        """\
+l=[1,2]
+assert l>=snapshot()
+l.append(3)
+assert l>=snapshot()\
+""",
         flags="create",
         expected_code="""\
 l=[1,2]
@@ -230,12 +230,12 @@ assert l>=snapshot([1, 2, 3])\
     )
 
     check_update(
-        """
-    l=[1,2]
-    assert l in snapshot()
-    l.append(3)
-    assert l in snapshot()
-        """,
+        """\
+l=[1,2]
+assert l in snapshot()
+l.append(3)
+assert l in snapshot()\
+""",
         flags="create",
         expected_code="""\
 l=[1,2]
@@ -273,10 +273,10 @@ def test_comparison():
     )
 
     check_update(
-        """
-    for a in [1,1,1]:
-        assert a==snapshot()
-    """,
+        """\
+for a in [1,1,1]:
+    assert a==snapshot()\
+""",
         flags="create",
         expected_code="""\
 for a in [1,1,1]:
@@ -285,10 +285,10 @@ for a in [1,1,1]:
     )
 
     check_update(
-        """
-    for a in [1,1,1]:
-        assert a==snapshot(2)
-    """,
+        """\
+for a in [1,1,1]:
+    assert a==snapshot(2)\
+""",
         flags="fix",
         expected_code="""\
 for a in [1,1,1]:
@@ -311,11 +311,11 @@ def test_ge():
     )
 
     check_update(
-        """
-    s=snapshot({"v": 7, "q": 4})
-    assert 5<=s["v"]
-    assert 5==s["q"]
-    """,
+        """\
+s=snapshot({"v": 7, "q": 4})
+assert 5<=s["v"]
+assert 5==s["q"]\
+""",
         flags="fix",
         reported_flags="fix,trim",
         expected_code="""\
@@ -326,11 +326,11 @@ assert 5==s["q"]\
     )
 
     check_update(
-        """
-    s=snapshot({"q": 4})
-    assert 5<=s["v"]
-    assert 5==s["q"]
-    """,
+        """\
+s=snapshot({"q": 4})
+assert 5<=s["v"]
+assert 5==s["q"]\
+""",
         flags="fix",
         reported_flags="fix,create",
         expected_code="""\
@@ -382,11 +382,11 @@ def test_le():
     )
 
     check_update(
-        """
-    s=snapshot({"v": 3, "q": 4})
-    assert 5>=s["v"]
-    assert 5==s["q"]
-    """,
+        """\
+s=snapshot({"v": 3, "q": 4})
+assert 5>=s["v"]
+assert 5==s["q"]\
+""",
         flags="fix",
         reported_flags="fix,trim",
         expected_code="""\
@@ -397,11 +397,11 @@ assert 5==s["q"]\
     )
 
     check_update(
-        """
-    s=snapshot({"q": 4})
-    assert 5>=s["v"]
-    assert 5==s["q"]
-    """,
+        """\
+s=snapshot({"q": 4})
+assert 5>=s["v"]
+assert 5==s["q"]\
+""",
         flags="fix",
         reported_flags="fix,create",
         expected_code="""\
@@ -470,12 +470,12 @@ def test_contains():
     )
 
     check_update(
-        """
-    s=snapshot()
-    assert 4 in s
-    assert 5 in s
-    assert 5 in s
-    """,
+        """\
+s=snapshot()
+assert 4 in s
+assert 5 in s
+assert 5 in s\
+""",
         flags="create",
         expected_code="""\
 s=snapshot([4, 5])
@@ -556,11 +556,11 @@ def test_getitem():
     )
 
     check_update(
-        """
-    s=snapshot()
-    assert 5 == s["q"]
-    assert 5 == s["q"]
-            """,
+        """\
+s=snapshot()
+assert 5 == s["q"]
+assert 5 == s["q"]\
+""",
         flags="create",
         expected_code="""\
 s=snapshot({"q": 5})
@@ -590,25 +590,23 @@ def test_flags_repr():
 
 def test_format_file():
     check_update(
-        'assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot()\n',
+        'assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot()',
         flags="create",
         expected_code="""\
-assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot(
-    [
-        "aaaaaaaaaaaaaaaaa",
-        "aaaaaaaaaaaaaaaaa",
-        "aaaaaaaaaaaaaaaaa",
-        "aaaaaaaaaaaaaaaaa",
-        "aaaaaaaaaaaaaaaaa",
-    ]
-)\
+assert ["aaaaaaaaaaaaaaaaa"] * 5 == snapshot([
+    "aaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaa",
+])\
 """,
     )
 
 
 def test_format_value():
     check_update(
-        'assert ["aaaaaaaaaaaaaaaaa"] * 5==  snapshot()\n',
+        'assert ["aaaaaaaaaaaaaaaaa"] * 5==  snapshot()',
         flags="create",
         expected_code="""\
 assert ["aaaaaaaaaaaaaaaaa"] * 5==  snapshot([
@@ -624,7 +622,7 @@ assert ["aaaaaaaaaaaaaaaaa"] * 5==  snapshot([
 
 def test_unused_snapshot():
     check_update(
-        "snapshot()\n",
+        "snapshot()",
         flags="create",
         reported_flags="",
         expected_code="snapshot()",
@@ -637,11 +635,11 @@ def test_type_error():
     for test1, test2 in itertools.product(tests, tests):
         with pytest.raises(TypeError) if test1 != test2 else nullcontext() as error:
             check_update(
-                f"""
+                f"""\
 s = snapshot()
 assert {test1}
-assert {test2}
-        """,
+assert {test2}\
+""",
                 reported_flags="create",
                 expected_code=AnyThing(),
             )
@@ -655,12 +653,12 @@ def test_sub_snapshot_create():
 
     check_update(
         """\
-    s=snapshot({})
+s=snapshot({})
 
-    s["keya"]
+s["keya"]
 
-    assert s["keyb"]==5
-    """,
+assert s["keyb"]==5\
+""",
         flags="create",
         expected_code="""\
 s=snapshot({"keyb": 5})
@@ -673,12 +671,12 @@ assert s["keyb"]==5\
 
     check_update(
         """\
-    s=snapshot()
+s=snapshot()
 
-    s["keya"]
+s["keya"]
 
-    assert s["keyb"]==5
-    """,
+assert s["keyb"]==5\
+""",
         flags="create",
         expected_code="""\
 s=snapshot({"keyb": 5})
@@ -755,10 +753,9 @@ def test_different_snapshot_name():
 
     check_update(
         """\
-    from inline_snapshot import snapshot as s
-    assert 4==s()
-
-    """,
+from inline_snapshot import snapshot as s
+assert 4==s()\
+""",
         flags="create",
         expected_code="""\
 from inline_snapshot import snapshot as s
@@ -768,9 +765,9 @@ assert 4==s(4)\
 
     check_update(
         """\
-    import inline_snapshot
-    assert 4==inline_snapshot.snapshot()
-    """,
+import inline_snapshot
+assert 4==inline_snapshot.snapshot()\
+""",
         flags="create",
         expected_code="""\
 import inline_snapshot

@@ -30,21 +30,22 @@ def check_pypy(request):
 
 
 def check_update(source_code, *, flags="", reported_flags=None, expected_code=...):
-    code = f"""\
-from inline_snapshot import snapshot,outsource
-
-def test_a():
-    exec(compile(open("source_code.py").read(),"source_code.py","exec"))
-"""
     e = Example(
         {
             "pyproject.toml": """\
 [tool.inline-snapshot]
 show-updates=true""",
-            "test_a.py": code,
-            "source_code.py": textwrap.dedent(source_code),
+            "test_a.py": f"""\
+from inline_snapshot import snapshot,outsource
+
+def test_a():
+    exec(compile(open("source_code.py").read(),"source_code.py","exec"))
+""",
+            "source_code.py": source_code,
         }
     )
+    # assert snapshot_arg(source_code)==textwrap.dedent(source_code).strip()
+
     result = e.run_inline(
         [f"--inline-snapshot={flags}"],
         reported_categories=(result_flags := Store()),
