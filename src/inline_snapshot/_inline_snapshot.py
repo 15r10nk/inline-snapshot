@@ -3,6 +3,7 @@ import inspect
 from typing import Any
 from typing import Iterator
 from typing import TypeVar
+from typing import cast
 
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._customize._custom_undefined import CustomUndefined
@@ -114,12 +115,18 @@ class SnapshotReference(SnapshotRefBase):
     def create_raw(obj, context: AdapterContext):
         return obj
 
+    def __repr__(self):
+        if self._expr:
+            return ast.unparse(self._expr.node)
+        else:
+            return "snapshot(...)"
+
     def _changes(self) -> Iterator[ChangeBase]:
 
         if (
             isinstance(self._value._old_value, CustomUndefined)
             if self._expr is None
-            else not self._expr.node.args
+            else not cast(ast.Call, self._expr.node).args
         ):
 
             if isinstance(self._value._new_value, CustomUndefined):
@@ -130,7 +137,9 @@ class SnapshotReference(SnapshotRefBase):
             yield CallArg(
                 flag="create",
                 file=self._value._file,
-                node=self._expr.node if self._expr is not None else None,
+                node=(
+                    cast(ast.Call, self._expr.node) if self._expr is not None else None
+                ),
                 arg_pos=0,
                 arg_name=None,
                 new_code=new_code,

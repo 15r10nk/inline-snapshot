@@ -1,5 +1,6 @@
 import ast
 
+import pytest
 from hypothesis import given
 from hypothesis.strategies import text
 
@@ -44,149 +45,187 @@ c\\
     )
 
 
-def test_string_newline(check_update):
-    assert check_update('s = snapshot("a\\nb")', flags="update") == snapshot(
-        '''\
+def test_string_newline(check_update2):
+    check_update2(
+        '"a\\nb"',
+        snapshot(
+            '''\
 s = snapshot("""\\
 a
 b\\
 """)\
 '''
+        ),
     )
 
-    assert check_update('s = snapshot("a\\"\\"\\"\\nb")', flags="update") == snapshot(
-        """\
+    check_update2(
+        '"a\\"\\"\\"\\nb"',
+        snapshot(
+            """\
 s = snapshot('''\\
 a\"\"\"
 b\\
 ''')\
 """
+        ),
     )
 
-    assert check_update(
-        's = snapshot("a\\"\\"\\"\\n\\\'\\\'\\\'b")', flags="update"
-    ) == snapshot(
+    check_update2(
+        '"a\\"\\"\\"\\n\\\'\\\'\\\'b"',
         '''\
 s = snapshot("""\\
 a\\"\\"\\"
 \'\'\'b\\
 """)\
-'''
+''',
     )
 
-    assert check_update('s = snapshot(b"a\\nb")') == snapshot('s = snapshot(b"a\\nb")')
+    check_update2('b"a\\nb"', snapshot('s = snapshot(b"a\\nb")'), reported_flags="")
 
-    assert check_update('s = snapshot("\\n\\\'")', flags="update") == snapshot(
-        '''\
+    check_update2(
+        '"\\n\\\'"',
+        snapshot(
+            '''\
 s = snapshot("""\\
 
 '\\
 """)\
 '''
+        ),
     )
 
-    assert check_update('s = snapshot("\\n\\"")', flags="update") == snapshot(
-        '''\
+    check_update2(
+        '"\\n\\""',
+        snapshot(
+            '''\
 s = snapshot("""\\
 
 "\\
 """)\
 '''
+        ),
     )
 
-    assert check_update("s = snapshot(\"'''\\n\\\"\")", flags="update") == snapshot(
-        '''\
+    check_update2(
+        "\"'''\\n\\\"\"",
+        snapshot(
+            '''\
 s = snapshot("""\\
 \'\'\'
 \\"\\
 """)\
 '''
+        ),
     )
 
-    assert check_update('s = snapshot("\\n\b")', flags="update") == snapshot(
-        '''\
+    check_update2(
+        '"\\n\b"',
+        snapshot(
+            '''\
 s = snapshot("""\\
 
 \\x08\\
 """)\
 '''
+        ),
     )
 
 
-def test_string_quote_choice(check_update):
-    assert check_update(
-        "s = snapshot(\" \\'\\'\\' \\'\\'\\' \\\"\\\"\\\"\\nother_line\")",
-        flags="update",
-    ) == snapshot(
-        '''\
+@pytest.fixture()
+def check_update2(check_update):
+    def check(string, expected_str, reported_flags="update"):
+
+        result = check_update(
+            f"s = snapshot({string})\nassert {string} == s",
+            reported_flags=reported_flags,
+            flags="update",
+        )
+        assert result.split("assert")[0].strip() == expected_str
+
+    return check
+
+
+def test_string_quote_choice(check_update2):
+    check_update2(
+        "\" \\'\\'\\' \\'\\'\\' \\\"\\\"\\\"\\nother_line\"",
+        snapshot(
+            '''\
 s = snapshot("""\\
  \'\'\' \'\'\' \\"\\"\\"
 other_line\\
 """)\
 '''
+        ),
     )
 
-    assert check_update(
-        's = snapshot(" \\\'\\\'\\\' \\"\\"\\" \\"\\"\\"\\nother_line")', flags="update"
-    ) == snapshot(
-        """\
+    check_update2(
+        '" \\\'\\\'\\\' \\"\\"\\" \\"\\"\\"\\nother_line"',
+        snapshot(
+            """\
 s = snapshot('''\\
  \\'\\'\\' \"\"\" \"\"\"
 other_line\\
 ''')\
 """
+        ),
     )
 
-    assert check_update('s = snapshot("\\n\\"")', flags="update") == snapshot(
-        '''\
+    check_update2(
+        '"\\n\\""',
+        snapshot(
+            '''\
 s = snapshot("""\\
 
 "\\
 """)\
 '''
+        ),
     )
 
-    assert check_update(
-        "s=snapshot('\\n')", flags="update", reported_flags=""
-    ) == snapshot("s=snapshot('\\n')")
-    assert check_update(
-        "s=snapshot('abc\\n')", flags="update", reported_flags=""
-    ) == snapshot("s=snapshot('abc\\n')")
-    assert check_update("s=snapshot('abc\\nabc')", flags="update") == snapshot(
-        '''\
-s=snapshot("""\\
+    check_update2("'\\n'", snapshot("s = snapshot('\\n')"), reported_flags="")
+    check_update2("'abc\\n'", snapshot("s = snapshot('abc\\n')"), reported_flags="")
+
+    check_update2(
+        "'abc\\nabc'",
+        snapshot(
+            '''\
+s = snapshot("""\\
 abc
 abc\\
 """)\
 '''
+        ),
     )
-    assert check_update("s=snapshot('\\nabc')", flags="update") == snapshot(
-        '''\
-s=snapshot("""\\
+
+    check_update2(
+        "'\\nabc'",
+        snapshot(
+            '''\
+s = snapshot("""\\
 
 abc\\
 """)\
 '''
+        ),
     )
-    assert check_update("s=snapshot('a\\na\\n')", flags="update") == snapshot(
-        '''\
-s=snapshot("""\\
+
+    check_update2(
+        "'a\\na\\n'",
+        snapshot(
+            '''\
+s = snapshot("""\\
 a
 a
 """)\
 '''
+        ),
     )
 
-    assert (
-        check_update(
-            '''\
-s=snapshot("""\\
+    check_update2(
+        '''"""\\
 a
-""")\
-''',
-            flags="update",
-        )
-        == snapshot('s=snapshot("a\\n")')
+"""''',
+        snapshot('s = snapshot("a\\n")'),
     )
 
 

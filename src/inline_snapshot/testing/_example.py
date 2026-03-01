@@ -10,11 +10,14 @@ import sys
 import traceback
 import uuid
 from argparse import ArgumentParser
+from contextlib import ExitStack
 from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Callable
+from typing import ContextManager
+from typing import Sequence
 from unittest.mock import patch
 
 from rich.console import Console
@@ -261,6 +264,7 @@ class Example:
         self,
         args: list[str] = [],
         *,
+        context_managers: Sequence[ContextManager] = (),
         reported_categories: Snapshot[list[Category]] | None = None,
         changed_files: Snapshot[dict[str, str]] | None = None,
         report: Snapshot[str] | None = None,
@@ -274,6 +278,7 @@ class Example:
 
         Parameters:
             args: inline-snapshot arguments (supports only "--inline-snapshot=fix|create|...").
+            context_managers: list of context managers to use when the code is executed.
             reported_categories: snapshot of categories which inline-snapshot thinks could be applied.
             changed_files: snapshot of files which are changed by this run.
             raises: snapshot of the exception raised during test execution.
@@ -311,7 +316,11 @@ class Example:
 
             raised_exception = []
 
-            with deterministic_uuid(), chdir(tmp_path), temp_environ(TERM="unknown"):
+            with ExitStack() as stack:
+                stack.enter_context(deterministic_uuid())
+                stack.enter_context(chdir(tmp_path))
+                stack.enter_context(temp_environ(TERM="unknown"))
+
                 session = SnapshotSession()
 
                 def report_error(message):
@@ -324,6 +333,9 @@ class Example:
                 sys.path.insert(0, str(tmp_path))
 
                 try:
+                    for cm in context_managers:
+                        stack.enter_context(cm)
+
                     enter_snapshot_context()
                     session.load_config(
                         tmp_path / "pyproject.toml",
@@ -394,11 +406,15 @@ class Example:
                     if not tests_found:
                         raise UsageError("no test_*() functions in the example")
 
-                    session.show_report(console)
+                    try:
+                        session.show_report(console)
 
-                    for snapshot in state().snapshots.values():
-                        for change in snapshot._changes():
-                            snapshot_flags.add(change.flag)
+                        for snapshot in state().snapshots.values():
+                            for change in snapshot._changes():
+                                snapshot_flags.add(change.flag)
+                    except Exception as e:
+                        traceback.print_exc()
+                        raised_exception.append(e)
 
                 except StopTesting as e:
                     assert stderr == f"ERROR: {e}\n"
@@ -414,9 +430,11 @@ class Example:
                 if raises is None:
                     raise raised_exception[0]
 
-                assert raises == "\n".join(
+                raises_text = "\n".join(
                     f"{type(e).__name__}:\n" + str(e) for e in raised_exception
                 )
+                raises_text = raises_text.replace(str(tmp_path), "<tmp>")
+                assert raises == raises_text
             else:
                 assert raises == None
 

@@ -2,8 +2,11 @@
 
 from typing import Iterator
 from typing import Literal
+from typing import Optional
 from typing import Protocol
 from typing import TypeVar
+
+from executing import Executing
 
 from inline_snapshot._change import ChangeBase
 
@@ -11,6 +14,8 @@ T = TypeVar("T", covariant=True)
 
 
 class SnapshotRefBase:
+    _expr: Optional[Executing]
+
     def _changes(self) -> Iterator[ChangeBase]:
         raise NotImplementedError
 

@@ -1,3 +1,4 @@
+import ast
 import os
 import sys
 import tokenize
@@ -6,6 +7,7 @@ from types import FunctionType
 from types import SimpleNamespace
 from typing import Dict
 from typing import List
+from typing import cast
 
 from executing import is_pytest_compatible
 from rich import box
@@ -425,7 +427,25 @@ class SnapshotSession:
 
         for snapshot in state().snapshots.values():
             all_categories = set()
-            for change in snapshot._changes():
+            try:
+                change_list = list(snapshot._changes())
+            except Exception as exception:
+                context = ""
+                if expr := getattr(snapshot, "_expr", None):
+                    code = expr.frame.f_code
+                    context = f"""
+file: {code.co_filename}
+line: {cast(ast.expr,expr.node).lineno}\
+"""
+                raise RuntimeError(
+                    f"""
+error during change collection for snapshot ({snapshot})
+snapshot.\
+{context}
+"""
+                ) from exception
+
+            for change in change_list:
                 changes[change.flag].append(change)
                 all_categories.add(change.flag)
 
