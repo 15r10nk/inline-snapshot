@@ -3,6 +3,7 @@ from ast import Call
 from ast import Name
 from types import FrameType
 from typing import Iterator
+from typing import Optional
 
 from executing import Source
 
@@ -14,6 +15,7 @@ from inline_snapshot._exceptions import UsageError
 from inline_snapshot._generator_utils import with_flag
 from inline_snapshot._global_state import state
 from inline_snapshot._inline_snapshot import create_snapshot
+from inline_snapshot._snapshot.generic_value import GenericValue
 from inline_snapshot._snapshot.undecided_value import UndecidedValue
 from inline_snapshot._types import Snapshot
 from inline_snapshot._types import SnapshotRefBase
@@ -78,6 +80,10 @@ def snapshot_arg(obj) -> Snapshot:
 
 
 class SnapshotArgReference(SnapshotRefBase):
+    _node: Optional[ast.expr]
+    _name: str
+    _value: GenericValue
+
     def __init__(self, value, frame: FrameType):
 
         def check(cnd):
@@ -100,13 +106,18 @@ class SnapshotArgReference(SnapshotRefBase):
 
         self._name = arg.id
 
-        function = expr.node
-        while not isinstance(function, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            function = function.parent
+        function: ast.AST = expr.node
+        while not isinstance(
+            function, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Module)
+        ):
+            function = function.parent  # type: ignore
+
+        if isinstance(function, ast.Module):
+            raise UsageError("snapshot_arg() can only be used inside functions")
 
         arg_pos = None
-        for i, arg in enumerate([*function.args.posonlyargs, *function.args.args]):
-            if arg.arg == self._name:
+        for i, func_arg in enumerate([*function.args.posonlyargs, *function.args.args]):
+            if func_arg.arg == self._name:
                 arg_pos = i
 
         call_frame = frame.f_back
