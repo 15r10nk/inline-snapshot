@@ -89,12 +89,10 @@ assert {5:5,2:2}==snapshot({5:IsInt(),2:1+1})
             reported_flags="update",
             flags="update",
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 from dirty_equals import IsInt
 assert {5:5,2:2}==snapshot({5:IsInt(),2:2})
-"""
-        )
+""")
     )
 
 
@@ -144,8 +142,7 @@ assert left == snapshot(
             reported_flags="update,fix",
             flags="fix",
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 left = {
     "a": 1,
     "b": {
@@ -177,8 +174,7 @@ assert left == snapshot(
         "e": ({"f": 3 + 3, "g": 7},),
     }
 )
-"""
-        )
+""")
     )
 
 

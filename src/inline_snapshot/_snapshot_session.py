@@ -437,13 +437,11 @@ class SnapshotSession:
 file: {code.co_filename}
 line: {cast(ast.expr,expr.node).lineno}\
 """
-                raise RuntimeError(
-                    f"""
+                raise RuntimeError(f"""
 error during change collection for snapshot ({snapshot})
 snapshot.\
 {context}
-"""
-                ) from exception
+""") from exception
 
             for change in change_list:
                 changes[change.flag].append(change)

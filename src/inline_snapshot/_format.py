@@ -55,13 +55,9 @@ def format_code(text, filename):
                 command, shell=True, input=current_input, capture_output=True
             )
             if result.returncode != 0:
-                raise_problem(
-                    f"""\
+                raise_problem(f"""\
 [b]The format_command '{escape(format_command)}' caused the following error:[/b]
-"""
-                    + result.stdout.decode("utf-8")
-                    + result.stderr.decode("utf-8")
-                )
+""" + result.stdout.decode("utf-8") + result.stderr.decode("utf-8"))
                 return text
             current_input = result.stdout
 
@@ -70,14 +66,12 @@ def format_code(text, filename):
     try:
         from black import format_str
     except ImportError:
-        raise_problem(
-            f"""\
+        raise_problem(f"""\
 [b]inline-snapshot is not able to format your code.[/b]
 This issue can be solved by:
  * installing {escape('inline-snapshot[black]')} which gives you the same formatting like in older versions
  * adding a `format-command` to your pyproject.toml (see [link=https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command]https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command[/link] for more information).
-"""
-        )
+""")
         return text
 
     with warnings.catch_warnings():
@@ -90,10 +84,8 @@ This issue can be solved by:
             # it prevents that " " gets treated as a docstring and gets striped by black.
             return format_str("a\n" + text, mode=mode)[2:].lstrip()
         except:
-            raise_problem(
-                """\
+            raise_problem("""\
 [b]black could not format your code, which might be caused by this issue:[/b]
     [link=https://github.com/15r10nk/inline-snapshot/issues/138]https://github.com/15r10nk/inline-snapshot/issues/138[/link]\
-"""
-            )
+""")
             return text

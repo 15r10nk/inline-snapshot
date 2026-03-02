@@ -31,18 +31,15 @@ strict=true
 
 
 def test_typing_args(check_typing):
-    check_typing(
-        """
+    check_typing("""
 from inline_snapshot import snapshot
 snapshot([])
 snapshot({})
-    """
-    )
+    """)
 
 
 def test_typing_call(check_typing):
-    check_typing(
-        """
+    check_typing("""
 from inline_snapshot import snapshot,Snapshot
 
 def f(s:Snapshot[int])->None:
@@ -52,5 +49,4 @@ f(5)
 f(snapshot())
 f(snapshot(5))
 
-    """
-    )
+    """)

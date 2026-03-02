@@ -4,40 +4,32 @@ from inline_snapshot.testing import Example
 
 def test_dict_var():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot,Is
 
 def test_list():
     l={1:2}
     assert l == snapshot(l), "not equal"
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=update"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 
 def test_list():
     l={1:2}
     assert l == snapshot({1: 2}), "not equal"
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_dict_constructor():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_dict():
     snapshot(dict())
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({}),
     )
