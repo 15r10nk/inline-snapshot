@@ -20,9 +20,7 @@ def test_pytester(pytester):
         }
     ).run_pytest(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "test_things.py": """\
+        changed_files=snapshot({"test_things.py": """\
 from inline_snapshot import snapshot
 
 def test_not_pytester():
@@ -30,9 +28,7 @@ def test_not_pytester():
 
 def test_pytester(pytester):
     pytester.runpytest()
-"""
-            }
-        ),
+"""}),
         returncode=1,
     ).run_pytest(
         ["--inline-snapshot=disable"]

@@ -157,8 +157,7 @@ def clone(obj):
 
     new = copy.deepcopy(obj)
     if not obj == new:
-        raise UsageError(
-            f"""\
+        raise UsageError(f"""\
 inline-snapshot uses `copy.deepcopy` to copy objects,
 but the copied object is not equal to the original one:
 
@@ -167,6 +166,5 @@ copied_value = copy.deepcopy(value)
 assert value == copied_value
 
 Please fix the way your object is copied or your __eq__ implementation.
-"""
-        )
+""")
     return new

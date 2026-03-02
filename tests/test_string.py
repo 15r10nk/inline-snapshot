@@ -48,26 +48,22 @@ c\\
 def test_string_newline(check_update2):
     check_update2(
         '"a\\nb"',
-        snapshot(
-            '''\
+        snapshot('''\
 s = snapshot("""\\
 a
 b\\
 """)\
-'''
-        ),
+'''),
     )
 
     check_update2(
         '"a\\"\\"\\"\\nb"',
-        snapshot(
-            """\
+        snapshot("""\
 s = snapshot('''\\
 a\"\"\"
 b\\
 ''')\
-"""
-        ),
+"""),
     )
 
     check_update2(
@@ -84,50 +80,42 @@ a\\"\\"\\"
 
     check_update2(
         '"\\n\\\'"',
-        snapshot(
-            '''\
+        snapshot('''\
 s = snapshot("""\\
 
 '\\
 """)\
-'''
-        ),
+'''),
     )
 
     check_update2(
         '"\\n\\""',
-        snapshot(
-            '''\
+        snapshot('''\
 s = snapshot("""\\
 
 "\\
 """)\
-'''
-        ),
+'''),
     )
 
     check_update2(
         "\"'''\\n\\\"\"",
-        snapshot(
-            '''\
+        snapshot('''\
 s = snapshot("""\\
 \'\'\'
 \\"\\
 """)\
-'''
-        ),
+'''),
     )
 
     check_update2(
         '"\\n\b"',
-        snapshot(
-            '''\
+        snapshot('''\
 s = snapshot("""\\
 
 \\x08\\
 """)\
-'''
-        ),
+'''),
     )
 
 
@@ -148,38 +136,32 @@ def check_update2(check_update):
 def test_string_quote_choice(check_update2):
     check_update2(
         "\" \\'\\'\\' \\'\\'\\' \\\"\\\"\\\"\\nother_line\"",
-        snapshot(
-            '''\
+        snapshot('''\
 s = snapshot("""\\
  \'\'\' \'\'\' \\"\\"\\"
 other_line\\
 """)\
-'''
-        ),
+'''),
     )
 
     check_update2(
         '" \\\'\\\'\\\' \\"\\"\\" \\"\\"\\"\\nother_line"',
-        snapshot(
-            """\
+        snapshot("""\
 s = snapshot('''\\
  \\'\\'\\' \"\"\" \"\"\"
 other_line\\
 ''')\
-"""
-        ),
+"""),
     )
 
     check_update2(
         '"\\n\\""',
-        snapshot(
-            '''\
+        snapshot('''\
 s = snapshot("""\\
 
 "\\
 """)\
-'''
-        ),
+'''),
     )
 
     check_update2("'\\n'", snapshot("s = snapshot('\\n')"), reported_flags="")
@@ -187,38 +169,32 @@ s = snapshot("""\\
 
     check_update2(
         "'abc\\nabc'",
-        snapshot(
-            '''\
+        snapshot('''\
 s = snapshot("""\\
 abc
 abc\\
 """)\
-'''
-        ),
+'''),
     )
 
     check_update2(
         "'\\nabc'",
-        snapshot(
-            '''\
+        snapshot('''\
 s = snapshot("""\\
 
 abc\\
 """)\
-'''
-        ),
+'''),
     )
 
     check_update2(
         "'a\\na\\n'",
-        snapshot(
-            '''\
+        snapshot('''\
 s = snapshot("""\\
 a
 a
 """)\
-'''
-        ),
+'''),
     )
 
     check_update2(
@@ -236,18 +212,14 @@ def test_string_convert(s):
 
 
 def test_newline():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "a\\r\\nb" == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": '''\
+        changed_files=snapshot({"tests/test_something.py": '''\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -255,25 +227,19 @@ def test_a():
 a\\r
 b\\
 """)
-'''
-            }
-        ),
+'''}),
     )
 
 
 def test_trailing_whitespaces():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "a   \\r\\nb   \\nc   " == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": '''\
+        changed_files=snapshot({"tests/test_something.py": '''\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -282,15 +248,12 @@ a   \\r
 b   \\n\\
 c   \\
 """)
-'''
-            }
-        ),
+'''}),
     )
 
 
 def test_fix_remove_triple_quotes():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -298,40 +261,29 @@ def test_a():
 a
 b\
 ''')
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "" == snapshot("")
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_update_remove_triple_quotes():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "" == snapshot(\"\"\"\"\"\")
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=update"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "" == snapshot("")
-"""
-            }
-        ),
+"""}),
     )

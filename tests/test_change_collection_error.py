@@ -27,14 +27,12 @@ from tests.utils import path_transform
 )
 def test_change_collection_error(expr, snapshot_type):
     """RuntimeError includes file and line from snapshot._expr when _changes() raises."""
-    Example(
-        f"""\
+    Example(f"""\
 from inline_snapshot import snapshot,external,external_file
 
 def test_a():
     assert "hello" == {expr}
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=report"],
         context_managers=[
             patch.object(

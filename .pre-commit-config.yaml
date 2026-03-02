@@ -15,7 +15,7 @@ repos:
   - id: check-json
   - id: end-of-file-fixer
   repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v5.0.0
+  rev: v6.0.0
 - hooks:
   - args:
     - --in-place
@@ -24,7 +24,7 @@ repos:
     - --ignore-init-module-imports
     id: autoflake
   repo: https://github.com/myint/autoflake
-  rev: v2.3.1
+  rev: v2.3.3
 
 - repo: local
   hooks:
@@ -35,12 +35,12 @@ repos:
     files: \.(md|py)$
 
 - repo: https://github.com/asottile/setup-cfg-fmt
-  rev: v2.8.0
+  rev: v3.2.0
   hooks:
   - id: setup-cfg-fmt
 
 - repo: https://github.com/pycqa/isort
-  rev: 6.0.1
+  rev: 8.0.1
   hooks:
   - id: isort
     name: isort (python)
@@ -50,22 +50,22 @@ repos:
     - --py38-plus
     id: pyupgrade
   repo: https://github.com/asottile/pyupgrade
-  rev: v3.20.0
+  rev: v3.21.2
 - hooks:
   - id: black
   repo: https://github.com/psf/black
-  rev: 25.1.0
+  rev: 26.1.0
 - hooks:
   - id: blacken-docs
     args: [-l80]
     additional_dependencies:
     - black==25.1.0
   repo: https://github.com/adamchainz/blacken-docs
-  rev: 1.19.1
+  rev: 1.20.0
 
 
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.15.0
+  rev: v2.16.0
   hooks:
   - id: pretty-format-yaml
     args: [--autofix, --indent, '2']
@@ -75,7 +75,7 @@ repos:
     stages:
     - commit-msg
   repo: https://github.com/commitizen-tools/commitizen
-  rev: v4.8.3
+  rev: v4.13.9
 
 
 # - repo: https://github.com/PyCQA/docformatter
@@ -84,18 +84,18 @@ repos:
 #   - id: docformatter
 
 - repo: https://github.com/abravalheri/validate-pyproject
-  rev: v0.24.1
+  rev: v0.25
   hooks:
   - id: validate-pyproject
 
 - repo: https://github.com/henryiii/validate-pyproject-schema-store
-  rev: 2025.04.28
+  rev: 2026.02.22
   hooks:
   - id: validate-pyproject
 
 
 - repo: https://github.com/rhysd/actionlint
-  rev: v1.7.7
+  rev: v1.7.11
   hooks:
   - id: actionlint
 

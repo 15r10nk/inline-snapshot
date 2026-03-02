@@ -70,16 +70,14 @@ class Builder:
                 is_same = True
 
             if not is_same:
-                raise UsageError(
-                    f"""\
+                raise UsageError(f"""\
 Customized value does not match original value:
 
 original_value={v!r}
 
 customized_value={result._eval()!r}
 customized_representation={result!r}
-"""
-                )
+""")
 
         return result
 

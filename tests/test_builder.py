@@ -25,10 +25,8 @@ def test_a():
 
     e.run_inline(
         ["--inline-snapshot=create"],
-        raises=snapshot(
-            """\
+        raises=snapshot("""\
 UsageError:
 default value can not be an Custom value\
-"""
-        ),
+"""),
     )
