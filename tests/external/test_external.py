@@ -324,7 +324,8 @@ def test_a():
     # split
 
     assert outsource("test2") == snapshot(external("hash:60303ae22b99*.txt"))
-        """,
+        \
+""",
                 }
             ),
             returncode=1,
@@ -586,7 +587,8 @@ def test_something():
 
     assert outsource("foo") == snapshot(external("hash:2c26b46b68ff*.txt"))
 
-    """,
+    \
+""",
             }
         ),
         returncode=1,
