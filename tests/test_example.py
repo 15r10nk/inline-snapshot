@@ -47,3 +47,25 @@ def test_a():
 
         """
         ).run_inline()
+
+
+def test_throws_exception_in_conftest():
+
+    Example(
+        {
+            "conftest.py": """
+assert False , "some error"
+                 """,
+            "test_a.py": """\
+def test_a():
+    pass
+        """,
+        }
+    ).run_inline(
+        raises=snapshot(
+            """\
+AssertionError:
+some error\
+"""
+        )
+    )
