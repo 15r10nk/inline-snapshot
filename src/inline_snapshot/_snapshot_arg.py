@@ -13,7 +13,6 @@ from inline_snapshot._change import ChangeBase
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._generator_utils import with_flag
-from inline_snapshot._global_state import state
 from inline_snapshot._inline_snapshot import create_snapshot
 from inline_snapshot._snapshot.generic_value import GenericValue
 from inline_snapshot._snapshot.undecided_value import UndecidedValue
@@ -37,7 +36,7 @@ def snapshot_arg(obj) -> Snapshot:
         Otherwise, a snapshot reference that can be updated with --inline-snapshot.
 
     Example:
-        <!-- inline-snapshot: first_block outcome-failed=1 -->
+        <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
         ``` python
         from inline_snapshot._snapshot_arg import snapshot_arg
 
@@ -71,10 +70,10 @@ def snapshot_arg(obj) -> Snapshot:
 
     """
 
-    if not (
-        state().active and (state().update_flags.fix or state().update_flags.create)
-    ):
-        return obj
+    # if not (
+    #     state().active and (state().update_flags.fix or state().update_flags.create)
+    # ):
+    #     return obj
 
     return create_snapshot(SnapshotArgReference, obj)
 
@@ -128,13 +127,15 @@ class SnapshotArgReference(SnapshotRefBase):
 
         node = None
 
-        if call_node is not None:
-            if arg_pos is not None and len(call_node.args) > arg_pos:
-                node = call_node.args[arg_pos]
-            else:
-                for kw in call_node.keywords:
-                    if kw.arg == self._name:
-                        node = kw.value
+        assert call_node is not None
+
+        if arg_pos is not None and len(call_node.args) > arg_pos:
+            node = call_node.args[arg_pos]
+        else:
+            for kw in call_node.keywords:
+                if kw.arg == self._name:
+                    node = kw.value
+                    break
 
         self._node = node
 
@@ -178,9 +179,7 @@ class SnapshotArgReference(SnapshotRefBase):
                 new_code=new_code,
                 new_value=self._value._new_value,
             )
-
         else:
-
             yield from self._value._get_changes()
 
     def _re_eval(self, obj, frame: FrameType):
