@@ -87,11 +87,12 @@ def test_snapshot_arg_fix_keyword():
         """\
 from inline_snapshot._snapshot_arg import snapshot_arg
 
-def check_value(x, expected=5):
+def check_value(x, expected=...,as_str=...):
     assert x == snapshot_arg(expected)
+    assert str(x) == snapshot_arg(as_str)
 
 def test_a():
-    check_value(6, expected=5)
+    check_value(6, expected=5,as_str="a")
 """
     ).run_inline(
         ["--inline-snapshot=fix"],
@@ -100,11 +101,12 @@ def test_a():
                 "tests/test_something.py": """\
 from inline_snapshot._snapshot_arg import snapshot_arg
 
-def check_value(x, expected=5):
+def check_value(x, expected=...,as_str=...):
     assert x == snapshot_arg(expected)
+    assert str(x) == snapshot_arg(as_str)
 
 def test_a():
-    check_value(6, expected=6)
+    check_value(6, expected=6,as_str="6")
 """
             }
         ),
