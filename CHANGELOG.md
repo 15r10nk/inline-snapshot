@@ -1,4 +1,11 @@
 
+<a id='changelog-0.32.5'></a>
+# 0.32.5 — 2026-03-13
+
+## Fixed
+
+- Fixed a bug where tuples used as snapshot keys caused problems because they had the same hash value ([#358](https://github.com/15r10nk/inline-snapshot/issues/358))
+
 <a id='changelog-0.32.4'></a>
 # 0.32.4 — 2026-03-01
 
