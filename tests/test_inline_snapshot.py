@@ -694,6 +694,33 @@ assert s["keyb"]==5
     )
 
 
+def test_sub_snapshot_tuple_key():
+    # see https://github.com/15r10nk/inline-snapshot/issues/358
+
+    Example(
+        """\
+from inline_snapshot import snapshot
+
+def test_a():
+    for i in (1,2):
+        assert 5 == snapshot()[(i,)]
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_a():
+    for i in (1,2):
+        assert 5 == snapshot({(1,): 5, (2,): 5})[(i,)]
+"""
+            }
+        ),
+    )
+
+
 def test_sub_snapshot_empty_string():
 
     Example(

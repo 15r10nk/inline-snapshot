@@ -35,7 +35,7 @@ def test_dict_constructor():
 from inline_snapshot import snapshot
 
 def test_dict():
-    snapshot(dict())
+    assert {} == snapshot(dict())
 """
     ).run_inline(
         ["--inline-snapshot=fix"],
