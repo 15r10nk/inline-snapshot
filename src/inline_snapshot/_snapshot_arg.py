@@ -10,6 +10,7 @@ from executing import Source
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._change import CallArg
 from inline_snapshot._change import ChangeBase
+from inline_snapshot._change import Delete
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._generator_utils import with_flag
@@ -115,9 +116,38 @@ class SnapshotArgReference(SnapshotRefBase):
             raise UsageError("snapshot_arg() can only be used inside functions")
 
         arg_pos = None
-        for i, func_arg in enumerate([*function.args.posonlyargs, *function.args.args]):
+        pos_args = [*function.args.posonlyargs, *function.args.args]
+        default = ...
+
+        for i, (func_arg, arg_default) in enumerate(
+            zip(
+                pos_args,
+                [None] * (len(pos_args) - len(function.args.defaults))
+                + function.args.defaults,
+            )
+        ):
             if func_arg.arg == self._name:
+                default = arg_default
                 arg_pos = i
+                break
+        else:
+            for func_arg, arg_default in zip(
+                function.args.kwonlyargs, function.args.kw_defaults
+            ):
+                if func_arg.arg == self._name:
+                    default = arg_default
+                    break
+            else:
+                raise UsageError(
+                    "the argument of snapshot_arg(...) has to be an argument of the calling function"
+                )
+
+        if default is None:
+            raise UsageError(
+                "the argument used for snapshot_arg(...) requires a default value in the calling function"
+            )
+
+        self._default_value = ast.literal_eval(default)
 
         call_frame = frame.f_back
         assert call_frame
@@ -180,7 +210,10 @@ class SnapshotArgReference(SnapshotRefBase):
                 new_value=self._value._new_value,
             )
         else:
-            yield from self._value._get_changes()
+            if self._value._new_value._eval() == self._default_value:
+                yield Delete("fix", self._value._file, self._node, None)
+            else:
+                yield from self._value._get_changes()
 
     def _re_eval(self, obj, frame: FrameType):
         call_frame = frame.f_back
