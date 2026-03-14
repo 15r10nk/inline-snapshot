@@ -51,6 +51,36 @@ def test_a():
     )
 
 
+def test_snapshot_arg_default_value():
+    """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
+    Example(
+        """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+def check_value(x, expected=8):
+    assert x == snapshot_arg(expected)
+
+def test_a():
+    check_value(8, 5)
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+def check_value(x, expected=8):
+    assert x == snapshot_arg(expected)
+
+def test_a():
+    check_value(8)
+"""
+            }
+        ),
+    )
+
+
 def test_snapshot_arg_fix_positional():
     """Fix a snapshot passed positionally: line 133 + line 184."""
     Example(
