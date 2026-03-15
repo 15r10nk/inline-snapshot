@@ -12,7 +12,7 @@ from tests.conftest import check_update
 def test_fix_list_fix():
     check_update(
         """assert [1,2]==snapshot([0+1,3])""",
-        reported_flags="update,fix",
+        reported_flags={"fix", "update"},
         flags="fix",
         expected_code="assert [1,2]==snapshot([0+1,2])",
     )
@@ -21,7 +21,7 @@ def test_fix_list_fix():
 def test_fix_list_insert():
     check_update(
         """assert [1,2,3,4,5,6]==snapshot([0+1,3])""",
-        reported_flags="update,fix",
+        reported_flags={"fix", "update"},
         flags="fix",
         expected_code="assert [1,2,3,4,5,6]==snapshot([0+1, 2, 3, 4, 5, 6])",
     )
@@ -30,7 +30,7 @@ def test_fix_list_insert():
 def test_fix_list_delete():
     check_update(
         """assert [1,5]==snapshot([0+1,2,3,4,5])""",
-        reported_flags="update,fix",
+        reported_flags={"fix", "update"},
         flags="fix",
         expected_code="assert [1,5]==snapshot([0+1, 5])",
     )
@@ -39,7 +39,7 @@ def test_fix_list_delete():
 def test_fix_tuple_delete():
     check_update(
         """assert (1,5)==snapshot((0+1,2,3,4,5))""",
-        reported_flags="update,fix",
+        reported_flags={"fix", "update"},
         flags="fix",
         expected_code="assert (1,5)==snapshot((0+1, 5))",
     )
@@ -48,7 +48,7 @@ def test_fix_tuple_delete():
 def test_fix_dict_change():
     check_update(
         """assert {1:1, 2:2}==snapshot({1:0+1, 2:3})""",
-        reported_flags="update,fix",
+        reported_flags={"fix", "update"},
         flags="fix",
         expected_code="assert {1:1, 2:2}==snapshot({1:0+1, 2:2})",
     )
@@ -57,14 +57,13 @@ def test_fix_dict_change():
 def test_fix_dict_remove():
     check_update(
         """assert {1:1}==snapshot({0:0, 1:0+1, 2:2})""",
-        reported_flags="update,fix",
+        reported_flags={"fix", "update"},
         flags="fix",
         expected_code="assert {1:1}==snapshot({1:0+1})",
     )
 
     check_update(
         """assert {}==snapshot({0:0})""",
-        reported_flags="fix",
         flags="fix",
         expected_code="assert {}==snapshot({})",
     )
@@ -73,7 +72,7 @@ def test_fix_dict_remove():
 def test_fix_dict_insert():
     check_update(
         """assert {0:"before",1:1,2:"after"}==snapshot({1:0+1})""",
-        reported_flags="update,fix",
+        reported_flags={"fix", "update"},
         flags="fix",
         expected_code='assert {0:"before",1:1,2:"after"}==snapshot({0: "before", 1:0+1, 2: "after"})',
     )
@@ -82,7 +81,6 @@ def test_fix_dict_insert():
 def test_fix_dict_with_non_literal_keys():
     check_update(
         """assert {1+2:"3"}==snapshot({1+2:"5"})""",
-        reported_flags="fix",
         flags="fix",
         expected_code='assert {1+2:"3"}==snapshot({1+2:"3"})',
     )
@@ -97,7 +95,6 @@ def test_no_update_for_dirty_equals():
 from dirty_equals import IsInt
 assert {5:5,2:2}==snapshot({5:IsInt(),2:1+1})\
 """,
-        reported_flags="update",
         flags="update",
         expected_code="""\
 from dirty_equals import IsInt
@@ -148,7 +145,7 @@ assert left == snapshot(
     }
 )\
 """,
-        reported_flags="update,fix",
+        reported_flags={"fix", "update"},
         flags="fix",
         expected_code="""\
 left = {
