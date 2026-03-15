@@ -5,10 +5,9 @@ import black
 import executing
 import pytest
 
-from inline_snapshot._get_snapshot_value import get_snapshot_value
 from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot.extra import Transformed
 from inline_snapshot.testing._example import Example
-from tests.utils import Store
 
 pytest_plugins = "pytester"
 
@@ -45,21 +44,19 @@ def test_a():
         }
     )
     # assert snapshot_arg(source_code)==textwrap.dedent(source_code).strip()
+    flags_set = {*flags.split(",")} - {""}
 
     result = e.run_inline(
         [f"--inline-snapshot={flags}"],
-        reported_categories=(result_flags := Store()),
+        reported_categories=Transformed(
+            lambda reported_categories: (
+                None
+                if reported_categories == sorted(flags_set)
+                else set(reported_categories)
+            ),
+            snapshot_arg(reported_flags),
+        ),
     )
-
-    flags_set = {*flags.split(",")} - {""}
-
-    if get_snapshot_value(reported_flags):
-        reported_flags_set = {*get_snapshot_value(reported_flags).split(",")} - {""}
-    else:
-        reported_flags_set = flags_set
-
-    if reported_flags_set != set(result_flags.value):
-        assert snapshot_arg(reported_flags) == ",".join(sorted(result_flags.value))
 
     assert (
         snapshot_arg(expected_code)

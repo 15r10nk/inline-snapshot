@@ -248,15 +248,11 @@ assert l in snapshot([[1, 2, 3]])\
 
 def test_comparison():
     check_update(
-        "assert 5==snapshot()",
-        flags="create",
-        expected_code="assert 5==snapshot(5)",
+        "assert 5==snapshot()", flags="create", expected_code="assert 5==snapshot(5)"
     )
 
     check_update(
-        "assert 5==snapshot(9)",
-        flags="fix",
-        expected_code="assert 5==snapshot(5)",
+        "assert 5==snapshot(9)", flags="fix", expected_code="assert 5==snapshot(5)"
     )
 
     check_update(
@@ -267,7 +263,7 @@ def test_comparison():
 
     check_update(
         'assert "a"==snapshot("""a""")',
-        reported_flags="update",
+        reported_flags={"update"},
         flags="fix",
         expected_code='assert "a"==snapshot("""a""")',
     )
@@ -299,14 +295,12 @@ for a in [1,1,1]:
 
 def test_ge():
     check_update(
-        "assert 5<=snapshot()",
-        flags="create",
-        expected_code="assert 5<=snapshot(5)",
+        "assert 5<=snapshot()", flags="create", expected_code="assert 5<=snapshot(5)"
     )
 
     check_update(
         "assert 5<=snapshot()",
-        reported_flags="create",
+        reported_flags={"create"},
         expected_code="assert 5<=snapshot()",
     )
 
@@ -317,7 +311,7 @@ assert 5<=s["v"]
 assert 5==s["q"]\
 """,
         flags="fix",
-        reported_flags="fix,trim",
+        reported_flags={"fix", "trim"},
         expected_code="""\
 s=snapshot({"v": 7, "q": 5})
 assert 5<=s["v"]
@@ -332,7 +326,7 @@ assert 5<=s["v"]
 assert 5==s["q"]\
 """,
         flags="fix",
-        reported_flags="fix,create",
+        reported_flags={"create", "fix"},
         expected_code="""\
 s=snapshot({"q": 5})
 assert 5<=s["v"]
@@ -341,27 +335,18 @@ assert 5==s["q"]\
     )
 
     check_update(
-        "assert 5<=snapshot(9)",
-        flags="trim",
-        expected_code="assert 5<=snapshot(5)",
+        "assert 5<=snapshot(9)", flags="trim", expected_code="assert 5<=snapshot(5)"
     )
 
     check_update(
-        "assert 5<=snapshot(3)",
-        flags="fix",
-        expected_code="assert 5<=snapshot(5)",
+        "assert 5<=snapshot(3)", flags="fix", expected_code="assert 5<=snapshot(5)"
     )
 
     check_update(
-        "assert snapshot(3) >= 5",
-        flags="fix",
-        expected_code="assert snapshot(5) >= 5",
+        "assert snapshot(3) >= 5", flags="fix", expected_code="assert snapshot(5) >= 5"
     )
 
-    check_update(
-        "assert 5<=snapshot(5)",
-        expected_code="assert 5<=snapshot(5)",
-    )
+    check_update("assert 5<=snapshot(5)", expected_code="assert 5<=snapshot(5)")
 
     check_update(
         "for i in range(5): assert i <=snapshot(2)",
@@ -388,7 +373,7 @@ assert 5>=s["v"]
 assert 5==s["q"]\
 """,
         flags="fix",
-        reported_flags="fix,trim",
+        reported_flags={"fix", "trim"},
         expected_code="""\
 s=snapshot({"v": 3, "q": 5})
 assert 5>=s["v"]
@@ -403,7 +388,7 @@ assert 5>=s["v"]
 assert 5==s["q"]\
 """,
         flags="fix",
-        reported_flags="fix,create",
+        reported_flags={"create", "fix"},
         expected_code="""\
 s=snapshot({"q": 5})
 assert 5>=s["v"]
@@ -519,7 +504,7 @@ def test_getitem():
     check_update(
         'for i in range(3): assert i in snapshot({"0": [0], "1": [1,2], "2": [4]})[str(i)]',
         flags="fix",
-        reported_flags="fix,trim",
+        reported_flags={"fix", "trim"},
         expected_code='for i in range(3): assert i in snapshot({"0": [0], "1": [1,2], "2": [4, 2]})[str(i)]',
     )
 
@@ -538,7 +523,7 @@ def test_getitem():
     check_update(
         "assert 5 in snapshot({2:[4],3:[]})[2]",
         flags="fix",
-        reported_flags="fix,trim",
+        reported_flags={"fix", "trim"},
         expected_code="assert 5 in snapshot({2:[4, 5],3:[]})[2]",
     )
 
@@ -551,7 +536,7 @@ def test_getitem():
     check_update(
         "assert 5 in snapshot({3:[1]})[2]",
         flags="create",
-        reported_flags="create,trim",
+        reported_flags={"create", "trim"},
         expected_code="assert 5 in snapshot({3:[1], 2: [5]})[2]",
     )
 
@@ -624,7 +609,7 @@ def test_unused_snapshot():
     check_update(
         "snapshot()",
         flags="create",
-        reported_flags="",
+        reported_flags=set(),
         expected_code="snapshot()",
     )
 
@@ -640,7 +625,7 @@ s = snapshot()
 assert {test1}
 assert {test2}\
 """,
-                reported_flags="create",
+                reported_flags={"create"},
                 expected_code=AnyThing(),
             )
         if error is not None:

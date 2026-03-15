@@ -4,6 +4,7 @@ from hypothesis import given
 from hypothesis.strategies import text
 
 from inline_snapshot import snapshot
+from inline_snapshot._snapshot_arg import snapshot_arg
 from inline_snapshot._utils import triple_quote
 from inline_snapshot.extra import Transformed
 from inline_snapshot.testing import Example
@@ -15,14 +16,14 @@ def test_string_update():
     # string concatenation should produce updates.
     check_update(
         'assert "ab" == snapshot("a" "b")',
-        reported_flags="",
+        reported_flags=set(),
         flags="update",
         expected_code='assert "ab" == snapshot("a" "b")',
     )
 
     check_update(
         'assert "ab" == snapshot("a"\n "b")',
-        reported_flags="",
+        reported_flags=set(),
         flags="update",
         expected_code="""\
 assert "ab" == snapshot("a"
@@ -43,7 +44,7 @@ c\\
 
     check_update(
         'assert b"ab" == snapshot(b"a"\n b"b")',
-        reported_flags="",
+        reported_flags=set(),
         flags="update",
         expected_code="""\
 assert b"ab" == snapshot(b"a"
@@ -63,6 +64,7 @@ b\\
 """\
 '''
         ),
+        reported_flags=None,
     )
 
     check_string_update(
@@ -75,6 +77,7 @@ b\\
 '''\
 """
         ),
+        reported_flags=None,
     )
 
     check_string_update(
@@ -87,9 +90,10 @@ a\\"\\"\\"
 """\
 '''
         ),
+        reported_flags=None,
     )
 
-    check_string_update('b"a\\nb"', snapshot('b"a\\nb"'))
+    check_string_update('b"a\\nb"', snapshot('b"a\\nb"'), reported_flags=set())
 
     check_string_update(
         '"\\n\\\'"',
@@ -101,6 +105,7 @@ a\\"\\"\\"
 """\
 '''
         ),
+        reported_flags=None,
     )
 
     check_string_update(
@@ -113,6 +118,7 @@ a\\"\\"\\"
 """\
 '''
         ),
+        reported_flags=None,
     )
 
     check_string_update(
@@ -125,6 +131,7 @@ a\\"\\"\\"
 """\
 '''
         ),
+        reported_flags=None,
     )
 
     check_string_update(
@@ -137,16 +144,18 @@ a\\"\\"\\"
 """\
 '''
         ),
+        reported_flags=None,
     )
 
 
-def check_string_update(string, expected_str=...):
+def check_string_update(string, expected_str=..., reported_flags={"update"}):
     prefix = "s = snapshot("
     suffix = ")"
 
     check_update(
         f"{prefix}{string}{suffix}\nassert {string} == s",
         flags="update",
+        reported_flags=snapshot_arg(reported_flags),
         expected_code=Transformed(
             lambda v: v.split("assert")[0]
             .strip()
@@ -154,7 +163,6 @@ def check_string_update(string, expected_str=...):
             .removesuffix(suffix),
             expected_str,
         ),
-        reported_flags="",
     )
 
 
@@ -169,6 +177,7 @@ other_line\\
 """\
 '''
         ),
+        reported_flags=None,
     )
 
     check_string_update(
@@ -181,6 +190,7 @@ other_line\\
 '''\
 """
         ),
+        reported_flags=None,
     )
 
     check_string_update(
@@ -193,10 +203,11 @@ other_line\\
 """\
 '''
         ),
+        reported_flags=None,
     )
 
-    check_string_update("'\\n'", snapshot("'\\n'"))
-    check_string_update("'abc\\n'", snapshot("'abc\\n'"))
+    check_string_update("'\\n'", snapshot("'\\n'"), reported_flags=set())
+    check_string_update("'abc\\n'", snapshot("'abc\\n'"), reported_flags=set())
 
     check_string_update(
         "'abc\\nabc'",
@@ -208,6 +219,7 @@ abc\\
 """\
 '''
         ),
+        reported_flags=None,
     )
 
     check_string_update(
@@ -220,6 +232,7 @@ abc\\
 """\
 '''
         ),
+        reported_flags=None,
     )
 
     check_string_update(
@@ -232,6 +245,7 @@ a
 """\
 '''
         ),
+        reported_flags=None,
     )
 
     check_string_update(
@@ -239,6 +253,7 @@ a
 a
 """''',
         snapshot('"a\\n"'),
+        reported_flags=None,
     )
 
 
