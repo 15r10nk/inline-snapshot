@@ -21,6 +21,10 @@ from inline_snapshot._types import Snapshot
 from inline_snapshot._types import SnapshotRefBase
 
 
+class NoDefault:
+    pass
+
+
 def snapshot_arg(obj) -> Snapshot:
     """Captures a function argument value to generate snapshots at the call site.
 
@@ -76,6 +80,9 @@ def snapshot_arg(obj) -> Snapshot:
     # ):
     #     return obj
 
+    if isinstance(obj, GenericValue):
+        return obj
+
     return create_snapshot(SnapshotArgReference, obj)
 
 
@@ -117,13 +124,15 @@ class SnapshotArgReference(SnapshotRefBase):
 
         arg_pos = None
         pos_args = [*function.args.posonlyargs, *function.args.args]
-        default = ...
+        default: Optional[ast.expr] = None
 
         for i, (func_arg, arg_default) in enumerate(
             zip(
                 pos_args,
-                [None] * (len(pos_args) - len(function.args.defaults))
-                + function.args.defaults,
+                [
+                    *([None] * (len(pos_args) - len(function.args.defaults))),
+                    *function.args.defaults,
+                ],
             )
         ):
             if func_arg.arg == self._name:
@@ -143,11 +152,9 @@ class SnapshotArgReference(SnapshotRefBase):
                 )
 
         if default is None:
-            raise UsageError(
-                "the argument used for snapshot_arg(...) requires a default value in the calling function"
-            )
-
-        self._default_value = ast.literal_eval(default)
+            self._default_value = NoDefault()
+        else:
+            self._default_value = ast.literal_eval(default)
 
         call_frame = frame.f_back
         assert call_frame
@@ -193,9 +200,20 @@ class SnapshotArgReference(SnapshotRefBase):
 
     def _changes(self) -> Iterator[ChangeBase]:
 
+        new_value = self._value._new_value
+        is_default = (
+            not isinstance(new_value, CustomUndefined)
+            and not isinstance(self._default_value, NoDefault)
+            and self._default_value is not ...
+            and new_value._eval() == self._default_value
+        )
+
         if self._node is None:
 
             if isinstance(self._value._new_value, CustomUndefined):
+                return
+
+            if is_default:
                 return
 
             new_code = yield from with_flag(self._value._new_code(), "create")
@@ -210,7 +228,7 @@ class SnapshotArgReference(SnapshotRefBase):
                 new_value=self._value._new_value,
             )
         else:
-            if self._value._new_value._eval() == self._default_value:
+            if is_default:
                 yield Delete("fix", self._value._file, self._node, None)
             else:
                 yield from self._value._get_changes()

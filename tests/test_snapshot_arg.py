@@ -62,9 +62,11 @@ def check_value(x, expected=8):
 
 def test_a():
     check_value(8, 5)
+    check_value(8)
+    check_value(8,8)
 """
     ).run_inline(
-        ["--inline-snapshot=fix"],
+        ["--inline-snapshot=fix,create"],
         changed_files=snapshot(
             {
                 "tests/test_something.py": """\
@@ -75,6 +77,129 @@ def check_value(x, expected=8):
 
 def test_a():
     check_value(8)
+    check_value(8)
+    check_value(8)
+"""
+            }
+        ),
+    )
+
+
+def test_snapshot_kw_only_arg_default_value():
+    """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
+    Example(
+        """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+def check_value(x,*, other=5, expected=8):
+    assert x == snapshot_arg(expected)
+
+def test_a():
+    check_value(8, expected=5)
+    check_value(8)
+    check_value(8,expected=8)
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix,create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+def check_value(x,*, other=5, expected=8):
+    assert x == snapshot_arg(expected)
+
+def test_a():
+    check_value(8)
+    check_value(8)
+    check_value(8)
+"""
+            }
+        ),
+    )
+
+
+def test_snapshot_no_argument():
+    """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
+    Example(
+        """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+def check_value(x):
+    expected=8
+    assert x == snapshot_arg(expected)
+
+def test_a():
+    check_value(8)
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix,create"],
+        changed_files=snapshot({}),
+        raises=snapshot(
+            """\
+UsageError:
+the argument of snapshot_arg(...) has to be an argument of the calling function\
+"""
+        ),
+    )
+
+
+def test_snapshot_no_default():
+    """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
+    Example(
+        """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+def check_value(x,expected):
+    assert x == snapshot_arg(expected)
+
+def test_a():
+    check_value(8,5)
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+def check_value(x,expected):
+    assert x == snapshot_arg(expected)
+
+def test_a():
+    check_value(8,8)
+"""
+            }
+        ),
+    )
+
+
+def test_snapshot_as_argument():
+    """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
+    Example(
+        """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot import snapshot
+
+def check_value(x,expected):
+    assert x == snapshot_arg(expected)
+
+def test_a():
+    check_value(8,snapshot(5))
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot import snapshot
+
+def check_value(x,expected):
+    assert x == snapshot_arg(expected)
+
+def test_a():
+    check_value(8,snapshot(8))
 """
             }
         ),
