@@ -945,9 +945,6 @@ def test_a():
         ["--inline-snapshot=create"],
         changed_files=snapshot({}),
         raises=snapshot(
-            """\
-UsageError:
-external() can only be used in files which are inside tests/ or any other folder defined by your tool.inline-snapshot.test-dir in pyproject.toml\
-"""
+            "UsageError: external() can only be used in files which are inside tests/ or any other folder defined by your tool.inline-snapshot.test-dir in pyproject.toml"
         ),
     )

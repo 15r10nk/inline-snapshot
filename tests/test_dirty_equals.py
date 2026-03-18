@@ -116,12 +116,7 @@ def test_time():
     ).run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({}),
-        raises=snapshot(
-            """\
-AssertionError:
-different time\
-"""
-        ),
+        raises=snapshot("AssertionError: different time"),
     )
 
 

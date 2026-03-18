@@ -137,10 +137,7 @@ def test_a():
         ["--inline-snapshot=fix,create"],
         changed_files=snapshot({}),
         raises=snapshot(
-            """\
-UsageError:
-the argument of snapshot_arg(...) has to be an argument of the calling function\
-"""
+            "UsageError: the argument of snapshot_arg(...) has to be an argument of the calling function"
         ),
     )
 
@@ -171,6 +168,27 @@ def test_a():
     check_value(8,8)
 """
             }
+        ),
+    )
+
+
+def test_snapshot_invalid_default():
+    """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
+    Example(
+        """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+def check_value(x,expected=1+1):
+    assert x == snapshot_arg(expected)
+
+def test_a():
+    check_value(8,5)
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot({}),
+        raises=snapshot(
+            "UsageError: snapshot_arg() only supports literal default values. unsupported default `1 + 1` for parameter 'expected'."
         ),
     )
 
@@ -305,10 +323,7 @@ def test_a():
     ).run_inline(
         ["--inline-snapshot=create"],
         raises=snapshot(
-            """\
-UsageError:
-snapshot_arg() can only be called with function argument of the calling function as argument\
-"""
+            "UsageError: snapshot_arg() can only be called with function argument of the calling function as argument"
         ),
     )
 
@@ -346,12 +361,7 @@ def test_a():
 """
     ).run_inline(
         ["--inline-snapshot=create"],
-        raises=snapshot(
-            """\
-UsageError:
-snapshot_arg() can only be used inside functions\
-"""
-        ),
+        raises=snapshot("UsageError: snapshot_arg() can only be used inside functions"),
     )
 
 
@@ -382,5 +392,5 @@ Error: one snapshot is missing a value (--inline-snapshot=create)
 You can also use --inline-snapshot=review to approve the changes interactively
 """
         ),
-        raises=snapshot("AssertionError:\n"),
+        raises=snapshot("AssertionError"),
     )

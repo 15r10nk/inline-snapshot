@@ -170,7 +170,13 @@ class SnapshotArgReference(SnapshotRefBase):
         if default is None:
             self._default_value = NoDefault()
         else:
-            self._default_value = ast.literal_eval(default)
+            try:
+                self._default_value = ast.literal_eval(default)
+            except (ValueError, SyntaxError):
+                raise UsageError(
+                    f"snapshot_arg() only supports literal default values. "
+                    f"unsupported default `{ast.unparse(default)}` for parameter '{self._name}'."
+                )
 
         call_node = self._context.expr.node
 

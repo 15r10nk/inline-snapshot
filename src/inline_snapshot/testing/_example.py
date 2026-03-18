@@ -30,6 +30,7 @@ from .._global_state import leave_snapshot_context
 from .._global_state import state
 from .._types import Category
 from .._types import Snapshot
+from ..extra import _format_exception
 
 ansi_escape = re.compile(
     r"""
@@ -487,9 +488,7 @@ class Example:
                 if raises is None:
                     raise raised_exception[0]
 
-                raises_text = "\n".join(
-                    f"{type(e).__name__}:\n" + str(e) for e in raised_exception
-                )
+                raises_text = "\n".join(_format_exception(e) for e in raised_exception)
                 raises_text = raises_text.replace(str(tmp_path), "<tmp>")
                 assert raises == raises_text
             else:

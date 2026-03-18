@@ -15,10 +15,7 @@ def test_is():
     """
     ).run_inline(
         raises=snapshot(
-            """\
-UsageError:
-snapshot value should not change. Use Is(...) for dynamic snapshot parts.\
-"""
+            "UsageError: snapshot value should not change. Use Is(...) for dynamic snapshot parts."
         )
     )
 

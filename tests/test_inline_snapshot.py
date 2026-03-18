@@ -560,7 +560,7 @@ def test_assert():
         "assert 2 == snapshot(5)",
         reported_flags={"fix"},
         expected_code="assert 2 == snapshot(5)",
-        raises="AssertionError:\n",
+        raises="AssertionError",
     )
 
 

@@ -36,10 +36,5 @@ def test_a():
     """
         ).run_inline(
             ["--inline-snapshot=fix"],
-            raises=snapshot(
-                """\
-AssertionError:
-not equal\
-"""
-            ),
+            raises=snapshot("AssertionError: not equal"),
         )
