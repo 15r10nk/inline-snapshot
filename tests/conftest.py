@@ -1,31 +1,14 @@
-import importlib.util
-import os
-import platform
-import re
-import shutil
 import sys
 import textwrap
-import traceback
-from dataclasses import dataclass
-from dataclasses import field
-from pathlib import Path
-from typing import List
-from typing import Set
-from unittest import mock
+from contextlib import contextmanager
 
 import black
 import executing
 import pytest
 
-import inline_snapshot._external
-from inline_snapshot._change import ChangeBase
-from inline_snapshot._change import apply_all
-from inline_snapshot._flags import Flags
-from inline_snapshot._format import format_code
-from inline_snapshot._global_state import snapshot_env
-from inline_snapshot._rewrite_code import ChangeRecorder
-from inline_snapshot._types import Category
-from inline_snapshot.testing._example import deterministic_uuid
+from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot.extra import Transformed
+from inline_snapshot.testing._example import Example
 
 pytest_plugins = "pytester"
 
@@ -46,379 +29,61 @@ def check_pypy(request):
     yield
 
 
-@pytest.fixture()
-def check_update(source):
-    def w(source_code, *, flags="", reported_flags=None, number=1):
-        s = source(source_code)
-        flags = {*flags.split(",")} - {""}
+def check_update(
+    source_code, *, flags="", reported_flags=None, expected_code=..., raises=None
+):
+    e = Example(
+        {
+            "pyproject.toml": """\
+[tool.inline-snapshot]
+show-updates=true""",
+            "test_a.py": f"""\
+from inline_snapshot import snapshot,outsource
 
-        if reported_flags is None:
-            reported_flags = flags
-        else:
-            reported_flags = {*reported_flags.split(",")} - {""}
-
-        assert s.flags == reported_flags
-        assert s.number_snapshots == number
-        assert s.error == ("fix" in s.flags)
-
-        s2 = s.run(*flags)
-
-        return s2.source
-
-    return w
-
-
-@pytest.fixture()
-def source(tmp_path: Path):
-    filecount = 1
-
-    @dataclass
-    class Source:
-        source: str
-        flags: Set[str] = field(default_factory=set)
-        error: bool = False
-        number_snapshots: int = 0
-        number_changes: int = 0
-
-        def run(self, *flags_arg: Category):
-            flags = Flags({*flags_arg})
-
-            nonlocal filecount
-            filename: Path = tmp_path / f"test_{filecount}.py"
-            filecount += 1
-
-            prefix = """\"\"\"
-PYTEST_DONT_REWRITE
-\"\"\"
-# äöß 🐍
-from inline_snapshot import snapshot
-from inline_snapshot import external
-from inline_snapshot import outsource
-
-"""
-            source = prefix + textwrap.dedent(self.source)
-
-            filename.write_bytes(source.encode("utf-8"))
-
-            print()
-            print("input:")
-            print(textwrap.indent(source, " |", lambda line: True).rstrip())
-
-            with snapshot_env() as state, deterministic_uuid():
-                recorder = ChangeRecorder()
-                state.update_flags = flags
-                state.all_storages["hash"] = inline_snapshot._external.HashStorage(
-                    tmp_path / ".storage"
-                )
-                state.config.storage_dir = tmp_path / ".inline-snapshot"
-
-                error = False
-
-                try:
-                    # Load module using importlib
-                    spec = importlib.util.spec_from_file_location(
-                        filename.stem, filename
-                    )
-                    if spec and spec.loader:
-                        module = importlib.util.module_from_spec(spec)
-                        sys.modules[filename.stem] = module
-                        spec.loader.exec_module(module)
-                    else:
-                        assert False, f"Could not load module from {filename}"
-                except AssertionError:
-                    traceback.print_exc()
-                    error = True
-                finally:
-                    state.active = False
-
-                number_snapshots = len(state.snapshots)
-
-                changes: List[ChangeBase] = []
-                for snapshot in state.snapshots.values():
-                    changes += list(snapshot._changes())
-
-                snapshot_flags = {change.flag for change in changes}
-
-                apply_all(
-                    [
-                        change
-                        for change in changes
-                        if change.flag in state.update_flags.to_set()
-                    ],
-                    recorder,
-                )
-
-                recorder.fix_all()
-
-            source = filename.read_text("utf-8")[len(prefix) :]
-            print("reported_flags:", snapshot_flags)
-            print(
-                f'run: pytest --inline-snapshot={",".join(flags.to_set())}'
-                if flags
-                else ""
-            )
-            print("output:")
-            print(textwrap.indent(source, " |", lambda line: True).rstrip())
-
-            return Source(
-                source=source,
-                flags=snapshot_flags,
-                error=error,
-                number_snapshots=number_snapshots,
-                number_changes=len(changes),
-            )
-
-    def w(source):
-        return Source(source=source).run()
-
-    return w
-
-
-ansi_escape = re.compile(
-    r"""
-    \x1B  # ESC
-    (?:   # 7-bit C1 Fe (except CSI)
-        [@-Z\\-_]
-    |     # or [ for CSI, followed by a control sequence
-        \[
-        [0-?]*  # Parameter bytes
-        [ -/]*  # Intermediate bytes
-        [@-~]   # Final byte
-    )
+def test_a():
+    exec(compile(open("source_code.py").read(),"source_code.py","exec"))
 """,
-    re.VERBOSE,
-)
+            "source_code.py": source_code,
+        }
+    )
+    # assert snapshot_arg(source_code)==textwrap.dedent(source_code).strip()
+    flags_set = {*flags.split(",")} - {""}
+
+    result = e.run_inline(
+        [f"--inline-snapshot={flags}"],
+        reported_categories=Transformed(
+            lambda reported_categories: (
+                None
+                if reported_categories == sorted(flags_set)
+                else set(reported_categories)
+            ),
+            snapshot_arg(reported_flags),
+        ),
+        raises=snapshot_arg(raises),
+    )
+
+    assert (
+        snapshot_arg(expected_code)
+        == textwrap.dedent(
+            result.read_file("source_code.py").split("# split")[-1]
+        ).strip()
+    )
 
 
-class RunResult:
-    def __init__(self, result):
-        self._result = result
+@contextmanager
+def no_executing_context():
+    real_executing = executing.Source.executing
 
-    def __getattr__(self, name):
-        return getattr(self._result, name)
-
-    @staticmethod
-    def _join_lines(lines):
-        text = "\n".join(lines).rstrip()
-
-        if "\n" in text:
-            return text + "\n"
-        else:
-            return text
-
-    @property
-    def report(self):
-        result = []
-        record = False
-        for line in self._result.stdout.lines:
-            line = line.strip()
-            if line.startswith("===="):
-                record = False
-
-            if record and line:
-                result.append(line)
-
-            if line.startswith(("-----", "═════")) and "inline-snapshot" in line:
-                record = True
-
-        result = self._join_lines(result)
-
-        result = ansi_escape.sub("", result)
-
-        # fix windows problems
-        result = result.replace("\u2500", "-")
-        result = result.replace("\r", "")
-
+    def fake_executing(frame):
+        result = real_executing(frame)
+        result.node = None
         return result
 
-    @property
-    def errors(self):
-        result = []
-        record = False
-        for line in self._result.stdout.lines:
-            line = line.strip()
+    from unittest.mock import patch
 
-            if line.startswith("====") and "ERRORS" in line:
-                record = True
-            if record and line:
-                result.append(line)
-        result = self._join_lines(result)
-
-        result = re.sub(r"\d+\.\d+s", "<time>", result)
-        return result
-
-    @property
-    def stderr(self):
-        original = self._result.stderr.lines
-        lines = [
-            line
-            for line in original
-            if not any(
-                s in line
-                for s in [
-                    'No entry for terminal type "unknown"',
-                    "using dumb terminal settings.",
-                ]
-            )
-        ]
-        return pytest.LineMatcher(lines)
-
-    def errorLines(self):
-        result = self._join_lines(
-            [line for line in self.stdout.lines if line and line[:2] in ("> ", "E ")]
-        )
-        return result
-
-
-@pytest.fixture
-def project(pytester):  # pragma: no cover
-    class Project:
-
-        def __init__(self):
-            self.term_columns = 80
-
-        def setup(self, source: str, add_header=True):
-            if add_header:
-                self.header = """\
-# äöß 🐍
-from inline_snapshot import snapshot
-from inline_snapshot import outsource
-"""
-                if "# no imports" in source:
-                    self.header = """\
-# äöß 🐍
-"""
-                else:
-                    self.header = """\
-# äöß 🐍
-from inline_snapshot import snapshot
-from inline_snapshot import outsource
-"""
-            else:  # pragma: no cover
-                self.header = ""
-
-            header = self.header
-            if not source.startswith(("import ", "from ")):
-                header += "\n\n"
-
-            source = header + source
-            print("write code:")
-            print(source)
-            self._filename.write_bytes(source.encode("utf-8"))
-
-            (pytester.path / "conftest.py").write_bytes(
-                b"""
-import datetime
-import pytest
-from freezegun.api import FakeDatetime,FakeDate
-from inline_snapshot.plugin import customize
-
-class InlineSnapshotPlugin:
-    @customize
-    def fakedatetime_handler(self,value,builder):
-        if isinstance(value,FakeDatetime):
-            return builder.create_code(value.__repr__().replace("FakeDatetime","datetime.datetime"))
-
-    @customize
-    def fakedate_handler(self,value,builder):
-        if isinstance(value,FakeDate):
-            return builder.create_code(value.__repr__().replace("FakeDate","datetime.date"))
-
-
-@pytest.fixture(autouse=True)
-def set_time(freezer):
-        freezer.move_to(datetime.datetime(2024, 3, 14, 0, 0, 0, 0))
+    with patch.object(executing.Source, "executing", fake_executing):
+        # monkeypatch.setattr(executing.Source, "executing", fake_executing)
         yield
-
-import uuid
-import random
-
-rd = random.Random(0)
-
-def f():
-    return uuid.UUID(int=rd.getrandbits(128), version=4)
-
-uuid.uuid4 = f
-
-"""
-            )
-
-        @property
-        def _filename(self):
-            (pytester.path / "tests").mkdir(exist_ok=True)
-
-            return pytester.path / "tests" / "test_file.py"
-
-        def is_formatted(self):
-            code = self._filename.read_text("utf-8")
-            return code == format_code(code, self._filename)
-
-        def format(self):
-            self._filename.write_bytes(
-                format_code(self._filename.read_text("utf-8"), self._filename).encode(
-                    "utf-8"
-                )
-            )
-
-        def pyproject(self, source):
-            self.write_file("pyproject.toml", source)
-
-        def write_file(self, filename, content):
-            (pytester.path / filename).write_bytes(content.encode("utf-8"))
-
-        def storage(self, storage_dir=".inline-snapshot"):
-            if os.path.isabs(storage_dir):
-                dir = Path(storage_dir)
-            else:
-                dir = pytester.path / storage_dir
-            dir /= "external"
-
-            if not dir.exists():
-                return []
-
-            return sorted(p.name for p in dir.iterdir() if p.name != ".gitignore")
-
-        @property
-        def source(self):
-            assert self._filename.read_text("utf-8")[: len(self.header)] == self.header
-            return self._filename.read_text("utf-8")[len(self.header) :].lstrip()
-
-        def run(self, *args, stdin=""):
-            cache = pytester.path / "__pycache__"
-            if cache.exists():
-                shutil.rmtree(cache)
-
-            # pytest adds -v if it detects some github CI variable
-            old_environ = dict(os.environ)
-            if "CI" in os.environ:
-                del os.environ["CI"]  # pragma: no cover
-
-            os.environ.pop("GITHUB_ACTIONS", None)
-            os.environ.pop("PYTEST_XDIST_WORKER", None)
-
-            try:
-                with mock.patch.dict(
-                    os.environ,
-                    {
-                        "TERM": "unknown",
-                        "COLUMNS": str(
-                            self.term_columns + 1
-                            if platform.system() == "Windows"
-                            else self.term_columns
-                        ),
-                    },
-                ):
-
-                    if stdin:
-                        result = pytester.run("pytest", *args, stdin=stdin)
-                    else:
-                        result = pytester.run("pytest", *args)
-            finally:
-                os.environ.update(old_environ)
-
-            return RunResult(result)
-
-    return Project()
 
 
 @pytest.fixture(params=[True, False], ids=["executing", "without-executing"])

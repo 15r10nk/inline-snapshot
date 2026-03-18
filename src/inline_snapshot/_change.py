@@ -402,4 +402,4 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
             )
 
         else:
-            assert False, parent
+            assert False, (parent, changes)

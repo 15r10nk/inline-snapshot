@@ -149,6 +149,11 @@ class StopTesting(Exception):
     pass
 
 
+class TestingException(Exception):
+    def __init__(self, e):
+        self.exception = e
+
+
 class Example:
     files: dict[str, str | bytes]
 
@@ -260,6 +265,48 @@ class Example:
             {name: file for name, file in self.files.items() if name != filename}
         )
 
+    def format(self, filename: str = "tests/test_something.py") -> Example:
+        """
+        Formats a Python file using black.
+
+        Arguments:
+            filename: the file to format (default: "tests/test_something.py").
+        """
+        from inline_snapshot._format import format_code
+
+        content = self.files[filename]
+        assert isinstance(content, str)
+
+        # Write files to temp directory so black can find pyproject.toml
+        with TemporaryDirectory() as dir:
+            tmp_path = Path(dir)
+            self._write_files(tmp_path)
+            file_path = tmp_path / filename
+            formatted = format_code(content, file_path)
+
+        return Example({**self.files, filename: formatted})
+
+    def is_formatted(self, filename: str = "tests/test_something.py") -> bool:
+        """
+        Checks if a Python file is properly formatted with black.
+
+        Arguments:
+            filename: the file to check (default: "tests/test_something.py").
+        """
+        from inline_snapshot._format import format_code
+
+        content = self.files[filename]
+        assert isinstance(content, str)
+
+        # Write files to temp directory so black can find pyproject.toml
+        with TemporaryDirectory() as dir:
+            tmp_path = Path(dir)
+            self._write_files(tmp_path)
+            file_path = tmp_path / filename
+            formatted = format_code(content, file_path)
+
+        return content == formatted
+
     def run_inline(
         self,
         args: list[str] = [],
@@ -332,6 +379,9 @@ class Example:
                 # Add tmp_path to sys.path so modules can be imported normally
                 sys.path.insert(0, str(tmp_path))
 
+                report_output = StringIO()
+                console = Console(file=report_output, width=80)
+
                 try:
                     for cm in context_managers:
                         stack.enter_context(cm)
@@ -344,9 +394,6 @@ class Example:
                         error=report_error,
                         project_root=tmp_path,
                     )
-
-                    report_output = StringIO()
-                    console = Console(file=report_output, width=80)
 
                     # Load and register all conftest.py files first
                     for conftest_path in tmp_path.rglob("conftest.py"):
@@ -361,7 +408,10 @@ class Example:
                         conftest_module = importlib.util.module_from_spec(spec)
                         sys.modules[spec.name] = conftest_module
                         conftest_module.__file__ = str(conftest_path)
-                        spec.loader.exec_module(conftest_module)
+                        try:
+                            spec.loader.exec_module(conftest_module)
+                        except Exception as e:
+                            raise TestingException(e) from e
 
                         # Register customize hooks from this conftest
                         session.register_customize_hooks_from_module(conftest_module)
@@ -378,7 +428,10 @@ class Example:
 
                         module = importlib.util.module_from_spec(spec)
                         sys.modules[filename.stem] = module
-                        spec.loader.exec_module(module)
+                        try:
+                            spec.loader.exec_module(module)
+                        except Exception as e:
+                            raise TestingException(e) from e
 
                         # run all test_* functions
                         tests = [
@@ -400,12 +453,17 @@ class Example:
                                 finally:
                                     session.test_exit(fail=fail)
                             except Exception as e:
-                                traceback.print_exc()
-                                raised_exception.append(e)
+                                raise TestingException(e) from e
 
                     if not tests_found:
                         raise UsageError("no test_*() functions in the example")
 
+                except StopTesting as e:
+                    assert stderr == f"ERROR: {e}\n"
+                except TestingException as e:
+                    traceback.print_exc()
+                    raised_exception.append(e.exception)
+                finally:
                     try:
                         session.show_report(console)
 
@@ -416,12 +474,11 @@ class Example:
                         traceback.print_exc()
                         raised_exception.append(e)
 
-                except StopTesting as e:
-                    assert stderr == f"ERROR: {e}\n"
-                finally:
                     sys.modules = old_modules
                     sys.path = old_path
                     leave_snapshot_context()
+
+            # make the assertions in the original context
 
             if reported_categories is not None:
                 assert sorted(snapshot_flags) == reported_categories
