@@ -11,14 +11,7 @@ from inline_snapshot import external_file
 def test_a():
     assert "test1".upper() == external_file("test.txt"), "not equal"
 """
-    ).run_inline(
-        raises=snapshot(
-            """\
-AssertionError:
-not equal\
-"""
-        )
-    ).run_pytest(
+    ).run_inline(raises=snapshot("AssertionError: not equal")).run_pytest(
         ["--inline-snapshot=create"],
         changed_files=snapshot({"tests/test.txt": "TEST1"}),
         report=snapshot(
@@ -34,12 +27,7 @@ These changes will be applied, because you used create\
         "test1", "test2"
     ).run_inline(
         ["--inline-snapshot=disable"],
-        raises=snapshot(
-            """\
-AssertionError:
-not equal\
-"""
-        ),
+        raises=snapshot("AssertionError: not equal"),
     ).run_pytest(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({"tests/test.txt": "TEST2"}),

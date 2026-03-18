@@ -23,6 +23,16 @@ from ._types import Snapshot
 from ._unmanaged import declare_unmanaged
 
 
+def _format_exception(ex):
+    msg = str(ex)
+    if not msg.strip():
+        return f"{type(ex).__name__}"
+    if "\n" in msg:
+        return f"{type(ex).__name__}:\n{ex}"
+    else:
+        return f"{type(ex).__name__}: {ex}"
+
+
 @contextlib.contextmanager
 def raises(exception: Snapshot[str]):
     """Check that an exception is raised.
@@ -60,11 +70,7 @@ def raises(exception: Snapshot[str]):
     try:
         yield
     except BaseException as ex:
-        msg = str(ex)
-        if "\n" in msg:
-            assert f"{type(ex).__name__}:\n{ex}" == exception
-        else:
-            assert f"{type(ex).__name__}: {ex}" == exception
+        assert _format_exception(ex) == exception
     else:
         assert "<no exception>" == exception
 

@@ -40,12 +40,7 @@ def test_something():
 """
             }
         ),
-        raises=snapshot(
-            """\
-AssertionError:
-not equal\
-"""
-        ),
+        raises=snapshot("AssertionError: not equal"),
     )
 
 
@@ -381,12 +376,7 @@ def test_something():
 """
     ).run_inline(
         changed_files=snapshot({}),
-        raises=snapshot(
-            """\
-AssertionError:
-not equal\
-"""
-        ),
+        raises=snapshot("AssertionError: not equal"),
     )
 
 
@@ -416,12 +406,7 @@ def test_something():
 """
         ).run_inline(
             ["--inline-snapshot=report"],
-            raises=snapshot(
-                """\
-AssertionError:
-not equal\
-"""
-            ),
+            raises=snapshot("AssertionError: not equal"),
         )
 
 

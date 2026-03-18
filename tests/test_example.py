@@ -61,11 +61,4 @@ def test_a():
     pass
         """,
         }
-    ).run_inline(
-        raises=snapshot(
-            """\
-AssertionError:
-some error\
-"""
-        )
-    )
+    ).run_inline(raises=snapshot("AssertionError: some error"))
