@@ -1,5 +1,6 @@
 import sys
 import textwrap
+from contextlib import contextmanager
 
 import black
 import executing
@@ -28,7 +29,9 @@ def check_pypy(request):
     yield
 
 
-def check_update(source_code, *, flags="", reported_flags=None, expected_code=...):
+def check_update(
+    source_code, *, flags="", reported_flags=None, expected_code=..., raises=None
+):
     e = Example(
         {
             "pyproject.toml": """\
@@ -56,6 +59,7 @@ def test_a():
             ),
             snapshot_arg(reported_flags),
         ),
+        raises=snapshot_arg(raises),
     )
 
     assert (
@@ -64,6 +68,22 @@ def test_a():
             result.read_file("source_code.py").split("# split")[-1]
         ).strip()
     )
+
+
+@contextmanager
+def no_executing_context():
+    real_executing = executing.Source.executing
+
+    def fake_executing(frame):
+        result = real_executing(frame)
+        result.node = None
+        return result
+
+    from unittest.mock import patch
+
+    with patch.object(executing.Source, "executing", fake_executing):
+        # monkeypatch.setattr(executing.Source, "executing", fake_executing)
+        yield
 
 
 @pytest.fixture(params=[True, False], ids=["executing", "without-executing"])

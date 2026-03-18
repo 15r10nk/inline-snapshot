@@ -2,6 +2,7 @@ import ast
 from ast import Call
 from ast import Name
 from types import FrameType
+from typing import Any
 from typing import Iterator
 from typing import Optional
 
@@ -90,6 +91,7 @@ class SnapshotArgReference(SnapshotRefBase):
     _node: Optional[ast.expr]
     _name: str
     _value: GenericValue
+    _default_value: Any
 
     def __init__(self, value, frame: FrameType):
 
@@ -99,7 +101,21 @@ class SnapshotArgReference(SnapshotRefBase):
                     "snapshot_arg() can only be called with function argument of the calling function as argument"
                 )
 
+        call_frame = frame.f_back
+        assert call_frame
+
+        self._context = AdapterContext(call_frame)
+
         expr = Source.executing(frame)
+
+        if expr.node is None:
+
+            self._node = None
+
+            self._value = UndecidedValue(value, None, self._context)
+            self._default_value = ...
+            self._name = "<unknown>"
+            return
 
         assert isinstance(expr.node, Call)
         check(len(expr.node.args) == 1)
@@ -156,28 +172,21 @@ class SnapshotArgReference(SnapshotRefBase):
         else:
             self._default_value = ast.literal_eval(default)
 
-        call_frame = frame.f_back
-        assert call_frame
+        call_node = self._context.expr.node
 
-        context = AdapterContext(call_frame)
-        call_node = context.expr.node
-
-        node = None
+        self._node = None
 
         assert call_node is not None
 
         if arg_pos is not None and len(call_node.args) > arg_pos:
-            node = call_node.args[arg_pos]
+            self._node = call_node.args[arg_pos]
         else:
             for kw in call_node.keywords:
                 if kw.arg == self._name:
-                    node = kw.value
+                    self._node = kw.value
                     break
 
-        self._node = node
-
-        self._value = UndecidedValue(value, node, context)
-        self._context = context
+        self._value = UndecidedValue(value, self._node, self._context)
 
     @staticmethod
     def key_for(frame: FrameType):

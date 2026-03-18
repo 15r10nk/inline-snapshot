@@ -2,6 +2,7 @@
 
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
+from tests.conftest import no_executing_context
 
 
 def test_snapshot_arg_no_comparison():
@@ -351,4 +352,35 @@ UsageError:
 snapshot_arg() can only be used inside functions\
 """
         ),
+    )
+
+
+def test_without_executing():
+    Example(
+        """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+def check_value(x, expected=...):
+    assert x == snapshot_arg(expected)
+
+def test_a():
+    check_value(5, expected=8)
+"""
+    ).run_inline(
+        ["--inline-snapshot=short-report"],
+        context_managers=[no_executing_context()],
+        report=snapshot(
+            """\
+FAIL: some snapshots in this test have incorrect values.
+If you just created this value with --inline-snapshot=create, the value is now \n\
+created and you can ignore this message.
+
+
+═══════════════════════════════ inline-snapshot ════════════════════════════════
+Error: one snapshot is missing a value (--inline-snapshot=create)
+
+You can also use --inline-snapshot=review to approve the changes interactively
+"""
+        ),
+        raises=snapshot("AssertionError:\n"),
     )
