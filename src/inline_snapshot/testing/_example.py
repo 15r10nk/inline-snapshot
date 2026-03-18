@@ -478,6 +478,8 @@ class Example:
                     sys.path = old_path
                     leave_snapshot_context()
 
+            # make the assertions in the original context
+
             if reported_categories is not None:
                 assert sorted(snapshot_flags) == reported_categories
 
