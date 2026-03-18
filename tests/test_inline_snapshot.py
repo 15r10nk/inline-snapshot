@@ -555,12 +555,13 @@ assert 5 == s["q"]\
     )
 
 
-# def test_assert(check_update):
-#     check_update(
-#         "assert 2 == snapshot(5)",
-#         reported_flags="fix",
-#         expected_code="assert 2 == snapshot(5)",
-#     )
+def test_assert():
+    check_update(
+        "assert 2 == snapshot(5)",
+        reported_flags={"fix"},
+        expected_code="assert 2 == snapshot(5)",
+        raises="AssertionError:\n",
+    )
 
 
 def test_plain(executing_used):

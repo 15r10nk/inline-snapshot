@@ -1,4 +1,3 @@
-import ast
 import os
 import sys
 import tokenize
@@ -7,7 +6,6 @@ from types import FunctionType
 from types import SimpleNamespace
 from typing import Dict
 from typing import List
-from typing import cast
 
 from executing import is_pytest_compatible
 from rich import box
@@ -432,10 +430,10 @@ class SnapshotSession:
             except Exception as exception:
                 context = ""
                 if _context := getattr(snapshot, "_context", None):
-                    code = _context._frame.f_code
+                    frame = _context._frame
                     context = f"""
-file: {code.co_filename}
-line: {cast(ast.expr,_context.expr.node).lineno}\
+file: {frame.f_code.co_filename}
+line: {frame.f_lineno}\
 """
                 raise RuntimeError(
                     f"""
