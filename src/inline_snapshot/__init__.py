@@ -13,6 +13,7 @@ from ._external._outsource import outsource
 from ._get_snapshot_value import get_snapshot_value
 from ._inline_snapshot import snapshot
 from ._is import Is
+from ._snapshot_arg import snapshot_arg
 from ._types import Category
 from ._types import Snapshot
 from ._unmanaged import declare_unmanaged
@@ -36,5 +37,6 @@ __all__ = [
     "external_file",
     "declare_unmanaged",
     "get_snapshot_value",
+    "snapshot_arg",
     "__version__",
 ]

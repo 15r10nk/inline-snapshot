@@ -22,6 +22,7 @@ from inline_snapshot._align import align
 from inline_snapshot._external._external_file import external_file
 from inline_snapshot._flags import Flags
 from inline_snapshot._global_state import snapshot_env
+from inline_snapshot._snapshot_arg import snapshot_arg
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
 from inline_snapshot.version import is_insider
@@ -153,7 +154,7 @@ def test_map_code_blocks(tmp_path):
 
         recorded_blocks = []
 
-        with raises(exception):
+        with raises(snapshot_arg(exception)):
 
             def test_block(block):
                 handle_block(block)
@@ -463,6 +464,9 @@ uuid.uuid4=f
                 block.block_options["hl_lines"] = " ".join(changed_lines)
             else:
                 assert False, "no lines changed"
+
+        if "first_block" not in options:
+            new_code = re.sub(r"# *\(\d+\)\!?", "", new_code)
 
         block.code = new_code
 
