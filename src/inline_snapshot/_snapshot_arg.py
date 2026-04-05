@@ -1,6 +1,7 @@
 import ast
 from ast import Call
 from ast import Name
+from pathlib import Path
 from types import FrameType
 from typing import Any
 from typing import Iterator
@@ -87,6 +88,24 @@ def snapshot_arg(obj) -> Snapshot:
     return create_snapshot(SnapshotArgReference, obj)
 
 
+def get_call_frame(frame):
+    call_frame = frame.f_back
+    assert call_frame
+
+    def get_origin():
+        return (Path(call_frame.f_code.co_filename).name, call_frame.f_code.co_name)
+
+    while get_origin() in [
+        ("contextlib.py", "__enter__"),
+        ("contextlib.py", "__exit__"),
+    ]:
+        call_frame = call_frame.f_back
+        assert call_frame
+
+    print(get_origin())
+    return call_frame
+
+
 class SnapshotArgReference(SnapshotRefBase):
     _node: Optional[ast.expr]
     _name: str
@@ -101,8 +120,7 @@ class SnapshotArgReference(SnapshotRefBase):
                     "snapshot_arg() can only be called with function argument of the calling function as argument"
                 )
 
-        call_frame = frame.f_back
-        assert call_frame
+        call_frame = get_call_frame(frame)
 
         self._context = AdapterContext(call_frame)
 
@@ -115,6 +133,7 @@ class SnapshotArgReference(SnapshotRefBase):
             self._value = UndecidedValue(value, None, self._context)
             self._default_value = ...
             self._name = "<unknown>"
+            self._arg_pos = None
             return
 
         assert isinstance(expr.node, Call)
@@ -179,10 +198,16 @@ class SnapshotArgReference(SnapshotRefBase):
                 )
 
         call_node = self._context.expr.node
+        if isinstance(call_node, (ast.With, ast.AsyncWith)):
+            if len(call_node.items) > 1:
+                raise UsageError("only one with context expression is allowed")
+            call_node = call_node.items[0].context_expr
+            self._context.expr.node = call_node
 
         self._node = None
 
         assert call_node is not None
+        self._arg_pos = arg_pos
 
         if arg_pos is not None and len(call_node.args) > arg_pos:
             self._node = call_node.args[arg_pos]
@@ -196,8 +221,7 @@ class SnapshotArgReference(SnapshotRefBase):
 
     @staticmethod
     def key_for(frame: FrameType):
-        call_frame = frame.f_back
-        assert call_frame
+        call_frame = get_call_frame(frame)
 
         return (
             id(call_frame.f_code),
@@ -233,15 +257,27 @@ class SnapshotArgReference(SnapshotRefBase):
 
             new_code = yield from with_flag(self._value._new_code(), "create")
 
-            yield CallArg(
-                flag="create",
-                file=self._value._file,
-                node=self._context.expr.node,
-                arg_pos=None,
-                arg_name=self._name,
-                new_code=new_code,
-                new_value=self._value._new_value,
-            )
+            if self._arg_pos == 0:
+                yield CallArg(
+                    flag="create",
+                    file=self._value._file,
+                    node=self._context.expr.node,
+                    arg_pos=0,
+                    arg_name=None,
+                    new_code=new_code,
+                    new_value=self._value._new_value,
+                )
+            else:
+
+                yield CallArg(
+                    flag="create",
+                    file=self._value._file,
+                    node=self._context.expr.node,
+                    arg_pos=None,
+                    arg_name=self._name,
+                    new_code=new_code,
+                    new_value=self._value._new_value,
+                )
         else:
             if is_default:
                 yield Delete("fix", self._value._file, self._node, None)
