@@ -103,7 +103,7 @@ snapshot(RF'')
 def test_a():
     return None
     """
-    ).run_pytest(returncode=0)
+    ).run_pytest()
 
 
 def test_format_command():

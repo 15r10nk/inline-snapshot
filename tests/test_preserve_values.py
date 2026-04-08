@@ -234,7 +234,9 @@ def test_a():
     # check that the flags are reported
     e1.run_inline(
         reported_categories=sorted(flags),
-        raises=snapshot("AssertionError") if "fix" in flags else snapshot(None),
+        raises=(
+            snapshot("AssertionError") if "fix" in flags else snapshot("<no exception>")
+        ),
     )
 
     for f in all_flags:

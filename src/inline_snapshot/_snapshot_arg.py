@@ -14,6 +14,7 @@ from inline_snapshot._change import CallArg
 from inline_snapshot._change import ChangeBase
 from inline_snapshot._change import Delete
 from inline_snapshot._customize._custom_undefined import CustomUndefined
+from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._generator_utils import with_flag
 from inline_snapshot._inline_snapshot import create_snapshot
@@ -279,10 +280,13 @@ class SnapshotArgReference(SnapshotRefBase):
                     new_value=self._value._new_value,
                 )
         else:
-            if is_default:
-                yield Delete("fix", self._value._file, self._node, None)
+            changes = list(self._value._get_changes())
+            if is_default and not isinstance(self._value._old_value, CustomUnmanaged):
+                yield Delete(
+                    "fix" if changes else "update", self._value._file, self._node, None
+                )
             else:
-                yield from self._value._get_changes()
+                yield from changes
 
     def _re_eval(self, obj, frame: FrameType):
         call_frame = _get_call_frame(frame)

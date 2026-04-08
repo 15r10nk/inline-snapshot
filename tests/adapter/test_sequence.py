@@ -29,7 +29,7 @@ def test_list():
 """
             }
         ),
-        raises=snapshot(None),
+        raises=snapshot("<no exception>"),
     )
 
 
@@ -58,7 +58,7 @@ def test_list():
 """
             }
         ),
-        raises=snapshot(None),
+        raises=snapshot("<no exception>"),
     )
 
 
@@ -77,7 +77,7 @@ def test_list():
 """
     ).run_inline(
         changed_files=snapshot({}),
-        raises=snapshot(None),
+        raises=snapshot("<no exception>"),
     )
 
 

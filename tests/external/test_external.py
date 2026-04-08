@@ -125,12 +125,9 @@ def test_a():
         .replace("False", "True")
     )
 
-    with raises(
-        snapshot(
-            "StorageLookupError: hash collision files=['a140c0c1eda2def2b830363ba362aa4d7d255c262960544821f556e16661b6ff.txt', 'a4e624d686e03ed2767c0abd85c14426b0b1157d2ce81d27bb4fe4f6f01d688a.txt']"
-        )
-    ):
-        e.run_inline()
+    e.run_inline(
+        raises="StorageLookupError: hash collision files=['a140c0c1eda2def2b830363ba362aa4d7d255c262960544821f556e16661b6ff.txt', 'a4e624d686e03ed2767c0abd85c14426b0b1157d2ce81d27bb4fe4f6f01d688a.txt']"
+    )
 
 
 def test_hash_not_found():
@@ -333,7 +330,7 @@ def test_a():
         .change_code(lambda code: code.split("# split")[0])
     )
 
-    e.run_pytest([], report=snapshot(""), returncode=0)
+    e.run_pytest([], report=snapshot(""))
 
     e.run_pytest(
         ["--inline-snapshot=trim"],
@@ -342,7 +339,6 @@ def test_a():
                 ".inline-snapshot/external/60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c752.txt": None
             }
         ),
-        returncode=0,
     )
 
 
@@ -593,7 +589,7 @@ def test_something():
         ),
         returncode=1,
     ).run_pytest(
-        [], changed_files=snapshot({}), returncode=0
+        [], changed_files=snapshot({})
     )
 
 

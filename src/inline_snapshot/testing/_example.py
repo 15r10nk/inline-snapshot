@@ -31,6 +31,7 @@ from .._global_state import leave_snapshot_context
 from .._global_state import state
 from .._types import Category
 from .._types import Snapshot
+from .._types import SnapshotArg
 from ..extra import _format_exception
 
 ansi_escape = re.compile(
@@ -317,8 +318,8 @@ class Example:
         reported_categories: Snapshot[list[Category]] | None = None,
         changed_files: Snapshot[dict[str, str]] | None = None,
         report: Snapshot[str] | None = None,
-        raises: Snapshot[str] | None = None,
-        stderr: Snapshot[str] | None = None,
+        raises: SnapshotArg[str] = "<no exception>",
+        stderr: SnapshotArg[str] = "",
     ) -> Example:
         """Execute the example files in process and run every `test_*`
         function.
@@ -383,6 +384,8 @@ class Example:
 
                 report_output = StringIO()
                 console = Console(file=report_output, width=80)
+
+                stderr_output = ""
 
                 try:
                     for cm in context_managers:
@@ -461,7 +464,7 @@ class Example:
                         raise UsageError("no test_*() functions in the example")
 
                 except StopTesting as e:
-                    assert stderr == f"ERROR: {e}\n"
+                    stderr_output = f"ERROR: {e}\n"
                 except TestingException as e:
                     traceback.print_exc()
                     raised_exception.append(e.exception)
@@ -480,20 +483,21 @@ class Example:
                     sys.path = old_path
                     leave_snapshot_context()
 
+            assert snapshot_arg(stderr) == stderr_output
+
             # make the assertions in the original context
 
             if reported_categories is not None:
                 assert sorted(snapshot_flags) == reported_categories
 
-            if raised_exception:
-                if raises is None:
-                    raise raised_exception[0]
+            raises = snapshot_arg(raises)
 
+            if raised_exception:
                 raises_text = "\n".join(_format_exception(e) for e in raised_exception)
                 raises_text = raises_text.replace(str(tmp_path), "<tmp>")
                 assert raises == raises_text
             else:
-                assert raises == None
+                assert raises == "<no exception>"
 
             if changed_files is not None:
                 assert changed_files == self._changed_files(tmp_path)
@@ -527,7 +531,7 @@ class Example:
         report: Snapshot[str] | None = None,
         error: Snapshot[str] | None = None,
         stderr: Snapshot[str] | None = None,
-        returncode: Snapshot[int] = 0,
+        returncode: SnapshotArg[int] = 0,
         stdin: bytes = b"",
         outcomes: Snapshot[dict[str, int]] | None = None,
     ) -> Example:

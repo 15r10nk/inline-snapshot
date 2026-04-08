@@ -256,7 +256,6 @@ def test_something():
 """
             }
         ),
-        returncode=0,
     )
 
 
@@ -444,7 +443,7 @@ def test_something():
 """
             }
         ),
-        raises=snapshot(None),
+        raises=snapshot("<no exception>"),
     )
 
 

@@ -135,7 +135,6 @@ You can also use --inline-snapshot=review to approve the changes interactively\
             if is_pytest_compatible()
             else snapshot("")
         ),
-        returncode=0,
     ).run_pytest(
         ["--inline-snapshot=update"],
         report=snapshot(
@@ -183,7 +182,6 @@ Info: one snapshot can be trimmed (--inline-snapshot=trim)
 You can also use --inline-snapshot=review to approve the changes interactively\
 """
         ),
-        returncode=0,
     ).run_pytest(
         ["--inline-snapshot=trim"],
         report=snapshot(
@@ -470,9 +468,7 @@ def test_a():
 """
     )
 
-    e.run_pytest(
-        ["--inline-snapshot=disable"], outcomes=snapshot({"passed": 1}), returncode=0
-    )
+    e.run_pytest(["--inline-snapshot=disable"], outcomes=snapshot({"passed": 1}))
 
 
 def test_compare():
@@ -898,9 +894,9 @@ def test_outsource():
         ),
         returncode=1,
     ).run_pytest(
-        ["--inline-snapshot=disable"], returncode=0, changed_files=snapshot({})
+        ["--inline-snapshot=disable"], changed_files=snapshot({})
     ).run_pytest(
-        ["--inline-snapshot=fix"], returncode=0, changed_files=snapshot({})
+        ["--inline-snapshot=fix"], changed_files=snapshot({})
     )
 
     # assert result.ret == 0

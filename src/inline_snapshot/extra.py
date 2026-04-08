@@ -20,7 +20,7 @@ from typing import Union
 from inline_snapshot._code_repr import code_repr
 
 from ._snapshot_arg import snapshot_arg
-from ._types import Snapshot
+from ._types import SnapshotArg
 from ._unmanaged import declare_unmanaged
 
 
@@ -35,7 +35,7 @@ def _format_exception(ex):
 
 
 @contextlib.contextmanager
-def raises(exception: Snapshot[str] = ..., /):
+def raises(exception: SnapshotArg[str] = ..., /):
     """Check that an exception is raised.
 
     Parameters:
@@ -78,7 +78,7 @@ def raises(exception: Snapshot[str] = ..., /):
 
 
 @contextlib.contextmanager
-def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
+def prints(*, stdout: SnapshotArg[str] = "", stderr: SnapshotArg[str] = ""):
     """Uses `contextlib.redirect_stderr/stdout` to capture the output and
     compare it with the snapshots. `dirty_equals.IsStr` can be used to ignore
     the output if needed.
@@ -150,7 +150,7 @@ Warning = Union[str, Tuple[int, str], Tuple[str, str], Tuple[str, int, str]]
 
 @contextlib.contextmanager
 def warns(
-    expected_warnings: Snapshot[List[Warning]] = ...,
+    expected_warnings: SnapshotArg[List[Warning]] = ...,
     /,
     include_line: bool = False,
     include_file: bool = False,
@@ -312,7 +312,10 @@ class Transformed:
     """
 
     def __init__(
-        self, func: Callable[[Any], Any], value: Snapshot, should_be: Any = None
+        self,
+        func: Callable[[Any], Any],
+        value: SnapshotArg = ...,
+        should_be: Any = None,
     ) -> None:
         """
         Arguments:
@@ -329,10 +332,15 @@ class Transformed:
         return self._last_transformed_value == self._value
 
     def __repr__(self):
+        try:
+            code = code_repr(self._func)
+        except Exception as e:
+            code = f"<exception {e}>"
+
         if self._last_transformed_value == self._value:
-            return f"Transformed({code_repr(self._func)}, {self._value})"
+            return f"Transformed({code}, {self._value})"
         else:
-            return f"Transformed({code_repr(self._func)}, {self._value}, should_be={self._last_transformed_value!r})"
+            return f"Transformed({code}, {self._value}, should_be={self._last_transformed_value!r})"
 
 
 def transformation(func):
