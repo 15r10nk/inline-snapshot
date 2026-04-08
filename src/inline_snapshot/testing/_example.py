@@ -23,6 +23,7 @@ from unittest.mock import patch
 from rich.console import Console
 
 from inline_snapshot._exceptions import UsageError
+from inline_snapshot._snapshot_arg import snapshot_arg
 from inline_snapshot._snapshot_session import SnapshotSession
 
 from .._global_state import enter_snapshot_context
@@ -581,15 +582,13 @@ class Example:
             result_stdout = result.stdout.decode("utf-8")
             result_stderr = result.stderr.decode("utf-8")
 
-            result_returncode = result.returncode
-
             print("run>", *cmd)
             print("stdout:")
             print(result_stdout)
             print("stderr:")
             print(result_stderr)
 
-            assert result.returncode == returncode
+            assert result.returncode == snapshot_arg(returncode)
 
             if stderr is not None:
 

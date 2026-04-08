@@ -23,8 +23,11 @@ from inline_snapshot._types import Snapshot
 from inline_snapshot._types import SnapshotRefBase
 
 
-class NoDefault:
+class _NoDefault:
     pass
+
+
+NoDefault = _NoDefault()
 
 
 def snapshot_arg(obj) -> Snapshot:
@@ -45,7 +48,7 @@ def snapshot_arg(obj) -> Snapshot:
     Example:
         <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
         ``` python
-        from inline_snapshot._snapshot_arg import snapshot_arg
+        from inline_snapshot import snapshot_arg
 
 
         def get_stats(numbers, expected_sum=..., expected_max=..., expected_min=...):
@@ -62,7 +65,7 @@ def snapshot_arg(obj) -> Snapshot:
 
         <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
         ``` python hl_lines="11"
-        from inline_snapshot._snapshot_arg import snapshot_arg
+        from inline_snapshot import snapshot_arg
 
 
         def get_stats(numbers, expected_sum=..., expected_max=..., expected_min=...):
@@ -77,18 +80,13 @@ def snapshot_arg(obj) -> Snapshot:
 
     """
 
-    # if not (
-    #     state().active and (state().update_flags.fix or state().update_flags.create)
-    # ):
-    #     return obj
-
     if isinstance(obj, GenericValue):
         return obj
 
     return create_snapshot(SnapshotArgReference, obj)
 
 
-def get_call_frame(frame):
+def _get_call_frame(frame):
     call_frame = frame.f_back
     assert call_frame
 
@@ -102,7 +100,6 @@ def get_call_frame(frame):
         call_frame = call_frame.f_back
         assert call_frame
 
-    print(get_origin())
     return call_frame
 
 
@@ -111,6 +108,7 @@ class SnapshotArgReference(SnapshotRefBase):
     _name: str
     _value: GenericValue
     _default_value: Any
+    _arg_pos: Optional[int]
 
     def __init__(self, value, frame: FrameType):
 
@@ -120,7 +118,7 @@ class SnapshotArgReference(SnapshotRefBase):
                     "snapshot_arg() can only be called with function argument of the calling function as argument"
                 )
 
-        call_frame = get_call_frame(frame)
+        call_frame = _get_call_frame(frame)
 
         self._context = AdapterContext(call_frame)
 
@@ -187,7 +185,7 @@ class SnapshotArgReference(SnapshotRefBase):
                 )
 
         if default is None:
-            self._default_value = NoDefault()
+            self._default_value = NoDefault
         else:
             try:
                 self._default_value = ast.literal_eval(default)
@@ -221,7 +219,7 @@ class SnapshotArgReference(SnapshotRefBase):
 
     @staticmethod
     def key_for(frame: FrameType):
-        call_frame = get_call_frame(frame)
+        call_frame = _get_call_frame(frame)
 
         return (
             id(call_frame.f_code),
@@ -242,7 +240,7 @@ class SnapshotArgReference(SnapshotRefBase):
         new_value = self._value._new_value
         is_default = (
             not isinstance(new_value, CustomUndefined)
-            and not isinstance(self._default_value, NoDefault)
+            and self._default_value is not NoDefault
             and self._default_value is not ...
             and new_value._eval() == self._default_value
         )
@@ -257,6 +255,8 @@ class SnapshotArgReference(SnapshotRefBase):
 
             new_code = yield from with_flag(self._value._new_code(), "create")
 
+            # The first positional argument can be inserted positionally;
+            # any later position requires keyword form to avoid leaving gaps.
             if self._arg_pos == 0:
                 yield CallArg(
                     flag="create",
@@ -285,6 +285,5 @@ class SnapshotArgReference(SnapshotRefBase):
                 yield from self._value._get_changes()
 
     def _re_eval(self, obj, frame: FrameType):
-        call_frame = frame.f_back
-        assert call_frame
+        call_frame = _get_call_frame(frame)
         self._value._re_eval(obj, AdapterContext(call_frame))
