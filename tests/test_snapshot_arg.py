@@ -1,5 +1,7 @@
 """Tests for snapshot_arg() covering previously uncovered code paths."""
 
+import sys
+
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
 from tests.conftest import no_executing_context
@@ -384,13 +386,87 @@ def test_a():
 FAIL: some snapshots in this test have incorrect values.
 If you just created this value with --inline-snapshot=create, the value is now \n\
 created and you can ignore this message.
-
-
-═══════════════════════════════ inline-snapshot ════════════════════════════════
-Error: one snapshot is missing a value (--inline-snapshot=create)
-
-You can also use --inline-snapshot=review to approve the changes interactively
 """
         ),
         raises=snapshot("AssertionError"),
     )
+
+
+def test_context_manager():
+    """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
+    e = Example(
+        """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+from contextlib import contextmanager
+
+@contextmanager
+def manager(*,expected=...,other=...):
+    assert 5 == snapshot_arg(expected)
+    yield
+    assert 5 == snapshot_arg(other)
+
+def test_a():
+    with manager():
+        pass
+"""
+    )
+    if sys.version_info < (3, 11):
+        e.run_inline(
+            ["--inline-snapshot=create"],
+            changed_files=snapshot({}),
+            raises="RuntimeError: I did not found the calling code (context managers are not supported on cpython <3.11)",
+        )
+    else:
+        e.run_inline(
+            ["--inline-snapshot=create"],
+            changed_files=snapshot(
+                {
+                    "tests/test_something.py": """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+from contextlib import contextmanager
+
+@contextmanager
+def manager(*,expected=...,other=...):
+    assert 5 == snapshot_arg(expected)
+    yield
+    assert 5 == snapshot_arg(other)
+
+def test_a():
+    with manager(expected=5, other=5):
+        pass
+"""
+                }
+            ),
+        )
+
+
+def test_multiple_context_managers():
+    """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
+    e = Example(
+        """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+from contextlib import contextmanager
+
+@contextmanager
+def manager(*,expected=...,other=...):
+    assert 5 == snapshot_arg(expected)
+    yield
+    assert 5 == snapshot_arg(other)
+
+def test_a():
+    with manager(), manager():
+        pass
+"""
+    )
+    if sys.version_info < (3, 11):
+        e.run_inline(
+            ["--inline-snapshot=create"],
+            changed_files=snapshot({}),
+            raises="RuntimeError: I did not found the calling code (context managers are not supported on cpython <3.11)",
+        )
+    else:
+        e.run_inline(
+            ["--inline-snapshot=create"],
+            changed_files=snapshot({}),
+            raises="UsageError: only one with context expression is allowed",
+        )

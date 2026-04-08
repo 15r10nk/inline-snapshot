@@ -334,7 +334,7 @@ class Transformed:
     def __repr__(self):
         try:
             code = code_repr(self._func)
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             code = f"<exception {e}>"
 
         if self._last_transformed_value == self._value:
