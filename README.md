@@ -43,11 +43,13 @@ pip install inline-snapshot
     [`x <= snapshot(...)`](https://15r10nk.github.io/inline-snapshot/latest/cmp_snapshot/),
     [`x in snapshot(...)`](https://15r10nk.github.io/inline-snapshot/latest/in_snapshot/), and
     [`snapshot(...)[key]`](https://15r10nk.github.io/inline-snapshot/latest/getitem_snapshot/).
+- **No CLI arguments required:** you will get an nice report where you can review the snapshot changes when you run pytest (only for cpython > 3.11, you have to use --inline-snapshot=review on older versions).
 - **Enhanced Control Flags:** Utilize various [flags](https://15r10nk.github.io/inline-snapshot/latest/pytest/) for precise control of which snapshots you want to change.
-- **Preserved Black Formatting:** Retains formatting consistency with Black formatting.
-- **External File Storage:** Store snapshots externally using `outsource(data)`.
+- **Preserved Formatting:** Retains formatting consistency with Black formatting or a custom [format-command](https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command).
+- **External File Storage:** Store snapshots externally using `external("uuid:eb1167b3-67a9-4378-bc65-c1e582e2e662.json")` with support for custom file formats.
 - **Seamless Pytest Integration:** Integrated seamlessly with pytest for effortless testing.
-- **Customizable:** code generation can be customized with [@customize_repr](https://15r10nk.github.io/inline-snapshot/latest/customize_repr)
+- **Integration into normal functions:** use [`snapshot_arg()`](https://15r10nk.github.io/inline-snapshot/latest/snapshot_arg) to convert the arguments of your function into snapshots.
+- **Customizable:** code generation can be customized with [@customize](https://15r10nk.github.io/inline-snapshot/latest/plugin/#inline_snapshot.plugin.InlineSnapshotPluginSpec.customize)
 - **Nested Snapshot Support:** snapshots can contain [other snapshots](https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#inner-snapshots)
 - **Fuzzy Matching:** Incorporate [dirty-equals](https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#dirty-equals) for flexible comparisons within snapshots.
 - **Dynamic Snapshot Content:** snapshots can contain [non-constant values](https://15r10nk.github.io/inline-snapshot/latest/eq_snapshot/#is)
@@ -131,44 +133,31 @@ strings\
 ```
 
 
-`snapshot()` can also be used as parameter for functions:
+`snapshot_arg()` can also be used for function parameters:
 
 <!-- inline-snapshot: create fix trim first_block outcome-passed=1 -->
 ``` python
 import subprocess as sp
 import sys
-from inline_snapshot import snapshot
+from inline_snapshot import snapshot_arg
 
 
-def run_python(cmd, stdout=None, stderr=None):
+def run_python(cmd, stdout="", stderr=""):
     result = sp.run([sys.executable, "-c", cmd], capture_output=True)
-    if stdout is not None:
-        assert result.stdout.decode() == stdout
-    if stderr is not None:
-        assert result.stderr.decode() == stderr
+    assert result.stdout.decode() == snapshot_arg(stdout)
+    assert result.stderr.decode() == snapshot_arg(stderr)
 
 
 def test_cmd():
-    run_python(
-        "print('hello world')",
-        stdout=snapshot(
-            """\
-hello world
-"""
-        ),
-        stderr=snapshot(""),
-    )
+    run_python("print('hello world')", stdout="hello world\n")
 
     run_python(
         "1/0",
-        stdout=snapshot(""),
-        stderr=snapshot(
-            """\
+        stderr="""\
 Traceback (most recent call last):
   File "<string>", line 1, in <module>
 ZeroDivisionError: division by zero
-"""
-        ),
+""",
     )
 ```
 
