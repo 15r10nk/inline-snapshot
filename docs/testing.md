@@ -114,7 +114,7 @@ def test_a():
 
 You can also use the same example multiple times and call different methods on it.
 
-<!-- inline-snapshot: create fix first_block outcome-failed=1 -->
+<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
@@ -133,7 +133,7 @@ def test_a():
         }
     )
     e.run_inline(  # run without flags
-        reported_categories=snapshot(["create", "fix"]),
+        reported_categories=snapshot(["create", "fix"]), raises="AssertionError"
     )
 
     e.run_pytest(
@@ -141,6 +141,7 @@ def test_a():
         changed_files=snapshot({}),
         report=snapshot(
             """\
+Error: one snapshot has incorrect values (--inline-snapshot=fix)
 Error: one snapshot is missing a value (--inline-snapshot=create)
 You can also use --inline-snapshot=review to approve the changes interactively\
 """
@@ -155,6 +156,7 @@ You can also use --inline-snapshot=review to approve the changes interactively\
 from inline_snapshot import snapshot
 def test_a():
     assert 1+1 == snapshot(2)
+    assert 1+5 == snapshot(2)
 """
             }
         ),

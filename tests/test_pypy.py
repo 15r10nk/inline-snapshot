@@ -3,6 +3,7 @@ import sys
 import pytest
 
 from inline_snapshot import snapshot
+from inline_snapshot._is import Is
 from inline_snapshot.testing import Example
 
 
@@ -46,5 +47,5 @@ def test_example():
 
     """
     ).run_pytest(["--inline-snapshot=fix"], report=report, returncode=1).run_pytest(
-        ["--inline-snapshot=disable"], report="", returncode=1 if no_cpython else 0
+        ["--inline-snapshot=disable"], report="", returncode=Is(1 if no_cpython else 0)
     )

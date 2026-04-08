@@ -84,5 +84,13 @@ class Snapshot(Protocol[T]):
     def __eq__(self, other: object, /) -> bool: ...  # pragma: no cover
 
 
+class SnapshotArg(Protocol[T]):
+    """
+    Like Snapshot[T] but should be used for arguments which are used with `snapshot_arg`.
+    """
+
+    def __eq__(self, other: object, /) -> bool: ...  # pragma: no cover
+
+
 Category = Literal["update", "fix", "create", "trim", "fix-assert"]
 """See [categories](categories.md)"""

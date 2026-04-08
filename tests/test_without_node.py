@@ -66,5 +66,5 @@ def test_something():
 """
     ).run_inline(
         changed_files=snapshot({}),
-        raises=snapshot(None),
+        raises=snapshot("<no exception>"),
     )

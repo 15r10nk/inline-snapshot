@@ -23,6 +23,7 @@ from inline_snapshot._external._external_file import external_file
 from inline_snapshot._flags import Flags
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._unmanaged import declare_unmanaged
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
 from inline_snapshot.version import is_insider
@@ -280,6 +281,7 @@ def test_docs(file):
 T = TypeVar("T")
 
 
+@declare_unmanaged
 class Store(Generic[T]):
     value: T
 
@@ -466,7 +468,7 @@ uuid.uuid4=f
                 assert False, "no lines changed"
 
         if "first_block" not in options:
-            new_code = re.sub(r"# *\(\d+\)\!?", "", new_code)
+            new_code = re.sub(r" *# *\(\d+\)\!?", "", new_code)
 
         block.code = new_code
 

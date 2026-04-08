@@ -154,10 +154,8 @@ def test_thing():
             }
         ),
     ).run_pytest(
-        ["--inline-snapshot=disable"], returncode=0
-    ).run_pytest(
-        returncode=0
-    )
+        ["--inline-snapshot=disable"]
+    ).run_pytest()
 
 
 def test_hasrepr_type():

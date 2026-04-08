@@ -1,9 +1,9 @@
 import contextlib
 import itertools
+import re
 import textwrap
 import warnings
 from collections import namedtuple
-from contextlib import nullcontext
 from dataclasses import dataclass
 from typing import Union
 
@@ -15,6 +15,7 @@ from inline_snapshot._flags import Flags
 from inline_snapshot._format import format_code
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot._is import Is
+from inline_snapshot.extra import Transformed
 from inline_snapshot.testing import Example
 from tests.conftest import check_update
 
@@ -619,20 +620,23 @@ def test_type_error():
     tests = ["5 == s", "5 <= s", "5 >= s", "5 in s", "5 == s[0]"]
 
     for test1, test2 in itertools.product(tests, tests):
-        with pytest.raises(TypeError) if test1 != test2 else nullcontext() as error:
-            check_update(
-                f"""\
+        check_update(
+            f"""\
 s = snapshot()
 assert {test1}
 assert {test2}\
 """,
-                reported_flags={"create"},
-                expected_code=AnyThing(),
-            )
-        if error is not None:
-            assert "This snapshot cannot be use with" in str(error.value)
-        else:
-            assert test1 == test2
+            reported_flags={"create"},
+            expected_code=AnyThing(),
+            raises=(
+                snapshot("<no exception>")
+                if test1 == test2
+                else Transformed(
+                    lambda s: re.sub(r"`[^`]+`", "`...`", s),
+                    value="TypeError: This snapshot cannot be use with `...`, because it was previously used with `...`",
+                )
+            ),
+        )
 
 
 def test_sub_snapshot_create():
@@ -871,9 +875,7 @@ These changes will be applied, because you used create\
         ),
         returncode=1,
     ).run_pytest(
-        ["--inline-snapshot=report"],
-        report=snapshot(""),
-        returncode=0,
+        ["--inline-snapshot=report"], report=snapshot("")
     )
 
 

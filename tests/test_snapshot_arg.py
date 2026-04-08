@@ -67,7 +67,7 @@ def test_a():
     check_value(8,8)
 """
     ).run_inline(
-        ["--inline-snapshot=fix,create"],
+        ["--inline-snapshot=fix,create,update"],
         changed_files=snapshot(
             {
                 "tests/test_something.py": """\
@@ -101,7 +101,7 @@ def test_a():
     check_value(8,expected=8)
 """
     ).run_inline(
-        ["--inline-snapshot=fix,create"],
+        ["--inline-snapshot=fix,create,update"],
         changed_files=snapshot(
             {
                 "tests/test_something.py": """\

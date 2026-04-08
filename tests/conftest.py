@@ -30,7 +30,12 @@ def check_pypy(request):
 
 
 def check_update(
-    source_code, *, flags="", reported_flags=None, expected_code=..., raises=None
+    source_code,
+    *,
+    flags="",
+    reported_flags=None,
+    expected_code=...,
+    raises="<no exception>",
 ):
     e = Example(
         {
