@@ -205,7 +205,11 @@ class SnapshotArgReference(SnapshotRefBase):
 
         self._node = None
 
-        assert call_node is not None
+        if call_node is None:
+            raise RuntimeError(
+                "I did not found the calling code (context managers are not supported on cpython <3.11)"
+            )
+
         self._arg_pos = arg_pos
 
         if arg_pos is not None and len(call_node.args) > arg_pos:
@@ -247,6 +251,12 @@ class SnapshotArgReference(SnapshotRefBase):
         )
 
         if self._node is None:
+
+            if self._name == "<unknown>":
+                # executing could not locate the call site (e.g. Python ≤ 3.10
+                # inside run_inline); we have no AST node and no arg name, so
+                # we cannot generate a meaningful change.
+                return
 
             if isinstance(self._value._new_value, CustomUndefined):
                 return
