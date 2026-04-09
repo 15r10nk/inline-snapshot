@@ -7,7 +7,7 @@ from inline_snapshot.testing._example import Example
 
 @pytest.mark.skipif(
     not is_pytest_compatible(),
-    reason="pytest assert rewriting and report can not be used at the same time",
+    reason="pytest assert rewriting and report cannot be used at the same time",
 )
 def test_pytest_diff_fix():
 

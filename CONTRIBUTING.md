@@ -19,7 +19,7 @@ The goal here is to find different edge cases which might have bugs.
 
 However, it is possible to exclude some code from the coverage.
 
-Code can be marked with `pragma: no cover`, if it can not be tested for some reason.
+Code can be marked with `pragma: no cover`, if it cannot be tested for some reason.
 This makes it easy to spot uncovered code in the source.
 
 Impossible conditions can be handled with `assert False`.

@@ -74,7 +74,7 @@ class AstToCustom:
 
 class ValueToCustom:
     """this implementation is for cpython <= 3.10 only.
-    It works similar to AstToCustom but can not handle calls
+    It works similar to AstToCustom but cannot handle calls
     """
 
     context: AdapterContext

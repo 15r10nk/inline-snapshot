@@ -149,7 +149,7 @@ class External(ExternalBase):
 
         if not location.stem:
             raise UsageError(
-                f"can not load external object from an non existing location {location.to_str()!r}"
+                f"cannot load external object from a non-existing location {location.to_str()!r}"
             )
         storage = state().all_storages[location.storage]
 

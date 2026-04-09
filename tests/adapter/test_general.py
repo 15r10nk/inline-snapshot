@@ -63,7 +63,7 @@ def test_thing():
         raises=snapshot(
             """\
 UsageError:
-unmanaged values can not be compared with snapshots\
+unmanaged values cannot be compared with snapshots\
 """
         ),
     )

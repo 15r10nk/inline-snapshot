@@ -57,12 +57,12 @@ class ExternalBase:
 
         elif isinstance(other, ExternalBase):
             raise UsageError(
-                f"you can not compare {external_type}(...) with {external_type}(...)"
+                f"you cannot compare {external_type}(...) with {external_type}(...)"
             )
 
         elif isinstance(other, GenericValue):
             raise UsageError(
-                f"you can not compare {external_type}(...) with snapshot(...)"
+                f"you cannot compare {external_type}(...) with snapshot(...)"
             )
 
         first_comparison = not self._was_compared

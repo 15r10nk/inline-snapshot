@@ -151,7 +151,7 @@ class NewAdapter:
             return old_value
 
         if isinstance(new_value, CustomUnmanaged):
-            raise UsageError("unmanaged values can not be compared with snapshots")
+            raise UsageError("unmanaged values cannot be compared with snapshots")
 
         if (
             type(old_value) is type(new_value)

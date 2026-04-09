@@ -68,5 +68,5 @@ class CustomCall(Custom):
         except Exception as e:
             call_args = args + [f"{k}={v}" for k, v in kwargs.items()]
             raise TypeError(
-                f"can not call {self.function}({', '.join(map(str,call_args))})"
+                f"cannot call {self.function}({', '.join(map(str,call_args))})"
             ) from e

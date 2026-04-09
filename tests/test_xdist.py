@@ -15,7 +15,7 @@ def test_a():
     result = project.run("--inline-snapshot=create", "-n=auto")
 
     assert "\n".join(result.stderr.lines).strip() == snapshot(
-        "ERROR: --inline-snapshot=create can not be combined with xdist"
+        "ERROR: --inline-snapshot=create cannot be combined with xdist"
     )
 
     assert result.ret == 4
@@ -66,7 +66,7 @@ def test_a():
     assert result.report == snapshot("")
 
     assert result.stderr.lines == snapshot(
-        ["ERROR: --inline-snapshot=fix can not be combined with xdist", ""]
+        ["ERROR: --inline-snapshot=fix cannot be combined with xdist", ""]
     )
 
     assert result.ret == 4

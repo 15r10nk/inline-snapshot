@@ -40,7 +40,7 @@ class ExternalFile(ExternalBase, SnapshotRefBase):
             return self._format.decode(self._filename)
         except FileNotFoundError:
             raise StorageLookupError(
-                f"can not read {self._filename}", files=[self._filename]
+                f"cannot read {self._filename}", files=[self._filename]
             )
 
 

@@ -118,9 +118,7 @@ def value_code_repr(obj):
     if not type(obj) == type(obj):  # pragma: no cover
         # this was caused by https://github.com/samuelcolvin/dirty-equals/issues/104
         # dispatch will not work in cases like this
-        return (
-            f"HasRepr({repr(type(obj))}, '< type(obj) can not be compared with == >')"
-        )
+        return f"HasRepr({repr(type(obj))}, '< type(obj) cannot be compared with == >')"
 
     result = code_repr_dispatch(obj)
 
