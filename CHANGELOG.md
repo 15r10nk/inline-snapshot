@@ -15,7 +15,7 @@
 
 ## Fixed
 
-- Fixed `UsageError("unmanaged values can not be compared with snapshots")` raised during session teardown when using `-k` to filter tests ([#355](https://github.com/15r10nk/inline-snapshot/issues/355)). This was caused by inline-snapshot trying to update snapshots that were never compared. This is a rare edge case that caused problems when matchers were used, so it has been removed.
+- Fixed `UsageError("unmanaged values cannot be compared with snapshots")` raised during session teardown when using `-k` to filter tests ([#355](https://github.com/15r10nk/inline-snapshot/issues/355)). This was caused by inline-snapshot trying to update snapshots that were never compared. This is a rare edge case that caused problems when matchers were used, so it has been removed.
 
 <a id='changelog-0.32.3'></a>
 # 0.32.3 — 2026-02-24
@@ -740,7 +740,7 @@
 
 ## Removed
 
-- removed the `"Programming Language :: Python :: Implementation :: PyPy"` classifier which was incorrect, because inline-snapshot can not fix snapshots on pypy.
+- removed the `"Programming Language :: Python :: Implementation :: PyPy"` classifier which was incorrect, because inline-snapshot cannot fix snapshots on pypy.
   inline-snapshot now enforces `--inline-snapshot=disable` when used with an implementation other than cpython, which allows it to be used in packages that want to support pypy.
 
 ## Added

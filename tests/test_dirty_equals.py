@@ -1,10 +1,7 @@
-import pytest
-
 from inline_snapshot._inline_snapshot import snapshot
 from inline_snapshot.testing._example import Example
 
 
-@pytest.mark.xfail
 def test_dirty_equals_repr():
     Example(
         """\
@@ -20,13 +17,12 @@ def test_something():
         raises=snapshot(
             """\
 UsageError:
-inline-snapshot uses `copy.deepcopy` to copy objects,
-but the copied object is not equal to the original one:
+Customized value does not match original value:
 
-original: [HasRepr(IsStr, '< type(obj) can not be compared with == >')]
-copied:   [HasRepr(IsStr, '< type(obj) can not be compared with == >')]
+original_value=IsStr()
 
-Please fix the way your object is copied or your __eq__ implementation.
+customized_value=IsStr()
+customized_representation=CustomCall(function=CustomCode('IsStr'), args=[], kwargs={})
 """
         ),
     )

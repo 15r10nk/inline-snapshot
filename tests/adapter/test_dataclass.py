@@ -1,3 +1,7 @@
+import sys
+
+import pytest
+
 from inline_snapshot import snapshot
 from inline_snapshot.extra import warns
 from inline_snapshot.testing._example import Example
@@ -772,3 +776,93 @@ def test_A():
             }
         ),
     )
+
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 10),
+    reason="NewType is a function in 3.9 and cannot be checked with isinstance or serialized to code",
+)
+def test_dataclass_newtype():
+    Example(
+        """\
+from dataclasses import dataclass
+from typing import NewType
+from inline_snapshot import snapshot
+
+SomeID = NewType("SomeID", int)
+
+@dataclass
+class Something:
+    some_id: SomeID
+
+def test_something():
+    a = Something(some_id=SomeID(1))
+    assert a == snapshot()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from dataclasses import dataclass
+from typing import NewType
+from inline_snapshot import snapshot
+
+SomeID = NewType("SomeID", int)
+
+@dataclass
+class Something:
+    some_id: SomeID
+
+def test_something():
+    a = Something(some_id=SomeID(1))
+    assert a == snapshot(Something(some_id=SomeID(1)))
+"""
+            }
+        ),
+    ).run_inline()
+
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 10),
+    reason="NewType is a function in 3.9 and cannot be checked with isinstance or serialized to code",
+)
+def test_attrs_newtype():
+    Example(
+        """\
+import attrs
+from typing import NewType
+from inline_snapshot import snapshot
+
+SomeID = NewType("SomeID", int)
+
+@attrs.define
+class Something:
+    some_id: SomeID
+
+def test_something():
+    a = Something(some_id=SomeID(1))
+    assert a == snapshot()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+import attrs
+from typing import NewType
+from inline_snapshot import snapshot
+
+SomeID = NewType("SomeID", int)
+
+@attrs.define
+class Something:
+    some_id: SomeID
+
+def test_something():
+    a = Something(some_id=SomeID(1))
+    assert a == snapshot(Something(some_id=SomeID(1)))
+"""
+            }
+        ),
+    ).run_inline()

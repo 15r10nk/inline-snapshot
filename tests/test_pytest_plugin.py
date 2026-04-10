@@ -286,12 +286,12 @@ def test_a():
 
     result = project.run("--inline-snapshot=disable,fix")
     assert result.stderr.str().strip() == snapshot(
-        "ERROR: --inline-snapshot=disable can not be combined with other flags (fix)"
+        "ERROR: --inline-snapshot=disable cannot be combined with other flags (fix)"
     )
 
     result = project.run("--inline-snapshot=disable,review")
     assert result.stderr.str().strip() == snapshot(
-        "ERROR: --inline-snapshot=disable can not be combined with other flags (review)"
+        "ERROR: --inline-snapshot=disable cannot be combined with other flags (review)"
     )
 
 

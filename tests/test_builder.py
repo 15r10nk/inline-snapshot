@@ -28,7 +28,7 @@ def test_a():
         raises=snapshot(
             """\
 UsageError:
-default value can not be an Custom value\
+default value cannot be a Custom value\
 """
         ),
     )

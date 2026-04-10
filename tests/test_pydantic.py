@@ -1,3 +1,5 @@
+import sys
+
 import pydantic
 import pytest
 
@@ -23,7 +25,7 @@ def test_pydantic():
     assert m.dict()==snapshot()
 
     """
-    ).run_pytest(
+    ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
@@ -46,8 +48,7 @@ def test_pydantic():
 """
             }
         ),
-        returncode=1,
-    ).run_pytest(
+    ).run_inline(
         ["--inline-snapshot=disable"]
     )
 
@@ -66,7 +67,7 @@ class container(BaseModel):
 def test():
     assert container(a=1,b=5) == snapshot()
 """
-    ).run_pytest(
+    ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
@@ -83,8 +84,7 @@ def test():
 """
             }
         ),
-        returncode=1,
-    ).run_pytest(
+    ).run_inline(
         ["--inline-snapshot=disable"]
     )
 
@@ -104,7 +104,7 @@ class A(BaseModel):
 def test_something():
     assert A(a=1) == snapshot(A(a=1,b=2,c=[]))
 """
-    ).run_pytest(
+    ).run_inline(
         ["--inline-snapshot=update"],
         changed_files=snapshot(
             {
@@ -139,7 +139,7 @@ def test_something():
     for _ in [1,2]:
         assert A(a=1) == snapshot(A(a=1))
 """
-    ).run_pytest(
+    ).run_inline(
         changed_files=snapshot({}),
     )
 
@@ -161,7 +161,7 @@ def test_something():
     for a in [1,2]:
         assert A(a=2) == snapshot(A.from_str("1"))
 """
-    ).run_pytest(
+    ).run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
@@ -182,13 +182,104 @@ def test_something():
 """
             }
         ),
-        returncode=1,
     )
 
 
 @pytest.mark.skipif(
+    sys.version_info < (3, 10),
+    reason="NewType is a function in 3.9 and cannot be checked with isinstance or serialized to code",
+)
+def test_pydantic_newtype():
+    Example(
+        """\
+from typing import NewType
+from pydantic import BaseModel
+from inline_snapshot import snapshot
+
+
+def test_something():
+    SomeID = NewType("SomeID", int)
+
+    class Something(BaseModel):
+        some_id: SomeID
+    a = Something(some_id=SomeID(1))
+    assert a == snapshot()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from typing import NewType
+from pydantic import BaseModel
+from inline_snapshot import snapshot
+
+
+def test_something():
+    SomeID = NewType("SomeID", int)
+
+    class Something(BaseModel):
+        some_id: SomeID
+    a = Something(some_id=SomeID(1))
+    assert a == snapshot(Something(some_id=SomeID(1)))
+"""
+            }
+        ),
+    ).run_inline()
+
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 10),
+    reason="NewType is a function in 3.9 and cannot be checked with isinstance or serialized to code",
+)
+def test_pydantic_newtype_import():
+    Example(
+        {
+            "some_id.py": """\
+from typing import NewType
+from pydantic import BaseModel
+from inline_snapshot import snapshot
+
+SomeID = NewType("SomeID", int)
+
+class Something(BaseModel):
+    some_id1: SomeID
+    some_id2: SomeID=SomeID(5)
+
+
+def create():
+    return Something(some_id1=SomeID(1),some_id2=SomeID(5))
+                """,
+            "test_something.py": """\
+from inline_snapshot import snapshot
+from some_id import create
+
+def test_something():
+    assert create() == snapshot()
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "test_something.py": """\
+from inline_snapshot import snapshot
+from some_id import create
+
+from some_id import SomeID
+from some_id import Something
+
+def test_something():
+    assert create() == snapshot(Something(some_id1=SomeID(1)))
+"""
+            }
+        ),
+    ).run_inline()
+
+
+@pytest.mark.skipif(
     pydantic.version.VERSION.startswith("1."),
-    reason="pydantic 1 can not compare C[int]() with C()",
+    reason="pydantic 1 cannot compare C[int]() with C()",
 )
 def test_pydantic_generic_class():
     Example(

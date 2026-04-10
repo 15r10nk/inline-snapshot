@@ -329,7 +329,7 @@ class SnapshotSession:
             flags = cli_flags
             if parallel_run and flags - {"disable"}:
                 error(
-                    f"--inline-snapshot={','.join(flags)} can not be combined with xdist"
+                    f"--inline-snapshot={','.join(flags)} cannot be combined with xdist"
                 )
 
         state().flags = flags
@@ -346,10 +346,10 @@ class SnapshotSession:
 
         if "disable" in flags and flags != {"disable"}:
             error(
-                f"--inline-snapshot=disable can not be combined with other flags ({', '.join(flags-{'disable'})})"
+                f"--inline-snapshot=disable cannot be combined with other flags ({', '.join(flags-{'disable'})})"
             )
 
-        # disable inline-snapshot if it can not be used in the current context
+        # disable inline-snapshot if it cannot be used in the current context
         if parallel_run and "disable" not in flags:
             state().active = False
             state().disable_reason = "xdist"

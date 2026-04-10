@@ -732,7 +732,7 @@ def test_a():
         error=snapshot(
             """\
 >       assert "hi" == external(".json") == external(".txt")
-E       inline_snapshot._exceptions.UsageError: you can not compare external(...) with external(...)
+E       inline_snapshot._exceptions.UsageError: you cannot compare external(...) with external(...)
 """
         ),
         returncode=1,
@@ -752,7 +752,7 @@ def test_a():
         error=snapshot(
             """\
 >       assert "hi" == external(".json") == snapshot(".txt")
-E       inline_snapshot._exceptions.UsageError: you can not compare external(...) with snapshot(...)
+E       inline_snapshot._exceptions.UsageError: you cannot compare external(...) with snapshot(...)
 """
         ),
         returncode=1,
@@ -835,7 +835,7 @@ You can also use --inline-snapshot=review to approve the changes interactively\
             """\
 >       assert "hi" == external()
 >           raise UsageError(
-E           inline_snapshot._exceptions.UsageError: can not load external object from an non existing location 'uuid:'
+E           inline_snapshot._exceptions.UsageError: cannot load external object from a non-existing location 'uuid:'
 """
         ),
         report=snapshot(""),

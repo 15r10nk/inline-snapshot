@@ -1,5 +1,6 @@
 import ast
 import datetime
+import sys
 from collections import Counter
 from collections import defaultdict
 from dataclasses import MISSING
@@ -13,6 +14,7 @@ from types import BuiltinFunctionType
 from types import FunctionType
 from typing import Any
 from typing import Dict
+from typing import NewType
 
 from inline_snapshot._customize._builder import Builder
 from inline_snapshot._customize._custom_code import ImportFrom
@@ -70,6 +72,23 @@ class InlineSnapshotPlugin:
             return builder.create_code(
                 qualname, imports=[ImportFrom(value.__module__, name)]
             )
+
+    if sys.version_info >= (3, 10):
+
+        @customize
+        def typing_newtype_handler(
+            self, value, builder: Builder, local_vars: Dict[str, Any]
+        ):
+            if type(value) is NewType:
+                for name, local_value in local_vars.items():
+                    if local_value is value:
+                        return builder.create_code(name)
+
+                qualname = value.__qualname__.split("[")[0]  # type: ignore[attr-defined]
+                name = qualname.split(".")[0]
+                return builder.create_code(
+                    qualname, imports=[ImportFrom(value.__module__, name)]
+                )
 
     @customize
     def builtin_function_handler(self, value, builder: Builder):
@@ -150,7 +169,7 @@ class InlineSnapshotPlugin:
             set_values = sorted(set_values)
             is_sorted = True
         except TypeError:
-            # can not be sorted by value
+            # cannot be sorted by value
             pass
 
         set_values = list(map(repr, set_values))
@@ -220,6 +239,10 @@ class InlineSnapshotPlugin:
             for field in fields(value):  # type: ignore
                 if field.repr:
                     field_value = getattr(value, field.name)
+
+                    if sys.version_info >= (3, 10):
+                        if isinstance(field.type, NewType):
+                            field_value = builder.create_call(field.type, [field_value])
 
                     if field.default != MISSING:
                         field_value = builder.with_default(field_value, field.default)
@@ -345,6 +368,12 @@ else:
                     if field.repr:
                         field_value = getattr(value, field.name)
 
+                        if sys.version_info >= (3, 10):
+                            if isinstance(field.type, NewType):
+                                field_value = builder.create_call(
+                                    field.type, [field_value]
+                                )
+
                         if field.default is not attrs.NOTHING:
 
                             default_value = (
@@ -401,17 +430,19 @@ else:
                     if getattr(field, "repr", True):
                         field_value = getattr(value, name)
 
-                        if (
-                            field.default is not PydanticUndefined
-                            and field.default == field_value
-                        ):
-                            field_value = builder.with_default(
-                                field_value, field.default
-                            )
+                        type_ = field.annotation
 
-                        elif field.default_factory is not None:
+                        if sys.version_info >= (3, 10):
+                            if isinstance(type_, NewType):
+                                field_value = builder.create_call(type_, [field_value])
+
+                        if field.default_factory is not None:
                             field_value = builder.with_default(
                                 field_value, field.default_factory()
+                            )
+                        elif field.default is not PydanticUndefined:
+                            field_value = builder.with_default(
+                                field_value, field.default
                             )
 
                         kwargs[name] = field_value

@@ -109,7 +109,7 @@ def test_thing():
         raises=snapshot(
             """\
 TypeError:
-can not call CustomCode('BadCall')()\
+cannot call CustomCode('BadCall')()\
 """
         ),
     )

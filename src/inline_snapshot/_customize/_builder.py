@@ -35,6 +35,11 @@ class Builder:
         else:
             return v
 
+    def _get_value(self, value):
+        if isinstance(value, Custom):
+            return value._eval()
+        return value
+
     def _get_handler(self, v) -> Custom:
 
         from inline_snapshot._global_state import state
@@ -120,9 +125,9 @@ customized_representation={result!r}
         The value doesn't have to be a Custom node and is converted by inline-snapshot if needed.
         """
         if isinstance(default, Custom):
-            raise UsageError("default value can not be an Custom value")
+            raise UsageError("default value cannot be a Custom value")
 
-        if value == default:
+        if self._get_value(value) == default:
             return CustomDefault(value=self._get_handler_recursive(value))
         return value
 
