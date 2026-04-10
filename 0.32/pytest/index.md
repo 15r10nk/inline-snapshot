@@ -33,9 +33,9 @@ def test_something():
 ```
 > pytest test_something.py --inline-snapshot=create,report
 ============================= test session starts ==============================
-platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0
-rootdir: /tmp/tmp.Y58UteX6jW
-plugins: inline-snapshot-0.32.5
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0
+rootdir: /tmp/tmp.OFxHCKbvBx
+plugins: inline-snapshot-0.32.6
 collected 1 item
 
 test_something.py .E                                                     [100%]
@@ -52,7 +52,7 @@ test_something.py .E                                                     [100%]
 │ +    assert 1 == snapshot(1)                                                 │
 │      assert 2 <= snapshot(5)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-These changes will be applied, because you used ]8;id=437435;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\
+These changes will be applied, because you used ]8;id=634819;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\
 
 ──────────────────────────────── Trim snapshots ────────────────────────────────
 ╭───────────────────────────── test_something.py ──────────────────────────────╮
@@ -65,8 +65,8 @@ These changes will be applied, because you used ]8;id=437435;https://15r10nk.git
 │ +    assert 2 <= snapshot(2)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 These changes are not applied.
-Use --inline-snapshot=]8;id=626486;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ to apply them, or use the interactive mode with 
---inline-snapshot=]8;id=471167;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
+Use --inline-snapshot=]8;id=914260;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ to apply them, or use the interactive mode with 
+--inline-snapshot=]8;id=658825;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
 
 
 
@@ -86,9 +86,9 @@ give a short report over which changes can be made to the snapshots
 ```
 > pytest test_something.py --inline-snapshot=short-report
 ============================= test session starts ==============================
-platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0
-rootdir: /tmp/tmp.NlvAJ3UghH
-plugins: inline-snapshot-0.32.5
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0
+rootdir: /tmp/tmp.u5QaYATrAe
+plugins: inline-snapshot-0.32.6
 collected 1 item
 
 test_something.py .E                                                     [100%]
@@ -120,9 +120,9 @@ Shows a diff report over which changes can be made to the snapshots
 ```
 > pytest test_something.py --inline-snapshot=report
 ============================= test session starts ==============================
-platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0
-rootdir: /tmp/tmp.3McNHxEYQa
-plugins: inline-snapshot-0.32.5
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0
+rootdir: /tmp/tmp.jfFSnGBvZq
+plugins: inline-snapshot-0.32.6
 collected 1 item
 
 test_something.py .E                                                     [100%]
@@ -140,8 +140,8 @@ test_something.py .E                                                     [100%]
 │      assert 2 <= snapshot(5)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 These changes are not applied.
-Use --inline-snapshot=]8;id=371713;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\ to apply them, or use the interactive mode with 
---inline-snapshot=]8;id=963375;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
+Use --inline-snapshot=]8;id=152610;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\ to apply them, or use the interactive mode with 
+--inline-snapshot=]8;id=806982;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
 
 ──────────────────────────────── Trim snapshots ────────────────────────────────
 ╭───────────────────────────── test_something.py ──────────────────────────────╮
@@ -154,8 +154,8 @@ Use --inline-snapshot=]8;id=371713;https://15r10nk.github.io/inline-snapshot/lat
 │ +    assert 2 <= snapshot(2)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 These changes are not applied.
-Use --inline-snapshot=]8;id=72939;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ to apply them, or use the interactive mode with 
---inline-snapshot=]8;id=955257;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
+Use --inline-snapshot=]8;id=677191;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ to apply them, or use the interactive mode with 
+--inline-snapshot=]8;id=939198;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
 
 
 
@@ -175,9 +175,9 @@ Shows a diff report for each category and ask if you want to apply the changes
 ```
 > pytest test_something.py --inline-snapshot=review
 ============================= test session starts ==============================
-platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0
-rootdir: /tmp/tmp.AVGKIgtPzs
-plugins: inline-snapshot-0.32.5
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0
+rootdir: /tmp/tmp.4Mw5clkTDS
+plugins: inline-snapshot-0.32.6
 collected 1 item
 
 test_something.py .E                                                     [100%]
@@ -194,7 +194,7 @@ test_something.py .E                                                     [100%]
 │ +    assert 1 == snapshot(1)                                                 │
 │      assert 2 <= snapshot(5)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-Do you want to ]8;id=313558;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\ these snapshots? [y/n] (n): 
+Do you want to ]8;id=24679;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\ these snapshots? [y/n] (n): 
 ──────────────────────────────── Trim snapshots ────────────────────────────────
 ╭───────────────────────────── test_something.py ──────────────────────────────╮
 │ @@ -3,4 +3,4 @@                                                              │
@@ -205,7 +205,7 @@ Do you want to ]8;id=313558;https://15r10nk.github.io/inline-snapshot/latest/cat
 │ -    assert 2 <= snapshot(5)                                                 │
 │ +    assert 2 <= snapshot(2)                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-Do you want to ]8;id=963585;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ these snapshots? [y/n] (n): 
+Do you want to ]8;id=364850;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ these snapshots? [y/n] (n): 
 
 
 ==================================== ERRORS ====================================
