@@ -1,5 +1,6 @@
 import pytest
 
+from inline_snapshot._is import Is
 from inline_snapshot.testing._example import Example
 
 values = ["1", '"2\'"', "[5]", "{1: 2}", "F(i=5)", "F.make1('2')", "f(7)"]
@@ -48,7 +49,7 @@ def test_change():
 
     Example(code(a, b)).run_inline(
         ["--inline-snapshot=fix,update"],
-        changed_files=(
+        changed_files=Is(
             {"tests/test_something.py": code(a, code_repr(a))}
             if code_repr(a) != b
             else {}

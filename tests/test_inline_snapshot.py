@@ -101,6 +101,7 @@ def test_a():
             [] if not executing_used and reported_flag == "update" else [reported_flag]
         ),
         raises=AnyThing(),
+        changed_files=AnyThing(),
     )
 
     for flag in all_flags:
@@ -108,12 +109,15 @@ def test_a():
             continue
         print("use flag:", flag)
         # no changes
-        e.run_inline([f"--inline-snapshot={flag}"], changed_files={}, raises=AnyThing())
+        e.run_inline([f"--inline-snapshot={flag}"], raises=AnyThing())
 
     if not executing_used:
         return
 
-    e.run_inline([f"--inline-snapshot={reported_flag}"]).run_inline()
+    e.run_inline(
+        [f"--inline-snapshot={reported_flag}"],
+        changed_files=AnyThing(),
+    ).run_inline()
 
 
 @pytest.mark.parametrize(
@@ -178,7 +182,7 @@ def test_a():
                 e2 = e2.run_inline(reported_categories=sorted(all_flags - fixed_flags))
 
     for flag in {"update", "fix", "trim", "create"} - all_flags:
-        e.run_inline([f"--inline-snapshot={flag}"], changed_files={})
+        e.run_inline([f"--inline-snapshot={flag}"])
 
 
 def test_mutable_values():
