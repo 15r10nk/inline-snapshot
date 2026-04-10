@@ -34,7 +34,7 @@ class ExternalFile(ExternalBase, SnapshotRefBase):
         self._format.encode(other, self._tmp_file)
 
     def __repr__(self):
-        path = self._filename.relative_to(self._base_path)
+        path = self._filename.resolve().relative_to(self._base_path.resolve())
         return f"external_file({str(path)!r})"
 
     def _load_value(self):
