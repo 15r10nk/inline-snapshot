@@ -874,6 +874,34 @@ These changes will be applied, because you used create\
 """
         ),
         returncode=1,
+        changed_files={
+            "tests/test_something.py": """\
+from inline_snapshot import external, snapshot
+
+
+class X:
+    def __init__(self, *args):
+        self.args = args
+
+    def __repr__(self):
+        return f"X({', '.join(map(repr,self.args))})"
+
+    def __eq__(self, other):
+        if not isinstance(other, X):
+            return NotImplemented
+
+        return self.args == other.args
+
+
+def test_thing():
+    assert X("a" * 40, "a" * 40) == snapshot(
+        X(
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        )
+    )
+"""
+        },
     ).run_pytest(
         ["--inline-snapshot=report"], report=snapshot("")
     )

@@ -15,6 +15,7 @@ from typing import TypeVar
 
 import isort.api
 import pytest
+from dirty_equals import AnyThing
 from executing import is_pytest_compatible
 
 from inline_snapshot import snapshot
@@ -415,12 +416,20 @@ uuid.uuid4=f
 
                 print("run with")
                 example = example.run_pytest(
-                    args, error=errors, outcomes=outcomes, returncode=returncode
+                    args,
+                    error=errors,
+                    outcomes=outcomes,
+                    returncode=returncode,
+                    changed_files=AnyThing(),
                 )
 
         else:
             example = example.run_pytest(
-                args, error=errors, outcomes=outcomes, returncode=returncode
+                args,
+                error=errors,
+                outcomes=outcomes,
+                returncode=returncode,
+                changed_files=AnyThing(),
             )
 
         print("flags:", flags, repr(block.block_options))

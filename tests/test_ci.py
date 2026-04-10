@@ -53,6 +53,16 @@ These changes will be applied, because you used fix\
 """
         ),
         returncode=1,
+        changed_files={
+            "tests/test_something.py": """\
+
+from inline_snapshot import snapshot
+def test_something():
+    assert 5==snapshot(5)
+
+    \
+"""
+        },
     )
 
 

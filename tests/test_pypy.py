@@ -49,16 +49,32 @@ def test_example():
     ).run_pytest(
         ["--inline-snapshot=fix"],
         report=report,
-        error=(
+        error=Is(
             ">       assert 1+1==snapshot(3)\nE       AssertionError\n"
             if no_cpython
             else ""
         ),
         returncode=1,
+        changed_files=(
+            snapshot({})
+            if no_cpython
+            else snapshot(
+                {
+                    "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_example():
+    assert 1+1==snapshot(2)
+
+    \
+"""
+                }
+            )
+        ),
     ).run_pytest(
         ["--inline-snapshot=disable"],
         report="",
-        error=(
+        error=Is(
             ">       assert 1+1==snapshot(3)\nE       assert (1 + 1) == 3\nE        +  where 3 = snapshot(3)\n"
             if no_cpython
             else ""

@@ -527,7 +527,7 @@ class Example:
         *,
         term_columns=80,
         env: dict[str, str] = {},
-        changed_files: Snapshot[dict[str, str]] | None = None,
+        changed_files: SnapshotArg[dict[str, str]] = {},
         report: Snapshot[str] | None = None,
         error: SnapshotArg[str] = "",
         stderr: SnapshotArg[str] = "",
@@ -648,8 +648,7 @@ class Example:
                 # assert rewriting gets disabled by inline-snapshot for older python versions
                 assert snapshot_arg(error) == normalize(error_str)
 
-            if changed_files is not None:
-                assert changed_files == self._changed_files(tmp_path)
+            assert snapshot_arg(changed_files) == self._changed_files(tmp_path)
 
             if outcomes is not None:
                 assert outcomes == parse_outcomes(result_stdout.splitlines())
