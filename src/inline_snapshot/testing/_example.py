@@ -316,7 +316,7 @@ class Example:
         *,
         context_managers: Sequence[ContextManager] = (),
         reported_categories: Snapshot[list[Category]] | None = None,
-        changed_files: Snapshot[dict[str, str]] | None = None,
+        changed_files: SnapshotArg[dict[str, str]] = {},
         report: Snapshot[str] | None = None,
         raises: SnapshotArg[str] = "<no exception>",
         stderr: SnapshotArg[str] = "",
@@ -499,8 +499,7 @@ class Example:
             else:
                 assert raises == "<no exception>"
 
-            if changed_files is not None:
-                assert changed_files == self._changed_files(tmp_path)
+            assert snapshot_arg(changed_files) == self._changed_files(tmp_path)
 
             if report is not None:
                 assert report == normalize(report_output.getvalue())

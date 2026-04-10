@@ -234,6 +234,7 @@ def test_a():
     # check that the flags are reported
     e1.run_inline(
         reported_categories=sorted(flags),
+        changed_files=AnyThing(),
         raises=(
             snapshot("AssertionError") if "fix" in flags else snapshot("<no exception>")
         ),
@@ -247,5 +248,6 @@ def test_a():
         e2 = e1.run_inline(
             [f"--inline-snapshot={f}"] if f else [],
             raises=AnyThing(),
+            changed_files=AnyThing(),
         )
         assert e2.read_file("tests/test_something.py") == new_code

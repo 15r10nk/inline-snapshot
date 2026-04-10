@@ -5,6 +5,7 @@ from contextlib import contextmanager
 import black
 import executing
 import pytest
+from dirty_equals import AnyThing
 
 from inline_snapshot._snapshot_arg import snapshot_arg
 from inline_snapshot.extra import Transformed
@@ -64,6 +65,7 @@ def test_a():
             ),
             snapshot_arg(reported_flags),
         ),
+        changed_files=AnyThing(),
         raises=snapshot_arg(raises),
     )
 
