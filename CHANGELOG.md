@@ -1,4 +1,11 @@
 
+<a id='changelog-0.32.6'></a>
+# 0.32.6 — 2026-04-10
+
+## Fixed
+
+- Pydantic models, attrs and dataclasses with `NewType`-typed fields now generate correct snapshots that wrap the field value with the `NewType` constructor (e.g. `Something(some_id=SomeID(1))` instead of `Something(some_id=1)`). This could only be fixed for Python >= 3.10.
+
 <a id='changelog-0.32.5'></a>
 # 0.32.5 — 2026-03-13
 
