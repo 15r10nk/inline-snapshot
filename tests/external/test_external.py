@@ -217,6 +217,19 @@ E         - test
 E         + test2
 E         ?     +
 """,
+        changed_files={
+            "tests/__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt": "test",
+            "tests/test_something.py": """\
+from inline_snapshot import external, snapshot, outsource
+
+def test_a():
+    s=snapshot(external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"))
+    assert outsource("test") == s
+
+    assert outsource("test2") == s
+        \
+""",
+        },
     ).run_pytest(
         [],
         error=snapshot(
@@ -264,6 +277,19 @@ E       AssertionError
             )
         ),
         returncode=1,
+        changed_files={
+            "tests/__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.bin": "test",
+            "tests/test_something.py": """\
+from inline_snapshot import external, snapshot, outsource
+
+def test_a():
+    s=snapshot(external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.bin"))
+    assert outsource(b"test") == s
+
+    assert outsource(b"test2") == s
+        \
+""",
+        },
     )
 
 
@@ -610,10 +636,37 @@ def test_a():
     assert outsource("testabc") == snapshot()
     assert 1+1==snapshot()
 """
-    ).run_pytest(["--inline-snapshot=create"], returncode=1).change_code(
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        returncode=1,
+        changed_files={
+            "tests/__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt": "testabc",
+            "tests/test_something.py": """\
+from inline_snapshot import snapshot,outsource
+
+from inline_snapshot import external
+
+def test_a():
+    assert outsource("testabc") == snapshot(external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"))
+    assert 1+1==snapshot(2)
+""",
+        },
+    ).change_code(
         lambda text: text.replace("snapshot(2)", "snapshot()")
     ).run_pytest(
-        ["--inline-snapshot=create"], returncode=1
+        ["--inline-snapshot=create"],
+        returncode=1,
+        changed_files={
+            "tests/test_something.py": """\
+from inline_snapshot import snapshot,outsource
+
+from inline_snapshot import external
+
+def test_a():
+    assert outsource("testabc") == snapshot(external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"))
+    assert 1+1==snapshot(2)
+"""
+        },
     )
 
 
@@ -700,6 +753,22 @@ These changes will be applied, because you used create\
 """
         ),
         returncode=1,
+        changed_files={
+            "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": """\
+0
+1
+2\
+""",
+            "tests/test_something.py": """\
+
+from inline_snapshot import external
+
+def test_a():
+    n=3
+    assert "\\n".join(map(str,range(n))) == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+    \
+""",
+        },
     ).change_code(
         lambda text: text.replace("n=3", "n=5")
     ).run_pytest(
@@ -719,6 +788,15 @@ These changes will be applied, because you used fix\
 """
         ),
         returncode=1,
+        changed_files={
+            "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": """\
+0
+1
+2
+3
+4\
+"""
+        },
     )
 
 
@@ -739,6 +817,17 @@ E       inline_snapshot._exceptions.UsageError: you cannot compare external(...)
 """
         ),
         returncode=1,
+        changed_files={
+            "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.json": '"hi"',
+            "tests/test_something.py": """\
+
+from inline_snapshot import external
+
+def test_a():
+    assert "hi" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.json") == external(".txt")
+    \
+""",
+        },
     )
 
 
@@ -759,6 +848,17 @@ E       inline_snapshot._exceptions.UsageError: you cannot compare external(...)
 """
         ),
         returncode=1,
+        changed_files={
+            "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.json": '"hi"',
+            "tests/test_something.py": """\
+
+from inline_snapshot import external, snapshot
+
+def test_a():
+    assert "hi" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.json") == snapshot(".txt")
+    \
+""",
+        },
     )
 
 

@@ -20,6 +20,16 @@ def test_a():
     e.run_pytest(
         ["--inline-snapshot=create,fix"],
         returncode=1,
+        changed_files={
+            "test_a.py": """\
+
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 1==snapshot(1)
+    \
+"""
+        },
     )
 
     e.run_inline(

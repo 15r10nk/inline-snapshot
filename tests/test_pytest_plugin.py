@@ -479,7 +479,18 @@ E        +  where 5 = snapshot(5)
 """,
     )
 
-    e = e.run_pytest(["--inline-snapshot=fix"], returncode=1)
+    e = e.run_pytest(
+        ["--inline-snapshot=fix"],
+        returncode=1,
+        changed_files={
+            "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 4==snapshot(4)
+"""
+        },
+    )
 
     assert e.files["tests/test_something.py"] == snapshot(
         """\
