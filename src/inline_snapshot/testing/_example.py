@@ -530,7 +530,7 @@ class Example:
         changed_files: Snapshot[dict[str, str]] | None = None,
         report: Snapshot[str] | None = None,
         error: SnapshotArg[str] = "",
-        stderr: Snapshot[str] | None = None,
+        stderr: SnapshotArg[str] = "",
         returncode: SnapshotArg[int] = 0,
         stdin: bytes = b"",
         outcomes: Snapshot[dict[str, int]] | None = None,
@@ -594,22 +594,20 @@ class Example:
 
             assert result.returncode == snapshot_arg(returncode)
 
-            if stderr is not None:
+            original = result_stderr.splitlines()
+            lines = [
+                line
+                for line in original
+                if not any(
+                    s in line
+                    for s in [
+                        'No entry for terminal type "unknown"',
+                        "using dumb terminal settings.",
+                    ]
+                )
+            ]
 
-                original = result_stderr.splitlines()
-                lines = [
-                    line
-                    for line in original
-                    if not any(
-                        s in line
-                        for s in [
-                            'No entry for terminal type "unknown"',
-                            "using dumb terminal settings.",
-                        ]
-                    )
-                ]
-
-                assert "\n".join(lines) == stderr
+            assert "\n".join(lines) == snapshot_arg(stderr)
 
             if report is not None:
 
