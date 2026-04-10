@@ -142,6 +142,12 @@ Use --inline-snapshot=create to apply them, or use the interactive mode with
 """
         ),
         returncode=snapshot(1),
+        error="""\
+>       assert sorted([n, 2]) == external_file("stored.json")
+E       AssertionError: assert [2, 5] == external_file('stored.json')
+E        +  where [2, 5] = sorted([5, 2])
+E        +  and   external_file('stored.json') = external_file('stored.json')
+""",
     ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(

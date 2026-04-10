@@ -67,7 +67,7 @@ line: 4
 AssertionError
 RuntimeError:
 
-error during change collection for snapshot (external_file('<tmp>/tests/test.txt'))
+error during change collection for snapshot (external_file('test.txt'))
 snapshot.
 """,
                 }

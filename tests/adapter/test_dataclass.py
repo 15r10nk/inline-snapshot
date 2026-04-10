@@ -1,6 +1,7 @@
 import sys
 
 import pytest
+from dirty_equals import AnyThing
 
 from inline_snapshot import snapshot
 from inline_snapshot.extra import warns
@@ -514,7 +515,7 @@ def test_L3():
         assert L(1,2) == snapshot(L(1, 2)), "not equal"
 """,
         }
-    ).run_pytest(returncode=snapshot(1)).run_pytest(
+    ).run_pytest(returncode=snapshot(1), error=AnyThing()).run_pytest(
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
@@ -538,7 +539,7 @@ def test_L3():
             }
         ),
         returncode=snapshot(1),
-    )
+    ).run_pytest()
 
 
 def test_namedtuple():

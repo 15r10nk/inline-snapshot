@@ -209,6 +209,14 @@ def test_a():
     ).run_pytest(
         ["--inline-snapshot=create"],
         returncode=1,
+        error="""\
+>       assert outsource("test2") == s
+E       AssertionError: assert 'test2' == 'test'
+E         \n\
+E         - test
+E         + test2
+E         ?     +
+""",
     ).run_pytest(
         [],
         error=snapshot(
@@ -880,6 +888,12 @@ Use --inline-snapshot=create to apply them, or use the interactive mode with
 """
         ),
         returncode=snapshot(1),
+        error="""\
+>       assert sorted([n, 2]) == external()
+E       assert [2, 5] == external("uuid:")
+E        +  where [2, 5] = sorted([5, 2])
+E        +  and   external("uuid:") = external()
+""",
     ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
