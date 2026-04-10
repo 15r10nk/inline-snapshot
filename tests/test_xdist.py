@@ -38,6 +38,11 @@ inline-snapshot will not be able to fix snapshots or generate reports.\
         ),
         returncode=snapshot(1),
         outcomes=snapshot({"failed": 1}),
+        error="""\
+>       assert 1==snapshot(5)
+E       assert 1 == 5
+E        +  where 5 = snapshot(5)
+""",
     )
 
 
@@ -56,6 +61,11 @@ def test_a():
         report=snapshot(""),
         stderr=snapshot(""),
         returncode=1,
+        error="""\
+>       assert 1==snapshot(2)
+E       assert 1 == 2
+E        +  where 2 = snapshot(2)
+""",
     )
 
     e.run_pytest(
@@ -89,6 +99,11 @@ inline-snapshot will not be able to fix snapshots or generate reports.\
         ),
         stderr=snapshot(""),
         returncode=1,
+        error="""\
+>       assert 1==snapshot(2)
+E       assert 1 == 2
+E        +  where 2 = snapshot(2)
+""",
     )
 
 
@@ -111,4 +126,9 @@ You can also use --inline-snapshot=review to approve the changes interactively\
         ),
         stderr=snapshot(""),
         returncode=1,
+        error="""\
+>       assert 1==snapshot(2)
+E       assert 1 == 2
+E        +  where 2 = snapshot(2)
+""",
     )

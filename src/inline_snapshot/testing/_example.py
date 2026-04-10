@@ -529,7 +529,7 @@ class Example:
         env: dict[str, str] = {},
         changed_files: Snapshot[dict[str, str]] | None = None,
         report: Snapshot[str] | None = None,
-        error: Snapshot[str] | None = None,
+        error: SnapshotArg[str] = "",
         stderr: Snapshot[str] | None = None,
         returncode: SnapshotArg[int] = 0,
         stdin: bytes = b"",
@@ -633,18 +633,22 @@ class Example:
 
                 assert report_str == report, repr(report_str)
 
-            if error is not None:
-                assert (
-                    error
-                    == "\n".join(
-                        [
-                            line
-                            for line in result_stdout.splitlines()
-                            if line and line[:2] in ("> ", "E ")
-                        ]
-                    )
-                    + "\n"
+            error_str = (
+                "\n".join(
+                    [
+                        line
+                        for line in result_stdout.splitlines()
+                        if line and line[:2] in ("> ", "E ")
+                    ]
                 )
+                + "\n"
+            )
+            if not error_str.strip():
+                error_str = ""
+
+            if sys.version_info >= (3, 11):
+                # assert rewriting gets disabled by inline-snapshot for older python versions
+                assert snapshot_arg(error) == normalize(error_str)
 
             if changed_files is not None:
                 assert changed_files == self._changed_files(tmp_path)

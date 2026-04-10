@@ -15,8 +15,9 @@ from ._external_base import ExternalBase
 
 class ExternalFile(ExternalBase, SnapshotRefBase):
 
-    def __init__(self, filename: Path, format: Format):
+    def __init__(self, filename: Path, format: Format, base_path: Path):
         self._filename = filename
+        self._base_path = base_path
         self._format = format
         self._tmp_file = None
 
@@ -33,7 +34,8 @@ class ExternalFile(ExternalBase, SnapshotRefBase):
         self._format.encode(other, self._tmp_file)
 
     def __repr__(self):
-        return f"external_file({str(self._filename)!r})"
+        path = self._filename.relative_to(self._base_path)
+        return f"external_file({str(path)!r})"
 
     def _load_value(self):
         try:
@@ -53,14 +55,16 @@ def external_file(path: Union[Path, str], *, format: Optional[str] = None):
     """
     path = Path(path)
 
-    if not path.is_absolute():
-        from inspect import currentframe
+    from inspect import currentframe
 
-        frame = currentframe()
-        assert frame
-        frame = frame.f_back
-        assert frame
-        path = Path(frame.f_code.co_filename).parent / path
+    frame = currentframe()
+    assert frame
+    frame = frame.f_back
+    assert frame
+    base_path = Path(frame.f_code.co_filename).parent
+
+    if not path.is_absolute():
+        path = base_path / path
 
     path = path.resolve()
 
@@ -74,7 +78,7 @@ def external_file(path: Union[Path, str], *, format: Optional[str] = None):
 
     key = ("file", path)
     if key not in state().snapshots:
-        new = ExternalFile(path, format_handler)
+        new = ExternalFile(path, format_handler, base_path)
         state().snapshots[key] = new
     else:
         new = cast(ExternalFile, state().snapshots[key])

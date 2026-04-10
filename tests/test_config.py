@@ -34,7 +34,15 @@ def test_config_pyproject():
 default-flags = ["trim"]
             """,
         }
-    ).run_pytest(changed_files=trimmed_files, returncode=snapshot(1))
+    ).run_pytest(
+        changed_files=trimmed_files,
+        returncode=snapshot(1),
+        error="""\
+>       assert 1 == snapshot(2)
+E       assert 1 == 2
+E        +  where 2 = snapshot(2)
+""",
+    )
 
 
 def test_config_env():
@@ -44,6 +52,11 @@ def test_config_env():
         env={"INLINE_SNAPSHOT_DEFAULT_FLAGS": "trim"},
         changed_files=trimmed_files,
         returncode=snapshot(1),
+        error="""\
+>       assert 1 == snapshot(2)
+E       assert 1 == 2
+E        +  where 2 = snapshot(2)
+""",
     )
 
     e.run_pytest(
@@ -51,6 +64,7 @@ def test_config_env():
         env={"INLINE_SNAPSHOT_DEFAULT_FLAGS": "trim"},
         changed_files=trimmed_files,
         returncode=snapshot(1),
+        error=">       assert 1 == snapshot(2)\n",
     )
 
 
@@ -64,7 +78,16 @@ def test_shortcuts():
 strim=["trim"]
             """,
         }
-    ).run_pytest(["--strim"], changed_files=trimmed_files, returncode=snapshot(1))
+    ).run_pytest(
+        ["--strim"],
+        changed_files=trimmed_files,
+        returncode=snapshot(1),
+        error="""\
+>       assert 1 == snapshot(2)
+E       assert 1 == 2
+E        +  where 2 = snapshot(2)
+""",
+    )
 
 
 def test_default_shortcuts():

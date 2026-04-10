@@ -82,6 +82,11 @@ You can also use --inline-snapshot=review to approve the changes interactively\
 """
         ),
         returncode=1,
+        error="""\
+>       assert 5==snapshot(4)
+E       assert 5 == 4
+E        +  where 4 = snapshot(4)
+""",
     ).run_pytest(
         ["--inline-snapshot=fix"],
         outcomes=snapshot({"passed": 1, "errors": 1}),
@@ -244,6 +249,11 @@ You can also use --inline-snapshot=review to approve the changes interactively\
             )
         ),
         returncode=1,
+        error="""\
+>       assert 5 == snapshot(4)
+E       assert 5 == 4
+E        +  where 4 = snapshot(4)
+""",
     ).run_pytest(
         ["--inline-snapshot=trim,fix"],
         outcomes=snapshot({"passed": 1, "errors": 1}),
@@ -394,6 +404,11 @@ def test_a():
             }
         ),
         returncode=1,
+        error="""\
+>       assert 5 == snapshot(4)
+E       assert 5 == 4
+E        +  where 4 = snapshot(4)
+""",
     )
 
 
@@ -454,7 +469,14 @@ def test_a():
     )
 
     e.run_pytest(
-        ["--inline-snapshot=disable"], outcomes=snapshot({"failed": 1}), returncode=1
+        ["--inline-snapshot=disable"],
+        outcomes=snapshot({"failed": 1}),
+        returncode=1,
+        error="""\
+>       assert 4==snapshot(5)
+E       assert 4 == 5
+E        +  where 5 = snapshot(5)
+""",
     )
 
     e = e.run_pytest(["--inline-snapshot=fix"], returncode=1)
@@ -607,7 +629,7 @@ def test_something():
         ["--inline-snapshot=review"],
         stdin=b"y\n",
         outcomes=snapshot({"passed": 1, "errors": 1}),
-        error=snapshot("\n"),
+        error=snapshot(""),
         report=snapshot(
             """\
 -------------------------------- Fix snapshots ---------------------------------
@@ -1017,6 +1039,11 @@ Use --inline-snapshot=fix to apply them, or use the interactive mode with
         returncode=snapshot(1),
         stderr=snapshot(""),
         changed_files=snapshot({}),
+        error="""\
+>       assert 1==snapshot(5)
+E       assert 1 == 5
+E        +  where 5 = snapshot(5)
+""",
     )
 
 

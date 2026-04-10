@@ -69,7 +69,12 @@ def test_a():
     ).run_pytest().remove_file(
         "my_tests/__inline_snapshot__/test_a/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"
     ).run_pytest(
-        returncode=snapshot(1)
+        returncode=snapshot(1),
+        error="""\
+>       assert "b" == external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt")
+>           raise StorageLookupError(location, files=[])
+E           inline_snapshot._external._storage._protocol.StorageLookupError: uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt
+""",
     )
 
 

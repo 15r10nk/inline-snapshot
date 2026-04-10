@@ -147,6 +147,11 @@ You can also use --inline-snapshot=review to approve the changes interactively\
 """
         ),
         returncode=snapshot(1),
+        error="""\
+>       assert 1+5 == snapshot(2)
+E       assert (1 + 5) == 2
+E        +  where 2 = snapshot(2)
+""",
     )
     e.run_pytest(  # run with the create flag and check the changed files
         ["--inline-snapshot=create"],

@@ -46,6 +46,22 @@ def test_example():
     assert 1+1==snapshot(3)
 
     """
-    ).run_pytest(["--inline-snapshot=fix"], report=report, returncode=1).run_pytest(
-        ["--inline-snapshot=disable"], report="", returncode=Is(1 if no_cpython else 0)
+    ).run_pytest(
+        ["--inline-snapshot=fix"],
+        report=report,
+        error=(
+            ">       assert 1+1==snapshot(3)\nE       AssertionError\n"
+            if no_cpython
+            else ""
+        ),
+        returncode=1,
+    ).run_pytest(
+        ["--inline-snapshot=disable"],
+        report="",
+        error=(
+            ">       assert 1+1==snapshot(3)\nE       assert (1 + 1) == 3\nE        +  where 3 = snapshot(3)\n"
+            if no_cpython
+            else ""
+        ),
+        returncode=Is(1 if no_cpython else 0),
     )
