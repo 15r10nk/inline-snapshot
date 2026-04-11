@@ -251,6 +251,7 @@ customized_value=100
 customized_representation=CustomCode('100')
 """
         ),
+        reported_categories=set(),
     )
 
 
@@ -402,5 +403,5 @@ def test():
             }
         ),
     ).run_inline(
-        ["--inline-snapshot=fix"]
+        ["--inline-snapshot=fix"], reported_categories=set()
     )

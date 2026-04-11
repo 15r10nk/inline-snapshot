@@ -63,4 +63,5 @@ def test_thing():
         raises=snapshot(
             "UsageError: unmanaged values cannot be compared with snapshots"
         ),
+        reported_categories=set(),
     )

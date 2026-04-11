@@ -133,7 +133,7 @@ def test_a():
         }
     )
     e.run_inline(  # run without flags
-        reported_categories=snapshot(["create", "fix"]), raises="AssertionError"
+        reported_categories=snapshot({"create", "fix"}), raises="AssertionError"
     )
 
     e.run_pytest(

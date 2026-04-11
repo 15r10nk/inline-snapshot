@@ -377,6 +377,7 @@ def test_something():
     ).run_inline(
         changed_files=snapshot({}),
         raises=snapshot("AssertionError: not equal"),
+        reported_categories={"fix"},
     )
 
 
@@ -407,6 +408,7 @@ def test_something():
         ).run_inline(
             ["--inline-snapshot=report"],
             raises=snapshot("AssertionError: not equal"),
+            reported_categories={"fix"},
         )
 
 
@@ -469,9 +471,7 @@ class A:
 def test_something():
     assert A(a=3) == snapshot(A(*[],a=3)),"not equal"
 """
-        ).run_inline(
-            ["--inline-snapshot=report"],
-        )
+        ).run_inline(["--inline-snapshot=report"], reported_categories={"update"})
 
 
 def test_remove_positional_argument():
@@ -731,6 +731,7 @@ def test_A():
 """
             }
         ),
+        reported_categories={"fix", "update"},
     ).run_inline(
         ["--inline-snapshot=update"],
         changed_files=snapshot(

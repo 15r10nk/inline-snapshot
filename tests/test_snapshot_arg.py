@@ -19,9 +19,7 @@ def check_value(x, expected=...):
 def test_a():
     check_value(5)  # expected not passed -> _node is None
 """
-    ).run_inline(
-        ["--inline-snapshot=create"],
-    )
+    ).run_inline(["--inline-snapshot=create"], reported_categories=set())
 
 
 def test_snapshot_arg_create_positional():
@@ -85,6 +83,7 @@ def test_a():
 """
             }
         ),
+        reported_categories={"fix", "update"},
     )
 
 
@@ -119,6 +118,7 @@ def test_a():
 """
             }
         ),
+        reported_categories={"fix", "update"},
     )
 
 
@@ -141,6 +141,7 @@ def test_a():
         raises=snapshot(
             "UsageError: the argument of snapshot_arg(...) has to be an argument of the calling function"
         ),
+        reported_categories=set(),
     )
 
 
@@ -192,6 +193,7 @@ def test_a():
         raises=snapshot(
             "UsageError: snapshot_arg() only supports literal default values. unsupported default `1 + 1` for parameter 'expected'."
         ),
+        reported_categories=set(),
     )
 
 
@@ -302,9 +304,7 @@ def test_a():
     for v in [1, 2]:
         check_value(v)
 """
-    ).run_inline(
-        ["--inline-snapshot=create"],
-    )
+    ).run_inline(["--inline-snapshot=create"], reported_categories=set())
 
 
 def test_snapshot_arg_wrong_arg_type():
@@ -327,6 +327,7 @@ def test_a():
         raises=snapshot(
             "UsageError: snapshot_arg() can only be called with function argument of the calling function as argument"
         ),
+        reported_categories=set(),
     )
 
 
@@ -344,9 +345,7 @@ def my_func(x):
 def test_a():
     my_func(2)
 """
-    ).run_inline(
-        ["--inline-snapshot=disable"],
-    )
+    ).run_inline(["--inline-snapshot=disable"], reported_categories=set())
 
 
 def test_snapshot_arg_module_level():
@@ -364,6 +363,7 @@ def test_a():
     ).run_inline(
         ["--inline-snapshot=create"],
         raises=snapshot("UsageError: snapshot_arg() can only be used inside functions"),
+        reported_categories=set(),
     )
 
 
@@ -389,6 +389,7 @@ created and you can ignore this message.
 """
         ),
         raises=snapshot("AssertionError"),
+        reported_categories=set(),
     )
 
 
@@ -415,6 +416,7 @@ def test_a():
             ["--inline-snapshot=create"],
             changed_files=snapshot({}),
             raises="RuntimeError: I did not found the calling code (context managers are not supported on cpython <3.11)",
+            reported_categories=set(),
         )
     else:
         e.run_inline(
@@ -463,10 +465,12 @@ def test_a():
             ["--inline-snapshot=create"],
             changed_files=snapshot({}),
             raises="RuntimeError: I did not found the calling code (context managers are not supported on cpython <3.11)",
+            reported_categories=set(),
         )
     else:
         e.run_inline(
             ["--inline-snapshot=create"],
             changed_files=snapshot({}),
             raises="UsageError: only one with context expression is allowed",
+            reported_categories=set(),
         )

@@ -23,6 +23,7 @@ from unittest.mock import patch
 from rich.console import Console
 
 from inline_snapshot._exceptions import UsageError
+from inline_snapshot._get_snapshot_value import get_snapshot_value
 from inline_snapshot._snapshot_arg import snapshot_arg
 from inline_snapshot._snapshot_session import SnapshotSession
 
@@ -315,7 +316,7 @@ class Example:
         args: list[str] = [],
         *,
         context_managers: Sequence[ContextManager] = (),
-        reported_categories: Snapshot[list[Category]] | None = None,
+        reported_categories: SnapshotArg[set[Category]] | None = None,
         changed_files: SnapshotArg[dict[str, str]] = {},
         report: Snapshot[str] | None = None,
         raises: SnapshotArg[str] = "<no exception>",
@@ -329,7 +330,7 @@ class Example:
         Parameters:
             args: inline-snapshot arguments (supports only "--inline-snapshot=fix|create|...").
             context_managers: list of context managers to use when the code is executed.
-            reported_categories: snapshot of categories which inline-snapshot thinks could be applied.
+            reported_categories: snapshot of categories which inline-snapshot thinks could be applied or `None` when they are equal to the CLI flags.
             changed_files: snapshot of files which are changed by this run.
             raises: snapshot of the exception raised during test execution.
                     Required if your code raises an exception.
@@ -483,12 +484,17 @@ class Example:
                     sys.path = old_path
                     leave_snapshot_context()
 
-            assert snapshot_arg(stderr) == stderr_output
-
             # make the assertions in the original context
 
-            if reported_categories is not None:
-                assert sorted(snapshot_flags) == reported_categories
+            assert snapshot_arg(stderr) == stderr_output
+
+            reported_categories = snapshot_arg(reported_categories)
+
+            if snapshot_flags != flags:
+                assert set(snapshot_flags) == reported_categories
+            else:
+                if get_snapshot_value(reported_categories) != set(snapshot_flags):
+                    assert None == reported_categories
 
             raises = snapshot_arg(raises)
 

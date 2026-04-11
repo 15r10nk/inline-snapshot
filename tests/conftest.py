@@ -8,7 +8,6 @@ import pytest
 from dirty_equals import AnyThing
 
 from inline_snapshot._snapshot_arg import snapshot_arg
-from inline_snapshot.extra import Transformed
 from inline_snapshot.testing._example import Example
 
 pytest_plugins = "pytester"
@@ -53,18 +52,10 @@ def test_a():
         }
     )
     # assert snapshot_arg(source_code)==textwrap.dedent(source_code).strip()
-    flags_set = {*flags.split(",")} - {""}
 
     result = e.run_inline(
         [f"--inline-snapshot={flags}"],
-        reported_categories=Transformed(
-            lambda reported_categories: (
-                None
-                if reported_categories == sorted(flags_set)
-                else set(reported_categories)
-            ),
-            snapshot_arg(reported_flags),
-        ),
+        reported_categories=snapshot_arg(reported_flags),
         changed_files=AnyThing(),
         raises=snapshot_arg(raises),
     )

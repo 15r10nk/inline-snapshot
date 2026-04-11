@@ -49,7 +49,7 @@ def test_pydantic():
             }
         ),
     ).run_inline(
-        ["--inline-snapshot=disable"]
+        ["--inline-snapshot=disable"], reported_categories=set()
     )
 
 
@@ -85,7 +85,7 @@ def test():
             }
         ),
     ).run_inline(
-        ["--inline-snapshot=disable"]
+        ["--inline-snapshot=disable"], reported_categories=set()
     )
 
 
@@ -317,4 +317,6 @@ def test_a():
 """
             }
         ),
-    ).run_inline()
+    ).run_inline(
+        reported_categories={"update"}
+    )

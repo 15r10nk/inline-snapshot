@@ -141,6 +141,7 @@ def test_b():
 """,
             }
         ),
+        reported_categories={"create"},
     ).run_pytest(
         ["my_tests_b/test_b.py", "--inline-snapshot=trim,create"],
         changed_files=snapshot({}),
