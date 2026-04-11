@@ -59,6 +59,7 @@ nav:
     - x <= snapshot(): cmp_snapshot.md
     - x in snapshot(): in_snapshot.md
     - snapshot()[key]: getitem_snapshot.md
+  - snapshot_arg.md
   - external:
     - external(): external/external.md
     - external_file(): external/external_file.md
@@ -103,6 +104,8 @@ plugins:
 - mkdocstrings:
     handlers:
       python:
+        inventories:
+        - https://docs.python.org/3/objects.inv
         options:
           show_symbol_type_heading: true
           show_symbol_type_toc: true

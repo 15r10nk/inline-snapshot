@@ -11,7 +11,7 @@ from inline_snapshot import snapshot
 def test_a():
     assert "a 1" == snapshot(f"a {1}")
     """
-    ).run_inline(reported_categories=snapshot([]))
+    ).run_inline(reported_categories=snapshot(None))
 
 
 def test_fstring_fix():
@@ -36,10 +36,6 @@ def test_a():
     """
         ).run_inline(
             ["--inline-snapshot=fix"],
-            raises=snapshot(
-                """\
-AssertionError:
-not equal\
-"""
-            ),
+            raises=snapshot("AssertionError: not equal"),
+            reported_categories=set(),
         )

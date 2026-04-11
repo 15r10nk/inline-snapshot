@@ -19,12 +19,23 @@ from typing import Union
 
 from inline_snapshot._code_repr import code_repr
 
-from ._types import Snapshot
+from ._snapshot_arg import snapshot_arg
+from ._types import SnapshotArg
 from ._unmanaged import declare_unmanaged
 
 
+def _format_exception(ex):
+    msg = str(ex)
+    if not msg.strip():
+        return f"{type(ex).__name__}"
+    if "\n" in msg:
+        return f"{type(ex).__name__}:\n{ex}"
+    else:
+        return f"{type(ex).__name__}: {ex}"
+
+
 @contextlib.contextmanager
-def raises(exception: Snapshot[str]):
+def raises(exception: SnapshotArg[str] = ..., /):
     """Check that an exception is raised.
 
     Parameters:
@@ -39,7 +50,7 @@ def raises(exception: Snapshot[str]):
 
 
         def test_raises():
-            with raises(snapshot()):
+            with raises():
                 1 / 0
         ```
 
@@ -52,25 +63,22 @@ def raises(exception: Snapshot[str]):
 
 
         def test_raises():
-            with raises(snapshot("ZeroDivisionError: division by zero")):
+            with raises("ZeroDivisionError: division by zero"):
                 1 / 0
         ```
     """
+    exception = snapshot_arg(exception)
 
     try:
         yield
     except BaseException as ex:
-        msg = str(ex)
-        if "\n" in msg:
-            assert f"{type(ex).__name__}:\n{ex}" == exception
-        else:
-            assert f"{type(ex).__name__}: {ex}" == exception
+        assert _format_exception(ex) == exception
     else:
         assert "<no exception>" == exception
 
 
 @contextlib.contextmanager
-def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
+def prints(*, stdout: SnapshotArg[str] = "", stderr: SnapshotArg[str] = ""):
     """Uses `contextlib.redirect_stderr/stdout` to capture the output and
     compare it with the snapshots. `dirty_equals.IsStr` can be used to ignore
     the output if needed.
@@ -81,7 +89,7 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
 
     === "original"
 
-        <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
+        <!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
         ``` python
         import sys
         from inline_snapshot import snapshot
@@ -89,7 +97,7 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
 
 
         def test_prints():
-            with prints(stdout=snapshot(), stderr=snapshot()):
+            with prints():
                 print("hello world")
                 print("some error", file=sys.stderr)
         ```
@@ -97,16 +105,14 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
     === "--inline-snapshot=create"
 
         <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-        ``` python hl_lines="7 8 9"
+        ``` python hl_lines="7"
         import sys
         from inline_snapshot import snapshot
         from inline_snapshot.extra import prints
 
 
         def test_prints():
-            with prints(
-                stdout=snapshot("hello world\\n"), stderr=snapshot("some error\\n")
-            ):
+            with prints(stderr="some error\\n", stdout="hello world\\n"):
                 print("hello world")
                 print("some error", file=sys.stderr)
         ```
@@ -114,7 +120,7 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
     === "ignore stdout"
 
         <!-- inline-snapshot: outcome-passed=1 -->
-        ``` python hl_lines="2 9 10"
+        ``` python hl_lines="2 8 9 10 11"
         import sys
         from dirty_equals import IsStr
         from inline_snapshot import snapshot
@@ -124,7 +130,7 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
         def test_prints():
             with prints(
                 stdout=IsStr(),
-                stderr=snapshot("some error\\n"),
+                stderr="some error\\n",
             ):
                 print("hello world")
                 print("some error", file=sys.stderr)
@@ -135,8 +141,8 @@ def prints(*, stdout: Snapshot[str] = "", stderr: Snapshot[str] = ""):
         with redirect_stderr(io.StringIO()) as stderr_io:
             yield
 
-    assert stderr_io.getvalue() == stderr
-    assert stdout_io.getvalue() == stdout
+    assert stderr_io.getvalue() == snapshot_arg(stderr)
+    assert stdout_io.getvalue() == snapshot_arg(stdout)
 
 
 Warning = Union[str, Tuple[int, str], Tuple[str, str], Tuple[str, int, str]]
@@ -144,7 +150,7 @@ Warning = Union[str, Tuple[int, str], Tuple[str, str], Tuple[str, int, str]]
 
 @contextlib.contextmanager
 def warns(
-    expected_warnings: Snapshot[List[Warning]],
+    expected_warnings: SnapshotArg[List[Warning]] = ...,
     /,
     include_line: bool = False,
     include_file: bool = False,
@@ -174,7 +180,7 @@ def warns(
 
 
         def test_warns():
-            with warns(snapshot(), include_line=True):
+            with warns(include_line=True):
                 warn("some problem")
         ```
 
@@ -188,7 +194,7 @@ def warns(
 
 
         def test_warns():
-            with warns(snapshot([(8, "UserWarning: some problem")]), include_line=True):
+            with warns([(8, "UserWarning: some problem")], include_line=True):
                 warn("some problem")
         ```
     """
@@ -209,7 +215,7 @@ def warns(
 
         return message
 
-    assert [make_warning(w) for w in result] == expected_warnings
+    assert [make_warning(w) for w in result] == snapshot_arg(expected_warnings)
 
 
 @declare_unmanaged
@@ -306,7 +312,10 @@ class Transformed:
     """
 
     def __init__(
-        self, func: Callable[[Any], Any], value: Snapshot, should_be: Any = None
+        self,
+        func: Callable[[Any], Any],
+        value: SnapshotArg = ...,
+        should_be: Any = None,
     ) -> None:
         """
         Arguments:
@@ -315,7 +324,7 @@ class Transformed:
             should_be: this argument is unused and only reported in the `repr()` to show you the last transformed value.
         """
         self._func = func
-        self._value = value
+        self._value = snapshot_arg(value)
         self._last_transformed_value = None
 
     def __eq__(self, other) -> bool:
@@ -323,10 +332,15 @@ class Transformed:
         return self._last_transformed_value == self._value
 
     def __repr__(self):
+        try:
+            code = code_repr(self._func)
+        except Exception as e:  # pragma: no cover
+            code = f"<exception {e}>"
+
         if self._last_transformed_value == self._value:
-            return f"Transformed({code_repr(self._func)}, {self._value})"
+            return f"Transformed({code}, {self._value})"
         else:
-            return f"Transformed({code_repr(self._func)}, {self._value}, should_be={self._last_transformed_value!r})"
+            return f"Transformed({code}, {self._value}, should_be={self._last_transformed_value!r})"
 
 
 def transformation(func):
@@ -373,6 +387,6 @@ def transformation(func):
     """
 
     def f(value):
-        return Transformed(func, value)
+        return Transformed(func, snapshot_arg(value))
 
     return f

@@ -55,8 +55,7 @@ file: <tmp>/tests/test_something.py
 line: 4
 """,
                     "External": """\
-AssertionError:
-
+AssertionError
 RuntimeError:
 
 error during change collection for snapshot (external("uuid:"))
@@ -65,14 +64,14 @@ file: <tmp>/tests/test_something.py
 line: 4
 """,
                     "ExternalFile": """\
-AssertionError:
-
+AssertionError
 RuntimeError:
 
-error during change collection for snapshot (external_file('<tmp>/tests/test.txt'))
+error during change collection for snapshot (external_file('test.txt'))
 snapshot.
 """,
                 }
             )[snapshot_type.__name__]
         ),
+        reported_categories=set(),
     )

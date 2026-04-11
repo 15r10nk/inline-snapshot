@@ -1,6 +1,7 @@
 import sys
 
 import pytest
+from dirty_equals import AnyThing
 
 from inline_snapshot import snapshot
 from inline_snapshot.extra import warns
@@ -40,12 +41,7 @@ def test_something():
 """
             }
         ),
-        raises=snapshot(
-            """\
-AssertionError:
-not equal\
-"""
-        ),
+        raises=snapshot("AssertionError: not equal"),
     )
 
 
@@ -261,7 +257,6 @@ def test_something():
 """
             }
         ),
-        returncode=0,
     )
 
 
@@ -381,12 +376,8 @@ def test_something():
 """
     ).run_inline(
         changed_files=snapshot({}),
-        raises=snapshot(
-            """\
-AssertionError:
-not equal\
-"""
-        ),
+        raises=snapshot("AssertionError: not equal"),
+        reported_categories={"fix"},
     )
 
 
@@ -416,12 +407,8 @@ def test_something():
 """
         ).run_inline(
             ["--inline-snapshot=report"],
-            raises=snapshot(
-                """\
-AssertionError:
-not equal\
-"""
-            ),
+            raises=snapshot("AssertionError: not equal"),
+            reported_categories={"fix"},
         )
 
 
@@ -459,7 +446,7 @@ def test_something():
 """
             }
         ),
-        raises=snapshot(None),
+        raises=snapshot("<no exception>"),
     )
 
 
@@ -484,9 +471,7 @@ class A:
 def test_something():
     assert A(a=3) == snapshot(A(*[],a=3)),"not equal"
 """
-        ).run_inline(
-            ["--inline-snapshot=report"],
-        )
+        ).run_inline(["--inline-snapshot=report"], reported_categories={"update"})
 
 
 def test_remove_positional_argument():
@@ -530,7 +515,7 @@ def test_L3():
         assert L(1,2) == snapshot(L(1, 2)), "not equal"
 """,
         }
-    ).run_pytest(returncode=snapshot(1)).run_pytest(
+    ).run_pytest(returncode=snapshot(1), error=AnyThing()).run_pytest(
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
@@ -554,7 +539,7 @@ def test_L3():
             }
         ),
         returncode=snapshot(1),
-    )
+    ).run_pytest()
 
 
 def test_namedtuple():
@@ -746,6 +731,7 @@ def test_A():
 """
             }
         ),
+        reported_categories={"fix", "update"},
     ).run_inline(
         ["--inline-snapshot=update"],
         changed_files=snapshot(

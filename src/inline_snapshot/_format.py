@@ -13,12 +13,23 @@ def enforce_formatting():
 
 
 def file_mode_for_path(path):
+    from pathlib import Path
+
     from black import FileMode
     from black import find_pyproject_toml
     from black import parse_pyproject_toml
 
     mode = FileMode()
-    pyproject_path = find_pyproject_toml((), path)
+    # Convert path to a Path object and start searching for pyproject.toml
+    # from the file's parent directory (or the directory itself), so Black
+    # resolves configuration relative to the file being formatted rather than
+    # the current working directory.
+    path_obj = Path(path)
+    if path_obj.is_file():
+        search_start = (str(path_obj.parent),)
+    else:
+        search_start = (str(path_obj),)
+    pyproject_path = find_pyproject_toml(search_start, None)
     if pyproject_path is not None:
         config = parse_pyproject_toml(pyproject_path)
 

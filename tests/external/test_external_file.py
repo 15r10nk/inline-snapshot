@@ -12,12 +12,7 @@ def test_a():
     assert "test1".upper() == external_file("test.txt"), "not equal"
 """
     ).run_inline(
-        raises=snapshot(
-            """\
-AssertionError:
-not equal\
-"""
-        )
+        raises=snapshot("AssertionError: not equal"), reported_categories={"create"}
     ).run_pytest(
         ["--inline-snapshot=create"],
         changed_files=snapshot({"tests/test.txt": "TEST1"}),
@@ -34,12 +29,8 @@ These changes will be applied, because you used create\
         "test1", "test2"
     ).run_inline(
         ["--inline-snapshot=disable"],
-        raises=snapshot(
-            """\
-AssertionError:
-not equal\
-"""
-        ),
+        raises=snapshot("AssertionError: not equal"),
+        reported_categories=set(),
     ).run_pytest(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({"tests/test.txt": "TEST2"}),
@@ -71,6 +62,7 @@ def test_a():
     ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot({"tests/test.txt": "test1"}),
+        reported_categories={"fix"},
     ).run_inline()
 
 
@@ -104,7 +96,11 @@ def test_a():
     external_file("test.txt")
 
 """
-    ).run_inline(["--inline-snapshot=create"], changed_files=snapshot({})).run_inline()
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot({}),
+        reported_categories=set(),
+    ).run_inline()
 
 
 def test_register_format_alias():
@@ -119,7 +115,9 @@ def test_bar():
     assert "text" ==external_file("a.html")
     """
     ).run_inline(
-        ["--inline-snapshot=create"], changed_files=snapshot({"tests/a.html": "text"})
+        ["--inline-snapshot=create"],
+        changed_files=snapshot({"tests/a.html": "text"}),
+        reported_categories={"fix"},
     )
 
 
@@ -154,6 +152,12 @@ Use --inline-snapshot=create to apply them, or use the interactive mode with
 """
         ),
         returncode=snapshot(1),
+        error="""\
+>       assert sorted([n, 2]) == external_file("stored.json")
+E       AssertionError: assert [2, 5] == external_file('stored.json')
+E        +  where [2, 5] = sorted([5, 2])
+E        +  and   external_file('stored.json') = external_file('stored.json')
+""",
     ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
@@ -166,6 +170,7 @@ Use --inline-snapshot=create to apply them, or use the interactive mode with
 """
             }
         ),
+        reported_categories={"fix"},
     ).replace(
         "n=5", "n=8"
     ).run_pytest(

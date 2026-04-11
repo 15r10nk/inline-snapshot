@@ -61,9 +61,7 @@ def test_thing():
         ["--inline-snapshot=fix"],
         report=snapshot(""),
         raises=snapshot(
-            """\
-UsageError:
-unmanaged values cannot be compared with snapshots\
-"""
+            "UsageError: unmanaged values cannot be compared with snapshots"
         ),
+        reported_categories=set(),
     )
