@@ -48,6 +48,7 @@ def test_something():
     ).run_inline(
         changed_files=snapshot({}),
         raises=snapshot("AssertionError: not equal"),
+        reported_categories={"fix"},
     )
 
 

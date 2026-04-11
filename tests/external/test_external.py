@@ -173,12 +173,12 @@ def test_something():
             ),
             returncode=1,
         )
-        .run_inline(reported_categories=snapshot([]))
+        .run_inline(reported_categories=snapshot(None))
         .change_code(lambda code: code.replace("hash:", ""))
-        .run_inline(reported_categories=snapshot(["update"]))
+        .run_inline(reported_categories=snapshot({"update"}))
         .run_inline(
             ["--inline-snapshot=update"],
-            reported_categories=snapshot(["update"]),
+            reported_categories=snapshot(None),
             changed_files=snapshot(
                 {
                     "tests/test_something.py": """\
@@ -1057,4 +1057,5 @@ def test_a():
         raises=snapshot(
             "UsageError: external() can only be used in files which are inside tests/ or any other folder defined by your tool.inline-snapshot.test-dir in pyproject.toml"
         ),
+        reported_categories=set(),
     )

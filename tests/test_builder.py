@@ -26,4 +26,5 @@ def test_a():
     e.run_inline(
         ["--inline-snapshot=create"],
         raises=snapshot("UsageError: default value cannot be a Custom value"),
+        reported_categories=set(),
     )

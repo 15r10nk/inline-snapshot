@@ -1,4 +1,5 @@
 import pytest
+from dirty_equals import AnyThing
 
 from inline_snapshot._is import Is
 from inline_snapshot.testing._example import Example
@@ -47,11 +48,12 @@ def test_change():
     print(a, b)
     print(code_repr(a), code_repr(b))
 
+    code_changed = code_repr(a) != b
+
     Example(code(a, b)).run_inline(
         ["--inline-snapshot=fix,update"],
         changed_files=Is(
-            {"tests/test_something.py": code(a, code_repr(a))}
-            if code_repr(a) != b
-            else {}
+            {"tests/test_something.py": code(a, code_repr(a))} if code_changed else {}
         ),
+        reported_categories=AnyThing(),
     )

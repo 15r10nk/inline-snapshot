@@ -11,7 +11,9 @@ from inline_snapshot import external_file
 def test_a():
     assert "test1".upper() == external_file("test.txt"), "not equal"
 """
-    ).run_inline(raises=snapshot("AssertionError: not equal")).run_pytest(
+    ).run_inline(
+        raises=snapshot("AssertionError: not equal"), reported_categories={"create"}
+    ).run_pytest(
         ["--inline-snapshot=create"],
         changed_files=snapshot({"tests/test.txt": "TEST1"}),
         report=snapshot(
@@ -28,6 +30,7 @@ These changes will be applied, because you used create\
     ).run_inline(
         ["--inline-snapshot=disable"],
         raises=snapshot("AssertionError: not equal"),
+        reported_categories=set(),
     ).run_pytest(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({"tests/test.txt": "TEST2"}),
@@ -59,6 +62,7 @@ def test_a():
     ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot({"tests/test.txt": "test1"}),
+        reported_categories={"fix"},
     ).run_inline()
 
 
@@ -92,7 +96,11 @@ def test_a():
     external_file("test.txt")
 
 """
-    ).run_inline(["--inline-snapshot=create"], changed_files=snapshot({})).run_inline()
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot({}),
+        reported_categories=set(),
+    ).run_inline()
 
 
 def test_register_format_alias():
@@ -107,7 +115,9 @@ def test_bar():
     assert "text" ==external_file("a.html")
     """
     ).run_inline(
-        ["--inline-snapshot=create"], changed_files=snapshot({"tests/a.html": "text"})
+        ["--inline-snapshot=create"],
+        changed_files=snapshot({"tests/a.html": "text"}),
+        reported_categories={"fix"},
     )
 
 
@@ -160,6 +170,7 @@ E        +  and   external_file('stored.json') = external_file('stored.json')
 """
             }
         ),
+        reported_categories={"fix"},
     ).replace(
         "n=5", "n=8"
     ).run_pytest(

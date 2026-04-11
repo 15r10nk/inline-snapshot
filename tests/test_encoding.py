@@ -1,6 +1,7 @@
 import pytest
 
 from inline_snapshot._inline_snapshot import snapshot
+from inline_snapshot._is import Is
 from inline_snapshot.testing._example import Example
 
 
@@ -36,7 +37,7 @@ def test_a():
 
     Example(code.replace("\n", newline).encode(encoding)).run_inline(
         ["--inline-snapshot=create"],
-        changed_files={"tests/test_something.py": fixed_code},
+        changed_files={"tests/test_something.py": Is(fixed_code)},
         report=snapshot(
             {
                 "utf-8": """\

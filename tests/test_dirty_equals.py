@@ -25,6 +25,7 @@ customized_value=IsStr()
 customized_representation=CustomCall(function=CustomCode('IsStr'), args=[], kwargs={})
 """
         ),
+        reported_categories=set(),
     )
 
 
@@ -85,8 +86,7 @@ def test():
 
 """
     ).run_inline(
-        ["--inline-snapshot=fix"],
-        changed_files=snapshot({}),
+        ["--inline-snapshot=fix"], changed_files=snapshot({}), reported_categories=set()
     )
 
 
@@ -117,6 +117,7 @@ def test_time():
         ["--inline-snapshot=fix"],
         changed_files=snapshot({}),
         raises=snapshot("AssertionError: different time"),
+        reported_categories=set(),
     )
 
 

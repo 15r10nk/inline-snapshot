@@ -38,6 +38,7 @@ def test_a():
         ["--inline-snapshot=disable"],
         changed_files=snapshot({}),
         raises=snapshot("AssertionError"),
+        reported_categories=set(),
     ).run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
@@ -46,5 +47,7 @@ def test_a():
             }
         ),
     ).run_inline(
-        ["--inline-snapshot=disable"], changed_files=snapshot({})
+        ["--inline-snapshot=disable"],
+        changed_files=snapshot({}),
+        reported_categories=set(),
     )

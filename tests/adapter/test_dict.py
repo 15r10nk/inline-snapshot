@@ -40,4 +40,5 @@ def test_dict():
     ).run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({}),
+        reported_categories={"update"},
     )

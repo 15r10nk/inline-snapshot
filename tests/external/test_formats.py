@@ -37,7 +37,7 @@ def test_a():
             }
         ),
     ).run_inline(
-        ["--inline-snapshot=disable"]
+        ["--inline-snapshot=disable"], reported_categories=set()
     )
 
 
@@ -76,7 +76,7 @@ def test_a():
             }
         ),
     ).run_inline(
-        ["--inline-snapshot=disable"]
+        ["--inline-snapshot=disable"], reported_categories=set()
     )
 
 

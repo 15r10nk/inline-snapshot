@@ -818,6 +818,7 @@ assert value == copied_value
 Please fix the way your object is copied or your __eq__ implementation.
 """
         ),
+        reported_categories=set(),
     )
 
 
@@ -857,6 +858,7 @@ assert value == copied_value
 Please fix the way your object is copied or your __eq__ implementation.
 """
         ),
+        reported_categories=set(),
     )
 
 
@@ -878,7 +880,9 @@ def test_a():
         stderr=error,
     )
 
-    e.run_inline(["--inline-snapshot=creaigflen"], stderr=error)
+    e.run_inline(
+        ["--inline-snapshot=creaigflen"], stderr=error, reported_categories=set()
+    )
 
 
 @pytest.mark.parametrize("storage_dir", ["tests/snapshots", None])

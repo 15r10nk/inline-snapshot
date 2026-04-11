@@ -116,6 +116,5 @@ def test_tuple():
     snapshot(tuple()), "not equal"
 """
     ).run_inline(
-        ["--inline-snapshot=fix"],
-        changed_files=snapshot({}),
+        ["--inline-snapshot=fix"], changed_files=snapshot({}), reported_categories=set()
     )

@@ -73,4 +73,5 @@ snapshot.
                 }
             )[snapshot_type.__name__]
         ),
+        reported_categories=set(),
     )

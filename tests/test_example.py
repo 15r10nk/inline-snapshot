@@ -34,7 +34,7 @@ def test_a():
 
     e.run_inline(
         ["--inline-snapshot=fix"],
-        reported_categories=snapshot(["fix"]),
+        reported_categories=snapshot(None),
         changed_files={
             "test_a.py": """\
 
@@ -46,8 +46,7 @@ def test_a():
 """
         },
     ).run_inline(
-        ["--inline-snapshot=fix"],
-        changed_files=snapshot({}),
+        ["--inline-snapshot=fix"], changed_files=snapshot({}), reported_categories=set()
     )
 
 
