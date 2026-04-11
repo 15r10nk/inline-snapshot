@@ -142,8 +142,12 @@ class External(ExternalBase, SnapshotRefBase):
         format.encode(other, self._tmp_file)
         self._location = self.storage.new_location(self._location, self._tmp_file)
 
-    def _load_value(self):
-        return self._load_value_from_location(self._original_location)
+    def _load_value(self, which="old"):
+        if which == "new":
+            location = self._location
+        else:
+            location = self._original_location
+        return self._load_value_from_location(location)
 
     @classmethod
     def _load_value_from_location(cls, location: ExternalLocation) -> object:

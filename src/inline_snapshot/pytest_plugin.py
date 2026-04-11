@@ -226,8 +226,14 @@ class InlineSnapshotPlugin:
             fix_assert(frame, left, right)
 
         results = []
-        left, left_unwrapped = unwrap(left)
-        right, right_unwrapped = unwrap(right)
+        print("+++")
+        print(type(left), type(right))
+        print(left, right)
+        left, left_unwrapped = unwrap(left, "old")
+        right, right_unwrapped = unwrap(right, "old")
+
+        print(left, right)
+        print(left_unwrapped, right_unwrapped)
 
         if left_unwrapped or right_unwrapped:
             results = config.hook.pytest_assertrepr_compare(

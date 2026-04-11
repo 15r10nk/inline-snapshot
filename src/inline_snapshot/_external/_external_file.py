@@ -41,7 +41,7 @@ class ExternalFile(ExternalBase, SnapshotRefBase):
             path = filename
         return f"external_file({str(path)!r})"
 
-    def _load_value(self):
+    def _load_value(self, which):
         try:
             return self._format.decode(self._filename)
         except FileNotFoundError:
