@@ -86,7 +86,8 @@ class Snapshot(Protocol[T]):
 
 class SnapshotArg(Protocol[T]):
     """
-    Like Snapshot[T] but should be used for arguments which are used with `snapshot_arg`.
+    Like Snapshot[T] but is used for arguments which use `snapshot_arg` internally.
+    It tells you that you can omit the argument and that inline-snapshot will create it for you if needed.
     """
 
     def __eq__(self, other: object, /) -> bool: ...  # pragma: no cover

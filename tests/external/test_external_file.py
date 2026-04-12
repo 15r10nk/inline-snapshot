@@ -25,6 +25,7 @@ These changes will be applied, because you used create\
 """
         ),
         returncode=snapshot(1),
+        outcomes={"passed": 1, "errors": 1},
     ).replace(
         "test1", "test2"
     ).run_inline(
@@ -46,6 +47,7 @@ These changes will be applied, because you used fix\
 """
         ),
         returncode=snapshot(1),
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -80,7 +82,10 @@ def test_a():
 
 """
     ).run_pytest(
-        ["--inline-snapshot=create"], changed_files=snapshot({}), returncode=1
+        ["--inline-snapshot=create"],
+        changed_files=snapshot({}),
+        returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).run_inline()
 
     assert file.read_text() == "test"
@@ -158,6 +163,7 @@ E       AssertionError: assert [2, 5] == external_file('stored.json')
 E        +  where [2, 5] = sorted([5, 2])
 E        +  and   external_file('stored.json') = external_file('stored.json')
 """,
+        outcomes={"failed": 1, "errors": 1},
     ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
@@ -192,4 +198,5 @@ Use --inline-snapshot=fix to apply them, or use the interactive mode with
 """
         ),
         returncode=snapshot(1),
+        outcomes={"passed": 1, "errors": 1},
     )

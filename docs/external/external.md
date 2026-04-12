@@ -73,7 +73,7 @@ def test_something():
     )
 ```
 
-<!-- inline-snapshot: create fix outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot: create fix outcome-passed=1 -->
 ``` python hl_lines="6 7 8 9 10 11 12 13"
 from inline_snapshot import external, snapshot
 

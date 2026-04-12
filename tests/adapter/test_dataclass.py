@@ -236,6 +236,7 @@ def test_something():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).run_pytest(
         ["--inline-snapshot=update"],
         changed_files=snapshot(
@@ -291,6 +292,7 @@ def test_something():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -328,6 +330,7 @@ def test():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).run_pytest()
 
 
@@ -356,8 +359,7 @@ def test():
     )
 """
     ).run_pytest(
-        ["--inline-snapshot=create,fix"],
-        changed_files=snapshot({}),
+        ["--inline-snapshot=create,fix"], changed_files=snapshot({})
     ).run_pytest()
 
 
@@ -515,7 +517,11 @@ def test_L3():
         assert L(1,2) == snapshot(L(1, 2)), "not equal"
 """,
         }
-    ).run_pytest(returncode=snapshot(1), error=AnyThing()).run_pytest(
+    ).run_pytest(
+        returncode=snapshot(1),
+        error=AnyThing(),
+        outcomes={"failed": 2, "passed": 1, "errors": 2},
+    ).run_pytest(
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {
@@ -539,7 +545,10 @@ def test_L3():
             }
         ),
         returncode=snapshot(1),
-    ).run_pytest()
+        outcomes={"passed": 3, "errors": 2},
+    ).run_pytest(
+        outcomes={"passed": 3}
+    )
 
 
 def test_namedtuple():
@@ -569,6 +578,7 @@ def test_tuple():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -601,6 +611,7 @@ def test_tuple():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 

@@ -30,6 +30,7 @@ def test_a():
     \
 """
         },
+        outcomes={"passed": 1, "errors": 1},
     )
 
     e.run_inline(

@@ -18,6 +18,7 @@ def test_a():
         returncode=snapshot(0),
         stderr=snapshot(""),
         changed_files=snapshot({}),
+        outcomes={"xfailed": 1},
     )
 
 
@@ -37,6 +38,7 @@ def test_a():
         returncode=snapshot(0),
         stderr=snapshot(""),
         changed_files=snapshot({}),
+        outcomes={"xfailed": 1},
     )
 
 
@@ -81,4 +83,5 @@ def test_a():
 """
             }
         ),
+        outcomes={"passed": 1, "errors": 1},
     )

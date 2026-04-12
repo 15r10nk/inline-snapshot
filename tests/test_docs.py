@@ -432,6 +432,10 @@ uuid.uuid4=f
                 changed_files=AnyThing(),
             )
 
+        if "fix" in flags:
+            example.run_pytest(outcomes=(outcomes := Store()))
+            assert "errors" not in outcomes.value
+
         print("flags:", flags, repr(block.block_options))
 
         new_code = code

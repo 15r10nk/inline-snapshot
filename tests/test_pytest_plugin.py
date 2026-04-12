@@ -317,6 +317,7 @@ def test_a():
             "ERROR: --inline-snapshot=disable cannot be combined with other flags (fix)\n"
         ),
         returncode=4,
+        outcomes={},
     )
 
     e.run_pytest(
@@ -325,6 +326,7 @@ def test_a():
             "ERROR: --inline-snapshot=disable cannot be combined with other flags (review)\n"
         ),
         returncode=4,
+        outcomes={},
     )
 
 
@@ -453,6 +455,7 @@ def test_a():
 """
             }
         ),
+        outcomes={"passed": 1, "errors": 1},
     )
 
     assert e.is_formatted()
@@ -490,6 +493,7 @@ def test_a():
     assert 4==snapshot(4)
 """
         },
+        outcomes={"passed": 1, "errors": 1},
     )
 
     assert e.files["tests/test_something.py"] == snapshot(
@@ -784,6 +788,7 @@ These changes will be applied, because you used fix\
 """
         ),
         returncode=1,
+        outcomes={"passed": 2, "errors": 2},
     )
 
 
@@ -878,6 +883,7 @@ def test_a():
         report=snapshot(""),
         returncode=snapshot(4),
         stderr=error,
+        outcomes={},
     )
 
     e.run_inline(
@@ -930,6 +936,7 @@ def test_outsource():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).run_pytest(
         ["--inline-snapshot=disable"], changed_files=snapshot({})
     ).run_pytest(
@@ -983,6 +990,7 @@ def test_something():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -1017,6 +1025,7 @@ def test_something():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -1059,6 +1068,7 @@ Use --inline-snapshot=fix to apply them, or use the interactive mode with
 E       assert 1 == 5
 E        +  where 5 = snapshot(5)
 """,
+        outcomes={"failed": 1, "errors": 1},
     )
 
 
@@ -1105,6 +1115,7 @@ def test_a():
             }
         ),
         stdin=b"y\n",
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -1126,4 +1137,4 @@ def test_a():
     pass
              """,
         }
-    ).run_pytest(stderr=snapshot("Exit: failed"), returncode=snapshot(2))
+    ).run_pytest(stderr=snapshot("Exit: failed"), returncode=snapshot(2), outcomes={})

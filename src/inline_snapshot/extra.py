@@ -41,6 +41,7 @@ def raises(exception: SnapshotArg[str] = ..., /):
     Parameters:
         exception: Snapshot that is compared with `#!python f"{type}: {message}"` if an exception occurs, or `#!python "<no exception>"` if no exception is raised.
 
+
     === "original"
 
         <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
@@ -64,6 +65,14 @@ def raises(exception: SnapshotArg[str] = ..., /):
 
         def test_raises():
             with raises("ZeroDivisionError: division by zero"):
+                1 / 0
+        ```
+
+    ??? info "Limitation: cpython < 3.11"
+        You have to use snapshot(...) when you want to fix the values on CPython < 3.11.
+        ``` python
+        def test_raises():
+            with raises(snapshot()):
                 1 / 0
         ```
     """
@@ -135,6 +144,14 @@ def prints(*, stdout: SnapshotArg[str] = "", stderr: SnapshotArg[str] = ""):
                 print("hello world")
                 print("some error", file=sys.stderr)
         ```
+
+    ??? info "Limitation: cpython < 3.11"
+        You have to use snapshot(...) when you want to fix the values on CPython < 3.11.
+        ``` python
+        def test_prints():
+            with prints(snapshot()):
+                print("hello")
+        ```
     """
 
     with redirect_stdout(io.StringIO()) as stdout_io:
@@ -186,7 +203,7 @@ def warns(
 
     === "--inline-snapshot=create"
 
-        <!-- inline-snapshot: create fix outcome-passed=1 outcome-errors=1 -->
+        <!-- inline-snapshot: create fix outcome-passed=1 -->
         ``` python hl_lines="7"
         from warnings import warn
         from inline_snapshot import snapshot
@@ -195,6 +212,14 @@ def warns(
 
         def test_warns():
             with warns([(8, "UserWarning: some problem")], include_line=True):
+                warn("some problem")
+        ```
+
+    ??? info "Limitation: cpython < 3.11"
+        You have to use snapshot(...) when you want to fix the values on CPython < 3.11.
+        ``` python
+        def test_raises():
+            with warns(snapshot()):
                 warn("some problem")
         ```
     """
@@ -308,7 +333,6 @@ class Transformed:
 
     !!! Tip
         You can use [@transformation][inline_snapshot.extra.transformation] if you want to use the same transformation multiple times.
-
     """
 
     def __init__(

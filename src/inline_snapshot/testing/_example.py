@@ -21,6 +21,8 @@ from typing import Sequence
 from unittest.mock import patch
 
 from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
 
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._get_snapshot_value import get_snapshot_value
@@ -88,7 +90,7 @@ def parse_outcomes(lines):
         else:
             pass  # pragma: no cover
     else:
-        raise ValueError("Pytest terminal summary report not found")  # pragma: no cover
+        return {}
 
     to_plural = {
         "warning": "warnings",
@@ -118,6 +120,9 @@ def chdir(path):
         yield
     finally:
         os.chdir(cwd)
+
+
+console = Console(width=80)
 
 
 @contextmanager
@@ -173,10 +178,6 @@ class Example:
         self.files = files
 
     def dump_files(self):
-        from rich.panel import Panel
-        from rich.text import Text
-
-        console = Console()
 
         for name, content in self.files.items():
             if isinstance(content, bytes):
@@ -538,7 +539,7 @@ class Example:
         stderr: SnapshotArg[str] = "",
         returncode: SnapshotArg[int] = 0,
         stdin: bytes = b"",
-        outcomes: Snapshot[dict[str, int]] | None = None,
+        outcomes: SnapshotArg[dict[str, int]] = {"passed": 1},
     ) -> Example:
         """Run pytest with the given args and environment variables in a separate
         process.
@@ -591,11 +592,11 @@ class Example:
             result_stdout = result.stdout.decode("utf-8")
             result_stderr = result.stderr.decode("utf-8")
 
-            print("run>", *cmd)
-            print("stdout:")
-            print(result_stdout)
-            print("stderr:")
-            print(result_stderr)
+            console.print("run>", *cmd)
+
+            console.print(Panel(Text(result_stdout), title="stdout"))
+            if result_stderr:
+                console.print(Panel(Text(result_stderr), title="stderr"))
 
             assert result.returncode == snapshot_arg(returncode)
 
@@ -655,7 +656,6 @@ class Example:
 
             assert snapshot_arg(changed_files) == self._changed_files(tmp_path)
 
-            if outcomes is not None:
-                assert outcomes == parse_outcomes(result_stdout.splitlines())
+            assert snapshot_arg(outcomes) == parse_outcomes(result_stdout.splitlines())
 
             return Example(self._read_files(tmp_path))

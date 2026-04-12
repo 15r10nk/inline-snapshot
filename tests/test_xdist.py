@@ -16,6 +16,7 @@ def test_a():
             "ERROR: --inline-snapshot=create cannot be combined with xdist\n"
         ),
         returncode=4,
+        outcomes={},
     )
 
 
@@ -66,6 +67,7 @@ def test_a():
 E       assert 1 == 2
 E        +  where 2 = snapshot(2)
 """,
+        outcomes={"failed": 1},
     )
 
     e.run_pytest(
@@ -73,6 +75,7 @@ E        +  where 2 = snapshot(2)
         report=snapshot(""),
         stderr=snapshot("ERROR: --inline-snapshot=fix cannot be combined with xdist\n"),
         returncode=4,
+        outcomes={},
     )
 
     Example(
@@ -104,6 +107,7 @@ inline-snapshot will not be able to fix snapshots or generate reports.\
 E       assert 1 == 2
 E        +  where 2 = snapshot(2)
 """,
+        outcomes={"failed": 1},
     )
 
 

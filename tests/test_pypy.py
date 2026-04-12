@@ -50,7 +50,7 @@ def test_example():
         ["--inline-snapshot=fix"],
         report=report,
         error=Is(
-            ">       assert 1+1==snapshot(3)\nE       AssertionError\n"
+            ">       assert 1+1==snapshot(3)\nE       assert (1 + 1) == 3\nE        +  where 3 = snapshot(3)\n"
             if no_cpython
             else ""
         ),
@@ -71,6 +71,7 @@ def test_example():
                 }
             )
         ),
+        outcomes=Is({"failed": 1} if no_cpython else {"passed": 1, "errors": 1}),
     ).run_pytest(
         ["--inline-snapshot=disable"],
         report="",
@@ -80,4 +81,5 @@ def test_example():
             else ""
         ),
         returncode=Is(1 if no_cpython else 0),
+        outcomes=Is({"failed": 1} if no_cpython else {"passed": 1}),
     )

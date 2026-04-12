@@ -143,6 +143,7 @@ These changes will be applied, because you used create\
 """
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).change_code(
         lambda text: text.replace("False", "True") if isinstance(text, str) else text
     ).run_pytest(
@@ -170,6 +171,7 @@ These changes will be applied, because you used fix\
 """
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -215,6 +217,7 @@ def test_a():
     assert data == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.bin")
 """,
         },
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -240,6 +243,7 @@ E           inline_snapshot._exceptions.UsageError: Format '.blub' is unknown.
 """
         ),
         returncode=snapshot(1),
+        outcomes={"failed": 1},
     )
 
 
@@ -270,6 +274,7 @@ def test_a():
         ["--inline-snapshot=create"],
         changed_files=snapshot({"tests/test.bin": "b'hi\\nyou'"}),
         returncode=snapshot(1),
+        outcomes={"passed": 1, "errors": 1},
     ).run_inline()
 
 
@@ -290,6 +295,7 @@ class BytesFormat(TextDiff, Format[bytes]):
             "E   inline_snapshot._exceptions.UsageError: A format handler is already registered for the suffix '.bin'.\n"
         ),
         returncode=snapshot(2),
+        outcomes={"errors": 1},
     )
 
 
@@ -321,4 +327,5 @@ E           inline_snapshot._exceptions.UsageError: Multiple format handlers fou
 """
         ),
         returncode=snapshot(1),
+        outcomes={"failed": 1},
     )

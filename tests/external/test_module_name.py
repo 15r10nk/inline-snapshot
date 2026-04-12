@@ -54,6 +54,7 @@ s = snapshot([A(a=5), B(b=5)])
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).run_pytest(
         ["--inline-snapshot=disable"]
     )

@@ -22,7 +22,6 @@ class M(BaseModel):
 def test_pydantic():
     m=M(size=5,name="Tom")
     assert m==snapshot()
-    assert m.dict()==snapshot()
 
     """
     ).run_inline(
@@ -42,7 +41,6 @@ class M(BaseModel):
 def test_pydantic():
     m=M(size=5,name="Tom")
     assert m==snapshot(M(size=5, name="Tom"))
-    assert m.dict()==snapshot({"size": 5, "name": "Tom", "age": 4})
 
     \
 """

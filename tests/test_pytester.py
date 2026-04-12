@@ -34,6 +34,7 @@ def test_pytester(pytester):
             }
         ),
         returncode=1,
+        outcomes={"passed": 2, "errors": 1},
     ).run_pytest(
-        ["--inline-snapshot=disable"]
+        ["--inline-snapshot=disable"], outcomes={"passed": 2}
     )

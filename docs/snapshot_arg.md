@@ -172,21 +172,21 @@ def test_prints():
         check("Hello", output="hello")
     ```
 === "methods"
-    <!-- inline-snapshot: create fix first_block outcome-failed=1 -->
+    <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
     ``` python
     from inline_snapshot import snapshot_arg
 
 
     class Checker:
-        def check(input, output=...):
+        def check(self, input, output=...):
             assert input.lower() == snapshot_arg(output)
 
 
     def test_check():
-        Checker().check("Hello")
+        Checker().check("Hello", output="hello")
     ```
 === "constructors"
-    <!-- inline-snapshot: create fix first_block outcome-failed=1 -->
+    <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
     ``` python
     from inline_snapshot import snapshot_arg
 
@@ -195,12 +195,12 @@ def test_prints():
         def __init__(self, output=...):
             self.output = snapshot_arg(output)
 
-        def check(input, output=...):
+        def check(self, input, output=...):
             assert input.lower() == self.output
 
 
     def test_check():
-        Checker().check("Hello")
+        Checker(output="hello").check("Hello")
     ```
 
 === "context managers"

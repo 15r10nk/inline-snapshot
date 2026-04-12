@@ -38,4 +38,5 @@ E       assert [3, 6, 2] == Transformed(sorted, [2, 3, 5], should_be=[2, 3, 6])
 """
         ),
         returncode=1,
+        outcomes={"failed": 1, "errors": 1},
     )

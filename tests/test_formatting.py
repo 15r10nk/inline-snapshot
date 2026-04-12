@@ -141,6 +141,7 @@ def test_a():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -218,6 +219,7 @@ some_problem\
             )
         ),
         returncode=snapshot(1),
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -313,6 +315,7 @@ def test_a():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -341,4 +344,5 @@ def test_a():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).run_inline()

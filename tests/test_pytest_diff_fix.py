@@ -67,4 +67,5 @@ E           }
 """
         ),
         returncode=1,
+        outcomes={"failed": 1, "errors": 1},
     )

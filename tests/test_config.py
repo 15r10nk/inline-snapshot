@@ -42,6 +42,7 @@ default-flags = ["trim"]
 E       assert 1 == 2
 E        +  where 2 = snapshot(2)
 """,
+        outcomes={"failed": 1, "errors": 1},
     )
 
 
@@ -57,6 +58,7 @@ def test_config_env():
 E       assert 1 == 2
 E        +  where 2 = snapshot(2)
 """,
+        outcomes={"failed": 1, "errors": 1},
     )
 
     e.run_pytest(
@@ -65,6 +67,7 @@ E        +  where 2 = snapshot(2)
         changed_files=trimmed_files,
         returncode=snapshot(1),
         error=">       assert 1 == snapshot(2)\n",
+        outcomes={"failed": 1, "errors": 1},
     )
 
 
@@ -87,6 +90,7 @@ strim=["trim"]
 E       assert 1 == 2
 E        +  where 2 = snapshot(2)
 """,
+        outcomes={"failed": 1, "errors": 1},
     )
 
 
@@ -112,6 +116,7 @@ def test_a():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -128,4 +133,5 @@ default-storage="incorrect"
             'ERROR: default-storage has to be uuid or hash but is "incorrect"\n'
         ),
         returncode=snapshot(4),
+        outcomes={},
     )

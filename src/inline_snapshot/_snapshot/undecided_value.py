@@ -108,7 +108,8 @@ class ValueToCustom:
                     args=posonly_args,
                     kwargs=kwargs,
                 )
-            return CustomCode(value, "<unknown>")
+            return result
+            return CustomCode(value, f"<unknown_value {type(value)}: {value}>")
 
     def convert_list(self, value: list):
         return CustomList([self.convert(v) for v in value])

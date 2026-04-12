@@ -63,6 +63,7 @@ def test_something():
     \
 """
         },
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -74,6 +75,4 @@ def test_something():
     assert not isinstance(snapshot(5),int)
 
     """
-    ).run_pytest(
-        env={"TEAMCITY_VERSION": "true", "PYCHARM_HOSTED": "true"},
-    )
+    ).run_pytest(env={"TEAMCITY_VERSION": "true", "PYCHARM_HOSTED": "true"})

@@ -64,6 +64,7 @@ def test_a():
             }
         ),
         returncode=snapshot(1),
+        outcomes={"passed": 1, "errors": 1},
     ).replace(
         "test_a", "test_b"
     ).run_pytest().remove_file(
@@ -75,6 +76,7 @@ def test_a():
 >           raise StorageLookupError(location, files=[])
 E           inline_snapshot._external._storage._protocol.StorageLookupError: uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt
 """,
+        outcomes={"failed": 1},
     )
 
 
@@ -96,6 +98,7 @@ def test_a():
             "ERROR: test-dir has to be a directory or list of directories\n"
         ),
         returncode=snapshot(4),
+        outcomes={},
     )
 
 
@@ -189,6 +192,7 @@ def test_a():
             }
         ),
         returncode=snapshot(1),
+        outcomes={"passed": 1, "errors": 1},
     ).replace(
         'assert "b" == external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt")', ""
     ).run_pytest(

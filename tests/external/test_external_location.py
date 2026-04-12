@@ -68,4 +68,5 @@ def test_a():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )

@@ -22,6 +22,7 @@ def test_a():
 E       assert 'TESTA' == external("{storage}:")
 E        +  where external("{storage}:") = external('{storage}:')
 """,
+        outcomes={"failed": 1, "errors": 1},
     ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
@@ -102,4 +103,5 @@ These changes will be applied, because you used fix\
             }
         )[storage],
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )

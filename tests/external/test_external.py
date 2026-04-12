@@ -70,6 +70,7 @@ def test_a():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).run_pytest(
         ["--inline-snapshot=disable"]
     )
@@ -172,6 +173,7 @@ def test_something():
                 }
             ),
             returncode=1,
+            outcomes={"passed": 1, "errors": 1},
         )
         .run_inline(reported_categories=snapshot(None))
         .change_code(lambda code: code.replace("hash:", ""))
@@ -230,6 +232,7 @@ def test_a():
         \
 """,
         },
+        outcomes={"failed": 1, "errors": 1},
     ).run_pytest(
         [],
         error=snapshot(
@@ -243,6 +246,7 @@ E         ?     +
 """
         ),
         returncode=1,
+        outcomes={"failed": 1, "errors": 1},
     )
 
 
@@ -290,6 +294,7 @@ def test_a():
         \
 """,
         },
+        outcomes={"failed": 1, "errors": 1},
     )
 
 
@@ -315,6 +320,7 @@ def test_a():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -360,6 +366,7 @@ def test_a():
                 }
             ),
             returncode=1,
+            outcomes={"passed": 1, "errors": 1},
         )
         .change_code(lambda code: code.split("# split")[0])
     )
@@ -394,6 +401,7 @@ def test_a():
         [],
         changed_files=snapshot({}),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).run_pytest(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
@@ -410,6 +418,7 @@ def test_a():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -444,6 +453,7 @@ def test_a():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -622,6 +632,7 @@ def test_something():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).run_pytest(
         [], changed_files=snapshot({})
     )
@@ -651,6 +662,7 @@ def test_a():
     assert 1+1==snapshot(2)
 """,
         },
+        outcomes={"passed": 1, "errors": 1},
     ).change_code(
         lambda text: text.replace("snapshot(2)", "snapshot()")
     ).run_pytest(
@@ -667,6 +679,7 @@ def test_a():
     assert 1+1==snapshot(2)
 """
         },
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -696,6 +709,7 @@ def test_something():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).run_pytest(
         ["--inline-snapshot=disable"]
     )
@@ -717,6 +731,7 @@ E           inline_snapshot._external._storage._protocol.StorageLookupError: has
 """
         ),
         returncode=1,
+        outcomes={"failed": 1},
     )
 
 
@@ -769,6 +784,7 @@ def test_a():
     \
 """,
         },
+        outcomes={"passed": 1, "errors": 1},
     ).change_code(
         lambda text: text.replace("n=3", "n=5")
     ).run_pytest(
@@ -797,6 +813,7 @@ These changes will be applied, because you used fix\
 4\
 """
         },
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -828,6 +845,7 @@ def test_a():
     \
 """,
         },
+        outcomes={"failed": 1, "errors": 1},
     )
 
 
@@ -859,6 +877,7 @@ def test_a():
     \
 """,
         },
+        outcomes={"failed": 1, "errors": 1},
     )
 
 
@@ -880,6 +899,7 @@ E           inline_snapshot._exceptions.UsageError: No format handler found for 
 """
         ),
         returncode=1,
+        outcomes={"failed": 1},
     )
 
 
@@ -903,6 +923,7 @@ E           inline_snapshot._exceptions.UsageError: No format handler found for 
 """
         ),
         returncode=1,
+        outcomes={"failed": 1},
     )
 
 
@@ -932,6 +953,7 @@ You can also use --inline-snapshot=review to approve the changes interactively\
 """
         ),
         returncode=1,
+        outcomes={"failed": 1, "errors": 1},
     ).run_pytest(
         ["--inline-snapshot=disable"],
         error=snapshot(
@@ -943,6 +965,7 @@ E           inline_snapshot._exceptions.UsageError: cannot load external object 
         ),
         report=snapshot(""),
         returncode=1,
+        outcomes={"failed": 1},
     )
 
 
@@ -994,6 +1017,7 @@ E       assert [2, 5] == external("uuid:")
 E        +  where [2, 5] = sorted([5, 2])
 E        +  and   external("uuid:") = external()
 """,
+        outcomes={"failed": 1, "errors": 1},
     ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
@@ -1038,6 +1062,7 @@ Use --inline-snapshot=fix to apply them, or use the interactive mode with
 """
         ),
         returncode=snapshot(1),
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
