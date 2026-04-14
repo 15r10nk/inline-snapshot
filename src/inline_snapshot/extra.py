@@ -39,7 +39,11 @@ def raises(exception: SnapshotArg[str] = ..., /):
     """Check that an exception is raised.
 
     Parameters:
-        exception: Snapshot that is compared with `#!python f"{type}: {message}"` if an exception occurs, or `#!python "<no exception>"` if no exception is raised.
+        exception: Snapshot that is compared with the formatted exception if an exception occurs:
+            `#!python type(exception).__name__` when the message is empty or whitespace only,
+            `#!python f"{type}:\\n{message}"` when the message contains a newline, and
+            `#!python f"{type}: {message}"` otherwise;
+            or `#!python "<no exception>"` if no exception is raised.
 
 
     === "original"

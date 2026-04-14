@@ -43,7 +43,7 @@ pip install inline-snapshot
     [`x <= snapshot(...)`](https://15r10nk.github.io/inline-snapshot/latest/cmp_snapshot/),
     [`x in snapshot(...)`](https://15r10nk.github.io/inline-snapshot/latest/in_snapshot/), and
     [`snapshot(...)[key]`](https://15r10nk.github.io/inline-snapshot/latest/getitem_snapshot/).
-- **No CLI arguments required:** you will get an nice report where you can review the snapshot changes when you run pytest (only for cpython > 3.11, you have to use --inline-snapshot=review on older versions).
+- **No CLI arguments required:** you will get a nice report where you can review the snapshot changes when you run pytest (only for CPython > 3.11, you have to use --inline-snapshot=review on older versions).
 - **Enhanced Control Flags:** Utilize various [flags](https://15r10nk.github.io/inline-snapshot/latest/pytest/) for precise control of which snapshots you want to change.
 - **Preserved Formatting:** Retains formatting consistency with Black formatting or a custom [format-command](https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command).
 - **External File Storage:** Store snapshots externally using `external("uuid:eb1167b3-67a9-4378-bc65-c1e582e2e662.json")` with support for custom file formats.
