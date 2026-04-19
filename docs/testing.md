@@ -22,7 +22,6 @@ def test_a():
     ).run_pytest(  # run with the create flag and check the changed files
         ["--inline-snapshot=create"],
         changed_files=snapshot(),
-        returncode=snapshot(),
     )
 ```
 
@@ -55,7 +54,7 @@ def test_a():
 """
             }
         ),
-        returncode=snapshot(1),
+        returncode=1,
         outcomes={"passed": 1, "errors": 1},
     )
 ```
@@ -96,7 +95,7 @@ def test_a():
 """
             }
         ),
-        returncode=snapshot(1),
+        returncode=1,
         outcomes={"passed": 1, "errors": 1},
     ).run_pytest(  # run with the create flag and check the changed files
         ["--inline-snapshot=fix"],
@@ -110,7 +109,7 @@ def test_a():
 """
             }
         ),
-        returncode=snapshot(1),
+        returncode=1,
         outcomes={"passed": 1, "errors": 1},
     )
 ```
@@ -136,7 +135,7 @@ def test_a():
         }
     )
     e.run_inline(  # run without flags
-        reported_categories=snapshot({"create", "fix"}), raises="AssertionError"
+        reported_categories={"create", "fix"}, raises="AssertionError"
     )
 
     e.run_pytest(
@@ -149,7 +148,7 @@ Error: one snapshot is missing a value (--inline-snapshot=create)
 You can also use --inline-snapshot=review to approve the changes interactively\
 """
         ),
-        returncode=snapshot(1),
+        returncode=1,
         error="""\
 >       assert 1+5 == snapshot(2)
 E       assert (1 + 5) == 2
@@ -169,7 +168,7 @@ def test_a():
 """
             }
         ),
-        returncode=snapshot(1),
+        returncode=1,
         outcomes={"passed": 1, "errors": 1},
     )
 ```

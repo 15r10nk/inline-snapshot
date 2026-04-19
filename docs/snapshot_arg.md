@@ -133,15 +133,15 @@ def test_prints():
     with prints():  # (1)!
         print("hello")
 
-    with prints(snapshot()):  # (2)!
+    with prints(stdout=snapshot()):  # (2)!
         print("world")
 ```
 
 1. New style — no `snapshot()` needed.
 2. Old style — `snapshot()` is now redundant and can be removed.
 
-<!-- inline-snapshot: create outcome-failed=1 outcome-errors=1 -->
-``` python hl_lines="6"
+<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+``` python hl_lines="6 9"
 from inline_snapshot import snapshot
 from inline_snapshot.extra import prints
 
@@ -150,7 +150,7 @@ def test_prints():
     with prints(stdout="hello\n"):
         print("hello")
 
-    with prints(snapshot()):
+    with prints(stdout=snapshot("world\n")):
         print("world")
 ```
 

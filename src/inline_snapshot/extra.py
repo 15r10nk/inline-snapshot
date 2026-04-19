@@ -153,7 +153,7 @@ def prints(*, stdout: SnapshotArg[str] = "", stderr: SnapshotArg[str] = ""):
         You have to use snapshot(...) when you want to fix the values on CPython < 3.11.
         ``` python
         def test_prints():
-            with prints(snapshot()):
+            with prints(stdout=snapshot()):
                 print("hello")
         ```
     """

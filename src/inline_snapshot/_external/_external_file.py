@@ -37,7 +37,7 @@ class ExternalFile(ExternalBase, SnapshotRefBase):
         filename = self._filename.resolve()
         try:
             path = filename.relative_to(self._base_path.resolve())
-        except ValueError:
+        except ValueError:  # pragma: no cover
             path = filename
         return f"external_file({str(path)!r})"
 

@@ -16,6 +16,7 @@ from ._is import Is
 from ._snapshot_arg import snapshot_arg
 from ._types import Category
 from ._types import Snapshot
+from ._types import SnapshotArg
 from ._unmanaged import declare_unmanaged
 from .version import __version__
 
@@ -28,6 +29,7 @@ __all__ = [
     "Is",
     "Category",
     "Snapshot",
+    "SnapshotArg",
     "UsageError",
     "register_format_alias",
     "register_format",
