@@ -11,7 +11,7 @@ from inline_snapshot._change import ChangeBase
 from ._custom import Custom
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class CustomDefault(Custom):
     value: Custom = field(compare=False)
 
@@ -30,7 +30,7 @@ def unwrap_default(value):
     return value
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class CustomCall(Custom):
     node_type = ast.Call
     function: Custom = field(compare=False)

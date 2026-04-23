@@ -119,3 +119,77 @@ def test_tuple():
         ["--inline-snapshot=fix"],
         changed_files=snapshot({}),
     )
+
+
+def test_tuple_fix_shorter():
+    """Tuple shrinks: surplus old elements are deleted, paired elements fixed.
+    Expressions in paired positions are preserved."""
+    Example(
+        """\
+from inline_snapshot import snapshot
+
+def test_tuple():
+    assert (1, 5) == snapshot((0+1, 2, 3, 4, 5))
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_tuple():
+    assert (1, 5) == snapshot((0+1, 5))
+"""
+            }
+        ),
+    )
+
+
+def test_tuple_fix_longer():
+    """Tuple grows: paired elements are fixed, extra new elements are inserted."""
+    Example(
+        """\
+from inline_snapshot import snapshot
+
+def test_tuple():
+    assert (1, 2, 3, 4, 5, 6) == snapshot((0+1, 3))
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_tuple():
+    assert (1, 2, 3, 4, 5, 6) == snapshot((0+1, 2, 3, 4, 5, 6))
+"""
+            }
+        ),
+    )
+
+
+def test_tuple_update_preserves_expression():
+    """Tuple update: elements whose values haven't changed keep their original
+    expression (e.g. ``2+2`` is not rewritten to ``4``)."""
+    Example(
+        """\
+from inline_snapshot import snapshot
+
+def test_tuple():
+    assert (4, 99) == snapshot((2+2, 1+1))
+"""
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_tuple():
+    assert (4, 99) == snapshot((2+2, 99))
+"""
+            }
+        ),
+    )

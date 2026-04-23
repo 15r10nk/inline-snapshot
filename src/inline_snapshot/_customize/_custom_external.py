@@ -15,7 +15,7 @@ from inline_snapshot._external._format._protocol import get_format_handler
 from ._custom import Custom
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class CustomExternal(Custom):
     value: Any
     format: str | None = None

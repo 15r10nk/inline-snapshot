@@ -161,6 +161,8 @@ customized_representation={result!r}
             self._get_handler_recursive(k): self._get_handler_recursive(v)
             for k, v in value.items()
         }
+        assert len(value) == len(custom)
+
         return CustomDict(value=custom)
 
     @property
