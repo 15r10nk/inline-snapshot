@@ -10,7 +10,7 @@ from inline_snapshot._change import ChangeBase
 from ._custom import Custom
 
 
-@dataclass()
+@dataclass(eq=False)
 class CustomUnmanaged(Custom):
     value: Any
 

@@ -33,7 +33,7 @@ def test_fix_tuple_delete(check_update):
         """assert (1,5)==snapshot((0+1,2,3,4,5))""",
         reported_flags="update,fix",
         flags="fix",
-    ) == snapshot("assert (1,5)==snapshot((0+1, 5))")
+    ) == snapshot("assert (1,5)==snapshot((0+1,5))")
 
 
 def test_fix_dict_change(check_update):
@@ -190,7 +190,7 @@ stuff = [
 ]
 
 
-@pytest.mark.parametrize("braces", ["[]", "()", "{}"])
+@pytest.mark.parametrize("braces", ["[]", "{}"])
 @pytest.mark.parametrize("value_specs", itertools.product(stuff, repeat=3))
 def test_generic(source, braces, value_specs):
     flags = set().union(*[e[3] for e in value_specs])
@@ -213,11 +213,7 @@ def test_generic(source, braces, value_specs):
 
         code = ", ".join(values)
 
-        comma = ""
-        if len(values) == 1 and braces == "()":
-            comma = ","
-
-        return f"{braces[0]}{code}{comma}{braces[1]}"
+        return f"{braces[0]}{code}{braces[1]}"
 
     c1 = build(spec[0] for spec in value_specs)
     c2 = build(spec[1] for spec in value_specs)

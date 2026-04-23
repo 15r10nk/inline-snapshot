@@ -778,6 +778,46 @@ def test_A():
     )
 
 
+def test_dataclass_as_dict_key_create():
+    """Regression test for CustomCall-keyed dicts: when a dataclass instance is
+    used as a dict key, the snapshot should be created correctly and should not
+    corrupt values on subsequent runs (issue #363 / duplicate report)."""
+    Example(
+        """\
+from dataclasses import dataclass
+from inline_snapshot import snapshot
+
+@dataclass(frozen=True)
+class Container:
+    value: int
+
+def test_something():
+    data = {Container(40): 40, Container(2): 2}
+    assert data == snapshot()
+"""
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot(
+            {
+                "tests/test_something.py": """\
+from dataclasses import dataclass
+from inline_snapshot import snapshot
+
+@dataclass(frozen=True)
+class Container:
+    value: int
+
+def test_something():
+    data = {Container(40): 40, Container(2): 2}
+    assert data == snapshot({Container(value=40): 40, Container(value=2): 2})
+"""
+            }
+        ),
+    ).run_inline(
+        ["--inline-snapshot=fix"], changed_files=snapshot({})
+    )
+
+
 @pytest.mark.skipif(
     sys.version_info < (3, 10),
     reason="NewType is a function in 3.9 and cannot be checked with isinstance or serialized to code",

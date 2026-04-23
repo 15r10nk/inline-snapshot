@@ -228,9 +228,9 @@ class NewAdapter:
 
         return new_value
 
-    def compare_CustomSequence(
-        self, old_value: CustomSequence, old_node: ast.AST, new_value: CustomSequence
-    ) -> Generator[ChangeBase, None, CustomSequence]:
+    def compare_CustomList(
+        self, old_value: CustomList, old_node: ast.AST, new_value: CustomList
+    ) -> Generator[ChangeBase, None, CustomList]:
 
         if old_node is not None:
             assert isinstance(
@@ -288,8 +288,47 @@ class NewAdapter:
 
         return type(new_value)(result)
 
-    compare_CustomTuple = compare_CustomSequence
-    compare_CustomList = compare_CustomSequence
+    def compare_CustomTuple(
+        self, old_value: CustomTuple, old_node: ast.AST, new_value: CustomTuple
+    ) -> Generator[ChangeBase, None, CustomTuple]:
+        """Compare tuples positionally: match elements at the same index,
+        delete surplus old elements, insert extra new elements."""
+
+        if old_node is not None:
+            assert isinstance(old_node, ast.Tuple)
+
+        old_elts = old_value.value
+        new_elts = new_value.value
+        old_nodes = old_node.elts if old_node is not None else [None] * len(old_elts)
+
+        common = min(len(old_elts), len(new_elts))
+        result = []
+
+        # compare paired elements
+        for old_elem, old_node_elem, new_elem in zip(old_elts, old_nodes, new_elts):
+            v = yield from self.compare(old_elem, old_node_elem, new_elem)
+            result.append(v)
+
+        # delete surplus old elements
+        for old_elem, old_node_elem in zip(old_elts[common:], old_nodes[common:]):
+            yield Delete("fix", self.context.file, old_node_elem, old_elem)
+
+        # insert extra new elements
+        if len(new_elts) > common:
+            to_insert = []
+            for new_elem in new_elts[common:]:
+                new_code = yield from new_elem._code_repr(self.context)
+                to_insert.append((new_code, new_elem))
+                result.append(new_elem)
+            yield ListInsert(
+                "fix",
+                self.context.file,
+                old_node,
+                common,
+                *zip(*to_insert),  # type:ignore
+            )
+
+        return CustomTuple(result)
 
     def compare_CustomDict(
         self, old_value: CustomDict, old_node: ast.Dict, new_value: CustomDict
