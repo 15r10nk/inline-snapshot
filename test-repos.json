@@ -1,0 +1,54 @@
+{
+  "pydantic": {
+    "url": "https://github.com/pydantic/pydantic.git",
+    "install_cmd": [
+      "uv",
+      "sync",
+      "--frozen",
+      "--all-extras"
+    ],
+    "pytest_args": [
+      "-x",
+      "-q",
+      "--no-header"
+    ],
+    "ref": "fcb5da3087df51b5dca89e8120850e5a6bdcf960"
+  },
+  "pydantic-ai": {
+    "url": "https://github.com/pydantic/pydantic-ai.git",
+    "install_cmd": [
+      "uv",
+      "sync",
+      "--frozen",
+      "--all-extras",
+      "--no-extra",
+      "outlines-vllm-offline",
+      "--all-packages"
+    ],
+    "env": {
+      "COLUMNS": "150"
+    },
+    "pytest_args": [
+      "-x",
+      "-q",
+      "--no-header"
+    ],
+    "ref": "c1d060dbe996eee1fccba2161c9f0fb107c47d91"
+  },
+  "fastapi": {
+    "url": "https://github.com/fastapi/fastapi.git",
+    "install_cmd": [
+      "uv",
+      "sync",
+      "--frozen",
+      "--extra",
+      "standard"
+    ],
+    "pytest_args": [
+      "-x",
+      "-q",
+      "--no-header"
+    ],
+    "ref": "e54e5a8980ffa6d7ff68ee7b25a1c46036375521"
+  }
+}

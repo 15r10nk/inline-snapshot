@@ -1,4 +1,12 @@
 
+<a id='changelog-0.32.7'></a>
+# 0.32.7 — 2026-04-23
+
+## Fixed
+
+- Fixed snapshot comparison for dicts where keys are dataclass instances (or other custom objects used as dict keys), which previously caused corrupted snapshots — either collapsing multiple entries into one or appending duplicate keys on subsequent runs ([#363](https://github.com/15r10nk/inline-snapshot/issues/363)).
+- Fixed tuple snapshot updates to compare elements positionally rather than using sequence alignment, so existing expressions (e.g. `3 + 3`) are preserved when elements are removed from or added to a tuple.
+
 <a id='changelog-0.32.6'></a>
 # 0.32.6 — 2026-04-10
 
