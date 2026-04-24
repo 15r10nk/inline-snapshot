@@ -114,6 +114,7 @@ from inline_snapshot import snapshot
 def test_tuple():
     assert (1, 5) == snapshot((0+1, 5))
 """}),
+        reported_categories={"fix", "update"},
     )
 
 
@@ -132,6 +133,7 @@ from inline_snapshot import snapshot
 def test_tuple():
     assert (1, 2, 3, 4, 5, 6) == snapshot((0+1, 2, 3, 4, 5, 6))
 """}),
+        reported_categories={"fix", "update"},
     )
 
 
@@ -151,4 +153,5 @@ from inline_snapshot import snapshot
 def test_tuple():
     assert (4, 99) == snapshot((2+2, 99))
 """}),
+        reported_categories={"fix", "update"},
     )

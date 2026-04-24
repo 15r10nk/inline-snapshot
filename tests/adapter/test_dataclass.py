@@ -700,7 +700,9 @@ def test_something():
     data = {Container(40): 40, Container(2): 2}
     assert data == snapshot({Container(value=40): 40, Container(value=2): 2})
 """}),
-    ).run_inline(["--inline-snapshot=fix"], changed_files=snapshot({}))
+    ).run_inline(
+        ["--inline-snapshot=fix"], changed_files=snapshot({}), reported_categories=set()
+    )
 
 
 @pytest.mark.skipif(
