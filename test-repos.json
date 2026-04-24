@@ -2,10 +2,8 @@
   "pydantic": {
     "url": "https://github.com/pydantic/pydantic.git",
     "install_cmd": [
-      "uv",
-      "sync",
-      "--frozen",
-      "--all-extras"
+      "make",
+      "install"
     ],
     "pytest_args": [
       "-x",
