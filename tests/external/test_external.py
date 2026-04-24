@@ -35,8 +35,7 @@ assert outsource('text') == snapshot(external("uuid:f728b4fa-4248-4e3a-8a5d-2f34
 
 def test_outsource():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import outsource, snapshot,external,register_format_alias
 
 register_format_alias(".log",".txt")
@@ -47,8 +46,7 @@ def test_a():
     assert outsource("test", suffix=".log") == external()
 
     assert outsource(b"test") == external()
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
@@ -71,9 +69,7 @@ def test_a():
         ),
         returncode=1,
         outcomes={"passed": 1, "errors": 1},
-    ).run_pytest(
-        ["--inline-snapshot=disable"]
-    )
+    ).run_pytest(["--inline-snapshot=disable"])
 
 
 def test_compare_outsource():
@@ -181,25 +177,20 @@ def test_something():
         .run_inline(
             ["--inline-snapshot=update"],
             reported_categories=snapshot(None),
-            changed_files=snapshot(
-                {
-                    "tests/test_something.py": """\
+            changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import outsource,snapshot
 
 from inline_snapshot import external
 
 def test_something():
     assert outsource("foo") == snapshot(external("hash:2c26b46b68ff*.txt"))
-"""
-                }
-            ),
+"""}),
         )
     )
 
 
 def test_pytest_compare_external():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import external, snapshot, outsource
 
 def test_a():
@@ -207,8 +198,7 @@ def test_a():
     assert outsource("test") == s
 
     assert outsource("test2") == s
-        """
-    ).run_pytest(
+        """).run_pytest(
         ["--inline-snapshot=create"],
         returncode=1,
         error="""\
@@ -235,24 +225,21 @@ def test_a():
         outcomes={"failed": 1, "errors": 1},
     ).run_pytest(
         [],
-        error=snapshot(
-            """\
+        error=snapshot("""\
 >       assert outsource("test2") == s
 E       AssertionError: assert 'test2' == 'test'
 E         \n\
 E         - test
 E         + test2
 E         ?     +
-"""
-        ),
+"""),
         returncode=1,
         outcomes={"failed": 1, "errors": 1},
     )
 
 
 def test_pytest_compare_external_bytes():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import external, snapshot, outsource
 
 def test_a():
@@ -260,25 +247,20 @@ def test_a():
     assert outsource(b"test") == s
 
     assert outsource(b"test2") == s
-        """
-    ).run_pytest(
+        """).run_pytest(
         ["--inline-snapshot=create"],
         error=(
-            snapshot(
-                """\
+            snapshot("""\
 >       assert outsource(b"test2") == s
 E       AssertionError: assert b'test2' == b'test'
 E         \n\
 E         Use -v to get more diff
-"""
-            )
+""")
             if sys.version_info >= (3, 11)
-            else snapshot(
-                """\
+            else snapshot("""\
 >       assert outsource(b"test2") == s
 E       AssertionError
-"""
-            )
+""")
         ),
         returncode=1,
         changed_files={
@@ -299,14 +281,12 @@ def test_a():
 
 
 def test_pytest_existing_external_import():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import external, snapshot, outsource
 
 def test_a():
     assert outsource("test") == snapshot()
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
@@ -504,13 +484,11 @@ def test_uses_external():
 
 
 def test_no_imports():
-    Example(
-        """\
+    Example("""\
 def test_something():
     from inline_snapshot import outsource,snapshot
     assert outsource("test") == snapshot()
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=create"],
         outcomes=snapshot({"passed": 1, "errors": 1}),
         changed_files=snapshot(
@@ -531,66 +509,54 @@ def test_something():
 
 def test_ensure_imports(tmp_path):
     file = tmp_path / "file.py"
-    file.write_bytes(
-        b"""\
+    file.write_bytes(b"""\
 from os import environ
 from os import getcwd
-"""
-    )
+""")
 
     with apply_changes() as recorder:
         ensure_import(file, {"os": ["chdir", "environ"]}, set(), recorder)
 
-    assert file.read_text("utf-8") == snapshot(
-        """\
+    assert file.read_text("utf-8") == snapshot("""\
 from os import environ
 from os import getcwd
 
 from os import chdir
-"""
-    )
+""")
 
 
 def test_ensure_imports_with_comment(tmp_path):
     file = tmp_path / "file.py"
-    file.write_bytes(
-        b"""\
+    file.write_bytes(b"""\
 from os import environ # comment
-"""
-    )
+""")
 
     with apply_changes() as recorder:
         ensure_import(file, {"os": ["chdir"]}, set(), recorder)
 
-    assert file.read_text("utf-8") == snapshot(
-        """\
+    assert file.read_text("utf-8") == snapshot("""\
 from os import environ # comment
 
 from os import chdir
-"""
-    )
+""")
 
 
 def test_ensure_imports_with_docstring(tmp_path):
     file = tmp_path / "file.py"
-    file.write_bytes(
-        b"""\
+    file.write_bytes(b"""\
 ''' docstring '''
 from __future__ import annotations
-"""
-    )
+""")
 
     with apply_changes() as recorder:
         ensure_import(file, {"os": ["chdir"]}, set(), recorder)
 
-    assert file.read_text("utf-8") == snapshot(
-        """\
+    assert file.read_text("utf-8") == snapshot("""\
 ''' docstring '''
 from __future__ import annotations
 
 from os import chdir
-"""
-    )
+""")
 
 
 def test_new_externals():
@@ -639,15 +605,13 @@ def test_something():
 
 
 def test_persist_twice():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot,outsource
 
 def test_a():
     assert outsource("testabc") == snapshot()
     assert 1+1==snapshot()
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=create"],
         returncode=1,
         changed_files={
@@ -663,13 +627,10 @@ def test_a():
 """,
         },
         outcomes={"passed": 1, "errors": 1},
-    ).change_code(
-        lambda text: text.replace("snapshot(2)", "snapshot()")
-    ).run_pytest(
+    ).change_code(lambda text: text.replace("snapshot(2)", "snapshot()")).run_pytest(
         ["--inline-snapshot=create"],
         returncode=1,
-        changed_files={
-            "tests/test_something.py": """\
+        changed_files={"tests/test_something.py": """\
 from inline_snapshot import snapshot,outsource
 
 from inline_snapshot import external
@@ -677,22 +638,19 @@ from inline_snapshot import external
 def test_a():
     assert outsource("testabc") == snapshot(external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"))
     assert 1+1==snapshot(2)
-"""
-        },
+"""},
         outcomes={"passed": 1, "errors": 1},
     )
 
 
 def test_disable():
-    Example(
-        """
+    Example("""
 from inline_snapshot import external, snapshot,outsource
 
 def test_something():
     assert outsource("foo") == snapshot()
     assert "foo" == external()
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
@@ -710,44 +668,35 @@ def test_something():
         ),
         returncode=1,
         outcomes={"passed": 1, "errors": 1},
-    ).run_pytest(
-        ["--inline-snapshot=disable"]
-    )
+    ).run_pytest(["--inline-snapshot=disable"])
 
-    Example(
-        """
+    Example("""
 from inline_snapshot import external
 
 def test_something():
     assert "foo" == external("hash:aaaaaaaaaaaa*.txt")
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=disable"],
-        error=snapshot(
-            """\
+        error=snapshot("""\
 >       assert "foo" == external("hash:aaaaaaaaaaaa*.txt")
 >           raise StorageLookupError(
 E           inline_snapshot._external._storage._protocol.StorageLookupError: hash 'aaaaaaaaaaaa*.txt' is not found in the HashStorage
-"""
-        ),
+"""),
         returncode=1,
         outcomes={"failed": 1},
     )
 
 
 def test_show_diff():
-    Example(
-        """
+    Example("""
 from inline_snapshot import external
 
 def test_a():
     n=3
     assert "\\n".join(map(str,range(n))) == external()
-    """
-    ).run_pytest(
+    """).run_pytest(
         ["--inline-snapshot=create"],
-        report=snapshot(
-            """\
+        report=snapshot("""\
 ------------------------------- Create snapshots -------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -3,5 +3,5 @@                                                              |
@@ -765,8 +714,7 @@ def test_a():
 | 2                                                                            |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used create\
-"""
-        ),
+"""),
         returncode=1,
         changed_files={
             "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": """\
@@ -785,12 +733,9 @@ def test_a():
 """,
         },
         outcomes={"passed": 1, "errors": 1},
-    ).change_code(
-        lambda text: text.replace("n=3", "n=5")
-    ).run_pytest(
+    ).change_code(lambda text: text.replace("n=3", "n=5")).run_pytest(
         ["--inline-snapshot=fix"],
-        report=snapshot(
-            """\
+        report=snapshot("""\
 +--------------- uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt ----------------+
 | @@ -1,3 +1,5 @@                                                              |
 |                                                                              |
@@ -801,8 +746,7 @@ def test_a():
 | +4                                                                           |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used fix\
-"""
-        ),
+"""),
         returncode=1,
         changed_files={
             "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": """\
@@ -818,21 +762,17 @@ These changes will be applied, because you used fix\
 
 
 def test_double_eq():
-    Example(
-        """
+    Example("""
 from inline_snapshot import external
 
 def test_a():
     assert "hi" == external(".json") == external(".txt")
-    """
-    ).run_pytest(
+    """).run_pytest(
         ["--inline-snapshot=create"],
-        error=snapshot(
-            """\
+        error=snapshot("""\
 >       assert "hi" == external(".json") == external(".txt")
 E       inline_snapshot._exceptions.UsageError: you cannot compare external(...) with external(...)
-"""
-        ),
+"""),
         returncode=1,
         changed_files={
             "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.json": '"hi"',
@@ -850,21 +790,17 @@ def test_a():
 
 
 def test_external_eq_snapshot():
-    Example(
-        """
+    Example("""
 from inline_snapshot import external, snapshot
 
 def test_a():
     assert "hi" == external(".json") == snapshot(".txt")
-    """
-    ).run_pytest(
+    """).run_pytest(
         ["--inline-snapshot=create"],
-        error=snapshot(
-            """\
+        error=snapshot("""\
 >       assert "hi" == external(".json") == snapshot(".txt")
 E       inline_snapshot._exceptions.UsageError: you cannot compare external(...) with snapshot(...)
-"""
-        ),
+"""),
         returncode=1,
         changed_files={
             "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.json": '"hi"',
@@ -882,46 +818,38 @@ def test_a():
 
 
 def test_unknown_suffix():
-    Example(
-        """
+    Example("""
 from inline_snapshot import external
 
 def test_a():
     assert "hi" == external("uuid:.blub")
-    """
-    ).run_pytest(
+    """).run_pytest(
         ["--inline-snapshot=create"],
-        error=snapshot(
-            """\
+        error=snapshot("""\
 >       assert "hi" == external("uuid:.blub")
 >           raise UsageError(
 E           inline_snapshot._exceptions.UsageError: No format handler found for the given type 'str' and suffix '.blub'.
-"""
-        ),
+"""),
         returncode=1,
         outcomes={"failed": 1},
     )
 
 
 def test_unknown_type():
-    Example(
-        """
+    Example("""
 from inline_snapshot import external
 
 class C:...
 
 def test_a():
     assert C() == external("uuid:")
-    """
-    ).run_pytest(
+    """).run_pytest(
         ["--inline-snapshot=create"],
-        error=snapshot(
-            """\
+        error=snapshot("""\
 >       assert C() == external("uuid:")
 >           raise UsageError(
 E           inline_snapshot._exceptions.UsageError: No format handler found for the given type 'C'.
-"""
-        ),
+"""),
         returncode=1,
         outcomes={"failed": 1},
     )
@@ -929,40 +857,32 @@ E           inline_snapshot._exceptions.UsageError: No format handler found for 
 
 def test_missing():
 
-    Example(
-        """
+    Example("""
 from inline_snapshot import external
 
 def test_a():
     n=3
     assert "hi" == external()
-    """
-    ).run_pytest(
+    """).run_pytest(
         ["--inline-snapshot=short-report"],
-        error=snapshot(
-            """\
+        error=snapshot("""\
 >       assert "hi" == external()
 E       assert 'hi' == external("uuid:")
 E        +  where external("uuid:") = external()
-"""
-        ),
-        report=snapshot(
-            """\
+"""),
+        report=snapshot("""\
 Error: one snapshot is missing a value (--inline-snapshot=create)
 You can also use --inline-snapshot=review to approve the changes interactively\
-"""
-        ),
+"""),
         returncode=1,
         outcomes={"failed": 1, "errors": 1},
     ).run_pytest(
         ["--inline-snapshot=disable"],
-        error=snapshot(
-            """\
+        error=snapshot("""\
 >       assert "hi" == external()
 >           raise UsageError(
 E           inline_snapshot._exceptions.UsageError: cannot load external object from a non-existing location 'uuid:'
-"""
-        ),
+"""),
         report=snapshot(""),
         returncode=1,
         outcomes={"failed": 1},
@@ -972,8 +892,7 @@ E           inline_snapshot._exceptions.UsageError: cannot load external object 
 def test_report():
     # see https://github.com/15r10nk/inline-snapshot/issues/298
 
-    Example(
-        """\
+    Example("""\
 
 from inline_snapshot import external
 
@@ -983,11 +902,9 @@ def test_example():
     assert sorted([n, 2]) == external()
 
 
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=report"],
-        report=snapshot(
-            """\
+        report=snapshot("""\
 ------------------------------- Create snapshots -------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -4,6 +4,6 @@                                                              |
@@ -1008,8 +925,7 @@ def test_example():
 These changes are not applied.
 Use --inline-snapshot=create to apply them, or use the interactive mode with
 --inline-snapshot=review\
-"""
-        ),
+"""),
         returncode=snapshot(1),
         error="""\
 >       assert sorted([n, 2]) == external()
@@ -1045,8 +961,7 @@ def test_example():
         "n=5", "n=8"
     ).run_pytest(
         ["--inline-snapshot=report"],
-        report=snapshot(
-            """\
+        report=snapshot("""\
 +--------------- uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.json ---------------+
 | @@ -1,4 +1,4 @@                                                              |
 |                                                                              |
@@ -1059,24 +974,19 @@ def test_example():
 These changes are not applied.
 Use --inline-snapshot=fix to apply them, or use the interactive mode with
 --inline-snapshot=review\
-"""
-        ),
+"""),
         returncode=snapshot(1),
         outcomes={"passed": 1, "errors": 1},
     )
 
 
 def test_uses_external_outside_testdir():
-    Example(
-        {
-            "test_a.py": """\
+    Example({"test_a.py": """\
 from inline_snapshot import external
 
 def test_a():
     assert "a" == external()
-"""
-        }
-    ).run_inline(
+"""}).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot({}),
         raises=snapshot(

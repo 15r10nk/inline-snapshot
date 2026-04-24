@@ -33,8 +33,7 @@ def test_foo():
 
 
 def test_custom_default_case_in_ValueToCustom(executing_used):
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 from dataclasses import dataclass
 
@@ -44,8 +43,7 @@ class A:
 
 def test_something():
     assert A(a=3) == snapshot(A(a=5)),"not equal"
-"""
-    ).run_inline(
+""").run_inline(
         changed_files=snapshot({}),
         raises=snapshot("AssertionError: not equal"),
         reported_categories={"fix"},
@@ -53,8 +51,7 @@ def test_something():
 
 
 def test_tuple_case_in_ValueToCustom(executing_used):
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 from dataclasses import dataclass
 
@@ -64,8 +61,7 @@ class A:
 
 def test_something():
     assert (1,2) == snapshot((1,2)),"not equal"
-"""
-    ).run_inline(
+""").run_inline(
         changed_files=snapshot({}),
         raises=snapshot("<no exception>"),
     )

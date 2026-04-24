@@ -56,40 +56,34 @@ assert b"ab" == snapshot(b"a"
 def test_string_newline():
     check_string_update(
         '"a\\nb"',
-        snapshot(
-            '''\
+        snapshot('''\
 """\\
 a
 b\\
 """\
-'''
-        ),
+'''),
         reported_flags=None,
     )
 
     check_string_update(
         '"a\\"\\"\\"\\nb"',
-        snapshot(
-            """\
+        snapshot("""\
 '''\\
 a\"\"\"
 b\\
 '''\
-"""
-        ),
+"""),
         reported_flags=None,
     )
 
     check_string_update(
         '"a\\"\\"\\"\\n\\\'\\\'\\\'b"',
-        snapshot(
-            '''\
+        snapshot('''\
 """\\
 a\\"\\"\\"
 \'\'\'b\\
 """\
-'''
-        ),
+'''),
         reported_flags=None,
     )
 
@@ -97,53 +91,45 @@ a\\"\\"\\"
 
     check_string_update(
         '"\\n\\\'"',
-        snapshot(
-            '''\
+        snapshot('''\
 """\\
 
 '\\
 """\
-'''
-        ),
+'''),
         reported_flags=None,
     )
 
     check_string_update(
         '"\\n\\""',
-        snapshot(
-            '''\
+        snapshot('''\
 """\\
 
 "\\
 """\
-'''
-        ),
+'''),
         reported_flags=None,
     )
 
     check_string_update(
         "\"'''\\n\\\"\"",
-        snapshot(
-            '''\
+        snapshot('''\
 """\\
 \'\'\'
 \\"\\
 """\
-'''
-        ),
+'''),
         reported_flags=None,
     )
 
     check_string_update(
         '"\\n\b"',
-        snapshot(
-            '''\
+        snapshot('''\
 """\\
 
 \\x08\\
 """\
-'''
-        ),
+'''),
         reported_flags=None,
     )
 
@@ -169,40 +155,34 @@ def check_string_update(string, expected_str=..., reported_flags={"update"}):
 def test_string_quote_choice():
     check_string_update(
         "\" \\'\\'\\' \\'\\'\\' \\\"\\\"\\\"\\nother_line\"",
-        snapshot(
-            '''\
+        snapshot('''\
 """\\
  \'\'\' \'\'\' \\"\\"\\"
 other_line\\
 """\
-'''
-        ),
+'''),
         reported_flags=None,
     )
 
     check_string_update(
         '" \\\'\\\'\\\' \\"\\"\\" \\"\\"\\"\\nother_line"',
-        snapshot(
-            """\
+        snapshot("""\
 '''\\
  \\'\\'\\' \"\"\" \"\"\"
 other_line\\
 '''\
-"""
-        ),
+"""),
         reported_flags=None,
     )
 
     check_string_update(
         '"\\n\\""',
-        snapshot(
-            '''\
+        snapshot('''\
 """\\
 
 "\\
 """\
-'''
-        ),
+'''),
         reported_flags=None,
     )
 
@@ -211,40 +191,34 @@ other_line\\
 
     check_string_update(
         "'abc\\nabc'",
-        snapshot(
-            '''\
+        snapshot('''\
 """\\
 abc
 abc\\
 """\
-'''
-        ),
+'''),
         reported_flags=None,
     )
 
     check_string_update(
         "'\\nabc'",
-        snapshot(
-            '''\
+        snapshot('''\
 """\\
 
 abc\\
 """\
-'''
-        ),
+'''),
         reported_flags=None,
     )
 
     check_string_update(
         "'a\\na\\n'",
-        snapshot(
-            '''\
+        snapshot('''\
 """\\
 a
 a
 """\
-'''
-        ),
+'''),
         reported_flags=None,
     )
 
@@ -264,18 +238,14 @@ def test_string_convert(s):
 
 
 def test_newline():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "a\\r\\nb" == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": '''\
+        changed_files=snapshot({"tests/test_something.py": '''\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -283,25 +253,19 @@ def test_a():
 a\\r
 b\\
 """)
-'''
-            }
-        ),
+'''}),
     )
 
 
 def test_trailing_whitespaces():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "a   \\r\\nb   \\nc   " == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": '''\
+        changed_files=snapshot({"tests/test_something.py": '''\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -310,15 +274,12 @@ a   \\r
 b   \\n\\
 c   \\
 """)
-'''
-            }
-        ),
+'''}),
     )
 
 
 def test_fix_remove_triple_quotes():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -326,40 +287,29 @@ def test_a():
 a
 b\
 ''')
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "" == snapshot("")
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_update_remove_triple_quotes():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "" == snapshot(\"\"\"\"\"\")
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=update"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "" == snapshot("")
-"""
-            }
-        ),
+"""}),
     )

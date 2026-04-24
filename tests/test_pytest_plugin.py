@@ -15,28 +15,23 @@ def test_help_message(testdir):
 
 
 def test_create():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 5==snapshot()
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=short-report"],
         outcomes=snapshot({"errors": 1, "passed": 1}),
-        report=snapshot(
-            """\
+        report=snapshot("""\
 Error: one snapshot is missing a value (--inline-snapshot=create)
 You can also use --inline-snapshot=review to approve the changes interactively\
-"""
-        ),
+"""),
         returncode=1,
     ).run_pytest(
         ["--inline-snapshot=create"],
         outcomes=snapshot({"passed": 1, "errors": 1}),
-        report=snapshot(
-            """\
+        report=snapshot("""\
 ------------------------------- Create snapshots -------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -1,4 +1,4 @@                                                              |
@@ -48,39 +43,30 @@ You can also use --inline-snapshot=review to approve the changes interactively\
 | +    assert 5==snapshot(5)                                                   |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used create\
-"""
-        ),
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+"""),
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 5==snapshot(5)
-"""
-            }
-        ),
+"""}),
         returncode=1,
     )
 
 
 def test_fix():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 5==snapshot(4)
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=short-report"],
         outcomes=snapshot({"failed": 1, "errors": 1}),
-        report=snapshot(
-            """\
+        report=snapshot("""\
 Error: one snapshot has incorrect values (--inline-snapshot=fix)
 You can also use --inline-snapshot=review to approve the changes interactively\
-"""
-        ),
+"""),
         returncode=1,
         error="""\
 >       assert 5==snapshot(4)
@@ -90,8 +76,7 @@ E        +  where 4 = snapshot(4)
     ).run_pytest(
         ["--inline-snapshot=fix"],
         outcomes=snapshot({"passed": 1, "errors": 1}),
-        report=snapshot(
-            """\
+        report=snapshot("""\
 -------------------------------- Fix snapshots ---------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -1,4 +1,4 @@                                                              |
@@ -103,47 +88,33 @@ E        +  where 4 = snapshot(4)
 | +    assert 5==snapshot(5)                                                   |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used fix\
-"""
-        ),
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+"""),
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 5==snapshot(5)
-"""
-            }
-        ),
+"""}),
         returncode=1,
     )
 
 
 def test_update():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "5" == snapshot('''5''')
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=short-report"],
         outcomes=snapshot({"passed": 1}),
-        report=(
-            snapshot(
-                """\
+        report=(snapshot("""\
 Info: one snapshot changed its representation (--inline-snapshot=update)
 You can also use --inline-snapshot=review to approve the changes interactively\
-"""
-            )
-            if is_pytest_compatible()
-            else snapshot("")
-        ),
+""") if is_pytest_compatible() else snapshot("")),
     ).run_pytest(
         ["--inline-snapshot=update"],
-        report=snapshot(
-            """\
+        report=snapshot("""\
 ------------------------------- Update snapshots -------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -1,4 +1,4 @@                                                              |
@@ -155,42 +126,32 @@ You can also use --inline-snapshot=review to approve the changes interactively\
 | +    assert "5" == snapshot("5")                                             |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used update\
-"""
-        ),
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+"""),
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "5" == snapshot("5")
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_trim():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 5 in snapshot([4,5])
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=short-report"],
         outcomes=snapshot({"passed": 1}),
-        report=snapshot(
-            """\
+        report=snapshot("""\
 Info: one snapshot can be trimmed (--inline-snapshot=trim)
 You can also use --inline-snapshot=review to approve the changes interactively\
-"""
-        ),
+"""),
     ).run_pytest(
         ["--inline-snapshot=trim"],
-        report=snapshot(
-            """\
+        report=snapshot("""\
 -------------------------------- Trim snapshots --------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -1,4 +1,4 @@                                                              |
@@ -202,51 +163,40 @@ You can also use --inline-snapshot=review to approve the changes interactively\
 | +    assert 5 in snapshot([5])                                               |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used trim\
-"""
-        ),
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+"""),
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 5 in snapshot([5])
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_multiple():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "5" == snapshot('''5''')
     assert 5 <= snapshot(8)
     assert 5 == snapshot(4)
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=short-report"],
         outcomes=snapshot({"failed": 1, "errors": 1}),
         report=(
-            snapshot(
-                """\
+            snapshot("""\
 Error: one snapshot has incorrect values (--inline-snapshot=fix)
 Info: one snapshot can be trimmed (--inline-snapshot=trim)
 Info: one snapshot changed its representation (--inline-snapshot=update)
 You can also use --inline-snapshot=review to approve the changes interactively\
-"""
-            )
+""")
             if is_pytest_compatible()
-            else snapshot(
-                """\
+            else snapshot("""\
 Error: one snapshot has incorrect values (--inline-snapshot=fix)
 Info: one snapshot can be trimmed (--inline-snapshot=trim)
 You can also use --inline-snapshot=review to approve the changes interactively\
-"""
-            )
+""")
         ),
         returncode=1,
         error="""\
@@ -257,8 +207,7 @@ E        +  where 4 = snapshot(4)
     ).run_pytest(
         ["--inline-snapshot=trim,fix"],
         outcomes=snapshot({"passed": 1, "errors": 1}),
-        report=snapshot(
-            """\
+        report=snapshot("""\
 -------------------------------- Fix snapshots ---------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -3,4 +3,4 @@                                                              |
@@ -282,34 +231,27 @@ These changes will be applied, because you used fix
 |      assert 5 == snapshot(5)                                                 |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used trim\
-"""
-        ),
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+"""),
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "5" == snapshot('''5''')
     assert 5 <= snapshot(5)
     assert 5 == snapshot(5)
-"""
-            }
-        ),
+"""}),
         returncode=1,
     )
 
 
 @pytest.mark.no_rewriting
 def test_disable_option():
-    e = Example(
-        """\
+    e = Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     pass
-"""
-    )
+""")
 
     e.run_pytest(
         ["--inline-snapshot=disable,fix"],
@@ -349,8 +291,7 @@ def test_a():
     ).run_pytest(
         ["--inline-snapshot=trim,report"],
         outcomes=snapshot({"failed": 1, "errors": 1}),
-        report=snapshot(
-            """\
+        report=snapshot("""\
 -------------------------------- Fix snapshots ---------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -3,4 +3,4 @@                                                              |
@@ -391,20 +332,15 @@ These changes will be applied, because you used trim
 These changes are not applied.
 Use --inline-snapshot=update to apply them, or use the interactive mode with
 --inline-snapshot=review\
-"""
-        ),
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+"""),
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "5" == snapshot('''5''')
     assert 5 <= snapshot(5)
     assert 5 == snapshot(4)
-"""
-            }
-        ),
+"""}),
         returncode=1,
         error="""\
 >       assert 5 == snapshot(4)
@@ -415,36 +351,28 @@ E        +  where 4 = snapshot(4)
 
 
 def test_black_config():
-    e = Example(
-        """\
+    e = Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert list(range(10)) == snapshot([])
-"""
-    )
+""")
 
     e = e.format()
 
     assert e.is_formatted()
 
-    e = e.with_files(
-        {
-            "pyproject.toml": """\
+    e = e.with_files({"pyproject.toml": """\
 [tool.black]
 line-length=50
-"""
-        }
-    )
+"""})
 
     assert e.is_formatted()
 
     e = e.run_pytest(
         ["--inline-snapshot=fix"],
         returncode=1,
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 
@@ -452,9 +380,7 @@ def test_a():
     assert list(range(10)) == snapshot(
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     )
-"""
-            }
-        ),
+"""}),
         outcomes={"passed": 1, "errors": 1},
     )
 
@@ -462,14 +388,12 @@ def test_a():
 
 
 def test_disabled():
-    e = Example(
-        """\
+    e = Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 4==snapshot(5)
-"""
-    )
+""")
 
     e.run_pytest(
         ["--inline-snapshot=disable"],
@@ -485,132 +409,108 @@ E        +  where 5 = snapshot(5)
     e = e.run_pytest(
         ["--inline-snapshot=fix"],
         returncode=1,
-        changed_files={
-            "tests/test_something.py": """\
+        changed_files={"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 4==snapshot(4)
-"""
-        },
+"""},
         outcomes={"passed": 1, "errors": 1},
     )
 
-    assert e.files["tests/test_something.py"] == snapshot(
-        """\
+    assert e.files["tests/test_something.py"] == snapshot("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 4==snapshot(4)
-"""
-    )
+""")
 
     e.run_pytest(["--inline-snapshot=disable"], outcomes=snapshot({"passed": 1}))
 
 
 def test_compare():
-    e = Example(
-        """\
+    e = Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "a"==snapshot("b")
-"""
-    )
+""")
 
     e.run_pytest(
         outcomes=snapshot({"failed": 1, "errors": 1}),
-        error=snapshot(
-            """\
+        error=snapshot("""\
 >       assert "a"==snapshot("b")
 E       AssertionError: assert 'a' == 'b'
 E         \n\
 E         - b
 E         + a
-"""
-        ),
+"""),
         returncode=1,
     )
 
-    e = Example(
-        """\
+    e = Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert snapshot("b")=="a"
-"""
-    )
+""")
 
     e.run_pytest(
         outcomes=snapshot({"failed": 1, "errors": 1}),
-        error=snapshot(
-            """\
+        error=snapshot("""\
 >       assert snapshot("b")=="a"
 E       AssertionError: assert 'b' == 'a'
 E         \n\
 E         - a
 E         + b
-"""
-        ),
+"""),
         returncode=1,
     )
 
 
 def test_assertion_error_loop():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 for e in (1, 2):
     assert e == snapshot()
-"""
-    ).run_pytest(
+""").run_pytest(
         outcomes=snapshot({"errors": 1}),
-        error=snapshot(
-            """\
+        error=snapshot("""\
 E   assert 2 == 1
 E    +  where 1 = snapshot()
-"""
-        ),
+"""),
         returncode=2,
     )
 
 
 def test_assertion_error_multiple():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 for e in (1, 2):
     assert e == snapshot(1)
-"""
-    ).run_pytest(
+""").run_pytest(
         outcomes=snapshot({"errors": 1}),
-        error=snapshot(
-            """\
+        error=snapshot("""\
 E   assert 2 == 1
 E    +  where 1 = snapshot(1)
-"""
-        ),
+"""),
         returncode=2,
     )
 
 
 def test_assertion_error():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 assert 2 == snapshot(1)\
-"""
-    ).run_pytest(
+""").run_pytest(
         outcomes=snapshot({"errors": 1}),
-        error=snapshot(
-            """\
+        error=snapshot("""\
 E   assert 2 == 1
 E    +  where 1 = snapshot(1)
-"""
-        ),
+"""),
         returncode=2,
     )
 
@@ -618,14 +518,12 @@ E    +  where 1 = snapshot(1)
 @pytest.mark.no_rewriting
 def test_run_without_pytest(pytester):
     # snapshots are deactivated by default
-    pytester.makepyfile(
-        test_file="""
+    pytester.makepyfile(test_file="""
 from inline_snapshot import snapshot
 s=snapshot([1,2])
 assert isinstance(s,list)
 assert s==[1,2]
-"""
-    )
+""")
 
     result = pytester.runpython("test_file.py")
 
@@ -633,20 +531,17 @@ assert s==[1,2]
 
 
 def test_pytest_inlinesnapshot_auto():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_something():
     assert 2 == snapshot(1)
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=review"],
         stdin=b"y\n",
         outcomes=snapshot({"passed": 1, "errors": 1}),
         error=snapshot(""),
-        report=snapshot(
-            """\
+        report=snapshot("""\
 -------------------------------- Fix snapshots ---------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -1,4 +1,4 @@                                                              |
@@ -658,66 +553,51 @@ def test_something():
 | +    assert 2 == snapshot(2)                                                 |
 +------------------------------------------------------------------------------+
 Do you want to fix these snapshots? [y/n] (n):\
-"""
-        ),
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+"""),
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_something():
     assert 2 == snapshot(2)
-"""
-            }
-        ),
+"""}),
         returncode=1,
     )
 
 
 def test_empty_sub_snapshot():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_sub_snapshot():
     assert 1==snapshot({})["key"]
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=short-report"],
         returncode=1,
         outcomes=snapshot({"passed": 1, "errors": 1}),
-        report=snapshot(
-            """\
+        report=snapshot("""\
 Error: one snapshot is missing a value (--inline-snapshot=create)
 You can also use --inline-snapshot=review to approve the changes interactively\
-"""
-        ),
+"""),
     )
 
 
 def test_persist_unknown_external():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import external, snapshot
 
 def test_sub_snapshot():
     external("hash:123*.png")
     assert 1==snapshot(2)
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=fix"],
         outcomes=snapshot({"passed": 1, "errors": 1}),
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import external, snapshot
 
 def test_sub_snapshot():
     external("hash:123*.png")
     assert 1==snapshot(1)
-"""
-            }
-        ),
+"""}),
         returncode=1,
     )
 
@@ -761,8 +641,7 @@ def test_b():
 """,
             }
         ),
-        report=snapshot(
-            """\
+        report=snapshot("""\
 ------------------------------- Create snapshots -------------------------------
 +------------------------------ tests/test_b.py -------------------------------+
 | @@ -2,5 +2,5 @@                                                              |
@@ -785,8 +664,7 @@ These changes will be applied, because you used create
 | +    assert 1==snapshot(1)                                                   |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used fix\
-"""
-        ),
+"""),
         returncode=1,
         outcomes={"passed": 2, "errors": 2},
     )
@@ -810,8 +688,7 @@ def test_a():
     ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot({}),
-        raises=snapshot(
-            """\
+        raises=snapshot("""\
 UsageError:
 inline-snapshot uses `copy.deepcopy` to copy objects,
 but the copied object is not equal to the original one:
@@ -821,8 +698,7 @@ copied_value = copy.deepcopy(value)
 assert value == copied_value
 
 Please fix the way your object is copied or your __eq__ implementation.
-"""
-        ),
+"""),
         reported_categories=set(),
     )
 
@@ -850,8 +726,7 @@ def test_a():
     ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot({}),
-        raises=snapshot(
-            """\
+        raises=snapshot("""\
 UsageError:
 inline-snapshot uses `copy.deepcopy` to copy objects,
 but the copied object is not equal to the original one:
@@ -861,20 +736,17 @@ copied_value = copy.deepcopy(value)
 assert value == copied_value
 
 Please fix the way your object is copied or your __eq__ implementation.
-"""
-        ),
+"""),
         reported_categories=set(),
     )
 
 
 def test_unknown_flag():
 
-    e = Example(
-        """\
+    e = Example("""\
 def test_a():
     assert 1==1
-"""
-    )
+""")
 
     error = snapshot("ERROR: --inline-snapshot=creaigflen is a unknown flag\n")
 
@@ -920,16 +792,14 @@ def test_outsource():
         ["--inline-snapshot=create"],
         changed_files=IsIgnoreDict(
             {
-                "tests/test_a.py": snapshot(
-                    """\
+                "tests/test_a.py": snapshot("""\
 from inline_snapshot import outsource, snapshot
 
 from inline_snapshot import external
 
 def test_outsource():
     assert outsource("hello") == snapshot(external("hash:2cf24dba5fb0*.txt"))
-"""
-                ),
+"""),
                 "tests/snapshots/external/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824.txt": (
                     external_value if relative else None
                 ),
@@ -1034,17 +904,14 @@ def test_something():
 )
 def test_default_report():
 
-    Example(
-        """\
+    Example("""\
 import pytest
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1==snapshot(5)
-"""
-    ).run_pytest(
-        report=snapshot(
-            """\
+""").run_pytest(
+        report=snapshot("""\
 -------------------------------- Fix snapshots ---------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -2,4 +2,4 @@                                                              |
@@ -1058,8 +925,7 @@ def test_a():
 These changes are not applied.
 Use --inline-snapshot=fix to apply them, or use the interactive mode with
 --inline-snapshot=review\
-"""
-        ),
+"""),
         returncode=snapshot(1),
         stderr=snapshot(""),
         changed_files=snapshot({}),
@@ -1077,17 +943,14 @@ E        +  where 5 = snapshot(5)
 )
 def test_default_review():
 
-    Example(
-        """\
+    Example("""\
 import pytest
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1==snapshot(5)
-"""
-    ).run_pytest(
-        report=snapshot(
-            """\
+""").run_pytest(
+        report=snapshot("""\
 -------------------------------- Fix snapshots ---------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -2,4 +2,4 @@                                                              |
@@ -1099,21 +962,16 @@ def test_a():
 | +    assert 1==snapshot(1)                                                   |
 +------------------------------------------------------------------------------+
 Do you want to fix these snapshots? [y/n] (n):\
-"""
-        ),
+"""),
         returncode=snapshot(1),
         stderr=snapshot(""),
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 import pytest
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1==snapshot(1)
-"""
-            }
-        ),
+"""}),
         stdin=b"y\n",
         outcomes={"passed": 1, "errors": 1},
     )

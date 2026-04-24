@@ -88,13 +88,11 @@ def test_generic(code, reported_flag, executing_used):
     all_flags = ["trim", "fix", "create", "update"]
 
     # s = source(code)
-    e = Example(
-        f"""\
+    e = Example(f"""\
 from inline_snapshot import snapshot
 def test_a():
     {code}
-"""
-    )
+""")
 
     e.run_inline(
         reported_categories=Is(
@@ -698,34 +696,27 @@ assert s["keyb"]==5\
 def test_sub_snapshot_tuple_key():
     # see https://github.com/15r10nk/inline-snapshot/issues/358
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     for i in (1,2):
         assert 5 == snapshot()[(i,)]
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     for i in (1,2):
         assert 5 == snapshot({(1,): 5, (2,): 5})[(i,)]
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_sub_snapshot_empty_string():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -735,12 +726,9 @@ def test_a():
 def test_b():
     assert 42==snapshot()[""]
     assert 42==snapshot()["a"]
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -750,9 +738,7 @@ def test_a():
 def test_b():
     assert 42==snapshot({"": 42})[""]
     assert 42==snapshot({"a": 42})["a"]
-"""
-            }
-        ),
+"""}),
     )
 
 
@@ -786,8 +772,7 @@ assert 4==inline_snapshot.snapshot(4)\
 def test_quoting_change_is_no_update():
 
     s = (
-        Example(
-            """\
+        Example("""\
 from inline_snapshot import external,snapshot
 
 class X:
@@ -805,13 +790,10 @@ class X:
 
 def test_a():
     assert X("a","a") == snapshot()
-"""
-        )
+""")
         .run_inline(
             ["--inline-snapshot=create"],
-            changed_files=snapshot(
-                {
-                    "tests/test_something.py": """\
+            changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import external,snapshot
 
 class X:
@@ -829,9 +811,7 @@ class X:
 
 def test_a():
     assert X("a","a") == snapshot(X("a", "a"))
-"""
-                }
-            ),
+"""}),
             reported_categories=snapshot(None),
         )
         .replace('"', "'")
@@ -870,8 +850,7 @@ def test_thing():
         )
     ).run_pytest(
         ["--inline-snapshot=create"],
-        report=snapshot(
-            """\
+        report=snapshot("""\
 ------------------------------- Create snapshots -------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -16,4 +16,9 @@                                                            |
@@ -888,11 +867,9 @@ def test_thing():
 | +    )                                                                       |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used create\
-"""
-        ),
+"""),
         returncode=1,
-        changed_files={
-            "tests/test_something.py": """\
+        changed_files={"tests/test_something.py": """\
 from inline_snapshot import external, snapshot
 
 
@@ -917,8 +894,7 @@ def test_thing():
             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         )
     )
-"""
-        },
+"""},
         outcomes={"passed": 1, "errors": 1},
     ).run_pytest(
         ["--inline-snapshot=report"], report=snapshot("")
@@ -961,14 +937,12 @@ def test_starred_warns_list():
         ),
         include_line=True,
     ):
-        Example(
-            """
+        Example("""
 from inline_snapshot import snapshot
 
 def test():
     assert [5] == snapshot([*[5]])
-"""
-        ).run_inline(["--inline-snapshot=fix"], reported_categories={"update"})
+""").run_inline(["--inline-snapshot=fix"], reported_categories={"update"})
 
 
 def test_starred_warns_dict():
@@ -983,32 +957,26 @@ def test_starred_warns_dict():
         ),
         include_line=True,
     ):
-        Example(
-            """
+        Example("""
 from inline_snapshot import snapshot
 
 def test():
     assert {1:3} == snapshot({**{1:3}})
-"""
-        ).run_inline(["--inline-snapshot=fix"], reported_categories={"update"})
+""").run_inline(["--inline-snapshot=fix"], reported_categories={"update"})
 
 
 def test_is():
 
-    Example(
-        """
+    Example("""
 from inline_snapshot import snapshot,Is
 
 def test_Is():
     for i in range(3):
         assert ["hello",i] == snapshot(["hi",Is(i)])
         assert ["hello",i] == snapshot({1:["hi",Is(i)]})[i]
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 
 from inline_snapshot import snapshot,Is
 
@@ -1016,15 +984,11 @@ def test_Is():
     for i in range(3):
         assert ["hello",i] == snapshot(["hi",Is(i)])
         assert ["hello",i] == snapshot({1:["hi",Is(i)], 0: ["hello", 0], 2: ["hello", 2]})[i]
-"""
-            }
-        ),
+"""}),
         reported_categories={"create", "fix"},
     ).run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 
 from inline_snapshot import snapshot,Is
 
@@ -1032,33 +996,25 @@ def test_Is():
     for i in range(3):
         assert ["hello",i] == snapshot(["hello",Is(i)])
         assert ["hello",i] == snapshot({1:["hello",Is(i)], 0: ["hello", 0], 2: ["hello", 2]})[i]
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_create_ellipsis():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1+1==snapshot(...)
     assert [1,2,8] == snapshot([1,2,...])
-        """
-    ).run_inline(
+        """).run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1+1==snapshot(2)
     assert [1,2,8] == snapshot([1,2,8])
         \
-"""
-            }
-        ),
+"""}),
     )

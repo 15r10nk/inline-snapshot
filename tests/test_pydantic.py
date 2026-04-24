@@ -9,8 +9,7 @@ from inline_snapshot.testing import Example
 
 def test_pydantic_create_snapshot():
 
-    Example(
-        """
+    Example("""
 from pydantic import BaseModel
 from inline_snapshot import snapshot
 
@@ -23,12 +22,9 @@ def test_pydantic():
     m=M(size=5,name="Tom")
     assert m==snapshot()
 
-    """
-    ).run_inline(
+    """).run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 
 from pydantic import BaseModel
 from inline_snapshot import snapshot
@@ -43,18 +39,13 @@ def test_pydantic():
     assert m==snapshot(M(size=5, name="Tom"))
 
     \
-"""
-            }
-        ),
-    ).run_inline(
-        ["--inline-snapshot=disable"], reported_categories=set()
-    )
+"""}),
+    ).run_inline(["--inline-snapshot=disable"], reported_categories=set())
 
 
 def test_pydantic_field_repr():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 from pydantic import BaseModel,Field
 
@@ -64,12 +55,9 @@ class container(BaseModel):
 
 def test():
     assert container(a=1,b=5) == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 from pydantic import BaseModel,Field
 
@@ -79,17 +67,12 @@ class container(BaseModel):
 
 def test():
     assert container(a=1,b=5) == snapshot(container(a=1))
-"""
-            }
-        ),
-    ).run_inline(
-        ["--inline-snapshot=disable"], reported_categories=set()
-    )
+"""}),
+    ).run_inline(["--inline-snapshot=disable"], reported_categories=set())
 
 
 def test_pydantic_default_value():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 from pydantic import BaseModel,Field
@@ -101,12 +84,9 @@ class A(BaseModel):
 
 def test_something():
     assert A(a=1) == snapshot(A(a=1,b=2,c=[]))
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=update"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 from pydantic import BaseModel,Field
@@ -118,15 +98,12 @@ class A(BaseModel):
 
 def test_something():
     assert A(a=1) == snapshot(A(a=1))
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_pydantic_evaluate_twice():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 from pydantic import BaseModel
 
@@ -136,15 +113,13 @@ class A(BaseModel):
 def test_something():
     for _ in [1,2]:
         assert A(a=1) == snapshot(A(a=1))
-"""
-    ).run_inline(
+""").run_inline(
         changed_files=snapshot({}),
     )
 
 
 def test_pydantic_factory_method():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 from pydantic import BaseModel
 
@@ -158,12 +133,9 @@ class A(BaseModel):
 def test_something():
     for a in [1,2]:
         assert A(a=2) == snapshot(A.from_str("1"))
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 from pydantic import BaseModel
 
@@ -177,9 +149,7 @@ class A(BaseModel):
 def test_something():
     for a in [1,2]:
         assert A(a=2) == snapshot(A(a=2))
-"""
-            }
-        ),
+"""}),
     )
 
 
@@ -188,8 +158,7 @@ def test_something():
     reason="NewType is a function in 3.9 and cannot be checked with isinstance or serialized to code",
 )
 def test_pydantic_newtype():
-    Example(
-        """\
+    Example("""\
 from typing import NewType
 from pydantic import BaseModel
 from inline_snapshot import snapshot
@@ -202,12 +171,9 @@ def test_something():
         some_id: SomeID
     a = Something(some_id=SomeID(1))
     assert a == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from typing import NewType
 from pydantic import BaseModel
 from inline_snapshot import snapshot
@@ -220,9 +186,7 @@ def test_something():
         some_id: SomeID
     a = Something(some_id=SomeID(1))
     assert a == snapshot(Something(some_id=SomeID(1)))
-"""
-            }
-        ),
+"""}),
     ).run_inline()
 
 
@@ -258,9 +222,7 @@ def test_something():
         }
     ).run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "test_something.py": """\
+        changed_files=snapshot({"test_something.py": """\
 from inline_snapshot import snapshot
 from some_id import create
 
@@ -269,9 +231,7 @@ from some_id import Something
 
 def test_something():
     assert create() == snapshot(Something(some_id1=SomeID(1)))
-"""
-            }
-        ),
+"""}),
     ).run_inline()
 
 
@@ -280,8 +240,7 @@ def test_something():
     reason="pydantic 1 cannot compare C[int]() with C()",
 )
 def test_pydantic_generic_class():
-    Example(
-        """\
+    Example("""\
 from typing import Generic, TypeVar
 from inline_snapshot import snapshot
 from pydantic import BaseModel
@@ -294,12 +253,9 @@ def test_a():
     c=C[int](a=5)
 
     assert c == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from typing import Generic, TypeVar
 from inline_snapshot import snapshot
 from pydantic import BaseModel
@@ -312,9 +268,5 @@ def test_a():
     c=C[int](a=5)
 
     assert c == snapshot(C(a=5))
-"""
-            }
-        ),
-    ).run_inline(
-        reported_categories={"update"}
-    )
+"""}),
+    ).run_inline(reported_categories={"update"})

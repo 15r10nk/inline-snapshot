@@ -435,13 +435,11 @@ class SnapshotSession:
 file: {frame.f_code.co_filename}
 line: {frame.f_lineno}\
 """
-                raise RuntimeError(
-                    f"""
+                raise RuntimeError(f"""
 error during change collection for snapshot ({snapshot})
 snapshot.\
 {context}
-"""
-                ) from exception
+""") from exception
 
             for change in change_list:
                 changes[change.flag].append(change)

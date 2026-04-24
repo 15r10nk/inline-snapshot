@@ -3,8 +3,7 @@ from inline_snapshot.testing import Example
 
 
 def test_uuid_storage():
-    Example(
-        """
+    Example("""
 from inline_snapshot import external
 
 s=external("uuid:")
@@ -12,8 +11,7 @@ s=external("uuid:")
 def test_a():
     assert "value" == external("uuid:")
     assert "blub"==s
-    """
-    ).run_inline(
+    """).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
@@ -32,9 +30,7 @@ def test_a():
 """,
             }
         ),
-    ).replace(
-        '"value"', '"new_value"'
-    ).run_inline(
+    ).replace('"value"', '"new_value"').run_inline(
         ["--inline-snapshot=disable"],
         changed_files=snapshot({}),
         raises=snapshot("AssertionError"),
