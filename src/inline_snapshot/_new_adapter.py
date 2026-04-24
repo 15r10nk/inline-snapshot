@@ -283,7 +283,7 @@ class NewAdapter:
                 self.context.file,
                 old_node,
                 position,
-                *zip(*code_values),  # type:ignore
+                *zip(*code_values),  # type: ignore
             )
 
         return type(new_value)(result)
@@ -325,7 +325,7 @@ class NewAdapter:
                 self.context.file,
                 old_node,
                 common,
-                *zip(*to_insert),  # type:ignore
+                *zip(*to_insert),  # type: ignore
             )
 
         return CustomTuple(result)
@@ -447,14 +447,16 @@ class NewAdapter:
         else:
             old_node_args = [None] * len(new_args)
 
-        for i, (new_value_element, node) in enumerate(zip(new_args, old_node_args)):
+        old_args_len = len(old_node.args if old_node else old_value.args)
+
+        for i, (new_value_element, node) in list(
+            enumerate(zip(new_args, old_node_args))
+        )[:old_args_len]:
             old_value_element = old_value.argument(i)
             result = yield from intercept(
                 self.compare(old_value_element, node, new_value_element)
             )
             result_args.append(result)
-
-        old_args_len = len(old_node.args if old_node else old_value.args)
 
         if old_node is not None:
             if old_args_len > len(new_args):

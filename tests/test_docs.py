@@ -15,6 +15,7 @@ from typing import TypeVar
 
 import isort.api
 import pytest
+from dirty_equals import AnyThing
 from executing import is_pytest_compatible
 
 from inline_snapshot import snapshot
@@ -22,6 +23,8 @@ from inline_snapshot._align import align
 from inline_snapshot._external._external_file import external_file
 from inline_snapshot._flags import Flags
 from inline_snapshot._global_state import snapshot_env
+from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._unmanaged import declare_unmanaged
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
 from inline_snapshot.version import is_insider
@@ -153,7 +156,7 @@ def test_map_code_blocks(tmp_path):
 
         recorded_blocks = []
 
-        with raises(exception):
+        with raises(snapshot_arg(exception)):
 
             def test_block(block):
                 handle_block(block)
@@ -241,15 +244,13 @@ print(1 + 1)
                 )
             ]
         ),
-        new_markdown_code=snapshot(
-            """\
+        new_markdown_code=snapshot("""\
 text
 <!-- header -->
 ``` python a="b c"
 # removed
 ```
-"""
-        ),
+"""),
     )
 
 
@@ -279,6 +280,7 @@ def test_docs(file):
 T = TypeVar("T")
 
 
+@declare_unmanaged
 class Store(Generic[T]):
     value: T
 
@@ -412,13 +414,25 @@ uuid.uuid4=f
 
                 print("run with")
                 example = example.run_pytest(
-                    args, error=errors, outcomes=outcomes, returncode=returncode
+                    args,
+                    error=errors,
+                    outcomes=outcomes,
+                    returncode=returncode,
+                    changed_files=AnyThing(),
                 )
 
         else:
             example = example.run_pytest(
-                args, error=errors, outcomes=outcomes, returncode=returncode
+                args,
+                error=errors,
+                outcomes=outcomes,
+                returncode=returncode,
+                changed_files=AnyThing(),
             )
+
+        if "fix" in flags:
+            example.run_pytest(outcomes=(outcomes := Store()))
+            assert "errors" not in outcomes.value
 
         print("flags:", flags, repr(block.block_options))
 
@@ -463,6 +477,9 @@ uuid.uuid4=f
                 block.block_options["hl_lines"] = " ".join(changed_lines)
             else:
                 assert False, "no lines changed"
+
+        if "first_block" not in options:
+            new_code = re.sub(r" *# *\(\d+\)\!?", "", new_code)
 
         block.code = new_code
 

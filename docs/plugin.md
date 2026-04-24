@@ -218,7 +218,7 @@ def long_string_handler(value, builder: Builder):
         return builder.create_external(value)
 ```
 
-<!-- inline-snapshot: create fix first_block outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python title="test_long_strings.py"
 from inline_snapshot import external, snapshot
 

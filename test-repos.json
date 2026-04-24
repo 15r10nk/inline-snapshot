@@ -12,7 +12,7 @@
       "-q",
       "--no-header"
     ],
-    "ref": "fcb5da3087df51b5dca89e8120850e5a6bdcf960"
+    "ref": "a6bf50b721c2dd1ed609c8bb402076e8ec0c43f3"
   },
   "pydantic-ai": {
     "url": "https://github.com/pydantic/pydantic-ai.git",
@@ -33,7 +33,7 @@
       "-q",
       "--no-header"
     ],
-    "ref": "c1d060dbe996eee1fccba2161c9f0fb107c47d91"
+    "ref": "450d50e9065c021768f1b795ee26aee85c36dc50"
   },
   "fastapi": {
     "url": "https://github.com/fastapi/fastapi.git",
@@ -49,6 +49,6 @@
       "-q",
       "--no-header"
     ],
-    "ref": "e54e5a8980ffa6d7ff68ee7b25a1c46036375521"
+    "ref": "2fa00db8581bb4e74b2d00d859c8469b6da296c4"
   }
 }

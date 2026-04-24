@@ -24,13 +24,11 @@ def test_range():
 
 def test_rewrite(tmp_path):
     file = tmp_path / "file.txt"
-    file.write_bytes(
-        b"""
+    file.write_bytes(b"""
 12345
 12345
 12345
-"""
-    )
+""")
 
     recorder = ChangeRecorder()
     s = recorder.new_change()
@@ -42,11 +40,8 @@ def test_rewrite(tmp_path):
     assert recorder.num_fixes() == 1
     recorder.fix_all()
 
-    assert (
-        file.read_text("utf-8")
-        == """
+    assert file.read_text("utf-8") == """
 12a45
 1245
 12c345
 """
-    )

@@ -20,14 +20,30 @@ def test_a():
     e.run_pytest(
         ["--inline-snapshot=create,fix"],
         returncode=1,
+        changed_files={"test_a.py": """\
+
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 1==snapshot(1)
+    \
+"""},
+        outcomes={"passed": 1, "errors": 1},
     )
 
     e.run_inline(
         ["--inline-snapshot=fix"],
-        reported_categories=snapshot(["fix"]),
+        reported_categories=snapshot(None),
+        changed_files={"test_a.py": """\
+
+from inline_snapshot import snapshot
+
+def test_a():
+    assert 1==snapshot(1)
+    \
+"""},
     ).run_inline(
-        ["--inline-snapshot=fix"],
-        changed_files=snapshot({}),
+        ["--inline-snapshot=fix"], changed_files=snapshot({}), reported_categories=set()
     )
 
 
@@ -39,11 +55,23 @@ def test_no_tests():
 
 def test_throws_exception():
 
-    with raises(snapshot("Exception: test")):
-        Example(
-            """\
+    Example("""\
 def test_a():
     raise Exception("test")
 
-        """
-        ).run_inline()
+        """).run_inline(raises="Exception: test")
+
+
+def test_throws_exception_in_conftest():
+
+    Example(
+        {
+            "conftest.py": """
+assert False , "some error"
+                 """,
+            "test_a.py": """\
+def test_a():
+    pass
+        """,
+        }
+    ).run_inline(raises=snapshot("AssertionError: some error"))

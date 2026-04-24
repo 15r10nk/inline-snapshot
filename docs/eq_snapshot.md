@@ -37,7 +37,7 @@ Example:
     ```
 
 === "--inline-snapshot=fix"
-    <!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
+    <!-- inline-snapshot: fix outcome-passed=1 -->
     ``` python hl_lines="5"
     from inline_snapshot import snapshot
 
@@ -181,7 +181,7 @@ def test_function():
 
 Re-running the test with `--inline-snapshot=fix` will update the snapshot to match the new value of `payload`, while keeping the `date` as a dirty-equals expression:
 
-<!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot: fix outcome-passed=1 -->
 ``` python hl_lines="17"
 import datetime
 from dirty_equals import IsNow
@@ -277,7 +277,7 @@ The snapshot does not need to be fixed when `current_version` changes in the fut
     ```
 
 === "--inline-snapshot=fix"
-    <!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
+    <!-- inline-snapshot: fix outcome-passed=1 -->
     ``` python hl_lines="6"
     from inline_snapshot import Is, snapshot
 

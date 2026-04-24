@@ -37,9 +37,7 @@ def test_a():
         }
     ).run_pytest(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/mypackage/__init__.py": """\
+        changed_files=snapshot({"tests/mypackage/__init__.py": """\
 from inline_snapshot import snapshot
 from dataclasses import dataclass
 
@@ -50,10 +48,9 @@ class A:
     a:int
 
 s = snapshot([A(a=5), B(b=5)])
-"""
-            }
-        ),
+"""}),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).run_pytest(
         ["--inline-snapshot=disable"]
     )
