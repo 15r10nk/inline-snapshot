@@ -4,15 +4,13 @@ from inline_snapshot.testing._example import Example
 
 def test_uuid_rename_function():
 
-    Example(
-        """
+    Example("""
 from inline_snapshot import external
 
 def test_a():
     assert "a" == external()
 
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
@@ -27,9 +25,7 @@ def test_a():
 """,
             }
         ),
-    ).replace(
-        "test_a", "test_b"
-    ).run_inline()
+    ).replace("test_a", "test_b").run_inline()
 
 
 def test_test_dir():
@@ -149,13 +145,11 @@ def test_b():
         ["my_tests_b/test_b.py", "--inline-snapshot=trim,create"],
         changed_files=snapshot({}),
     ).with_files(
-        {
-            "pyproject.toml": """\
+        {"pyproject.toml": """\
 [tool.inline-snapshot]
 test-dir=["my_tests_b"]
 default-storage="hash"
-"""
-        }
+"""}
     ).run_pytest(
         ["my_tests_b/test_b.py", "--inline-snapshot=trim"],
         changed_files=snapshot(
@@ -168,15 +162,13 @@ default-storage="hash"
 
 def test_trim():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import external
 
 def test_a():
     assert "a" == external()
     assert "b" == external()
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
@@ -207,16 +199,12 @@ def test_a():
 
 
 def test_double_use():
-    e = Example(
-        {
-            "tests/test_a.py": """\
+    e = Example({"tests/test_a.py": """\
 from inline_snapshot import external
 
 def test_a():
     assert "test"==external("uuid:")
-             """
-        }
-    ).run_inline(
+             """}).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
@@ -233,8 +221,7 @@ def test_a():
     )
 
     e = e.with_files({"tests/test_b.py": e.read_file("tests/test_a.py")}).run_inline(
-        report=snapshot(
-            """\
+        report=snapshot("""\
 
 
 ═══════════════════════════════ inline-snapshot ════════════════════════════════
@@ -246,6 +233,5 @@ times, which is not supported:
    (see \n\
 https://15r10nk.github.io/inline-snapshot/latest/external/external/#uuid)
 
-"""
-        )
+""")
     )

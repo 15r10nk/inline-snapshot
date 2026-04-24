@@ -244,15 +244,13 @@ print(1 + 1)
                 )
             ]
         ),
-        new_markdown_code=snapshot(
-            """\
+        new_markdown_code=snapshot("""\
 text
 <!-- header -->
 ``` python a="b c"
 # removed
 ```
-"""
-        ),
+"""),
     )
 
 

@@ -3,14 +3,12 @@ from inline_snapshot.testing._example import Example
 
 
 def test_xdist():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1==snapshot()
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=create", "-n=auto"],
         stderr=snapshot(
             "ERROR: --inline-snapshot=create cannot be combined with xdist\n"
@@ -21,22 +19,18 @@ def test_a():
 
 
 def test_xdist_disabled():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1==snapshot(5)
-"""
-    ).run_pytest(
+""").run_pytest(
         ["-n=auto"],
-        report=snapshot(
-            """\
+        report=snapshot("""\
 INFO: inline-snapshot was disabled because you used xdist. This means that tests
 with snapshots will continue to run, but snapshot(x) will only return x and
 inline-snapshot will not be able to fix snapshots or generate reports.\
-"""
-        ),
+"""),
         returncode=snapshot(1),
         outcomes=snapshot({"failed": 1}),
         error="""\
@@ -48,14 +42,12 @@ E        +  where 5 = snapshot(5)
 
 
 def test_xdist_and_disable():
-    e = Example(
-        """\
+    e = Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1==snapshot(2)
-"""
-    )
+""")
 
     e.run_pytest(
         ["-n=auto", "--inline-snapshot=disable"],
@@ -93,13 +85,11 @@ def test_a():
         }
     ).run_pytest(
         ["-n=auto"],
-        report=snapshot(
-            """\
+        report=snapshot("""\
 INFO: inline-snapshot was disabled because you used xdist. This means that tests
 with snapshots will continue to run, but snapshot(x) will only return x and
 inline-snapshot will not be able to fix snapshots or generate reports.\
-"""
-        ),
+"""),
         stderr=snapshot(""),
         returncode=1,
         error="""\
@@ -112,22 +102,18 @@ E        +  where 2 = snapshot(2)
 
 
 def test_xdist_zero_processes():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1==snapshot(2)
-"""
-    ).run_pytest(
+""").run_pytest(
         ["-n=0", "--inline-snapshot=short-report"],
         outcomes=snapshot({"failed": 1, "errors": 1}),
-        report=snapshot(
-            """\
+        report=snapshot("""\
 Error: one snapshot has incorrect values (--inline-snapshot=fix)
 You can also use --inline-snapshot=review to approve the changes interactively\
-"""
-        ),
+"""),
         stderr=snapshot(""),
         returncode=1,
         error="""\

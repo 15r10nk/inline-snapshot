@@ -110,7 +110,6 @@ parallel = true
 source_pkgs = ["inline_snapshot", "tests"]
 
 [tool.hatch.version]
-source="code"
 path="src/inline_snapshot/version.py"
 
 [tool.hatch.envs.docs]

@@ -24,18 +24,13 @@ def test_a():
         ["--inline-snapshot=report"], changed_files=snapshot({}), report=expected_report
     ).run_pytest(
         ["--inline-snapshot=update"],
-        changed_files=snapshot(
-            {
-                "tests/test_a.py": """\
+        changed_files=snapshot({"tests/test_a.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 5 == snapshot(5)
-"""
-            }
-        ),
-        report=snapshot(
-            """\
+"""}),
+        report=snapshot("""\
 ------------------------------- Update snapshots -------------------------------
 +------------------------------ tests/test_a.py -------------------------------+
 | @@ -1,4 +1,4 @@                                                              |
@@ -47,6 +42,5 @@ def test_a():
 | +    assert 5 == snapshot(5)                                                 |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used update\
-"""
-        ),
+"""),
     )

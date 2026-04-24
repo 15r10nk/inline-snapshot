@@ -31,18 +31,14 @@ def test_a():
         }
     ).run_inline(
         [f"--inline-snapshot={flag}"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 from dirty_equals import IsStr
 
 def test_a():
     assert snapshot(IsStr(regex="[a-z]")) == "a"
-"""
-            }
-        ),
+"""}),
     )
 
 
@@ -52,9 +48,7 @@ def test_a():
 )
 def test_create_imports(original, flag):
 
-    Example(
-        {
-            "tests/test_something.py": f"""\
+    Example({"tests/test_something.py": f"""\
 from inline_snapshot import snapshot
 
 def counter():
@@ -63,13 +57,9 @@ def counter():
 
 def test():
     assert counter() == snapshot({original})
-"""
-        }
-    ).run_inline(
+"""}).run_inline(
         [f"--inline-snapshot={flag}"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 from collections import Counter
@@ -80,9 +70,7 @@ def counter():
 
 def test():
     assert counter() == snapshot(Counter({"1": 1, "2": 2}))
-"""
-            }
-        ),
+"""}),
     )
 
 
@@ -136,9 +124,7 @@ def test_a():
         }
     ).run_inline(
         [f"--inline-snapshot={flag}"],
-        changed_files=snapshot(
-            {
-                "test_something.py": """\
+        changed_files=snapshot({"test_something.py": """\
 from inline_snapshot import snapshot
 from pkg.subpkg import ComplexObj
 
@@ -147,9 +133,7 @@ import pkg.subpkg
 
 def test_a():
     assert snapshot(mod1.helper(pkg.subpkg.create(1, 2))) == ComplexObj(1, 2)
-"""
-            }
-        ),
+"""}),
     ).run_inline()
 
 
@@ -197,9 +181,7 @@ def test_a():
         }
     ).run_inline(
         [f"--inline-snapshot={flag}"],
-        changed_files=snapshot(
-            {
-                "test_something.py": """\
+        changed_files=snapshot({"test_something.py": """\
 from inline_snapshot import snapshot
 from mymodule import MyClass
 
@@ -209,9 +191,7 @@ import mymodule
 
 def test_a():
     assert snapshot(mymodule.MyClass("value")) == MyClass("value")
-"""
-            }
-        ),
+"""}),
     ).run_inline()
 
 
@@ -240,8 +220,7 @@ def test_a():
         }
     ).run_inline(
         ["--inline-snapshot=create"],
-        raises=snapshot(
-            """\
+        raises=snapshot("""\
 UsageError:
 Customized value does not match original value:
 
@@ -249,8 +228,7 @@ original_value=42
 
 customized_value=100
 customized_representation=CustomCode('100')
-"""
-        ),
+"""),
         reported_categories=set(),
     )
 
@@ -282,18 +260,14 @@ def test_a():
         }
     ).run_inline(
         [f"--inline-snapshot={flag}"],
-        changed_files=snapshot(
-            {
-                "test_something.py": """\
+        changed_files=snapshot({"test_something.py": """\
 from inline_snapshot import snapshot
 
 GLOBAL_VAR = "test_value"
 
 def test_a():
     assert snapshot(GLOBAL_VAR) == "test_value"
-"""
-            }
-        ),
+"""}),
     )
 
 
@@ -312,16 +286,12 @@ def test_a():
         }
     ).run_inline(
         [f"--inline-snapshot={flag}"],
-        changed_files=snapshot(
-            {
-                "test_something.py": """\
+        changed_files=snapshot({"test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert snapshot(__file__) == __file__
-"""
-            }
-        ),
+"""}),
     )
 
 
@@ -344,9 +314,7 @@ def test_datetime_types():
         }
     ).run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "test_something.py": """\
+        changed_files=snapshot({"test_something.py": """\
 from datetime import datetime, date, time, timedelta
 from inline_snapshot import snapshot
 
@@ -356,9 +324,7 @@ def test_datetime_types():
     assert snapshot(time(hour=10, minute=30, second=45, microsecond=123456)) == time(10, 30, 45, 123456)
     assert snapshot(timedelta(days=1, seconds=9000)) == timedelta(days=1, hours=2, minutes=30)
     assert snapshot(timedelta(seconds=5, microseconds=123456)) == timedelta(seconds=5, microseconds=123456)
-"""
-            }
-        ),
+"""}),
     ).run_inline()
 
 
@@ -391,17 +357,13 @@ def test():
         }
     ).run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "test_example.py": """\
+        changed_files=snapshot({"test_example.py": """\
 from inline_snapshot import snapshot
 from c import C
 
 def test():
     assert C(i=2) == snapshot(C(i=1 + 1))
-"""
-            }
-        ),
+"""}),
     ).run_inline(
         ["--inline-snapshot=fix"], reported_categories=set()
     )

@@ -42,9 +42,7 @@ def test_enum():
         }
     ).run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "test_color.py": """\
+        changed_files=snapshot({"test_color.py": """\
 from inline_snapshot import snapshot
 from color import get_color
 
@@ -52,16 +50,13 @@ from color import color
 
 def test_enum():
     assert get_color() == snapshot([color.val, color.val])
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_path():
 
-    Example(
-        """\
+    Example("""\
 from pathlib import Path,PurePath
 from inline_snapshot import snapshot
 
@@ -70,12 +65,9 @@ folder="a"
 def test_a():
     assert Path(folder,"b.txt") == snapshot()
     assert PurePath(folder,"b.txt") == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from pathlib import Path,PurePath
 from inline_snapshot import snapshot
 
@@ -84,16 +76,10 @@ folder="a"
 def test_a():
     assert Path(folder,"b.txt") == snapshot(Path("a/b.txt"))
     assert PurePath(folder,"b.txt") == snapshot(PurePath("a/b.txt"))
-"""
-            }
-        ),
-    ).replace(
-        '"a"', '"c"'
-    ).run_inline(
+"""}),
+    ).replace('"a"', '"c"').run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from pathlib import Path,PurePath
 from inline_snapshot import snapshot
 
@@ -102,16 +88,13 @@ folder="c"
 def test_a():
     assert Path(folder,"b.txt") == snapshot(Path("c/b.txt"))
     assert PurePath(folder,"b.txt") == snapshot(PurePath("c/b.txt"))
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_snapshot_generates_hasrepr():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 class Thing:
@@ -126,13 +109,10 @@ class Thing:
 def test_thing():
     assert Thing() == snapshot()
 
-    """
-    ).run_pytest(
+    """).run_pytest(
         ["--inline-snapshot=create"],
         returncode=snapshot(1),
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 from inline_snapshot import HasRepr
@@ -150,13 +130,9 @@ def test_thing():
     assert Thing() == snapshot(HasRepr(Thing, "<something>"))
 
     \
-"""
-            }
-        ),
+"""}),
         outcomes={"passed": 1, "errors": 1},
-    ).run_pytest(
-        ["--inline-snapshot=disable"]
-    ).run_pytest()
+    ).run_pytest(["--inline-snapshot=disable"]).run_pytest()
 
 
 def test_hasrepr_type():
@@ -168,8 +144,7 @@ def test_hasrepr_type():
 
 def test_enum_in_dataclass():
 
-    Example(
-        """
+    Example("""
 from inline_snapshot import snapshot
 from enum import Enum
 from dataclasses import dataclass
@@ -185,12 +160,9 @@ class container:
 
 def test_a():
     assert container(bg=color.red,fg=color.red) == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 
 from inline_snapshot import snapshot
 from enum import Enum
@@ -207,16 +179,13 @@ class container:
 
 def test_a():
     assert container(bg=color.red,fg=color.red) == snapshot(container(fg=color.red))
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_flag():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 from enum import Flag, auto
 
@@ -227,12 +196,9 @@ class Color(Flag):
 
 def test_a():
     assert Color.red | Color.blue == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 from enum import Flag, auto
 
@@ -243,9 +209,7 @@ class Color(Flag):
 
 def test_a():
     assert Color.red | Color.blue == snapshot(Color.red | Color.blue)
-"""
-            }
-        ),
+"""}),
     )
 
 
@@ -270,8 +234,7 @@ assert [Color,int] == snapshot([Color, int])\
 
 def test_qualname():
 
-    Example(
-        """\
+    Example("""\
 from enum import Enum
 from inline_snapshot import snapshot
 
@@ -283,12 +246,9 @@ class Namespace:
 def test():
     assert Namespace.Color.red == snapshot()
 
-    """
-    ).run_inline(
+    """).run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from enum import Enum
 from inline_snapshot import snapshot
 
@@ -301,9 +261,7 @@ def test():
     assert Namespace.Color.red == snapshot(Namespace.Color.red)
 
     \
-"""
-            }
-        ),
+"""}),
     ).run_inline()
 
 
@@ -415,8 +373,7 @@ def test_fake_tuple2():
 
 def test_invalid_repr():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 class Thing:
@@ -430,12 +387,9 @@ class Thing:
 
 def test_a():
     assert Thing() == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 from inline_snapshot import HasRepr
@@ -451,35 +405,27 @@ class Thing:
 
 def test_a():
     assert Thing() == snapshot(HasRepr(Thing, "+++"))
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_function_type():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 from types import FunctionType
 def func():...
 def test():
     assert func == snapshot()
-"""
-    ).run_pytest(  # run with create flag and check the changed files
+""").run_pytest(  # run with create flag and check the changed files
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 from types import FunctionType
 def func():...
 def test():
     assert func == snapshot(func)
-"""
-            }
-        ),
+"""}),
         returncode=snapshot(1),
         outcomes={"passed": 1, "errors": 1},
     )

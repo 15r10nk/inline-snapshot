@@ -5,15 +5,13 @@ from inline_snapshot.testing import Example
 
 def test_missing_is():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_is():
     for i in (1,2):
         assert i == snapshot(i)
-    """
-    ).run_inline(
+    """).run_inline(
         raises=snapshot(
             "UsageError: snapshot value should not change. Use Is(...) for dynamic snapshot parts."
         ),
