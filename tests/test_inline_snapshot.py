@@ -178,15 +178,13 @@ assert l==snapshot()
             flags="create",
             number=2,
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 
 l=[1,2]
 assert l==snapshot([1, 2])
 l.append(3)
 assert l==snapshot([1, 2, 3])
-"""
-        )
+""")
     )
 
     assert (
@@ -200,15 +198,13 @@ assert l<=snapshot()
             flags="create",
             number=2,
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 
 l=[1,2]
 assert l<=snapshot([1, 2])
 l.append(3)
 assert l<=snapshot([1, 2, 3])
-"""
-        )
+""")
     )
 
     assert (
@@ -222,15 +218,13 @@ assert l>=snapshot()
             flags="create",
             number=2,
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 
 l=[1,2]
 assert l>=snapshot([1, 2])
 l.append(3)
 assert l>=snapshot([1, 2, 3])
-"""
-        )
+""")
     )
 
     assert (
@@ -244,15 +238,13 @@ assert l in snapshot()
             flags="create",
             number=2,
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 
 l=[1,2]
 assert l in snapshot([[1, 2]])
 l.append(3)
 assert l in snapshot([[1, 2, 3]])
-"""
-        )
+""")
     )
 
 
@@ -281,13 +273,11 @@ def test_comparison(check_update):
             """,
             flags="create",
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 
 for a in [1,1,1]:
     assert a==snapshot(1)
-"""
-        )
+""")
     )
 
     assert (
@@ -298,13 +288,11 @@ for a in [1,1,1]:
             """,
             flags="fix",
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 
 for a in [1,1,1]:
     assert a==snapshot(1)
-"""
-        )
+""")
     )
 
 
@@ -327,14 +315,12 @@ assert 5==s["q"]
             flags="fix",
             reported_flags="fix,trim",
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 
 s=snapshot({"v": 7, "q": 5})
 assert 5<=s["v"]
 assert 5==s["q"]
-"""
-        )
+""")
     )
 
     assert (
@@ -347,14 +333,12 @@ assert 5==s["q"]
             flags="fix",
             reported_flags="fix,create",
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 
 s=snapshot({"q": 5})
 assert 5<=s["v"]
 assert 5==s["q"]
-"""
-        )
+""")
     )
 
     assert check_update("assert 5<=snapshot(9)", flags="trim") == snapshot(
@@ -395,14 +379,12 @@ assert 5==s["q"]
             flags="fix",
             reported_flags="fix,trim",
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 
 s=snapshot({"v": 3, "q": 5})
 assert 5>=s["v"]
 assert 5==s["q"]
-"""
-        )
+""")
     )
 
     assert (
@@ -415,14 +397,12 @@ assert 5==s["q"]
             flags="fix",
             reported_flags="fix,create",
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 
 s=snapshot({"q": 5})
 assert 5>=s["v"]
 assert 5==s["q"]
-"""
-        )
+""")
     )
 
     assert check_update("assert 5>=snapshot(2)", flags="trim") == snapshot(
@@ -479,15 +459,13 @@ assert 5 in s
 """,
             flags="create",
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 
 s=snapshot([4, 5])
 assert 4 in s
 assert 5 in s
 assert 5 in s
-"""
-        )
+""")
     )
 
 
@@ -562,14 +540,12 @@ assert 5 == s["q"]
         """,
             flags="create",
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 
 s=snapshot({"q": 5})
 assert 5 == s["q"]
 assert 5 == s["q"]
-"""
-        )
+""")
     )
 
 
@@ -660,15 +636,13 @@ assert s["keyb"]==5
 """,
             flags="create",
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 s=snapshot({"keyb": 5})
 
 s["keya"]
 
 assert s["keyb"]==5
-"""
-        )
+""")
     )
 
     assert (
@@ -682,49 +656,40 @@ assert s["keyb"]==5
 """,
             flags="create",
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 s=snapshot({"keyb": 5})
 
 s["keya"]
 
 assert s["keyb"]==5
-"""
-        )
+""")
     )
 
 
 def test_sub_snapshot_tuple_key():
     # see https://github.com/15r10nk/inline-snapshot/issues/358
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     for i in (1,2):
         assert 5 == snapshot()[(i,)]
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     for i in (1,2):
         assert 5 == snapshot({(1,): 5, (2,): 5})[(i,)]
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_sub_snapshot_empty_string():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -734,12 +699,9 @@ def test_a():
 def test_b():
     assert 42==snapshot()[""]
     assert 42==snapshot()["a"]
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
@@ -749,9 +711,7 @@ def test_a():
 def test_b():
     assert 42==snapshot({"": 42})[""]
     assert 42==snapshot({"a": 42})["a"]
-"""
-            }
-        ),
+"""}),
     )
 
 
@@ -766,13 +726,11 @@ assert 4==s()
 """,
             flags="create",
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 from inline_snapshot import snapshot as s
 assert 4==s(4)
 
-"""
-        )
+""")
     )
 
     assert (
@@ -783,19 +741,16 @@ assert 4==inline_snapshot.snapshot()
 """,
             flags="create",
         )
-        == snapshot(
-            """\
+        == snapshot("""\
 import inline_snapshot
 assert 4==inline_snapshot.snapshot(4)
-"""
-        )
+""")
     )
 
 
 def test_quoting_change_is_no_update(source):
 
-    s = source(
-        """\
+    s = source("""\
 from inline_snapshot import external,snapshot
 
 class X:
@@ -812,14 +767,12 @@ class X:
         return other.a==self.a
 
 assert X("a") == snapshot()
-"""
-    )
+""")
     assert s.flags == snapshot({"create"})
 
     s = s.run("create")
 
-    assert s.source == snapshot(
-        """\
+    assert s.source == snapshot("""\
 from inline_snapshot import external,snapshot
 
 class X:
@@ -836,8 +789,7 @@ class X:
         return other.a==self.a
 
 assert X("a") == snapshot(X("a"))
-"""
-    )
+""")
 
     assert s.flags == snapshot({"create"})
     s = s.run()
@@ -846,8 +798,7 @@ assert X("a") == snapshot(X("a"))
 
 def test_trailing_comma(project):
 
-    project.setup(
-        """\
+    project.setup("""\
 from inline_snapshot import external, snapshot
 
 class X:
@@ -865,15 +816,13 @@ class X:
 
 def test_thing():
     assert X("a" * 40, "a" * 40) == snapshot()
-"""
-    )
+""")
 
     project.format()
 
     result = project.run("--inline-snapshot=create")
 
-    assert result.report == snapshot(
-        """\
+    assert result.report == snapshot("""\
 ------------------------------- Create snapshots -------------------------------
 +----------------------------- tests/test_file.py -----------------------------+
 | @@ -19,4 +19,9 @@                                                            |
@@ -890,8 +839,7 @@ def test_thing():
 | +    )                                                                       |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used create
-"""
-    )
+""")
 
     result = project.run("--inline-snapshot=report")
 
@@ -934,14 +882,12 @@ def test_starred_warns_list():
         ),
         include_line=True,
     ):
-        Example(
-            """
+        Example("""
 from inline_snapshot import snapshot
 
 def test():
     assert [5] == snapshot([*[5]])
-"""
-        ).run_inline(["--inline-snapshot=fix"])
+""").run_inline(["--inline-snapshot=fix"])
 
 
 def test_starred_warns_dict():
@@ -956,32 +902,26 @@ def test_starred_warns_dict():
         ),
         include_line=True,
     ):
-        Example(
-            """
+        Example("""
 from inline_snapshot import snapshot
 
 def test():
     assert {1:3} == snapshot({**{1:3}})
-"""
-        ).run_inline(["--inline-snapshot=fix"])
+""").run_inline(["--inline-snapshot=fix"])
 
 
 def test_is():
 
-    Example(
-        """
+    Example("""
 from inline_snapshot import snapshot,Is
 
 def test_Is():
     for i in range(3):
         assert ["hello",i] == snapshot(["hi",Is(i)])
         assert ["hello",i] == snapshot({1:["hi",Is(i)]})[i]
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 
 from inline_snapshot import snapshot,Is
 
@@ -989,14 +929,10 @@ def test_Is():
     for i in range(3):
         assert ["hello",i] == snapshot(["hi",Is(i)])
         assert ["hello",i] == snapshot({1:["hi",Is(i)], 0: ["hello", 0], 2: ["hello", 2]})[i]
-"""
-            }
-        ),
+"""}),
     ).run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 
 from inline_snapshot import snapshot,Is
 
@@ -1004,33 +940,25 @@ def test_Is():
     for i in range(3):
         assert ["hello",i] == snapshot(["hello",Is(i)])
         assert ["hello",i] == snapshot({1:["hello",Is(i)], 0: ["hello", 0], 2: ["hello", 2]})[i]
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_create_ellipsis():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1+1==snapshot(...)
     assert [1,2,8] == snapshot([1,2,...])
-        """
-    ).run_inline(
+        """).run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1+1==snapshot(2)
     assert [1,2,8] == snapshot([1,2,8])
         \
-"""
-            }
-        ),
+"""}),
     )

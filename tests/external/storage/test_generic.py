@@ -6,14 +6,12 @@ from inline_snapshot.testing._example import Example
 
 @pytest.mark.parametrize("storage", ["uuid", "hash"])
 def test_generic(storage):
-    Example(
-        f"""\
+    Example(f"""\
 from inline_snapshot import external
 
 def test_a():
     assert "testa".upper()==external("{storage}:")
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=report"],
         returncode=snapshot(1),
     ).run_inline(
@@ -40,9 +38,7 @@ def test_a():
                 },
             }
         )[storage],
-    ).replace(
-        "testa", "testb"
-    ).run_pytest(
+    ).replace("testa", "testb").run_pytest(
         ["--inline-snapshot=fix"],
         changed_files=snapshot(
             {

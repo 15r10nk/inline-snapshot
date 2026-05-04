@@ -4,15 +4,13 @@ from inline_snapshot.testing import Example
 
 def test_xfail_without_condition():
 
-    Example(
-        """\
+    Example("""\
 import pytest
 
 @pytest.mark.xfail
 def test_a():
     assert 1==snapshot(5)
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=fix"],
         report=snapshot(""),
         returncode=snapshot(0),
@@ -22,16 +20,14 @@ def test_a():
 
 
 def test_xfail_True():
-    Example(
-        """\
+    Example("""\
 import pytest
 from inline_snapshot import snapshot
 
 @pytest.mark.xfail(True,reason="...")
 def test_a():
     assert 1==snapshot(5)
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=fix"],
         report=snapshot(""),
         returncode=snapshot(0),
@@ -41,19 +37,16 @@ def test_a():
 
 
 def test_xfail_False():
-    Example(
-        """\
+    Example("""\
 import pytest
 from inline_snapshot import snapshot
 
 @pytest.mark.xfail(False,reason="...")
 def test_a():
     assert 1==snapshot(5)
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=fix"],
-        report=snapshot(
-            """\
+        report=snapshot("""\
 -------------------------------- Fix snapshots ---------------------------------
 +-------------------------- tests/test_something.py ---------------------------+
 | @@ -3,4 +3,4 @@                                                              |
@@ -65,20 +58,15 @@ def test_a():
 | +    assert 1==snapshot(1)                                                   |
 +------------------------------------------------------------------------------+
 These changes will be applied, because you used fix\
-"""
-        ),
+"""),
         returncode=snapshot(1),
         stderr=snapshot(""),
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 import pytest
 from inline_snapshot import snapshot
 
 @pytest.mark.xfail(False,reason="...")
 def test_a():
     assert 1==snapshot(1)
-"""
-            }
-        ),
+"""}),
     )

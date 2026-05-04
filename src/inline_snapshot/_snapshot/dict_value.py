@@ -56,13 +56,13 @@ class DictValue(GenericValue):
         ):
             for key, s in self._new_value.value.items():
                 if key in self._old_value.value:
-                    s._re_eval(self._old_value.value[key], context)  # type:ignore
+                    s._re_eval(self._old_value.value[key], context)  # type: ignore
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
         values = []
         for k, v in self._new_value.value.items():
             if not isinstance(v, UndecidedValue):
-                new_code = yield from v._new_code()  # type:ignore
+                new_code = yield from v._new_code()  # type: ignore
                 new_key = yield from k._code_repr(self._context)
                 values.append(f"{new_key}: {new_code}")
 
@@ -81,7 +81,7 @@ class DictValue(GenericValue):
         for key, node in zip(self._old_value.value.keys(), values):
             if key in self._new_value.value:
                 # check values with same keys
-                yield from self._new_value.value[key]._get_changes()  # type:ignore
+                yield from self._new_value.value[key]._get_changes()  # type: ignore
             else:
                 # delete entries
                 yield Delete("trim", self._file, node, self._old_value.value[key])
@@ -93,7 +93,7 @@ class DictValue(GenericValue):
                 new_value_element, UndecidedValue
             ):
                 # add new values
-                new_value = yield from new_value_element._new_code()  # type:ignore
+                new_value = yield from new_value_element._new_code()  # type: ignore
                 new_key = yield from key._code_repr(self._context)
 
                 to_insert.append((new_key, new_value))

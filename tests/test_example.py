@@ -40,10 +40,8 @@ def test_no_tests():
 def test_throws_exception():
 
     with raises(snapshot("Exception: test")):
-        Example(
-            """\
+        Example("""\
 def test_a():
     raise Exception("test")
 
-        """
-        ).run_inline()
+        """).run_inline()
