@@ -306,8 +306,7 @@ from inline_snapshot import outsource
             print(source)
             self._filename.write_bytes(source.encode("utf-8"))
 
-            (pytester.path / "conftest.py").write_bytes(
-                b"""
+            (pytester.path / "conftest.py").write_bytes(b"""
 import datetime
 import pytest
 from freezegun.api import FakeDatetime,FakeDate
@@ -340,8 +339,7 @@ def f():
 
 uuid.uuid4 = f
 
-"""
-            )
+""")
 
         @property
         def _filename(self):

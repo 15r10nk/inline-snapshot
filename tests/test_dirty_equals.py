@@ -3,19 +3,16 @@ from inline_snapshot.testing._example import Example
 
 
 def test_dirty_equals_repr():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 from dirty_equals import IsStr
 
 def test_something():
     assert [IsStr()] == snapshot()
-    """
-    ).run_inline(
+    """).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot({}),
-        raises=snapshot(
-            """\
+        raises=snapshot("""\
 UsageError:
 Customized value does not match original value:
 
@@ -23,15 +20,13 @@ original_value=IsStr()
 
 customized_value=IsStr()
 customized_representation=CustomCall(function=CustomCode('IsStr'), args=[], kwargs={})
-"""
-        ),
+"""),
     )
 
 
 def test_compare_dirty_equals_twice() -> None:
 
-    Example(
-        """
+    Example("""
 from dirty_equals import IsStr
 from inline_snapshot import snapshot
 
@@ -41,12 +36,9 @@ def test():
         assert [x,5] == snapshot([IsStr(),3])
         assert {'a':x,'b':5} == snapshot({'a':IsStr(),'b':3})
 
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 
 from dirty_equals import IsStr
 from inline_snapshot import snapshot
@@ -57,16 +49,13 @@ def test():
         assert [x,5] == snapshot([IsStr(),5])
         assert {'a':x,'b':5} == snapshot({'a':IsStr(),'b':5})
 
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_dirty_equals_in_unused_snapshot() -> None:
 
-    Example(
-        """
+    Example("""
 from dirty_equals import IsStr
 from inline_snapshot import snapshot,Is
 
@@ -83,8 +72,7 @@ snapshot([Is(t),Is(d),Is(l)])
 def test():
     pass
 
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({}),
     )
@@ -93,8 +81,7 @@ def test():
 def test_now_like_dirty_equals():
     # test for cases like https://github.com/15r10nk/inline-snapshot/issues/116
 
-    Example(
-        """
+    Example("""
 from dirty_equals import DirtyEquals
 from inline_snapshot import snapshot
 
@@ -112,23 +99,19 @@ def test_time():
     now = 6
 
     assert 5 == snapshot(Now()), "different time"
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({}),
-        raises=snapshot(
-            """\
+        raises=snapshot("""\
 AssertionError:
 different time\
-"""
-        ),
+"""),
     )
 
 
 def test_dirty_equals_with_changing_args() -> None:
 
-    Example(
-        """\
+    Example("""\
 from dirty_equals import IsInt
 from inline_snapshot import snapshot
 
@@ -137,12 +120,9 @@ def test_number():
     for i in range(5):
         assert ["a",i] == snapshot(["e",IsInt(gt=i-1,lt=i+1)])
 
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from dirty_equals import IsInt
 from inline_snapshot import snapshot
 
@@ -151,38 +131,30 @@ def test_number():
     for i in range(5):
         assert ["a",i] == snapshot(["a",IsInt(gt=i-1,lt=i+1)])
 
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_is_now_without_approx() -> None:
     """Test that IsNow handler correctly removes 'approx' kwarg."""
 
-    Example(
-        """\
+    Example("""\
 from datetime import datetime
 from dirty_equals import IsNow
 from inline_snapshot import snapshot
 
 def test_time():
     assert datetime.now() == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from datetime import datetime
 from dirty_equals import IsNow
 from inline_snapshot import snapshot
 
 def test_time():
     assert datetime.now() == snapshot(IsNow())
-"""
-            }
-        ),
+"""}),
     )
 
 
@@ -213,9 +185,7 @@ def test_time():
         }
     ).run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "test_something.py": """\
+        changed_files=snapshot({"test_something.py": """\
 from datetime import datetime, timedelta
 from inline_snapshot import snapshot
 
@@ -225,7 +195,5 @@ def test_time():
     # Compare a time from 5 minutes ago with snapshot
     past_time = datetime.now() - timedelta(minutes=5)
     assert past_time == snapshot(IsNow(delta=timedelta(seconds=600)))
-"""
-            }
-        ),
+"""}),
     ).run_inline()

@@ -4,20 +4,16 @@ from inline_snapshot.testing import Example
 
 def test_adapter_mismatch():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 
 def test_thing():
     assert [1,2] == snapshot({1:2})
 
-    """
-    ).run_inline(
+    """).run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 
@@ -25,16 +21,13 @@ def test_thing():
     assert [1,2] == snapshot([1, 2])
 
     \
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_reeval():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot,Is
 
 
@@ -43,27 +36,22 @@ def test_thing():
         assert {1:i} == snapshot({1:Is(i)})
         assert [i] == [Is(i)]
         assert (i,) == (Is(i),)
-"""
-    ).run_pytest(["--inline-snapshot=short-report"], report=snapshot(""))
+""").run_pytest(["--inline-snapshot=short-report"], report=snapshot(""))
 
 
 def test_usageerror_unmanaged():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot,Is
 
 
 def test_thing():
     assert [Is(5)] == snapshot([6])
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix"],
         report=snapshot(""),
-        raises=snapshot(
-            """\
+        raises=snapshot("""\
 UsageError:
 unmanaged values cannot be compared with snapshots\
-"""
-        ),
+"""),
     )

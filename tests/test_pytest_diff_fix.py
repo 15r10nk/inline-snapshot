@@ -11,8 +11,7 @@ from inline_snapshot.testing._example import Example
 )
 def test_pytest_diff_fix():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot,Is
 
 
@@ -35,11 +34,9 @@ def test_dict_report():
         "currency": usd,
         "b":usd2
     })
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=report", "-vv"],
-        error=snapshot(
-            """\
+        error=snapshot("""\
 >       assert price == snapshot({
 E       AssertionError: assert {'amount': 1, 'currency': {'code': 'USD', 'name': 'US Dollar', 'symbol': '$'}, 'b': [1, 2]} == {'amount': 2, 'currency': {'name': 'US Dollar', 'code': 'USD', 'symbol': '$'}, 'b': [1, 2]}
 E         \n\
@@ -64,7 +61,6 @@ E                   'name': 'US Dollar',
 E                   'symbol': '$',
 E               },
 E           }
-"""
-        ),
+"""),
         returncode=1,
     )

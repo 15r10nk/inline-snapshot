@@ -11,17 +11,13 @@ def test_a():
 """,
 }
 
-trimmed_files = snapshot(
-    {
-        "test_a.py": """\
+trimmed_files = snapshot({"test_a.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1 <= snapshot(1)
     assert 1 == snapshot(2)
-"""
-    }
-)
+"""})
 
 
 def test_config_pyproject():
@@ -77,30 +73,22 @@ def test_default_shortcuts():
         }
     ).run_pytest(
         ["--fix"],
-        changed_files=snapshot(
-            {
-                "test_a.py": """\
+        changed_files=snapshot({"test_a.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1 <= snapshot(5)
     assert 1 == snapshot(1)
-"""
-            }
-        ),
+"""}),
         returncode=1,
     )
 
 
 def test_incorrect_storage():
-    Example(
-        {
-            "pyproject.toml": """
+    Example({"pyproject.toml": """
 [tool.inline-snapshot]
 default-storage="incorrect"
-    """
-        }
-    ).run_pytest(
+    """}).run_pytest(
         stderr=snapshot(
             'ERROR: default-storage has to be uuid or hash but is "incorrect"\n'
         ),

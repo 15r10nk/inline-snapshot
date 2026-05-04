@@ -283,7 +283,7 @@ class NewAdapter:
                 self.context.file,
                 old_node,
                 position,
-                *zip(*code_values),  # type:ignore
+                *zip(*code_values),  # type: ignore
             )
 
         return type(new_value)(result)
@@ -325,7 +325,7 @@ class NewAdapter:
                 self.context.file,
                 old_node,
                 common,
-                *zip(*to_insert),  # type:ignore
+                *zip(*to_insert),  # type: ignore
             )
 
         return CustomTuple(result)
