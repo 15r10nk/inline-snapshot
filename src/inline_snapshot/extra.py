@@ -26,12 +26,15 @@ from ._unmanaged import declare_unmanaged
 
 def _format_exception(ex):
     msg = str(ex)
+    if msg.count("\n") == 1:
+        msg = msg.rstrip()
+
     if not msg.strip():
         return f"{type(ex).__name__}"
     if "\n" in msg:
-        return f"{type(ex).__name__}:\n{ex}"
+        return f"{type(ex).__name__}:\n{msg}"
     else:
-        return f"{type(ex).__name__}: {ex}"
+        return f"{type(ex).__name__}: {msg}"
 
 
 @contextlib.contextmanager
@@ -72,8 +75,8 @@ def raises(exception: SnapshotArg[str] = ..., /):
                 1 / 0
         ```
 
-    ??? info "Limitation: cpython < 3.11"
-        You have to use snapshot(...) when you want to fix the values on CPython < 3.11.
+    ??? info "Limitation: CPython < 3.11"
+        You have to use `snapshot(...)` as argument when you want to fix values on CPython < 3.11.
         ``` python
         def test_raises():
             with raises(snapshot()):
@@ -149,8 +152,8 @@ def prints(*, stdout: SnapshotArg[str] = "", stderr: SnapshotArg[str] = ""):
                 print("some error", file=sys.stderr)
         ```
 
-    ??? info "Limitation: cpython < 3.11"
-        You have to use snapshot(...) when you want to fix the values on CPython < 3.11.
+    ??? info "Limitation: CPython < 3.11"
+        You have to use `snapshot(...)` as argument when you want to fix values on CPython < 3.11.
         ``` python
         def test_prints():
             with prints(stdout=snapshot()):
@@ -219,10 +222,10 @@ def warns(
                 warn("some problem")
         ```
 
-    ??? info "Limitation: cpython < 3.11"
-        You have to use snapshot(...) when you want to fix the values on CPython < 3.11.
+    ??? info "Limitation: CPython < 3.11"
+        You have to use `snapshot(...)` as argument when you want to fix values on CPython < 3.11.
         ``` python
-        def test_raises():
+        def test_warns():
             with warns(snapshot()):
                 warn("some problem")
         ```

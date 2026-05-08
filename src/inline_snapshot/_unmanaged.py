@@ -1,3 +1,5 @@
+from typing import List
+
 try:
     import dirty_equals  # type: ignore
 except ImportError:  # pragma: no cover
@@ -17,7 +19,7 @@ def update_allowed(value):
     return not (is_dirty_equal(value) or isinstance(value, tuple(unmanaged_types)))  # type: ignore
 
 
-unmanaged_types = []
+unmanaged_types: List[type] = []
 
 
 def is_unmanaged(value):

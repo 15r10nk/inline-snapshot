@@ -225,10 +225,15 @@ def test_prints():
             check("Hello")
     ```
 
+
     !!! info "Limitation"
-        It is not possible to use context managers with `snapshot_arg()` on CPython < 3.11.
+        [](){#limitations}
+        Support for `snapshot_arg()` on CPython < 3.11 is limited.
+        You have to pass `snapshot()` as an argument if you want to support older Python versions.
+        `snapshot_arg()` acts as a no-op in that case and passes the snapshot value through.
 
         It is also not possible to use decorators other than `contextmanager` that wrap the function inside another function.
+
 
 
 ## Difference from `snapshot()`
