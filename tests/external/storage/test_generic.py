@@ -1,5 +1,6 @@
 import pytest
 
+from inline_snapshot import Is
 from inline_snapshot import snapshot
 from inline_snapshot.testing._example import Example
 
@@ -15,11 +16,11 @@ def test_a():
 """).run_pytest(
         ["--inline-snapshot=report"],
         returncode=snapshot(1),
-        error=f"""\
+        error=Is(f"""\
 >       assert string==external("{storage}:")
 E       assert 'TESTA' == external("{storage}:")
 E        +  where external("{storage}:") = external('{storage}:')
-""",
+"""),
         outcomes={"failed": 1, "errors": 1},
     ).run_inline(
         ["--inline-snapshot=create"],

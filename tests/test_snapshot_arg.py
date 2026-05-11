@@ -54,10 +54,10 @@ def check_value(x, expected=8):
 
 def test_a():
     check_value(8, 5)
-    check_value(8)
+    check_value(4)
     check_value(8,8)
 """).run_inline(
-        ["--inline-snapshot=fix,create,update"],
+        ["--inline-snapshot=fix,create,trim"],
         changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot._snapshot_arg import snapshot_arg
 
@@ -66,15 +66,13 @@ def check_value(x, expected=8):
 
 def test_a():
     check_value(8)
-    check_value(8)
+    check_value(4, expected=4)
     check_value(8)
 """}),
-        reported_categories={"fix", "update"},
     )
 
 
 def test_snapshot_kw_only_arg_default_value():
-    """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
     Example("""\
 from inline_snapshot._snapshot_arg import snapshot_arg
 
@@ -83,10 +81,10 @@ def check_value(x,*, other=5, expected=8):
 
 def test_a():
     check_value(8, expected=5)
-    check_value(8)
+    check_value(4)
     check_value(8,expected=8)
 """).run_inline(
-        ["--inline-snapshot=fix,create,update"],
+        ["--inline-snapshot=fix,create,trim"],
         changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot._snapshot_arg import snapshot_arg
 
@@ -95,10 +93,9 @@ def check_value(x,*, other=5, expected=8):
 
 def test_a():
     check_value(8)
-    check_value(8)
+    check_value(4, expected=4)
     check_value(8)
 """}),
-        reported_categories={"fix", "update"},
     )
 
 

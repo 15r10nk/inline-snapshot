@@ -246,3 +246,13 @@ def snapshot(arg=...):
 ```
 
 The only difference is that `snapshot_arg()` is slightly slower, because it needs to inspect the calling and called function of your code. This is not a problem when you use `--inline-snapshot=disable` (the default in CI), because `snapshot_arg(x)` is a no-op in this case and simply returns `x`.
+
+
+## pytest options
+
+It interacts with the following `--inline-snapshot` flags:
+
+- `create` create an argument that is currently missing and has a default of `...`.
+- `fix` change the snapshot value, or delete it when a change is necessary to make the test pass.
+- `trim` delete the argument when its value matches the default.
+- `update` update parts of the value if their representation has changed.

@@ -293,7 +293,7 @@ class SnapshotArgReference(SnapshotRefBase):
             changes = list(self._value._get_changes())
             if is_default and not isinstance(self._value._old_value, CustomUnmanaged):
                 yield Delete(
-                    "fix" if changes else "update", self._value._file, self._node, None
+                    "fix" if changes else "trim", self._value._file, self._node, None
                 )
             else:
                 yield from changes
