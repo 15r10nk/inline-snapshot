@@ -373,6 +373,89 @@ def test_a():
         )
 
 
+def test_snapshot_arg_method_fix_positional():
+    """Method: fix a snapshot that was already inserted positionally.
+    Regression: without self-offset correction, call_node.args[arg_pos] would
+    pick the wrong element and the wrong node would be updated."""
+    Example("""\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+class Checker:
+    def check(self, input, expected=...):
+        assert input.lower() == snapshot_arg(expected)
+
+def test_a():
+    Checker().check("Hello", "world")
+""").run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot({"tests/test_something.py": """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+class Checker:
+    def check(self, input, expected=...):
+        assert input.lower() == snapshot_arg(expected)
+
+def test_a():
+    Checker().check("Hello", "hello")
+"""}),
+    )
+
+
+def test_snapshot_arg_constructor_fix_positional():
+    """Constructor: fix a snapshot that was already inserted positionally."""
+    Example("""\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+class Checker:
+    def __init__(self, input, expected=...):
+        assert input.lower() == snapshot_arg(expected)
+
+def test_a():
+    Checker("Hello", "world")
+""").run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot({"tests/test_something.py": """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+class Checker:
+    def __init__(self, input, expected=...):
+        assert input.lower() == snapshot_arg(expected)
+
+def test_a():
+    Checker("Hello", "hello")
+"""}),
+    )
+
+
+def test_snapshot_arg_staticmethod_fix_positional():
+    """@staticmethod: no self, so arg_pos must NOT be decremented.
+    Regression guard: the self-offset correction must not apply to @staticmethod."""
+    Example("""\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+class Checker:
+    @staticmethod
+    def check(input, expected=...):
+        assert input.lower() == snapshot_arg(expected)
+
+def test_a():
+    Checker.check("Hello", "world")
+""").run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot({"tests/test_something.py": """\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+class Checker:
+    @staticmethod
+    def check(input, expected=...):
+        assert input.lower() == snapshot_arg(expected)
+
+def test_a():
+    Checker.check("Hello", "hello")
+"""}),
+    )
+
+
 def test_multiple_context_managers():
     """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
     e = Example("""\

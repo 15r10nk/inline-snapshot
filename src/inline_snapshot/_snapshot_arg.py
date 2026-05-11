@@ -212,8 +212,24 @@ class SnapshotArgReference(SnapshotRefBase):
 
         self._arg_pos = arg_pos
 
-        if arg_pos is not None and len(call_node.args) > arg_pos:
-            self._node = call_node.args[arg_pos]
+        # For bound-method and constructor calls the implicit self/cls parameter
+        # is counted in arg_pos but is absent from call_node.args at the call
+        # site.  Detect this by checking whether the containing function lives
+        # inside a ClassDef and is not decorated as @staticmethod.
+        call_arg_pos = arg_pos
+        if call_arg_pos is not None:
+            parent = getattr(function, "parent", None)
+            if isinstance(parent, ast.ClassDef):
+                is_static = any(
+                    (isinstance(d, ast.Name) and d.id == "staticmethod")
+                    or (isinstance(d, ast.Attribute) and d.attr == "staticmethod")
+                    for d in function.decorator_list
+                )
+                if not is_static and call_arg_pos > 0:
+                    call_arg_pos -= 1
+
+        if call_arg_pos is not None and len(call_node.args) > call_arg_pos:
+            self._node = call_node.args[call_arg_pos]
         else:
             for kw in call_node.keywords:
                 if kw.arg == self._name:
