@@ -1,6 +1,5 @@
-from inline_snapshot.matcher import IsPydanticAttributes
-
 from inline_snapshot._core._snapshot.snapshot_value import SnapshotValue
+from inline_snapshot.matcher import IsPydanticAttributes
 
 is_fixed = False
 

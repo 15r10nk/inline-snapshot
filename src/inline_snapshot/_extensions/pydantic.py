@@ -1,14 +1,13 @@
 import sys
 from typing import NewType
 
+from pydantic import BaseModel
+
 from inline_snapshot._core._customize._builder import Builder
 from inline_snapshot._core.plugin._spec import customize
-
 from inline_snapshot.matcher import IsPydantic
 from inline_snapshot.pydantic_compatibility import PydanticUndefined
 from inline_snapshot.pydantic_compatibility import get_fields
-
-from pydantic import BaseModel
 
 
 class InlineSnapshotPydanticPlugin:
@@ -38,6 +37,12 @@ class InlineSnapshotPydanticPlugin:
 
                     kwargs[name] = field_value
 
+            cls = type(value)
+            if hasattr(cls, "__pydantic_generic_metadata__"):
+                origin = cls.__pydantic_generic_metadata__.get("origin")
+                if origin is not None:
+                    cls = origin
+
             return builder.create_call(
-                builder.create_subscript(IsPydantic, type(value)), [], kwargs
+                builder.create_subscript(IsPydantic, cls), [], kwargs
             )
