@@ -416,6 +416,8 @@ else:
                     if getattr(field, "repr", True):
                         field_value = getattr(value, name)
 
+                        type_ = field.annotation
+
                         if (
                             field.default is not PydanticUndefined
                             and field.default == field_value
@@ -439,6 +441,12 @@ else:
 
                         kwargs[name] = field_value
 
+                cls = type(value)
+                if hasattr(cls, "__pydantic_generic_metadata__"):
+                    origin = cls.__pydantic_generic_metadata__.get("origin")
+                    if origin is not None:
+                        cls = origin
+
                 return builder.create_call(
-                    builder.create_subscript(IsPydantic, type(value)), [], kwargs
+                    builder.create_subscript(IsPydantic, cls), [], kwargs
                 )

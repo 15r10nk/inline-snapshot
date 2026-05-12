@@ -24,6 +24,7 @@ from inline_snapshot._customize._custom_dict import CustomDict
 from inline_snapshot._customize._custom_sequence import CustomList
 from inline_snapshot._customize._custom_sequence import CustomSequence
 from inline_snapshot._customize._custom_sequence import CustomTuple
+from inline_snapshot._customize._custom_subscript import CustomSubscript
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._exceptions import UsageError
@@ -138,26 +139,11 @@ def reeval_CustomDict(old_value, value):
     )
 
 
-def reeval_CustomSubscript(old_value, value):
-    from inline_snapshot._customize._custom_subscript import CustomSubscript
-
-    # If values evaluate to the same thing, preserve the old structure
-    # but update the original_value to match the new value
-    if old_value._eval() == value._eval():
-        result = old_value
-        # Update the original_value to reflect the new runtime value
-        result.__dict__["original_value"] = value.original_value
-        return result
-
-    # If both are subscripts, recursively reeval components
-    if isinstance(value, CustomSubscript):
-        return CustomSubscript(
-            obj=reeval(old_value.obj, value.obj),
-            index=reeval(old_value.index, value.index),
-        )
-
-    # Otherwise return the new value
-    return value
+def reeval_CustomSubscript(old_value: CustomSubscript, value: CustomSubscript):
+    return CustomSubscript(
+        obj=reeval(old_value.obj, value.obj),
+        index=reeval(old_value.index, value.index),
+    )
 
 
 class NewAdapter:
@@ -184,7 +170,6 @@ class NewAdapter:
             )
             and (
                 isinstance(old_value, (CustomCall, CustomSequence, CustomDict))
-                or type(old_value).__name__ == "CustomSubscript"
                 if old_node is None
                 else True
             )
@@ -250,6 +235,19 @@ class NewAdapter:
         )
 
         return new_value
+
+    def compare_CustomSubscript(
+        self,
+        old_value: CustomSubscript,
+        old_node: ast.Subscript,
+        new_value: CustomSubscript,
+    ) -> Generator[ChangeBase, None, Custom]:
+        assert isinstance(old_node, ast.Subscript)
+        new_obj = yield from self.compare(old_value.obj, old_node.value, new_value.obj)
+        new_index = yield from self.compare(
+            old_value.index, old_node.slice, new_value.index
+        )
+        return CustomSubscript(obj=new_obj, index=new_index)
 
     def compare_CustomList(
         self, old_value: CustomList, old_node: ast.AST, new_value: CustomList
@@ -594,39 +592,3 @@ class NewAdapter:
             result_args,
             result_kwargs,
         )
-
-    def compare_CustomSubscript(
-        self, old_value, old_node: ast.Subscript | None, new_value
-    ) -> Generator[ChangeBase, None, Custom]:
-        from inline_snapshot._customize._custom_subscript import CustomSubscript
-
-        assert isinstance(old_value, CustomSubscript)
-        assert isinstance(new_value, CustomSubscript)
-
-        flag = "update" if old_value._eval() == new_value.original_value else "fix"
-
-        @make_gen_map
-        def intercept(change):
-            if flag == "update" and change.flag == "fix":
-                change.flag = "update"
-            return change
-
-        # Compare obj
-        result_obj = yield from intercept(
-            self.compare(
-                old_value.obj,
-                old_node.value if old_node else None,
-                new_value.obj,
-            )
-        )
-
-        # Compare index
-        result_index = yield from intercept(
-            self.compare(
-                old_value.index,
-                old_node.slice if old_node else None,
-                new_value.index,
-            )
-        )
-
-        return CustomSubscript(obj=result_obj, index=result_index)
