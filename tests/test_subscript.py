@@ -33,9 +33,7 @@ def test_update():
         }
     ).run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 data = ["a", "b", "c"]
@@ -46,7 +44,5 @@ def test_update():
     assert snapshot(data[1]) == "b"
     assert snapshot(data[2]) == "c"
     assert snapshot("d") == "d"
-"""
-            }
-        ),
+"""}),
     )
