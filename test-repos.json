@@ -2,17 +2,15 @@
   "pydantic": {
     "url": "https://github.com/pydantic/pydantic.git",
     "install_cmd": [
-      "uv",
-      "sync",
-      "--frozen",
-      "--all-extras"
+      "make",
+      "install"
     ],
     "pytest_args": [
       "-x",
       "-q",
       "--no-header"
     ],
-    "ref": "fcb5da3087df51b5dca89e8120850e5a6bdcf960"
+    "ref": "3c305a357f0622605a91e0240cd064c92e2963a0"
   },
   "pydantic-ai": {
     "url": "https://github.com/pydantic/pydantic-ai.git",
@@ -33,7 +31,7 @@
       "-q",
       "--no-header"
     ],
-    "ref": "c1d060dbe996eee1fccba2161c9f0fb107c47d91"
+    "ref": "2b0aa93a9aea08ddfcdae03605fdb0d5a2486eec"
   },
   "fastapi": {
     "url": "https://github.com/fastapi/fastapi.git",
@@ -49,6 +47,6 @@
       "-q",
       "--no-header"
     ],
-    "ref": "e54e5a8980ffa6d7ff68ee7b25a1c46036375521"
+    "ref": "b44585589a04a095abf4bf0f1b4526b35ddaeca8"
   }
 }

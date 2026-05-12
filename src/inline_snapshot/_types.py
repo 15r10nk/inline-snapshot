@@ -1,5 +1,6 @@
 """The following types are for type checking only."""
 
+from types import FrameType
 from typing import Iterator
 from typing import Literal
 from typing import Optional
@@ -20,8 +21,8 @@ class SnapshotRefBase:
         raise NotImplementedError
 
     @staticmethod
-    def check_context(context):
-        pass
+    def key_for(frame: FrameType):
+        return id(frame.f_code), frame.f_lasti
 
 
 class SnapshotBase:
@@ -78,6 +79,15 @@ class Snapshot(Protocol[T]):
 
         check_container({1, 1}, length=snapshot(1))
     ```
+    """
+
+    def __eq__(self, other: object, /) -> bool: ...  # pragma: no cover
+
+
+class SnapshotArg(Protocol[T]):
+    """
+    Like Snapshot[T] but is used for arguments which use `snapshot_arg` internally.
+    It tells you that you can omit the argument and that inline-snapshot will create it for you if needed.
     """
 
     def __eq__(self, other: object, /) -> bool: ...  # pragma: no cover

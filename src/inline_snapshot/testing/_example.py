@@ -21,8 +21,12 @@ from typing import Sequence
 from unittest.mock import patch
 
 from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
 
 from inline_snapshot._exceptions import UsageError
+from inline_snapshot._get_snapshot_value import get_snapshot_value
+from inline_snapshot._snapshot_arg import snapshot_arg
 from inline_snapshot._snapshot_session import SnapshotSession
 
 from .._global_state import enter_snapshot_context
@@ -30,6 +34,8 @@ from .._global_state import leave_snapshot_context
 from .._global_state import state
 from .._types import Category
 from .._types import Snapshot
+from .._types import SnapshotArg
+from ..extra import _format_exception
 
 ansi_escape = re.compile(
     r"""
@@ -84,7 +90,7 @@ def parse_outcomes(lines):
         else:
             pass  # pragma: no cover
     else:
-        raise ValueError("Pytest terminal summary report not found")  # pragma: no cover
+        return {}
 
     to_plural = {
         "warning": "warnings",
@@ -114,6 +120,9 @@ def chdir(path):
         yield
     finally:
         os.chdir(cwd)
+
+
+console = Console(width=80)
 
 
 @contextmanager
@@ -149,6 +158,11 @@ class StopTesting(Exception):
     pass
 
 
+class TestingException(Exception):
+    def __init__(self, e):
+        self.exception = e
+
+
 class Example:
     files: dict[str, str | bytes]
 
@@ -164,10 +178,6 @@ class Example:
         self.files = files
 
     def dump_files(self):
-        from rich.panel import Panel
-        from rich.text import Text
-
-        console = Console()
 
         for name, content in self.files.items():
             if isinstance(content, bytes):
@@ -260,16 +270,58 @@ class Example:
             {name: file for name, file in self.files.items() if name != filename}
         )
 
+    def format(self, filename: str = "tests/test_something.py") -> Example:
+        """
+        Formats a Python file using black.
+
+        Arguments:
+            filename: the file to format (default: "tests/test_something.py").
+        """
+        from inline_snapshot._format import format_code
+
+        content = self.files[filename]
+        assert isinstance(content, str)
+
+        # Write files to temp directory so black can find pyproject.toml
+        with TemporaryDirectory() as dir:
+            tmp_path = Path(dir)
+            self._write_files(tmp_path)
+            file_path = tmp_path / filename
+            formatted = format_code(content, file_path)
+
+        return Example({**self.files, filename: formatted})
+
+    def is_formatted(self, filename: str = "tests/test_something.py") -> bool:
+        """
+        Checks if a Python file is properly formatted with black.
+
+        Arguments:
+            filename: the file to check (default: "tests/test_something.py").
+        """
+        from inline_snapshot._format import format_code
+
+        content = self.files[filename]
+        assert isinstance(content, str)
+
+        # Write files to temp directory so black can find pyproject.toml
+        with TemporaryDirectory() as dir:
+            tmp_path = Path(dir)
+            self._write_files(tmp_path)
+            file_path = tmp_path / filename
+            formatted = format_code(content, file_path)
+
+        return content == formatted
+
     def run_inline(
         self,
         args: list[str] = [],
         *,
         context_managers: Sequence[ContextManager] = (),
-        reported_categories: Snapshot[list[Category]] | None = None,
-        changed_files: Snapshot[dict[str, str]] | None = None,
+        reported_categories: SnapshotArg[set[Category]] | None = None,
+        changed_files: SnapshotArg[dict[str, str]] = {},
         report: Snapshot[str] | None = None,
-        raises: Snapshot[str] | None = None,
-        stderr: Snapshot[str] | None = None,
+        raises: SnapshotArg[str] = "<no exception>",
+        stderr: SnapshotArg[str] = "",
     ) -> Example:
         """Execute the example files in process and run every `test_*`
         function.
@@ -279,7 +331,7 @@ class Example:
         Parameters:
             args: inline-snapshot arguments (supports only "--inline-snapshot=fix|create|...").
             context_managers: list of context managers to use when the code is executed.
-            reported_categories: snapshot of categories which inline-snapshot thinks could be applied.
+            reported_categories: snapshot of categories which inline-snapshot thinks could be applied or `None` when they are equal to the CLI flags.
             changed_files: snapshot of files which are changed by this run.
             raises: snapshot of the exception raised during test execution.
                     Required if your code raises an exception.
@@ -332,6 +384,11 @@ class Example:
                 # Add tmp_path to sys.path so modules can be imported normally
                 sys.path.insert(0, str(tmp_path))
 
+                report_output = StringIO()
+                console = Console(file=report_output, width=80)
+
+                stderr_output = ""
+
                 try:
                     for cm in context_managers:
                         stack.enter_context(cm)
@@ -344,9 +401,6 @@ class Example:
                         error=report_error,
                         project_root=tmp_path,
                     )
-
-                    report_output = StringIO()
-                    console = Console(file=report_output, width=80)
 
                     # Load and register all conftest.py files first
                     for conftest_path in tmp_path.rglob("conftest.py"):
@@ -361,7 +415,10 @@ class Example:
                         conftest_module = importlib.util.module_from_spec(spec)
                         sys.modules[spec.name] = conftest_module
                         conftest_module.__file__ = str(conftest_path)
-                        spec.loader.exec_module(conftest_module)
+                        try:
+                            spec.loader.exec_module(conftest_module)
+                        except Exception as e:
+                            raise TestingException(e) from e
 
                         # Register customize hooks from this conftest
                         session.register_customize_hooks_from_module(conftest_module)
@@ -378,7 +435,10 @@ class Example:
 
                         module = importlib.util.module_from_spec(spec)
                         sys.modules[filename.stem] = module
-                        spec.loader.exec_module(module)
+                        try:
+                            spec.loader.exec_module(module)
+                        except Exception as e:
+                            raise TestingException(e) from e
 
                         # run all test_* functions
                         tests = [
@@ -400,12 +460,17 @@ class Example:
                                 finally:
                                     session.test_exit(fail=fail)
                             except Exception as e:
-                                traceback.print_exc()
-                                raised_exception.append(e)
+                                raise TestingException(e) from e
 
                     if not tests_found:
                         raise UsageError("no test_*() functions in the example")
 
+                except StopTesting as e:
+                    stderr_output = f"ERROR: {e}\n"
+                except TestingException as e:
+                    traceback.print_exc()
+                    raised_exception.append(e.exception)
+                finally:
                     try:
                         session.show_report(console)
 
@@ -416,30 +481,32 @@ class Example:
                         traceback.print_exc()
                         raised_exception.append(e)
 
-                except StopTesting as e:
-                    assert stderr == f"ERROR: {e}\n"
-                finally:
                     sys.modules = old_modules
                     sys.path = old_path
                     leave_snapshot_context()
 
-            if reported_categories is not None:
-                assert sorted(snapshot_flags) == reported_categories
+            # make the assertions in the original context
+
+            assert snapshot_arg(stderr) == stderr_output
+
+            reported_categories = snapshot_arg(reported_categories)
+
+            if snapshot_flags != flags:
+                assert set(snapshot_flags) == reported_categories
+            else:
+                if get_snapshot_value(reported_categories) != set(snapshot_flags):
+                    assert None == reported_categories
+
+            raises = snapshot_arg(raises)
 
             if raised_exception:
-                if raises is None:
-                    raise raised_exception[0]
-
-                raises_text = "\n".join(
-                    f"{type(e).__name__}:\n" + str(e) for e in raised_exception
-                )
+                raises_text = "\n".join(_format_exception(e) for e in raised_exception)
                 raises_text = raises_text.replace(str(tmp_path), "<tmp>")
                 assert raises == raises_text
             else:
-                assert raises == None
+                assert raises == "<no exception>"
 
-            if changed_files is not None:
-                assert changed_files == self._changed_files(tmp_path)
+            assert snapshot_arg(changed_files) == self._changed_files(tmp_path)
 
             if report is not None:
                 assert report == normalize(report_output.getvalue())
@@ -466,13 +533,13 @@ class Example:
         *,
         term_columns=80,
         env: dict[str, str] = {},
-        changed_files: Snapshot[dict[str, str]] | None = None,
+        changed_files: SnapshotArg[dict[str, str]] = {},
         report: Snapshot[str] | None = None,
-        error: Snapshot[str] | None = None,
-        stderr: Snapshot[str] | None = None,
-        returncode: Snapshot[int] = 0,
+        error: SnapshotArg[str] = "",
+        stderr: SnapshotArg[str] = "",
+        returncode: SnapshotArg[int] = 0,
         stdin: bytes = b"",
-        outcomes: Snapshot[dict[str, int]] | None = None,
+        outcomes: SnapshotArg[dict[str, int]] = {"passed": 1},
     ) -> Example:
         """Run pytest with the given args and environment variables in a separate
         process.
@@ -525,32 +592,28 @@ class Example:
             result_stdout = result.stdout.decode("utf-8")
             result_stderr = result.stderr.decode("utf-8")
 
-            result_returncode = result.returncode
+            console.print("run>", *cmd)
 
-            print("run>", *cmd)
-            print("stdout:")
-            print(result_stdout)
-            print("stderr:")
-            print(result_stderr)
+            console.print(Panel(Text(result_stdout), title="stdout"))
+            if result_stderr:
+                console.print(Panel(Text(result_stderr), title="stderr"))
 
-            assert result.returncode == returncode
+            assert result.returncode == snapshot_arg(returncode)
 
-            if stderr is not None:
+            original = result_stderr.splitlines()
+            lines = [
+                line
+                for line in original
+                if not any(
+                    s in line
+                    for s in [
+                        'No entry for terminal type "unknown"',
+                        "using dumb terminal settings.",
+                    ]
+                )
+            ]
 
-                original = result_stderr.splitlines()
-                lines = [
-                    line
-                    for line in original
-                    if not any(
-                        s in line
-                        for s in [
-                            'No entry for terminal type "unknown"',
-                            "using dumb terminal settings.",
-                        ]
-                    )
-                ]
-
-                assert "\n".join(lines) == stderr
+            assert "\n".join(lines) == snapshot_arg(stderr)
 
             if report is not None:
 
@@ -574,23 +637,25 @@ class Example:
 
                 assert report_str == report, repr(report_str)
 
-            if error is not None:
-                assert (
-                    error
-                    == "\n".join(
-                        [
-                            line
-                            for line in result_stdout.splitlines()
-                            if line and line[:2] in ("> ", "E ")
-                        ]
-                    )
-                    + "\n"
+            error_str = (
+                "\n".join(
+                    [
+                        line
+                        for line in result_stdout.splitlines()
+                        if line and line[:2] in ("> ", "E ")
+                    ]
                 )
+                + "\n"
+            )
+            if not error_str.strip():
+                error_str = ""
 
-            if changed_files is not None:
-                assert changed_files == self._changed_files(tmp_path)
+            if sys.version_info >= (3, 11):
+                # assert rewriting gets disabled by inline-snapshot for older python versions
+                assert snapshot_arg(error) == normalize(error_str)
 
-            if outcomes is not None:
-                assert outcomes == parse_outcomes(result_stdout.splitlines())
+            assert snapshot_arg(changed_files) == self._changed_files(tmp_path)
+
+            assert snapshot_arg(outcomes) == parse_outcomes(result_stdout.splitlines())
 
             return Example(self._read_files(tmp_path))

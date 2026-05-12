@@ -17,7 +17,7 @@ jobs:
     - uses: ./.github/actions/setup
       with:
         python-version: ${{matrix.python-version}}
-    - run: uv run --group dev  -p ${{matrix.python-version}} mypy --non-interactive --install-types src/inline_snapshot tests
+    - run: uv run --with pip --group dev  -p ${{matrix.python-version}} mypy --non-interactive --install-types src/inline_snapshot tests
 
   test:
     runs-on: ${{matrix.os}}

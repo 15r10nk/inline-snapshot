@@ -1,9 +1,9 @@
 import ast
 import inspect
+from types import FrameType
 from typing import Any
 from typing import Iterator
 from typing import TypeVar
-from typing import cast
 
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._customize._custom_undefined import CustomUndefined
@@ -39,16 +39,10 @@ def create_snapshot(Type, obj, extra_frames=0):
 
     frame = inspect.currentframe()
     assert frame is not None
-    frame = frame.f_back
-    assert frame is not None
-    frame = frame.f_back
-    assert frame is not None
 
-    for _ in range(extra_frames):
+    for _ in range(extra_frames + 2):
         frame = frame.f_back
         assert frame is not None
-
-    context = AdapterContext(frame)
 
     if not state().active:
         if obj is undefined:
@@ -56,24 +50,16 @@ def create_snapshot(Type, obj, extra_frames=0):
                 "your snapshot is missing a value run pytest with --inline-snapshot=create"
             )
         else:
-            return Type.create_raw(obj, context)
+            return Type.create_raw(obj, frame)
 
-    Type.check_context(context)
-
-    key = id(frame.f_code), frame.f_lasti
+    key = Type.key_for(frame)
 
     if key not in state().snapshots:
-        node = context.expr.node
-        if node is None:
-            # we can run without knowing of the calling expression but we will not be able to fix code
-            new = Type(obj, None, context)
-        else:
-            assert isinstance(node, ast.Call)
-            new = Type(obj, context.expr, context)
+        new = Type(obj, frame)
         state().snapshots[key] = new
     else:
         new = state().snapshots[key]
-        new._re_eval(obj, context)
+        new._re_eval(obj, frame)
 
     return new.result()
 
@@ -102,22 +88,22 @@ def snapshot(obj: Any = undefined) -> Any:
 
 
 class SnapshotReference(SnapshotRefBase):
-    def __init__(self, value, expr, context: AdapterContext):
-        self._expr = expr
-        node = expr.node.args[0] if expr is not None and expr.node.args else None
-        self._value = UndecidedValue(value, node, context)
-        self._context = context
+    def __init__(self, value, frame: FrameType):
+        self._context = AdapterContext(frame)
+        call_node = self._context.expr.node
+        node = call_node.args[0] if call_node is not None and call_node.args else None
+        self._value = UndecidedValue(value, node, self._context)
 
     def result(self):
         return self._value
 
     @staticmethod
-    def create_raw(obj, context: AdapterContext):
+    def create_raw(obj, frame: FrameType):
         return obj
 
     def __repr__(self):
-        if self._expr:
-            return ast.unparse(self._expr.node)
+        if self._context.expr.node:
+            return ast.unparse(self._context.expr.node)
         else:
             return "snapshot(...)"
 
@@ -125,8 +111,8 @@ class SnapshotReference(SnapshotRefBase):
 
         if (
             isinstance(self._value._old_value, CustomUndefined)
-            if self._expr is None
-            else not cast(ast.Call, self._expr.node).args
+            if self._context.expr.node is None
+            else not self._context.expr.node.args
         ):
 
             if isinstance(self._value._new_value, CustomUndefined):
@@ -137,9 +123,7 @@ class SnapshotReference(SnapshotRefBase):
             yield CallArg(
                 flag="create",
                 file=self._value._file,
-                node=(
-                    cast(ast.Call, self._expr.node) if self._expr is not None else None
-                ),
+                node=self._context.expr.node,
                 arg_pos=0,
                 arg_name=None,
                 new_code=new_code,
@@ -150,5 +134,5 @@ class SnapshotReference(SnapshotRefBase):
 
             yield from self._value._get_changes()
 
-    def _re_eval(self, obj, context: AdapterContext):
-        self._value._re_eval(obj, context)
+    def _re_eval(self, obj, frame: FrameType):
+        self._value._re_eval(obj, AdapterContext(frame))

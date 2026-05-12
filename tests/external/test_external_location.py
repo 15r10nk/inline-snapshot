@@ -39,8 +39,7 @@ def test_external_location():
 
 
 def test_missing_suffix():
-    Example(
-        """
+    Example("""
 from inline_snapshot import external
 
 def test_a():
@@ -48,8 +47,7 @@ def test_a():
         assert "a" == external("a")
     else:
         assert "a" == external(".txt")
-    """
-    ).run_pytest(
+    """).run_pytest(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
@@ -68,4 +66,5 @@ def test_a():
             }
         ),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )

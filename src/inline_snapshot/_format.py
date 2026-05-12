@@ -13,12 +13,23 @@ def enforce_formatting():
 
 
 def file_mode_for_path(path):
+    from pathlib import Path
+
     from black import FileMode
     from black import find_pyproject_toml
     from black import parse_pyproject_toml
 
     mode = FileMode()
-    pyproject_path = find_pyproject_toml((), path)
+    # Convert path to a Path object and start searching for pyproject.toml
+    # from the file's parent directory (or the directory itself), so Black
+    # resolves configuration relative to the file being formatted rather than
+    # the current working directory.
+    path_obj = Path(path)
+    if path_obj.is_file():
+        search_start = (str(path_obj.parent),)
+    else:
+        search_start = (str(path_obj),)
+    pyproject_path = find_pyproject_toml(search_start, None)
     if pyproject_path is not None:
         config = parse_pyproject_toml(pyproject_path)
 
@@ -55,13 +66,9 @@ def format_code(text, filename):
                 command, shell=True, input=current_input, capture_output=True
             )
             if result.returncode != 0:
-                raise_problem(
-                    f"""\
+                raise_problem(f"""\
 [b]The format_command '{escape(format_command)}' caused the following error:[/b]
-"""
-                    + result.stdout.decode("utf-8")
-                    + result.stderr.decode("utf-8")
-                )
+""" + result.stdout.decode("utf-8") + result.stderr.decode("utf-8"))
                 return text
             current_input = result.stdout
 
@@ -70,14 +77,12 @@ def format_code(text, filename):
     try:
         from black import format_str
     except ImportError:
-        raise_problem(
-            f"""\
+        raise_problem(f"""\
 [b]inline-snapshot is not able to format your code.[/b]
 This issue can be solved by:
  * installing {escape('inline-snapshot[black]')} which gives you the same formatting like in older versions
  * adding a `format-command` to your pyproject.toml (see [link=https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command]https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command[/link] for more information).
-"""
-        )
+""")
         return text
 
     with warnings.catch_warnings():
@@ -90,10 +95,8 @@ This issue can be solved by:
             # it prevents that " " gets treated as a docstring and gets striped by black.
             return format_str("a\n" + text, mode=mode)[2:].lstrip()
         except:
-            raise_problem(
-                """\
+            raise_problem("""\
 [b]black could not format your code, which might be caused by this issue:[/b]
     [link=https://github.com/15r10nk/inline-snapshot/issues/138]https://github.com/15r10nk/inline-snapshot/issues/138[/link]\
-"""
-            )
+""")
             return text

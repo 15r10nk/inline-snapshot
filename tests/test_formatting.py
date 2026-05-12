@@ -15,31 +15,24 @@ def test_black_formatting_error(mocker):
 
     mocker.patch("black.format_str", custom_format_str)
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 
 def test_something():
     assert 1==snapshot()
     assert 1==snapshot(2)
     assert list(range(20)) == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix,create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_something():
     assert 1==snapshot(1)
     assert 1==snapshot(1)
     assert list(range(20)) == snapshot([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
-"""
-            }
-        ),
-        report=snapshot(
-            """\
+"""}),
+        report=snapshot("""\
 FAIL: your snapshot is missing 2 values.
 If you just created this value with --inline-snapshot=create, the value is now \n\
 created and you can ignore this message.
@@ -83,14 +76,12 @@ These changes will be applied, because you used fix
 black could not format your code, which might be caused by this issue:
     https://github.com/15r10nk/inline-snapshot/issues/138
 
-"""
-        ),
+"""),
     )
 
 
 def test_fstring_139():
-    Example(
-        """
+    Example("""
 from inline_snapshot import snapshot
 snapshot(f'')
 snapshot(rf'')
@@ -102,8 +93,7 @@ snapshot(RF'')
 
 def test_a():
     return None
-    """
-    ).run_pytest(returncode=0)
+    """).run_pytest()
 
 
 def test_format_command():
@@ -130,17 +120,14 @@ def test_a():
         }
     ).run_pytest(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "test_a.py": """\
+        changed_files=snapshot({"test_a.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "5" == snapshot('5')
-"""
-            }
-        ),
+"""}),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -186,20 +173,14 @@ def test_a():
     ).run_pytest(
         ["--inline-snapshot=fix"],
         term_columns=200,
-        changed_files=snapshot(
-            {
-                "tests/test_a.py": """\
+        changed_files=snapshot({"tests/test_a.py": """\
 
 from inline_snapshot import snapshot
 
 def test_a():
     assert "5" ==            snapshot('5')
-"""
-            }
-        ),
-        report=NoPaths(
-            snapshot(
-                """\
+"""}),
+        report=NoPaths(snapshot("""\
 -------------------------------------------------------------------------------------------- Fix snapshots ---------------------------------------------------------------------------------------------
 +------------------------------------------------------------------------------------------ tests/test_a.py -------------------------------------------------------------------------------------------+
 | @@ -2,4 +2,4 @@                                                                                                                                                                                      |
@@ -214,10 +195,9 @@ These changes will be applied, because you used fix
 ----------------------------------------------------------------------------------------------- Problems -----------------------------------------------------------------------------------------------
 The format_command '/.../python fmt_cmd_bad.py /.../test_a.py | /.../python fmt_cmd_good.py' caused the following error:
 some_problem\
-"""
-            )
-        ),
+""")),
         returncode=snapshot(1),
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -236,19 +216,14 @@ def test_a():
         }
     ).run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "test_a.py": """\
+        changed_files=snapshot({"test_a.py": """\
 
 from inline_snapshot import snapshot
 
 def test_a():
     assert "5" ==            snapshot('5')
-"""
-            }
-        ),
-        report=snapshot(
-            """\
+"""}),
+        report=snapshot("""\
 FAIL: some snapshots in this test have incorrect values.
 If you just created this value with --inline-snapshot=create, the value is now \n\
 created and you can ignore this message.
@@ -277,8 +252,7 @@ https://15r10nk.github.io/inline-snapshot/latest/configuration/#format-command \
 for more information).
 
 
-"""
-        ),
+"""),
     )
 
 
@@ -301,18 +275,15 @@ def test_a():
         }
     ).run_pytest(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "test_a.py": """\
+        changed_files=snapshot({"test_a.py": """\
 
 from inline_snapshot import snapshot
 
 def test_a():
     assert 1+1 == snapshot(2)
-"""
-            }
-        ),
+"""}),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
@@ -330,15 +301,12 @@ def test_a():
         }
     ).run_pytest(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "test_a.py": """\
+        changed_files=snapshot({"test_a.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert " a " == snapshot(" a ")
-"""
-            }
-        ),
+"""}),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).run_inline()

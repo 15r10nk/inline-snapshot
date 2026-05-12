@@ -1,6 +1,7 @@
 import sys
 
 import pytest
+from dirty_equals import AnyThing
 
 from inline_snapshot import snapshot
 from inline_snapshot.extra import warns
@@ -9,8 +10,7 @@ from inline_snapshot.testing._example import Example
 
 def test_unmanaged():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass
 
@@ -21,12 +21,9 @@ class A:
 
 def test_something():
     assert A(a=2,b=4) == snapshot(A(a=1,b=Is(1))), "not equal"
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass
 
@@ -37,21 +34,13 @@ class A:
 
 def test_something():
     assert A(a=2,b=4) == snapshot(A(a=2,b=Is(1))), "not equal"
-"""
-            }
-        ),
-        raises=snapshot(
-            """\
-AssertionError:
-not equal\
-"""
-        ),
+"""}),
+        raises=snapshot("AssertionError: not equal"),
     )
 
 
 def test_reeval():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass
 
@@ -63,12 +52,9 @@ class A:
 def test_something():
     for c in "ab":
         assert A(a=1,b=c) == snapshot(A(a=2,b=Is(c)))
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass
 
@@ -80,15 +66,12 @@ class A:
 def test_something():
     for c in "ab":
         assert A(a=1,b=c) == snapshot(A(a=1,b=Is(c)))
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_dataclass_default_value():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 
@@ -101,12 +84,9 @@ class A:
 def test_something():
     for _ in [1,2]:
         assert A(a=1) == snapshot(A(a=1,b=2,c=[]))
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=update"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 
@@ -119,15 +99,12 @@ class A:
 def test_something():
     for _ in [1,2]:
         assert A(a=1) == snapshot(A(a=1))
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_dataclass_add_arguments():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 
@@ -139,12 +116,9 @@ class A:
 def test_something():
     for _ in [1,2]:
         assert A(a=1,b=5) == snapshot(A(a=1))
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 
@@ -156,15 +130,12 @@ class A:
 def test_something():
     for _ in [1,2]:
         assert A(a=1,b=5) == snapshot(A(a=1, b=5))
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_dataclass_positional_arguments():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 
@@ -177,12 +148,9 @@ class A:
 def test_something():
     for _ in [1,2]:
         assert A(a=1) == snapshot(A(1,2,c=[]))
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=update"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 
@@ -195,15 +163,12 @@ class A:
 def test_something():
     for _ in [1,2]:
         assert A(a=1) == snapshot(A(a=1))
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_attrs_default_value():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot,Is
 import attrs
 
@@ -217,12 +182,9 @@ class A:
 def test_something():
     assert A(a=1) == snapshot(A(a=1,b=2,c=[],d=11))
     assert A(a=2,b=3) == snapshot(A(a=1,b=2,c=[],d=11))
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 import attrs
 
@@ -236,15 +198,12 @@ class A:
 def test_something():
     assert A(a=1) == snapshot(A(a=1,b=2,c=[],d=11))
     assert A(a=2,b=3) == snapshot(A(a=2,b=3,c=[]))
-"""
-            }
-        ),
+"""}),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).run_pytest(
         ["--inline-snapshot=update"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 import attrs
 
@@ -258,16 +217,12 @@ class A:
 def test_something():
     assert A(a=1) == snapshot(A(a=1))
     assert A(a=2,b=3) == snapshot(A(a=2,b=3))
-"""
-            }
-        ),
-        returncode=0,
+"""}),
     )
 
 
 def test_attrs_fix_default_value():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot,Is
 import attrs
 
@@ -277,12 +232,9 @@ class A:
 
 def test_something():
     assert A() == snapshot(A(a=1))
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 import attrs
 
@@ -292,17 +244,15 @@ class A:
 
 def test_something():
     assert A() == snapshot(A())
-"""
-            }
-        ),
+"""}),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
 def test_attrs_field_repr():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 import attrs
 
@@ -313,12 +263,9 @@ class container:
 
 def test():
     assert container(a=1,b=5) == snapshot()
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 import attrs
 
@@ -329,16 +276,14 @@ class container:
 
 def test():
     assert container(a=1,b=5) == snapshot(container(a=1))
-"""
-            }
-        ),
+"""}),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     ).run_pytest()
 
 
 def test_attrs_unmanaged():
-    Example(
-        """\
+    Example("""\
 import datetime as dt
 import uuid
 
@@ -359,16 +304,13 @@ def test():
     assert snapshot(Attrs(ts=IsDatetime(), id=Is(id))) == Attrs(
         dt.datetime.now(), id
     )
-"""
-    ).run_pytest(
-        ["--inline-snapshot=create,fix"],
-        changed_files=snapshot({}),
+""").run_pytest(
+        ["--inline-snapshot=create,fix"], changed_files=snapshot({})
     ).run_pytest()
 
 
 def test_disabled(executing_used):
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 from dataclasses import dataclass
 
@@ -378,15 +320,10 @@ class A:
 
 def test_something():
     assert A(a=3) == snapshot(A(a=5)),"not equal"
-"""
-    ).run_inline(
+""").run_inline(
         changed_files=snapshot({}),
-        raises=snapshot(
-            """\
-AssertionError:
-not equal\
-"""
-        ),
+        raises=snapshot("AssertionError: not equal"),
+        reported_categories={"fix"},
     )
 
 
@@ -402,8 +339,7 @@ def test_starred_warns():
         ),
         include_line=True,
     ):
-        Example(
-            """
+        Example("""
 from inline_snapshot import snapshot
 from dataclasses import dataclass
 
@@ -413,21 +349,15 @@ class A:
 
 def test_something():
     assert A(a=3) == snapshot(A(**{"a":5})),"not equal"
-"""
-        ).run_inline(
+""").run_inline(
             ["--inline-snapshot=report"],
-            raises=snapshot(
-                """\
-AssertionError:
-not equal\
-"""
-            ),
+            raises=snapshot("AssertionError: not equal"),
+            reported_categories={"fix"},
         )
 
 
 def test_add_argument():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 from dataclasses import dataclass
 
@@ -439,12 +369,9 @@ class A:
 
 def test_something():
     assert A(a=3,b=3,c=3) == snapshot(A(b=3)),"not equal"
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 from dataclasses import dataclass
 
@@ -456,10 +383,8 @@ class A:
 
 def test_something():
     assert A(a=3,b=3,c=3) == snapshot(A(a=3, b=3, c=3)),"not equal"
-"""
-            }
-        ),
-        raises=snapshot(None),
+"""}),
+        raises=snapshot("<no exception>"),
     )
 
 
@@ -472,8 +397,7 @@ def test_positional_star_args():
             ]
         )
     ):
-        Example(
-            """\
+        Example("""\
 from inline_snapshot import snapshot
 from dataclasses import dataclass
 
@@ -483,10 +407,7 @@ class A:
 
 def test_something():
     assert A(a=3) == snapshot(A(*[],a=3)),"not equal"
-"""
-        ).run_inline(
-            ["--inline-snapshot=report"],
-        )
+""").run_inline(["--inline-snapshot=report"], reported_categories={"update"})
 
 
 def test_remove_positional_argument():
@@ -530,11 +451,13 @@ def test_L3():
         assert L(1,2) == snapshot(L(1, 2)), "not equal"
 """,
         }
-    ).run_pytest(returncode=snapshot(1)).run_pytest(
+    ).run_pytest(
+        returncode=snapshot(1),
+        error=AnyThing(),
+        outcomes={"failed": 2, "passed": 1, "errors": 2},
+    ).run_pytest(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 from helper import L
 
@@ -550,16 +473,16 @@ def test_L2():
 def test_L3():
     for _ in [1,2]:
         assert L(1,2) == snapshot(L(1, 2)), "not equal"
-"""
-            }
-        ),
+"""}),
         returncode=snapshot(1),
+        outcomes={"passed": 3, "errors": 2},
+    ).run_pytest(
+        outcomes={"passed": 3}
     )
 
 
 def test_namedtuple():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 from collections import namedtuple
 
@@ -567,12 +490,9 @@ T=namedtuple("T","a,b")
 
 def test_tuple():
     assert T(a=1,b=2) == snapshot(T(a=1, b=3)), "not equal"
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 from collections import namedtuple
 
@@ -580,16 +500,14 @@ T=namedtuple("T","a,b")
 
 def test_tuple():
     assert T(a=1,b=2) == snapshot(T(a=1, b=2)), "not equal"
-"""
-            }
-        ),
+"""}),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
 def test_defaultdict():
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 from collections import defaultdict
 
@@ -598,12 +516,9 @@ def test_tuple():
     d=defaultdict(list)
     d[1].append(2)
     assert d == snapshot(defaultdict(list, {1: [3]})), "not equal"
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 from collections import defaultdict
 
@@ -612,17 +527,15 @@ def test_tuple():
     d=defaultdict(list)
     d[1].append(2)
     assert d == snapshot(defaultdict(list, {1: [2]})), "not equal"
-"""
-            }
-        ),
+"""}),
         returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 
 
 def test_dataclass_field_repr():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot
 from dataclasses import dataclass,field
 
@@ -633,12 +546,9 @@ class container:
 
 def test():
     assert container(a=1,b=5) == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot
 from dataclasses import dataclass,field
 
@@ -649,16 +559,13 @@ class container:
 
 def test():
     assert container(a=1,b=5) == snapshot(container(a=1))
-"""
-            }
-        ),
+"""}),
     ).run_inline()
 
 
 def test_dataclass_var():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 
@@ -669,12 +576,9 @@ class container:
 def test_list():
     l=container(5)
     assert l == snapshot(l), "not equal"
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=update"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot import snapshot,Is
 from dataclasses import dataclass,field
 
@@ -685,16 +589,13 @@ class container:
 def test_list():
     l=container(5)
     assert l == snapshot(container(a=5)), "not equal"
-"""
-            }
-        ),
+"""}),
     )
 
 
 def test_dataclass_custom_init():
 
-    Example(
-        """\
+    Example("""\
 from dataclasses import dataclass
 from inline_snapshot import snapshot
 
@@ -716,12 +617,9 @@ def test_A():
 
     assert A(a=5) == snapshot(A(_a=4))
     assert A(a=5) == snapshot(A(a=4))
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=fix"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from dataclasses import dataclass
 from inline_snapshot import snapshot
 
@@ -743,14 +641,11 @@ def test_A():
 
     assert A(a=5) == snapshot(A(_a=5))
     assert A(a=5) == snapshot(A(_a=5))
-"""
-            }
-        ),
+"""}),
+        reported_categories={"fix", "update"},
     ).run_inline(
         ["--inline-snapshot=update"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from dataclasses import dataclass
 from inline_snapshot import snapshot
 
@@ -772,9 +667,7 @@ def test_A():
 
     assert A(a=5) == snapshot(A(_a=5))
     assert A(a=5) == snapshot(A(_a=5))
-"""
-            }
-        ),
+"""}),
     )
 
 
@@ -782,8 +675,7 @@ def test_dataclass_as_dict_key_create():
     """Regression test for CustomCall-keyed dicts: when a dataclass instance is
     used as a dict key, the snapshot should be created correctly and should not
     corrupt values on subsequent runs (issue #363 / duplicate report)."""
-    Example(
-        """\
+    Example("""\
 from dataclasses import dataclass
 from inline_snapshot import snapshot
 
@@ -794,12 +686,9 @@ class Container:
 def test_something():
     data = {Container(40): 40, Container(2): 2}
     assert data == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from dataclasses import dataclass
 from inline_snapshot import snapshot
 
@@ -810,11 +699,9 @@ class Container:
 def test_something():
     data = {Container(40): 40, Container(2): 2}
     assert data == snapshot({Container(value=40): 40, Container(value=2): 2})
-"""
-            }
-        ),
+"""}),
     ).run_inline(
-        ["--inline-snapshot=fix"], changed_files=snapshot({})
+        ["--inline-snapshot=fix"], changed_files=snapshot({}), reported_categories=set()
     )
 
 
@@ -823,8 +710,7 @@ def test_something():
     reason="NewType is a function in 3.9 and cannot be checked with isinstance or serialized to code",
 )
 def test_dataclass_newtype():
-    Example(
-        """\
+    Example("""\
 from dataclasses import dataclass
 from typing import NewType
 from inline_snapshot import snapshot
@@ -838,12 +724,9 @@ class Something:
 def test_something():
     a = Something(some_id=SomeID(1))
     assert a == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 from dataclasses import dataclass
 from typing import NewType
 from inline_snapshot import snapshot
@@ -857,9 +740,7 @@ class Something:
 def test_something():
     a = Something(some_id=SomeID(1))
     assert a == snapshot(Something(some_id=SomeID(1)))
-"""
-            }
-        ),
+"""}),
     ).run_inline()
 
 
@@ -868,8 +749,7 @@ def test_something():
     reason="NewType is a function in 3.9 and cannot be checked with isinstance or serialized to code",
 )
 def test_attrs_newtype():
-    Example(
-        """\
+    Example("""\
 import attrs
 from typing import NewType
 from inline_snapshot import snapshot
@@ -883,12 +763,9 @@ class Something:
 def test_something():
     a = Something(some_id=SomeID(1))
     assert a == snapshot()
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
-        changed_files=snapshot(
-            {
-                "tests/test_something.py": """\
+        changed_files=snapshot({"tests/test_something.py": """\
 import attrs
 from typing import NewType
 from inline_snapshot import snapshot
@@ -902,7 +779,5 @@ class Something:
 def test_something():
     a = Something(some_id=SomeID(1))
     assert a == snapshot(Something(some_id=SomeID(1)))
-"""
-            }
-        ),
+"""}),
     ).run_inline()

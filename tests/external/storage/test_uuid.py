@@ -4,15 +4,13 @@ from inline_snapshot.testing._example import Example
 
 def test_uuid_rename_function():
 
-    Example(
-        """
+    Example("""
 from inline_snapshot import external
 
 def test_a():
     assert "a" == external()
 
-"""
-    ).run_inline(
+""").run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
@@ -27,9 +25,7 @@ def test_a():
 """,
             }
         ),
-    ).replace(
-        "test_a", "test_b"
-    ).run_inline()
+    ).replace("test_a", "test_b").run_inline()
 
 
 def test_test_dir():
@@ -64,12 +60,19 @@ def test_a():
             }
         ),
         returncode=snapshot(1),
+        outcomes={"passed": 1, "errors": 1},
     ).replace(
         "test_a", "test_b"
     ).run_pytest().remove_file(
         "my_tests/__inline_snapshot__/test_a/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"
     ).run_pytest(
-        returncode=snapshot(1)
+        returncode=snapshot(1),
+        error="""\
+>       assert "b" == external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt")
+>           raise StorageLookupError(location, files=[])
+E           inline_snapshot._external._storage._protocol.StorageLookupError: uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt
+""",
+        outcomes={"failed": 1},
     )
 
 
@@ -91,6 +94,7 @@ def test_a():
             "ERROR: test-dir has to be a directory or list of directories\n"
         ),
         returncode=snapshot(4),
+        outcomes={},
     )
 
 
@@ -136,17 +140,16 @@ def test_b():
 """,
             }
         ),
+        reported_categories={"create"},
     ).run_pytest(
         ["my_tests_b/test_b.py", "--inline-snapshot=trim,create"],
         changed_files=snapshot({}),
     ).with_files(
-        {
-            "pyproject.toml": """\
+        {"pyproject.toml": """\
 [tool.inline-snapshot]
 test-dir=["my_tests_b"]
 default-storage="hash"
-"""
-        }
+"""}
     ).run_pytest(
         ["my_tests_b/test_b.py", "--inline-snapshot=trim"],
         changed_files=snapshot(
@@ -159,15 +162,13 @@ default-storage="hash"
 
 def test_trim():
 
-    Example(
-        """\
+    Example("""\
 from inline_snapshot import external
 
 def test_a():
     assert "a" == external()
     assert "b" == external()
-"""
-    ).run_pytest(
+""").run_pytest(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
@@ -183,6 +184,7 @@ def test_a():
             }
         ),
         returncode=snapshot(1),
+        outcomes={"passed": 1, "errors": 1},
     ).replace(
         'assert "b" == external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt")', ""
     ).run_pytest(
@@ -197,16 +199,12 @@ def test_a():
 
 
 def test_double_use():
-    e = Example(
-        {
-            "tests/test_a.py": """\
+    e = Example({"tests/test_a.py": """\
 from inline_snapshot import external
 
 def test_a():
     assert "test"==external("uuid:")
-             """
-        }
-    ).run_inline(
+             """}).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
@@ -223,8 +221,7 @@ def test_a():
     )
 
     e = e.with_files({"tests/test_b.py": e.read_file("tests/test_a.py")}).run_inline(
-        report=snapshot(
-            """\
+        report=snapshot("""\
 
 
 ═══════════════════════════════ inline-snapshot ════════════════════════════════
@@ -236,6 +233,5 @@ times, which is not supported:
    (see \n\
 https://15r10nk.github.io/inline-snapshot/latest/external/external/#uuid)
 
-"""
-        )
+""")
     )
