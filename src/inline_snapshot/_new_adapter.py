@@ -24,6 +24,7 @@ from inline_snapshot._customize._custom_dict import CustomDict
 from inline_snapshot._customize._custom_sequence import CustomList
 from inline_snapshot._customize._custom_sequence import CustomSequence
 from inline_snapshot._customize._custom_sequence import CustomTuple
+from inline_snapshot._customize._custom_subscript import CustomSubscript
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._exceptions import UsageError
@@ -138,6 +139,13 @@ def reeval_CustomDict(old_value, value):
     )
 
 
+def reeval_CustomSubscript(old_value: CustomSubscript, value: CustomSubscript):
+    return CustomSubscript(
+        obj=reeval(old_value.obj, value.obj),
+        index=reeval(old_value.index, value.index),
+    )
+
+
 class NewAdapter:
 
     def __init__(self, context: AdapterContext):
@@ -227,6 +235,19 @@ class NewAdapter:
         )
 
         return new_value
+
+    def compare_CustomSubscript(
+        self,
+        old_value: CustomSubscript,
+        old_node: ast.Subscript,
+        new_value: CustomSubscript,
+    ) -> Generator[ChangeBase, None, Custom]:
+        assert isinstance(old_node, ast.Subscript)
+        new_obj = yield from self.compare(old_value.obj, old_node.value, new_value.obj)
+        new_index = yield from self.compare(
+            old_value.index, old_node.slice, new_value.index
+        )
+        return CustomSubscript(obj=new_obj, index=new_index)
 
     def compare_CustomList(
         self, old_value: CustomList, old_node: ast.AST, new_value: CustomList
@@ -482,6 +503,8 @@ class NewAdapter:
                 )
                 result_args.append(insert_value)
 
+        assert len(result_args) == len(new_value.args)
+
         # keyword arguments
         result_kwargs = {}
         if old_node is None:
@@ -508,7 +531,7 @@ class NewAdapter:
                 )
 
         to_insert = []
-        insert_pos = len(old_value.args)
+        insert_pos = len(result_args)
         for key, new_value_element in new_kwargs.items():
             if isinstance(new_value_element, CustomDefault):
                 continue
