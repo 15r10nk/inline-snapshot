@@ -28,13 +28,13 @@ import pytest
 from inline_snapshot import snapshot
 
 
-expected_results = snapshot({"1+10": 11, "2+10": 12, "1+20": 21, "2+20": 22})
+snapshot_results = snapshot({"1+10": 11, "2+10": 12, "1+20": 21, "2+20": 22})
 
 
 @pytest.mark.parametrize("a", [1, 2])
 @pytest.mark.parametrize("b", [10, 20])
 def test_parametrize_stack(a, b):
-    assert expected_results[f"{a}+{b}"] == a + b
+    assert snapshot_results[f"{a}+{b}"] == a + b
 ```
 
 For large values this currently works with `external()` + `outsource()`:
@@ -47,7 +47,7 @@ from inline_snapshot import outsource
 from inline_snapshot import snapshot
 
 
-external_results = snapshot(
+external_snapshots = snapshot(
     {
         "[1]*10": external("uuid:15dd3796-a304-406a-a973-93208cddd8d1.json"),
         "[2]*10": external("uuid:d995eee2-62eb-4e6b-8051-7ead8e03a739.json"),
@@ -60,7 +60,7 @@ external_results = snapshot(
 @pytest.mark.parametrize("a", [1, 2])
 @pytest.mark.parametrize("b", [10, 20])
 def test_parametrize_stack_external(a, b):
-    assert external_results[f"[{a}]*{b}"] == outsource([a] * b)
+    assert external_snapshots[f"[{a}]*{b}"] == outsource([a] * b)
 ```
 
 and the missing value will be created for each run.
