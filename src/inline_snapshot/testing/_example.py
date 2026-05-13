@@ -565,7 +565,7 @@ class Example:
 
             self._write_files(tmp_path)
 
-            cmd = [sys.executable, "-m", "pytest", *args]
+            cmd = [sys.executable, "-m", "pytest", "-p", "no:randomly", *args]
 
             command_env = dict(os.environ)
             command_env["TERM"] = "unknown"
