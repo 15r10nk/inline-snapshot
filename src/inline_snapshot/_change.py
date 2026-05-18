@@ -5,7 +5,6 @@ from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import DefaultDict
 from typing import Tuple
 from typing import cast
@@ -125,7 +124,6 @@ class RequiredImport(Change):
 @dataclass()
 class Delete(Change):
     node: ast.AST | None
-    old_value: Any
 
 
 @dataclass()
@@ -134,7 +132,6 @@ class ListInsert(Change):
     position: int
 
     new_code: list[str]
-    new_values: list[Any]
 
     def __post_init__(self):
         self.new_code = [self.file.format_expression(v) for v in self.new_code]
@@ -146,7 +143,6 @@ class DictInsert(Change):
     position: int
 
     new_code: list[tuple[str, str]]
-    new_values: list[tuple[Any, Any]]
 
     def __post_init__(self):
         self.new_code = [
@@ -160,8 +156,6 @@ class Replace(Change):
     node: ast.AST
 
     new_code: str
-    old_value: Any
-    new_value: Any
 
     def apply(self, recorder: ChangeRecorder):
         change = recorder.new_change()
@@ -179,7 +173,6 @@ class CallArg(Change):
     arg_name: str | None
 
     new_code: str
-    new_value: Any
 
     def __post_init__(self):
         self.new_code = self.file.format_expression(self.new_code)

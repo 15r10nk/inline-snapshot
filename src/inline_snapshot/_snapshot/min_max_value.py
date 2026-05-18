@@ -53,8 +53,6 @@ class MinMaxValue(GenericValue):
             file=self._file,
             new_code=new_code,
             flag=flag,
-            old_value=self._old_value._eval(),
-            new_value=self._new_value._eval(),
         )
 
 

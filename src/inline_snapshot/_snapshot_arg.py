@@ -292,7 +292,6 @@ class SnapshotArgReference(SnapshotRefBase):
                     arg_pos=0,
                     arg_name=None,
                     new_code=new_code,
-                    new_value=self._value._new_value,
                 )
             else:
 
@@ -303,13 +302,12 @@ class SnapshotArgReference(SnapshotRefBase):
                     arg_pos=None,
                     arg_name=self._name,
                     new_code=new_code,
-                    new_value=self._value._new_value,
                 )
         else:
             changes = list(self._value._get_changes())
             if is_default and not isinstance(self._value._old_value, CustomUnmanaged):
                 yield Delete(
-                    "fix" if changes else "trim", self._value._file, self._node, None
+                    "fix" if changes else "trim", self._value._file, self._node
                 )
             else:
                 yield from changes

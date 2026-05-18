@@ -127,7 +127,6 @@ class SnapshotReference(SnapshotRefBase):
                 arg_pos=0,
                 arg_name=None,
                 new_code=new_code,
-                new_value=self._value._new_value,
             )
 
         else:

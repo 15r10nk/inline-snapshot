@@ -55,7 +55,6 @@ class CollectionValue(GenericValue):
                     flag="trim",
                     file=self._file,
                     node=old_node,
-                    old_value=old_value,
                 )
                 continue
 
@@ -71,17 +70,13 @@ class CollectionValue(GenericValue):
                     file=self._file,
                     new_code=new_code,
                     flag="update",
-                    old_value=old_value,
-                    new_value=old_value,
                 )
 
         new_codes = []
-        new_values = []
         for v in self._new_value.value:
             if v not in self._old_value.value:
                 new_code = yield from v._code_repr(self._context)
                 new_codes.append(new_code)
-                new_values.append(v._eval())
 
         if new_codes:
             yield ListInsert(
@@ -90,5 +85,4 @@ class CollectionValue(GenericValue):
                 node=self._ast_node,
                 position=len(self._old_value.value),
                 new_code=new_codes,
-                new_values=new_values,
             )

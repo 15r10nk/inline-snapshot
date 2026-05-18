@@ -222,8 +222,6 @@ class NewAdapter:
             file=self.context.file,
             new_code=new_code,
             flag=flag,
-            old_value=old_value._eval(),
-            new_value=new_value,
         )
 
         return new_value
@@ -264,27 +262,20 @@ class NewAdapter:
                 new_value_element = next(new)
                 new_code = yield from new_value_element._code_repr(self.context)
                 result.append(new_value_element)
-                to_insert[old_position].append((new_code, new_value_element))
+                to_insert[old_position].append(new_code)
             elif c == "d":
                 old_value_element, old_node_element = next(old)
                 yield Delete(
                     "fix",
                     self.context.file,
                     old_node_element,
-                    old_value_element,
                 )
                 old_position += 1
             else:
                 assert False
 
         for position, code_values in to_insert.items():
-            yield ListInsert(
-                "fix",
-                self.context.file,
-                old_node,
-                position,
-                *zip(*code_values),  # type: ignore
-            )
+            yield ListInsert("fix", self.context.file, old_node, position, code_values)
 
         return type(new_value)(result)
 
@@ -310,22 +301,23 @@ class NewAdapter:
             result.append(v)
 
         # delete surplus old elements
-        for old_elem, old_node_elem in zip(old_elts[common:], old_nodes[common:]):
-            yield Delete("fix", self.context.file, old_node_elem, old_elem)
+        for old_node_elem in old_nodes[common:]:
+            yield Delete("fix", self.context.file, old_node_elem)
 
         # insert extra new elements
         if len(new_elts) > common:
             to_insert = []
             for new_elem in new_elts[common:]:
                 new_code = yield from new_elem._code_repr(self.context)
-                to_insert.append((new_code, new_elem))
+                to_insert.append(new_code)
                 result.append(new_elem)
+
             yield ListInsert(
                 "fix",
                 self.context.file,
                 old_node,
                 common,
-                *zip(*to_insert),  # type: ignore
+                to_insert,
             )
 
         return CustomTuple(result)
@@ -360,7 +352,7 @@ class NewAdapter:
         ):
             if key2 not in new_value.value:
                 # delete entries
-                yield Delete("fix", self.context.file, node2, old_value.value[key2])
+                yield Delete("fix", self.context.file, node2)
 
         to_insert = []
         insert_pos = 0
@@ -392,7 +384,6 @@ class NewAdapter:
                         old_node,
                         insert_pos,
                         new_code,
-                        to_insert,
                     )
                     to_insert = []
 
@@ -416,7 +407,6 @@ class NewAdapter:
                 old_node,
                 len(old_value.value),
                 new_code,
-                to_insert,
             )
 
         return CustomDict(value=result)
@@ -465,7 +455,6 @@ class NewAdapter:
                         flag,
                         self.context.file,
                         node,
-                        old_value.argument(arg_pos),
                     )
 
         if old_args_len < len(new_args):
@@ -478,7 +467,6 @@ class NewAdapter:
                     arg_pos=insert_pos,
                     arg_name=None,
                     new_code=new_code,
-                    new_value=insert_value,
                 )
                 result_args.append(insert_value)
 
@@ -504,7 +492,6 @@ class NewAdapter:
                     ),
                     self.context.file,
                     kw_value,
-                    old_value.argument(kw_arg),
                 )
 
         to_insert = []
@@ -535,7 +522,6 @@ class NewAdapter:
                             arg_pos=insert_pos,
                             arg_name=insert_key,
                             new_code=new_code,
-                            new_value=value,
                         )
                     to_insert = []
 
@@ -553,7 +539,6 @@ class NewAdapter:
                     arg_pos=None,
                     arg_name=key,
                     new_code=new_code,
-                    new_value=value,
                 )
 
         return CustomCall(

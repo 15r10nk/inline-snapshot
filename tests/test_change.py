@@ -54,8 +54,6 @@ def test_change_function_args(check_change):
                 file=source,
                 node=call.args[0],
                 new_code="22",
-                old_value=0,
-                new_value=0,
             )
         ],
         snapshot("f(22,b=2)"),
@@ -68,7 +66,6 @@ def test_change_function_args(check_change):
                 flag="fix",
                 file=source,
                 node=call.args[0],
-                old_value=0,
             )
         ],
         snapshot("f(b=2)"),
@@ -84,7 +81,6 @@ def test_change_function_args(check_change):
                 arg_pos=0,
                 arg_name=None,
                 new_code="22",
-                new_value=22,
             )
         ],
         snapshot("f(22, a,b=2)"),

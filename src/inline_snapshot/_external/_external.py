@@ -94,7 +94,6 @@ class External(ExternalBase, SnapshotRefBase):
                     0,
                     None,
                     f'"{new_name}"',
-                    new_name,
                 )
 
             else:
@@ -107,8 +106,6 @@ class External(ExternalBase, SnapshotRefBase):
                     self._context.file,
                     node.args[0] if node else None,
                     f'"{new_name}"',
-                    self._original_name,
-                    new_name,
                 )
 
         yield from super()._changes()
