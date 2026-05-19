@@ -84,20 +84,18 @@ class DictValue(GenericValue):
                 yield from self._new_value.value[key]._get_changes()  # type: ignore
             else:
                 # delete entries
-                yield Delete("trim", self._file, node, self._old_value.value[key])
+                yield Delete("trim", self._file, node)
 
         to_insert = []
-        to_insert_values = []
         for key, new_value_element in self._new_value.value.items():
             if key not in self._old_value.value and not isinstance(
                 new_value_element, UndecidedValue
             ):
                 # add new values
-                new_value = yield from new_value_element._new_code()  # type: ignore
+                new_code = yield from new_value_element._new_code()  # type: ignore
                 new_key = yield from key._code_repr(self._context)
 
-                to_insert.append((new_key, new_value))
-                to_insert_values.append((key, new_value_element))
+                to_insert.append((new_key, new_code))
 
         if to_insert:
             yield DictInsert(
@@ -106,5 +104,4 @@ class DictValue(GenericValue):
                 self._ast_node,
                 len(self._old_value.value),
                 to_insert,
-                to_insert_values,
             )
