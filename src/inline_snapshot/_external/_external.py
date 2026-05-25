@@ -11,6 +11,7 @@ from inline_snapshot._exceptions import UsageError
 from inline_snapshot._external._external_base import ExternalBase
 from inline_snapshot._external._format._protocol import get_format_handler
 from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
+from inline_snapshot._external._storage._protocol import StorageLookupError
 from inline_snapshot._global_state import state
 from inline_snapshot._inline_snapshot import create_snapshot
 from inline_snapshot._types import SnapshotRefBase
@@ -139,8 +140,21 @@ class External(ExternalBase, SnapshotRefBase):
         format.encode(other, self._tmp_file)
         self._location = self.storage.new_location(self._location, self._tmp_file)
 
-    def _load_value(self):
-        return self._load_value_from_location(self._original_location)
+    def _load_value(self, which):
+        if which == "new":
+            if self._tmp_file:
+                format = get_format_handler_from_suffix(self._location.suffix)
+                return format.decode(self._tmp_file)
+            else:
+                raise StorageLookupError("no new value", files=[])
+        if which == "old":
+            location = self._original_location
+            if not location.exists():
+                raise StorageLookupError("no old value", files=[])
+
+            return self._load_value_from_location(location)
+
+        assert False, f"which has to be new or old but is {which!r}"
 
     @classmethod
     def _load_value_from_location(cls, location: ExternalLocation) -> object:

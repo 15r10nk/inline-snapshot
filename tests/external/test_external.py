@@ -203,11 +203,8 @@ def test_a():
         returncode=1,
         error="""\
 >       assert outsource("test2") == s
-E       AssertionError: assert 'test2' == 'test'
-E         \n\
-E         - test
-E         + test2
-E         ?     +
+E       AssertionError: assert Outsourced(data='test2', suffix=None, storage=None) == 'test'
+E        +  where Outsourced(data='test2', suffix=None, storage=None) = outsource('test2')
 """,
         changed_files={
             "tests/__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt": "test",
@@ -252,9 +249,8 @@ def test_a():
         error=(
             snapshot("""\
 >       assert outsource(b"test2") == s
-E       AssertionError: assert b'test2' == b'test'
-E         \n\
-E         Use -v to get more diff
+E       AssertionError: assert Outsourced(data=b'test2', suffix=None, storage=None) == b'test'
+E        +  where Outsourced(data=b'test2', suffix=None, storage=None) = outsource(b'test2')
 """)
             if sys.version_info >= (3, 11)
             else snapshot("""\

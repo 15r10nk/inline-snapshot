@@ -33,6 +33,11 @@ repos:
     entry: python3 scripts/replace_words.py
     language: system
     files: \.(md|py)$
+  - id: clean-changelog-fragments
+    name: Clean Changelog Fragments
+    entry: python3 scripts/clean_changelog_fragments.py
+    language: system
+    files: ^changelog\.d/.*\.md$
 
 - repo: https://github.com/asottile/setup-cfg-fmt
   rev: v3.2.0
