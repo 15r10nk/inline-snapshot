@@ -1820,7 +1820,7 @@
 
 
 <h1 id="inline_snapshot.get_snapshot_value" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">get_snapshot_value</span><span class="p">(</span><span class="n">snapshot_value</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">get_snapshot_value</span><span class="p">(</span><span class="n">snapshot_value</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;new&#39;</span><span class="p">)</span></code>
 
 <a href="#inline_snapshot.get_snapshot_value" class="headerlink" title="Permanent link">&para;</a></h1>
 
@@ -1860,31 +1860,28 @@ of a previously stored snapshot. For standard test assertions, prefer using the 
                 <em>required</em>
             </td>
           </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="inline_snapshot._get_snapshot_value.T">T</span></code>
+                <code>which</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-external" title="typing.Literal" href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>[&#39;new&#39;, &#39;old&#39;]</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The unwrapped value contained in the snapshot.</p>
+                <p>can be:
+- <code>"old"</code>: the value which is "visible" in the source is returned
+- <code>"new"</code>: the current value is returned</p>
               </div>
+            </td>
+            <td>
+                  <code>&#39;new&#39;</code>
             </td>
           </tr>
       </tbody>
     </table>
+        <p>Returns:
+    The unwrapped value contained in the snapshot.</p>
 
 
 <details class="example" open>
