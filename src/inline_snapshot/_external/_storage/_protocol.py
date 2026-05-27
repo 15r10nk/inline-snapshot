@@ -4,10 +4,12 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Generator
 
+from inline_snapshot._exceptions import ValueNotFound
+
 from .._external_location import ExternalLocation
 
 
-class StorageLookupError(Exception):
+class StorageLookupError(ValueNotFound):
     def __init__(self, msg, files):
         super().__init__(msg)
         self.files = files

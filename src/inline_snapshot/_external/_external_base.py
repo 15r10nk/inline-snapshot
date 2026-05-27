@@ -37,7 +37,7 @@ class ExternalBase:
     def _assign(self, value):
         raise NotImplementedError()
 
-    def _load_value(self):
+    def _load_value(self, which):
         raise NotImplementedError()
 
     def __eq__(self, other):
@@ -77,7 +77,7 @@ class ExternalBase:
             return False
 
         try:
-            value = self._load_value()
+            value = self._load_value("old")
         except StorageLookupError as error:
             if not error.files and state().update_flags.fix:
                 self._original_location = ExternalLocation.from_name("")

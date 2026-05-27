@@ -41,13 +41,20 @@ class ExternalFile(ExternalBase, SnapshotRefBase):
             path = filename
         return f"external_file({str(path)!r})"
 
-    def _load_value(self):
-        try:
-            return self._format.decode(self._filename)
-        except FileNotFoundError:
-            raise StorageLookupError(
-                f"cannot read {self._filename}", files=[self._filename]
-            )
+    def _load_value(self, which):
+        if which == "new":
+            if self._tmp_file:
+                format = get_format_handler_from_suffix(self._location.suffix)
+                return format.decode(self._tmp_file)
+            else:
+                raise StorageLookupError("no new value", files=[])
+        if which == "old":
+            try:
+                return self._format.decode(self._filename)
+            except FileNotFoundError:
+                raise StorageLookupError("old value not found", files=[])
+
+        assert False
 
 
 def external_file(path: Union[Path, str], *, format: Optional[str] = None):
