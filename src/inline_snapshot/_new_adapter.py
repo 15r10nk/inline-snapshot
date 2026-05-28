@@ -122,6 +122,14 @@ def reeval_CustomCode(old_value: CustomCode, value: CustomCode):
     return value
 
 
+def reeval_CustomValue(old_value: CustomCode, value: CustomCode):
+    if not old_value._eval() == value._eval():
+        raise UsageError(
+            "snapshot value should not change. Use Is(...) for dynamic snapshot parts."
+        )
+    return value
+
+
 def reeval_CustomCall(old_value: CustomCall, value: CustomCall):
     return CustomCall(
         reeval(old_value.function, value.function),
@@ -161,7 +169,7 @@ class NewAdapter:
         snapshot_value = (
             missing
             if isinstance(old_value, CustomUndefined)
-            else old_value.original_value
+            else getattr(old_value, "original_value", missing)
         )
 
         custom_value = self.customize(new_value, snapshot_value)
@@ -190,7 +198,9 @@ class NewAdapter:
                 old_value, old_node, custom_value
             )
         else:
-            result = yield from self.compare_CustomCode(old_value, old_node, new_value)
+            result = yield from self.compare_CustomCode(
+                old_value, old_node, custom_value
+            )
         return result
 
     def compare_CustomCode(
@@ -272,8 +282,17 @@ class NewAdapter:
             if c in "mx":
                 old_value_element, old_node_element = next(old)
                 new_value_element = next(new)
+                comparison_value = (
+                    new_value_element
+                    if isinstance(new_value_element, CustomUnmanaged)
+                    else getattr(
+                        new_value_element, "original_value", new_value_element._eval()
+                    )
+                )
                 v = yield from self.compare(
-                    old_value_element, old_node_element, new_value_element
+                    old_value_element,
+                    old_node_element,
+                    comparison_value,
                 )
                 result.append(v)
                 old_position += 1
@@ -316,7 +335,16 @@ class NewAdapter:
 
         # compare paired elements
         for old_elem, old_node_elem, new_elem in zip(old_elts, old_nodes, new_elts):
-            v = yield from self.compare(old_elem, old_node_elem, new_elem)
+            comparison_value = (
+                new_elem
+                if isinstance(new_elem, CustomUnmanaged)
+                else getattr(new_elem, "original_value", new_elem._eval())
+            )
+            v = yield from self.compare(
+                old_elem,
+                old_node_elem,
+                comparison_value,
+            )
             result.append(v)
 
         # delete surplus old elements

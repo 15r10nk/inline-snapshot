@@ -1,14 +1,18 @@
 from __future__ import annotations
 
+import ast
 from dataclasses import dataclass
 from typing import Any
 from typing import Callable
 
 from inline_snapshot._adapter_context import AdapterContext
+from inline_snapshot._code_repr import HasRepr
 from inline_snapshot._code_repr import mock_repr
+from inline_snapshot._code_repr import value_code_repr
 from inline_snapshot._compare_context import compare_context
 from inline_snapshot._customize._custom_sequence import CustomSequence
 from inline_snapshot._exceptions import UsageError
+from inline_snapshot._utils import clone
 
 from ._custom import Custom
 from ._custom_call import CustomCall
@@ -51,6 +55,14 @@ class Builder:
 
         from inline_snapshot._global_state import state
 
+        if isinstance(v, Custom):
+            original_value = v._eval()
+        else:
+            try:
+                original_value = clone(v)
+            except UsageError:
+                original_value = v
+
         result = v
 
         while not isinstance(result, Custom):
@@ -63,11 +75,22 @@ class Builder:
                     snapshot_value=snapshot_value,
                 )
             if r is None:
-                result = CustomCode(result)
+
+                with mock_repr(self._snapshot_context):
+                    repr_str = value_code_repr(result)
+
+                try:
+                    ast.parse(repr_str)
+                except SyntaxError:
+                    result = self.create_call(HasRepr, [type(result), repr_str])
+                    # self.repr_str = HasRepr(type(value), self.repr_str).__repr__()
+                    # self._imports.append(ImportFrom("inline_snapshot", "HasRepr"))
+                else:
+                    result = CustomCode(result, repr_str)
             else:
                 result = r
 
-        result.__dict__["original_value"] = v._eval() if isinstance(v, Custom) else v
+        result.__dict__["original_value"] = original_value
 
         if not isinstance(v, Custom) and self._build_new_value:
             is_same = False
@@ -79,14 +102,14 @@ class Builder:
             ):
                 is_same = True
 
-            if not is_same and v_eval == v:
+            if not is_same and v_eval == original_value:
                 is_same = True
 
             if not is_same:
                 raise UsageError(f"""\
 Customized value does not match original value:
 
-original_value={v!r}
+original_value={original_value!r}
 
 customized_value={result._eval()!r}
 customized_representation={result!r}
@@ -95,31 +118,43 @@ customized_representation={result!r}
         return result
 
     def _customize(self, value, snapshot_value=missing):
-        with mock_repr(self._snapshot_context):
-            return self._get_handler(value, snapshot_value)
+        return self._get_handler(value, snapshot_value)
 
     def _customize_all(self, value):
         if not isinstance(value, Custom):
             value = self._customize(value)
 
+        def with_original(new_value: Custom, old_value: Custom) -> Custom:
+            new_value.__dict__["original_value"] = getattr(
+                old_value, "original_value", old_value._eval()
+            )
+            return new_value
+
         if isinstance(value, CustomSequence):
-            value.value = [self._customize_all(c) for c in value.value]
+            return with_original(
+                type(value)([self._customize_all(c) for c in value.value]), value
+            )
         elif isinstance(value, CustomDict):
-            value.value = {
-                self._customize_all(k): self._customize_all(v)
-                for k, v in value.value.items()
-            }
+            return with_original(
+                CustomDict(
+                    {
+                        self._customize_all(k): self._customize_all(v)
+                        for k, v in value.value.items()
+                    }
+                ),
+                value,
+            )
         elif isinstance(value, CustomCall):
-            value._function = self._customize_all(value._function)
-            value._args = [self._customize_all(c) for c in value._args]
-            value._kwargs = {
-                k: self._customize_all(v) for k, v in value._kwargs.items()
-            }
-            value._kwonly = {
-                k: self._customize_all(v) for k, v in value._kwonly.items()
-            }
+            return with_original(
+                CustomCall(
+                    function=self._customize_all(value.function),
+                    args=[self._customize_all(c) for c in value.args],
+                    kwargs={k: self._customize_all(v) for k, v in value.kwargs.items()},
+                ),
+                value,
+            )
         elif isinstance(value, CustomDefault):
-            value.value = self._customize_all(value.value)
+            return with_original(CustomDefault(self._customize_all(value.value)), value)
 
         return value
 
