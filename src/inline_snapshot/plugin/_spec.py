@@ -33,7 +33,7 @@ class InlineSnapshotPluginSpec:
         builder: Builder,
         local_vars: Dict[str, Any],
         global_vars: Dict[str, Any],
-        snapshot_value: Optional[Any] = None,
+        snapshot_value: Optional[Any],
     ) -> Any:
         """
         The customize hook is called every time a snapshot value should be converted into code.

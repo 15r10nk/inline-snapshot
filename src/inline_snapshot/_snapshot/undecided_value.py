@@ -3,7 +3,6 @@ from pathlib import PurePath
 from typing import Any
 from typing import Iterator
 
-from inline_snapshot._code_repr import mock_repr
 from inline_snapshot._compare_context import compare_only
 from inline_snapshot._customize._builder import Builder
 from inline_snapshot._customize._custom import Custom
@@ -108,8 +107,7 @@ class ValueToCustom:
         if value is ...:
             return CustomUndefined()
         else:
-            with mock_repr(self.context):
-                result = Builder(self.context, _recursive=False)._get_handler(value)
+            result = Builder(self.context, _recursive=False)._get_handler(value)
             if isinstance(result, CustomCall) and (
                 result.function == type(value) or isinstance(value, PurePath)
             ):
