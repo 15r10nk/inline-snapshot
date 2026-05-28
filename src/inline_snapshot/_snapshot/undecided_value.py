@@ -146,6 +146,7 @@ class UndecidedValue(GenericValue):
         return
 
     def __eq__(self, other):
+
         if compare_only():
             return False
 

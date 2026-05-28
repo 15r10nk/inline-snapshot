@@ -3,6 +3,7 @@ from typing import Iterator
 from typing import List
 
 from inline_snapshot._customize._custom_undefined import CustomUndefined
+from inline_snapshot._customize._uncustomized import Uncustomized
 from inline_snapshot._generator_utils import split_gen
 from inline_snapshot._new_adapter import NewAdapter
 
@@ -27,7 +28,9 @@ class EqValue(GenericValue):
 
             adapter = NewAdapter(self._context)
 
-            result = split_gen(adapter.compare(self._old_value, self._ast_node, other))
+            result = split_gen(
+                adapter.compare(self._old_value, self._ast_node, Uncustomized(other))
+            )
             self._changes = result.list
             self._new_value = result.value
 

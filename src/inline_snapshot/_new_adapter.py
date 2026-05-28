@@ -17,7 +17,6 @@ from inline_snapshot._change import ListInsert
 from inline_snapshot._change import Replace
 from inline_snapshot._compare_context import compare_context
 from inline_snapshot._customize._builder import Builder
-from inline_snapshot._customize._builder import missing
 from inline_snapshot._customize._custom import Custom
 from inline_snapshot._customize._custom_call import CustomCall
 from inline_snapshot._customize._custom_call import CustomDefault
@@ -28,6 +27,7 @@ from inline_snapshot._customize._custom_sequence import CustomSequence
 from inline_snapshot._customize._custom_sequence import CustomTuple
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
+from inline_snapshot._customize._uncustomized import Uncustomized
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._generator_utils import make_gen_map
 from inline_snapshot._generator_utils import only_value
@@ -148,7 +148,7 @@ class NewAdapter:
     def get_builder(self, **args):
         return Builder(_snapshot_context=self.context, **args)
 
-    def customize(self, value, snapshot_value=missing):
+    def customize(self, value, snapshot_value: Custom):
         return self.get_builder(_build_new_value=True)._customize(value, snapshot_value)
 
     def customize_all(self, value):
@@ -158,13 +158,10 @@ class NewAdapter:
         self, old_value: Custom, old_node, new_value: Custom
     ) -> Generator[ChangeBase, None, Custom]:
 
-        snapshot_value = (
-            missing
-            if isinstance(old_value, CustomUndefined)
-            else getattr(old_value, "original_value", missing)
-        )
+        assert isinstance(new_value, Custom)
 
-        custom_value = self.customize(new_value, snapshot_value)
+        if isinstance(new_value, Uncustomized):
+            new_value = self.customize(new_value._value, old_value)
 
         if isinstance(old_value, CustomUnmanaged):
             return old_value
@@ -173,9 +170,9 @@ class NewAdapter:
             raise UsageError("unmanaged values cannot be compared with snapshots")
 
         if (
-            type(old_value) is type(custom_value)
+            type(old_value) is type(new_value)
             and (
-                isinstance(old_node, custom_value.node_type)
+                isinstance(old_node, new_value.node_type)
                 if old_node is not None
                 else True
             )
@@ -187,12 +184,10 @@ class NewAdapter:
         ):
             function_name = f"compare_{type(old_value).__name__}"
             result = yield from getattr(self, function_name)(
-                old_value, old_node, custom_value
+                old_value, old_node, new_value
             )
         else:
-            result = yield from self.compare_CustomCode(
-                old_value, old_node, custom_value
-            )
+            result = yield from self.compare_CustomCode(old_value, old_node, new_value)
         return result
 
     def compare_CustomCode(
@@ -499,7 +494,9 @@ class NewAdapter:
 
         if old_args_len < len(new_args):
             for insert_pos, insert_value in list(enumerate(new_args))[old_args_len:]:
-                new_code = yield from insert_value._code_repr(self.context)
+                new_code = yield from self.customize_all(insert_value)._code_repr(
+                    self.context
+                )
                 yield CallArg(
                     flag=flag,
                     file=self.context.file,
