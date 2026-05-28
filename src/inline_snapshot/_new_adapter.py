@@ -122,14 +122,6 @@ def reeval_CustomCode(old_value: CustomCode, value: CustomCode):
     return value
 
 
-def reeval_CustomValue(old_value: CustomCode, value: CustomCode):
-    if not old_value._eval() == value._eval():
-        raise UsageError(
-            "snapshot value should not change. Use Is(...) for dynamic snapshot parts."
-        )
-    return value
-
-
 def reeval_CustomCall(old_value: CustomCall, value: CustomCall):
     return CustomCall(
         reeval(old_value.function, value.function),

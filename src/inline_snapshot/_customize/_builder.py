@@ -42,7 +42,7 @@ class Builder:
 
     def _get_handler_recursive(self, v) -> Custom:
         if self._recursive:
-            return self._get_handler(v)
+            return self._to_custom(v)
         else:
             return v
 
@@ -51,7 +51,7 @@ class Builder:
             return value._eval()
         return value
 
-    def _get_handler(self, v, snapshot_value=None) -> Custom:
+    def _to_custom(self, v, snapshot_value=None) -> Custom:
 
         from inline_snapshot._global_state import state
 
@@ -83,8 +83,6 @@ class Builder:
                     ast.parse(repr_str)
                 except SyntaxError:
                     result = self.create_call(HasRepr, [type(result), repr_str])
-                    # self.repr_str = HasRepr(type(value), self.repr_str).__repr__()
-                    # self._imports.append(ImportFrom("inline_snapshot", "HasRepr"))
                 else:
                     result = CustomCode(result, repr_str)
             else:
@@ -118,7 +116,7 @@ customized_representation={result!r}
         return result
 
     def _customize(self, value, snapshot_value=missing):
-        return self._get_handler(value, snapshot_value)
+        return self._to_custom(value, snapshot_value)
 
     def _customize_all(self, value):
         if not isinstance(value, Custom):

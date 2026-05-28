@@ -99,7 +99,7 @@ class ValueToCustom:
         if value is ...:
             return CustomUndefined()
         else:
-            result = Builder(self.context, _recursive=False)._get_handler(value)
+            result = Builder(self.context, _recursive=False)._to_custom(value)
             if isinstance(result, CustomCall) and result.function == type(value):
                 function = self.convert(result.function)
                 posonly_args = [self.convert(arg) for arg in result.args]
