@@ -44,12 +44,10 @@ class CustomCode(Custom):
 
     def __init__(self, value, repr_str, imports: list[Import | ImportFrom] = []):
         assert not isinstance(value, Custom)
-        value = clone(value)
+
         self._imports = list(imports)
-
         self.repr_str = repr_str
-
-        self.value = value
+        self.value = clone(value)
 
         super().__init__()
 
