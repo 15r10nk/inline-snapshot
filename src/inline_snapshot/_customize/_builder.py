@@ -11,6 +11,7 @@ from inline_snapshot._code_repr import mock_repr
 from inline_snapshot._code_repr import value_code_repr
 from inline_snapshot._compare_context import compare_context
 from inline_snapshot._customize._custom_sequence import CustomSequence
+from inline_snapshot._customize._uncustomized import Uncustomized
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._utils import clone
 
@@ -32,6 +33,14 @@ class Missing:
         return "missing"
 
 
+class CustomMissing(Custom):
+    def _map(self, f):
+        return missing
+
+    def _code_repr(self):
+        return "<missing>"
+
+
 missing = Missing()
 
 
@@ -42,6 +51,10 @@ class Builder:
     _recursive: bool = True
 
     def _get_handler_recursive(self, v) -> Custom:
+        if not isinstance(v, Custom):
+            return Uncustomized(v)
+        else:
+            return v
         if self._recursive:
             return self._to_custom(v)
         else:
@@ -52,9 +65,12 @@ class Builder:
             return value._eval()
         return value
 
-    def _to_custom(self, v, snapshot_value=None) -> Custom:
+    def _to_custom(self, v, snapshot_value: Custom) -> Custom:
 
         from inline_snapshot._global_state import state
+
+        if isinstance(v, Uncustomized):
+            v = v._value
 
         if isinstance(v, Custom):
             original_value = v._eval()
@@ -75,6 +91,7 @@ class Builder:
                     global_vars=self._global_vars,
                     snapshot_value=snapshot_value,
                 )
+
             if r is None:
 
                 with mock_repr(self._snapshot_context):
@@ -116,12 +133,14 @@ customized_representation={result!r}
 
         return result
 
-    def _customize(self, value, snapshot_value=missing):
+    def _customize(self, value, snapshot_value=CustomMissing()):
         return self._to_custom(value, snapshot_value)
 
-    def _customize_all(self, value):
-        if not isinstance(value, Custom):
-            value = self._customize(value)
+    def _customize_all(self, value, snapshot_value=CustomMissing()):
+        assert isinstance(value, Custom)
+
+        if isinstance(value, Uncustomized):
+            value = self._customize(value._value, snapshot_value)
 
         def with_original(new_value: Custom, old_value: Custom) -> Custom:
             new_value.__dict__["original_value"] = getattr(
