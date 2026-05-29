@@ -11,6 +11,9 @@ from inline_snapshot._customize._custom import Custom
 class Uncustomized(Custom):
     _value: Any
 
+    def __post_init__(self):
+        assert not isinstance(self._value, Custom)
+
     def _map(self, f):
         return self._value
 
@@ -18,3 +21,6 @@ class Uncustomized(Custom):
         assert False
         return "<uncustomized>"
         yield
+
+    def __repr__(self):
+        return repr(self._value)
