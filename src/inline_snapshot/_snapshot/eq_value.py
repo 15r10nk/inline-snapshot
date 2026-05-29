@@ -34,9 +34,11 @@ class EqValue(GenericValue):
             self._changes = result.list
             self._new_value = result.value
 
+        other_eval = self._eval_value(other)
+
         return self._return(
-            self._old_value._eval() == other,
-            self._new_value._eval() == other,
+            self._old_value._eval() == other_eval,
+            self._new_value._eval() == other_eval,
         )
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:

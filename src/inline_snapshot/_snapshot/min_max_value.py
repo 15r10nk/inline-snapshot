@@ -25,12 +25,16 @@ class MinMaxValue(GenericValue):
             self._new_value = self.to_custom(other)
             if isinstance(self._old_value, CustomUndefined) or ignore_old_value():
                 return True
-            return self._return(self.cmp(self._old_value._eval(), other))
+            return self._return(
+                self.cmp(self._old_value._eval(), self._eval_value(other))
+            )
         else:
-            if not self.cmp(self._new_value._eval(), other):
+            if not self.cmp(self._new_value._eval(), self._eval_value(other)):
                 self._new_value = self.to_custom(other)
 
-        return self._return(self.cmp(self._visible_value()._eval(), other))
+        return self._return(
+            self.cmp(self._visible_value()._eval(), self._eval_value(other))
+        )
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
         code = yield from self._new_value._code_repr(self._context)
