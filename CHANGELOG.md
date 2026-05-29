@@ -1,4 +1,15 @@
 
+<a id='changelog-0.34.0'></a>
+# 0.34.0 — 2026-05-29
+
+## Added
+
+- `get_snapshot_value()` now accepts a `which` parameter (`"new"` or `"old"`) to select whether to return the new (just-compared) or the old (previously stored) snapshot value ([#336](https://github.com/15r10nk/inline-snapshot/issues/336)).
+
+## Fixed
+
+- `Example.run_pytest`: deterministic test order by using `-p no:ranodmly`
+
 <a id='changelog-0.33.0'></a>
 # 0.33.0 — 2026-05-12
 
