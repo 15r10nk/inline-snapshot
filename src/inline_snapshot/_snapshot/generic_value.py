@@ -98,6 +98,21 @@ class GenericValue(SnapshotBase):
     def _get_changes(self) -> Iterator[ChangeBase]:
         raise NotImplementedError()
 
+    def _eval_value(self, value):
+        if isinstance(value, Custom):
+            return value._eval()
+        if isinstance(value, list):
+            return [self._eval_value(v) for v in value]
+        if isinstance(value, tuple):
+            return tuple(self._eval_value(v) for v in value)
+        if isinstance(value, dict):
+            return {self._eval_value(k): self._eval_value(v) for k, v in value.items()}
+        if isinstance(value, set):
+            return {self._eval_value(v) for v in value}
+        if isinstance(value, frozenset):
+            return frozenset(self._eval_value(v) for v in value)
+        return value
+
     def _new_code(self) -> Generator[ChangeBase, None, str]:
         raise NotImplementedError()
 

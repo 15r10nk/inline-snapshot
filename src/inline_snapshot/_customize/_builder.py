@@ -36,7 +36,8 @@ class CustomMissing(Custom):
     def _map(self, f):
         return missing
 
-    def _code_repr(self):
+    def _code_repr(self, context):
+        yield from ()
         return "<missing>"
 
 
@@ -50,21 +51,33 @@ class Builder:
     _recursive: bool = True
 
     def _get_handler_recursive(self, v) -> Custom:
-        if not isinstance(v, Custom):
-            return Uncustomized(v)
-        else:
+        if isinstance(v, Custom):
             return v
         if self._recursive:
             return self._to_custom(v)
-        else:
-            return v
+        return Uncustomized(v)
 
     def _get_value(self, value):
         if isinstance(value, Custom):
             return value._eval()
         return value
 
-    def _to_custom(self, v, snapshot_value: Custom) -> Custom:
+    def _eval_value(self, value):
+        if isinstance(value, Custom):
+            return value._eval()
+        if isinstance(value, list):
+            return [self._eval_value(v) for v in value]
+        if isinstance(value, tuple):
+            return tuple(self._eval_value(v) for v in value)
+        if isinstance(value, dict):
+            return {self._eval_value(k): self._eval_value(v) for k, v in value.items()}
+        if isinstance(value, set):
+            return {self._eval_value(v) for v in value}
+        if isinstance(value, frozenset):
+            return frozenset(self._eval_value(v) for v in value)
+        return value
+
+    def _to_custom(self, v, snapshot_value: Custom = CustomMissing()) -> Custom:
 
         from inline_snapshot._global_state import state
 
@@ -105,19 +118,20 @@ class Builder:
             else:
                 result = r
 
-        result.__dict__["original_value"] = original_value
-
+        stored_original_value = original_value
         if not isinstance(v, Custom) and self._build_new_value:
             is_same = False
             v_eval = result._eval()
+            original_eval = self._eval_value(original_value)
 
             if (
                 hasattr(v, "__pydantic_generic_metadata__")
                 and v.__pydantic_generic_metadata__["origin"] == v_eval
             ):
                 is_same = True
+                stored_original_value = v_eval
 
-            if not is_same and v_eval == original_value:
+            if not is_same and v_eval == original_eval:
                 is_same = True
 
             if not is_same:
@@ -130,20 +144,23 @@ customized_value={result._eval()!r}
 customized_representation={result!r}
 """)
 
+        object.__setattr__(result, "original_value", stored_original_value)
         return result
 
-    def _customize(self, value, snapshot_value=CustomMissing()):
+    def _customize(self, value, snapshot_value: Custom = CustomMissing()):
         return self._to_custom(value, snapshot_value)
 
-    def _customize_all(self, value, snapshot_value=CustomMissing()):
-        assert isinstance(value, Custom)
-
+    def _customize_all(self, value, snapshot_value: Custom = CustomMissing()):
         if isinstance(value, Uncustomized):
             value = self._customize(value._value, snapshot_value)
+        elif not isinstance(value, Custom):
+            value = self._customize(value, snapshot_value)
 
         def with_original(new_value: Custom, old_value: Custom) -> Custom:
-            new_value.__dict__["original_value"] = getattr(
-                old_value, "original_value", old_value._eval()
+            object.__setattr__(
+                new_value,
+                "original_value",
+                getattr(old_value, "original_value", old_value._eval()),
             )
             return new_value
 
@@ -172,6 +189,9 @@ customized_representation={result!r}
             )
         elif isinstance(value, CustomDefault):
             return with_original(CustomDefault(self._customize_all(value.value)), value)
+
+        if not hasattr(value, "original_value"):
+            object.__setattr__(value, "original_value", value._eval())
 
         return value
 
@@ -227,7 +247,7 @@ customized_representation={result!r}
         `create_call(MyClass, [arg1, arg2], {'key': value})` becomes `MyClass(arg1, arg2, key=value)` in the code.
         Function, arguments, and keyword arguments don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
-        function = self._get_handler_recursive(function)
+        function = self._customize(function)
         posonly_args = [self._get_handler_recursive(arg) for arg in posonly_args]
         kwargs = {k: self._get_handler_recursive(arg) for k, arg in kwargs.items()}
 

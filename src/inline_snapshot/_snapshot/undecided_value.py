@@ -100,7 +100,13 @@ class ValueToCustom:
             return CustomUndefined()
         else:
             result = Builder(self.context, _recursive=False)._to_custom(value)
-            if isinstance(result, CustomCall) and result.function == type(value):
+            function_value = (
+                result.function._eval()
+                if isinstance(result, CustomCall)
+                and isinstance(result.function, Custom)
+                else None
+            )
+            if isinstance(result, CustomCall) and function_value == type(value):
                 function = self.convert(result.function)
                 posonly_args = [self.convert(arg) for arg in result.args]
                 kwargs = {k: self.convert(arg) for k, arg in result.kwargs.items()}

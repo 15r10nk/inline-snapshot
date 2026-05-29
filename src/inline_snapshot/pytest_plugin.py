@@ -160,8 +160,9 @@ class InlineSnapshotPlugin:
 
         pyproject = find_pyproject(config.rootpath, Path.cwd())
 
-        if config.option.inline_snapshot is not None:
-            cli_flags = config.option.inline_snapshot.split(",")
+        inline_snapshot_option = config.option.inline_snapshot
+        if inline_snapshot_option:
+            cli_flags = inline_snapshot_option.split(",")
             cli_flags = {flag for flag in cli_flags if flag}
         else:
             cli_flags = None
