@@ -149,9 +149,7 @@ class NewAdapter:
         return Builder(_snapshot_context=self.context, **args)
 
     def customize(self, value, snapshot_value: Custom):
-        return self.get_builder(_build_new_value=True, _recursive=False)._customize(
-            value, snapshot_value
-        )
+        return self.get_builder(_build_new_value=True)._customize(value, snapshot_value)
 
     def customize_all(self, value):
         return self.get_builder(_build_new_value=True)._customize_all(value)

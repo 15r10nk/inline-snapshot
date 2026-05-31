@@ -48,13 +48,10 @@ missing = Missing()
 class Builder:
     _snapshot_context: AdapterContext
     _build_new_value: bool = False
-    _recursive: bool = True
 
     def _get_handler_recursive(self, v) -> Custom:
         if isinstance(v, Custom):
             return v
-        if self._recursive:
-            return self._to_custom(v)
         return Uncustomized(v)
 
     def _get_value(self, value):
