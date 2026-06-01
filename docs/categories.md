@@ -80,7 +80,7 @@ def test_something():
     assert 8 == s["key"]
 ```
 
-<!-- inline-snapshot: fix outcome-passed=1 -->
+<!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
 ``` python hl_lines="5 7 9 11"
 from inline_snapshot import snapshot
 

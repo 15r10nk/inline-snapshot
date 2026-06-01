@@ -280,13 +280,15 @@ class SnapshotArgReference(SnapshotRefBase):
             if is_default:
                 return
 
-            new_code = yield from with_flag(self._value._new_code(), "create")
+            flag = "create" if self._default_value is ... else "fix"
+
+            new_code = yield from with_flag(self._value._new_code(), flag)
 
             # The first positional argument can be inserted positionally;
             # any later position requires keyword form to avoid leaving gaps.
             if self._arg_pos == 0:
                 yield CallArg(
-                    flag="create",
+                    flag=flag,
                     file=self._value._file,
                     node=self._context.expr.node,
                     arg_pos=0,
@@ -296,7 +298,7 @@ class SnapshotArgReference(SnapshotRefBase):
             else:
 
                 yield CallArg(
-                    flag="create",
+                    flag=flag,
                     file=self._value._file,
                     node=self._context.expr.node,
                     arg_pos=None,

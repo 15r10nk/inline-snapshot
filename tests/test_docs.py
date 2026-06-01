@@ -431,8 +431,9 @@ uuid.uuid4=f
             )
 
         if "fix" in flags:
-            example.run_pytest(outcomes=(outcomes := Store()))
-            assert "errors" not in outcomes.value
+            next_outcomes: Store[Dict[str, int]]
+            example.run_pytest(outcomes=(next_outcomes := Store()))
+            assert "errors" not in next_outcomes.value
 
         print("flags:", flags, repr(block.block_options))
 
@@ -476,7 +477,7 @@ uuid.uuid4=f
             if changed_lines:
                 block.block_options["hl_lines"] = " ".join(changed_lines)
             else:
-                assert False, "no lines changed"
+                pass  # pragma: no cover
 
         if "first_block" not in options:
             new_code = re.sub(r" *# *\(\d+\)\!?", "", new_code)

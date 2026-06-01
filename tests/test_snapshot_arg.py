@@ -57,7 +57,7 @@ def test_a():
     check_value(4)
     check_value(8,8)
 """).run_inline(
-        ["--inline-snapshot=fix,create,trim"],
+        ["--inline-snapshot=fix,trim"],
         changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot._snapshot_arg import snapshot_arg
 
@@ -84,7 +84,7 @@ def test_a():
     check_value(4)
     check_value(8,expected=8)
 """).run_inline(
-        ["--inline-snapshot=fix,create,trim"],
+        ["--inline-snapshot=fix,trim"],
         changed_files=snapshot({"tests/test_something.py": """\
 from inline_snapshot._snapshot_arg import snapshot_arg
 
