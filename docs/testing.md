@@ -27,7 +27,7 @@ def test_a():
 
 Inline-snapshot will then populate the empty snapshots.
 
-<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot: create fix outcome-passed=1 outcome-errors=1 -->
 ``` python hl_lines="17 18 19 20 21 22 23 24 25 26 27"
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example

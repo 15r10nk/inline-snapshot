@@ -1,4 +1,3 @@
-
 # snapshot_arg(...)
 
 `snapshot_arg` lets you embed snapshot assertions inside a helper function, so callers don't need to pass `snapshot()` at every call site.
@@ -86,10 +85,10 @@ def test_numbers():
 
 2. Asserting this snapshot ensures it gets reset when `expr` stops returning a value.
 
-We are using `None` as the default because we want to omit the argument when its value matches the default. Using `...` would force inline-snapshot to always create it.
-Running with `--inline-snapshot=create` fills in only the arguments whose value differs from the default:
+We are using `None` as the default because we want to omit the argument when its value matches the default.
+Running with `--inline-snapshot=fix` fills in only the arguments whose value differs from the default:
 
-<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
 ``` python hl_lines="17 18"
 from inline_snapshot import snapshot_arg
 
@@ -140,7 +139,7 @@ def test_prints():
 1. New style — no `snapshot()` needed.
 2. Old style — `snapshot()` is now redundant and can be removed.
 
-<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot: create fix outcome-passed=1 outcome-errors=1 -->
 ``` python hl_lines="6 9"
 from inline_snapshot import snapshot
 from inline_snapshot.extra import prints
