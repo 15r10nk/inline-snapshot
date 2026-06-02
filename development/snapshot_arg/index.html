@@ -2025,9 +2025,9 @@ The <code>...</code> acts as a placeholder default, so callers don't need to pas
 <p>Asserting this snapshot ensures it gets reset when <code>expr</code> stops returning a value.</p>
 </li>
 </ol>
-<p>We are using <code>None</code> as the default because we want to omit the argument when its value matches the default. Using <code>...</code> would force inline-snapshot to always create it.
-Running with <code>--inline-snapshot=create</code> fills in only the arguments whose value differs from the default:</p>
-<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+<p>We are using <code>None</code> as the default because we want to omit the argument when its value matches the default.
+Running with <code>--inline-snapshot=fix</code> fills in only the arguments whose value differs from the default:</p>
+<!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot_arg</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
@@ -2071,7 +2071,7 @@ The functions in <code>inline_snapshot.extra</code> now use <code>snapshot_arg()
 <li>New style — no <code>snapshot()</code> needed.</li>
 <li>Old style — <code>snapshot()</code> is now redundant and can be removed.</li>
 </ol>
-<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot: create fix outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.extra</span><span class="w"> </span><span class="kn">import</span> <span class="n">prints</span>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>

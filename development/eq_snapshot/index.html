@@ -2148,7 +2148,7 @@ The value can later be changed with <code>--inline-snapshot=fix</code> if the va
 </span></code></pre></div></p>
 </div>
 <div class="tabbed-block">
-<p><!-- inline-snapshot: fix outcome-passed=1 -->
+<p><!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
@@ -2271,7 +2271,7 @@ Inline-snapshot uses <a href="https://dirty-equals.helpmanual.io/latest/types/da
 </span><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="hll">    <span class="p">)</span>
 </span></code></pre></div>
 <p>Re-running the test with <code>--inline-snapshot=fix</code> will update the snapshot to match the new value of <code>payload</code>, while keeping the <code>date</code> as a dirty-equals expression:</p>
-<!-- inline-snapshot: fix outcome-passed=1 -->
+<!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dirty_equals</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsNow</span>
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
@@ -2353,7 +2353,7 @@ It tells inline-snapshot that the developer wants control over some part of the 
 </code></pre></div></p>
 </div>
 <div class="tabbed-block">
-<p><!-- inline-snapshot: fix outcome-passed=1 -->
+<p><!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">Is</span><span class="p">,</span> <span class="n">snapshot</span>
 <a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
