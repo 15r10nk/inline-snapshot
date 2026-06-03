@@ -126,6 +126,7 @@ class Change:  # ChangeSet
 
 class SourceFile:
     def __init__(self, filename: pathlib.Path):
+        assert filename.is_absolute()
         self.replacements: list[Replacement] = []
         self.filename = filename
         with open(self.filename, "rb") as f:
