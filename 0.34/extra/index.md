@@ -335,9 +335,9 @@ def prints(*, stdout: SnapshotArg[str] = "", stderr: SnapshotArg[str] = ""):
                 print("some error", file=sys.stderr)
         ```
 
-    === "--inline-snapshot=create"
+    === "--inline-snapshot=fix"
 
-        <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
+        <!-- inline-snapshot: fix outcome-passed=1 outcome-errors=1 -->
         ``` python hl_lines="7"
         import sys
         from inline_snapshot import snapshot
@@ -669,7 +669,7 @@ def warns(
 
     === "--inline-snapshot=create"
 
-        <!-- inline-snapshot: create fix outcome-passed=1 -->
+        <!-- inline-snapshot: create fix outcome-passed=1 outcome-errors=1 -->
         ``` python hl_lines="7"
         from warnings import warn
         from inline_snapshot import snapshot
