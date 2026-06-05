@@ -1,4 +1,11 @@
 
+<a id='changelog-0.34.1'></a>
+# 0.34.1 — 2026-06-05
+
+## Fixed
+
+- Fixed `snapshot_arg()` to use the `fix` category (instead of `create`) when creating an argument with an existing non-ellipsis default argument value.
+
 <a id='changelog-0.34.0'></a>
 # 0.34.0 — 2026-05-29
 
