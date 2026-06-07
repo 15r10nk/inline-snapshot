@@ -13,7 +13,6 @@ from inline_snapshot._compare_context import compare_context
 from inline_snapshot._customize._custom_sequence import CustomSequence
 from inline_snapshot._customize._uncustomized import Uncustomized
 from inline_snapshot._exceptions import UsageError
-from inline_snapshot._utils import clone
 
 from ._custom import Custom
 from ._custom_call import CustomCall
@@ -60,35 +59,14 @@ class Builder:
             return value._eval()
         return value
 
-    def _eval_value(self, value):
-        if isinstance(value, Custom):
-            return value._eval()
-        if isinstance(value, list):
-            return [self._eval_value(v) for v in value]
-        if isinstance(value, tuple):
-            return tuple(self._eval_value(v) for v in value)
-        if isinstance(value, dict):
-            return {self._eval_value(k): self._eval_value(v) for k, v in value.items()}
-        if isinstance(value, set):
-            return {self._eval_value(v) for v in value}
-        if isinstance(value, frozenset):
-            return frozenset(self._eval_value(v) for v in value)
-        return value
-
     def _to_custom(self, v, snapshot_value: Custom = CustomMissing()) -> Custom:
-
         from inline_snapshot._global_state import state
 
         if isinstance(v, Uncustomized):
             v = v._value
 
         if isinstance(v, Custom):
-            original_value = v._eval()
-        else:
-            try:
-                original_value = clone(v)
-            except UsageError:
-                original_value = v
+            return v
 
         result = v
 
@@ -99,7 +77,7 @@ class Builder:
                     builder=self,
                     local_vars=self._local_vars,
                     global_vars=self._global_vars,
-                    snapshot_value=snapshot_value,
+                    snapshot_value=snapshot_value._eval(),
                 )
 
             if r is None:
@@ -116,11 +94,11 @@ class Builder:
             else:
                 result = r
 
-        stored_original_value = original_value
+        stored_original_value = v
         if not isinstance(v, Custom) and self._build_new_value:
             is_same = False
             v_eval = result._eval()
-            original_eval = self._eval_value(original_value)
+            assert not isinstance(v_eval, Custom)
 
             if (
                 hasattr(v, "__pydantic_generic_metadata__")
@@ -129,14 +107,14 @@ class Builder:
                 is_same = True
                 stored_original_value = v_eval
 
-            if not is_same and v_eval == original_eval:
+            if not is_same and v_eval == v:
                 is_same = True
 
             if not is_same:
                 raise UsageError(f"""\
 Customized value does not match original value:
 
-original_value={original_value!r}
+original_value={v!r}
 
 customized_value={result._eval()!r}
 customized_representation={result!r}
