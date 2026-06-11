@@ -198,11 +198,24 @@ class NewAdapter:
             )
         ):
             function_name = f"compare_{type(old_value).__name__}"
-            result = yield from getattr(self, function_name)(
-                old_value, old_node, new_value
-            )
+            result_gen = getattr(self, function_name)(old_value, old_node, new_value)
         else:
-            result = yield from self.compare_CustomCode(old_value, old_node, new_value)
+            result_gen = self.compare_CustomCode(old_value, old_node, new_value)
+
+        if (
+            hasattr(new_value, "original_value")
+            and new_value.original_value == old_value._eval()
+        ):
+
+            @make_gen_map
+            def fix_to_update(change):
+                if change.flag == "fix":
+                    change.flag = "update"
+                return change
+
+            result_gen = fix_to_update(result_gen)
+
+        result = yield from result_gen
         return result
 
     def compare_CustomCode(
@@ -491,12 +504,6 @@ class NewAdapter:
 
         flag = "update" if old_value._eval() == new_value.original_value else "fix"
 
-        @make_gen_map
-        def intercept(change):
-            if flag == "update" and change.flag == "fix":
-                change.flag = "update"
-            return change
-
         old_node_args: Sequence[ast.expr | None]
         if old_node:
             old_node_args = old_node.args
@@ -509,7 +516,7 @@ class NewAdapter:
             enumerate(zip(new_args, old_node_args))
         )[:old_args_len]:
             old_value_element = old_value.argument(i)
-            result = yield from intercept(
+            result = yield from (
                 self.compare(old_value_element, node, new_value_element)
             )
             result_args.append(result)
@@ -576,7 +583,7 @@ class NewAdapter:
 
                 # check values with same keys
                 old_value_element = old_value.argument(key)
-                result_kwargs[key] = yield from intercept(
+                result_kwargs[key] = yield from (
                     self.compare(old_value_element, node, new_value_element)
                 )
 
@@ -611,7 +618,7 @@ class NewAdapter:
 
         return CustomCall(
             (
-                yield from intercept(
+                yield from (
                     self.compare(
                         old_value.function,
                         old_node.func if old_node else None,
