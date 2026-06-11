@@ -22,6 +22,9 @@ E       assert 'TESTA' == external("{storage}:")
 E        +  where external("{storage}:") = external('{storage}:')
 """),
         outcomes={"failed": 1, "errors": 1},
+        changed_files={
+            ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n"
+        },
     ).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(

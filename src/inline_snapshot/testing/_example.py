@@ -235,16 +235,21 @@ class Example:
 
     read_text = read_file
 
-    def change_code(self, mapping: Callable[[str], str]) -> Example:
+    def change_code(self, mapping: Callable[[str], str], *, filename=None) -> Example:
         """
-        Changes example tests by mapping every file with the given function.
+        Changes example tests by mapping every file (if filename is None) with the given function.
 
         Arguments:
             mapping: function to apply to each file's content.
+            filename: if given only this file is changed
         """
         return Example(
             {
-                name: mapping(text) if isinstance(text, str) else text
+                name: (
+                    mapping(text)
+                    if isinstance(text, str) and (name == filename or filename is None)
+                    else text
+                )
                 for name, text in self.files.items()
             }
         )
