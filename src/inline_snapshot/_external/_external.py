@@ -27,6 +27,7 @@ def external(name: str | None = None):
 class External(ExternalBase, SnapshotRefBase):
     _original_location: ExternalLocation
     _location: ExternalLocation
+    _context: AdapterContext
 
     def __init__(self, name: str, frame: FrameType):
         """External objects are used to move some data outside the source code.

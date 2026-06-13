@@ -12,7 +12,7 @@ from inline_snapshot._problems import raise_problem
 from inline_snapshot._utils import link
 
 from .._external_location import ExternalLocation
-from .._tracked_files import read_external_source_files
+from .._tracked_files import read_external_source_items
 from ._protocol import StorageLookupError
 from ._protocol import StorageProtocol
 
@@ -21,7 +21,7 @@ from ._protocol import StorageProtocol
 def external_files() -> dict[str, Path]:
     base_folders = set()
 
-    for source_file in read_external_source_files():
+    for source_file in read_external_source_items():
         base_folders.add(source_file.parent / "__inline_snapshot__")
 
     return {

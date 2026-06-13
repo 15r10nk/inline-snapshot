@@ -14,6 +14,7 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
 
+from inline_snapshot._external._external import External
 from inline_snapshot._external._storage import default_storages
 from inline_snapshot._external._tracked_files import read_external_source_files
 from inline_snapshot._external._tracked_files import write_external_source_files
@@ -452,15 +453,12 @@ snapshot.\
             source_files = read_external_source_files()
 
             for snapshot in state().snapshots.values():
-                context = getattr(snapshot, "_context", None)
-                if context is not None:
-                    source_files.add(Path(context.file.filename).resolve())
+                if isinstance(snapshot, External):
+                    source_files.add(Path(snapshot._context.file.filename).resolve())
 
             files_with_external = set()
 
             for file in source_files:
-                if not file.exists():
-                    continue
 
                 with tokenize.open(file) as f:
                     content = f.read()

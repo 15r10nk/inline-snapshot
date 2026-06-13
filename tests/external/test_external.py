@@ -995,7 +995,7 @@ E        +  and   external("uuid:") = external()
         changed_files=snapshot(
             {
                 ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
-                "tests/__inline_snapshot__/test_something/test_example/e3e70682-c209-4cac-a29f-6fbed82c07cd.json": """\
+                "tests/__inline_snapshot__/test_something/test_example/cd613e30-d8f1-4adf-91b7-584a2265b1f5.json": """\
 [
   2,
   5
@@ -1008,7 +1008,7 @@ from inline_snapshot import external
 
 def test_example():
     n=5
-    assert sorted([n, 2]) == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.json")
+    assert sorted([n, 2]) == external("uuid:cd613e30-d8f1-4adf-91b7-584a2265b1f5.json")
 
 
 """,
@@ -1019,7 +1019,7 @@ def test_example():
     ).run_pytest(
         ["--inline-snapshot=report"],
         report=snapshot("""\
-+--------------- uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.json ---------------+
++--------------- uuid:cd613e30-d8f1-4adf-91b7-584a2265b1f5.json ---------------+
 | @@ -1,4 +1,4 @@                                                              |
 |                                                                              |
 |  [                                                                           |

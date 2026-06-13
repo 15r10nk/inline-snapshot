@@ -30,13 +30,13 @@ E        +  where external("{storage}:") = external('{storage}:')
         changed_files=snapshot(
             {
                 "uuid": {
-                    "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "TESTA",
+                    "tests/__inline_snapshot__/test_something/test_a/cd613e30-d8f1-4adf-91b7-584a2265b1f5.txt": "TESTA",
                     "tests/test_something.py": """\
 from inline_snapshot import external
 
 def test_a():
     string="testa".upper()
-    assert string==external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+    assert string==external("uuid:cd613e30-d8f1-4adf-91b7-584a2265b1f5.txt")
 """,
                 },
                 "hash": {
@@ -58,7 +58,7 @@ def test_a():
         changed_files=snapshot(
             {
                 "uuid": {
-                    "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "TESTB"
+                    "tests/__inline_snapshot__/test_something/test_a/cd613e30-d8f1-4adf-91b7-584a2265b1f5.txt": "TESTB"
                 },
                 "hash": {
                     ".inline-snapshot/external/78e8a8fafad325dcf5ba036e127b88ed56131b8daaf6fcd925722bc3dccead72.txt": "TESTB",
@@ -75,7 +75,7 @@ def test_a():
         report=snapshot(
             {
                 "uuid": """\
-+--------------- uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt ----------------+
++--------------- uuid:cd613e30-d8f1-4adf-91b7-584a2265b1f5.txt ----------------+
 | @@ -1 +1 @@                                                                  |
 |                                                                              |
 | -TESTA                                                                       |

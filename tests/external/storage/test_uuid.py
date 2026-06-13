@@ -29,48 +29,58 @@ def test_a():
     ).replace("test_a", "test_b").run_inline()
 
 
-def test_test_dir():
-
-    Example(
-        {
-            "my_tests/test_something.py": """\
+def test_uuid_move_test_file():
+    some_test = """
 from inline_snapshot import external
 
 def test_a():
     assert "a" == external()
-    assert "b" == external()
-""",
-        }
-    ).run_pytest(
+
+"""
+
+    Example({"tests/testa/test_something.py": some_test}).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                ".inline-snapshot/files_using_external.txt": "my_tests/test_something.py\n",
-                "my_tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "a",
-                "my_tests/__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt": "b",
-                "my_tests/test_something.py": """\
+                ".inline-snapshot/files_using_external.txt": "tests/testa/test_something.py\n",
+                "tests/testa/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "a",
+                "tests/testa/test_something.py": """\
+
 from inline_snapshot import external
 
 def test_a():
     assert "a" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
-    assert "b" == external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt")
+
 """,
             }
         ),
-        returncode=snapshot(1),
-        outcomes={"passed": 1, "errors": 1},
-    ).replace(
-        "test_a", "test_b"
-    ).run_pytest().remove_file(
-        "my_tests/__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"
-    ).run_pytest(
-        returncode=snapshot(1),
-        error="""\
->       assert "b" == external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt")
->           raise StorageLookupError(location, files=[])
-E           inline_snapshot._external._storage._protocol.StorageLookupError: uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt
+    ).move_file(
+        "tests/testa/test_something.py", "tests/testb/test_something.py"
+    ).run_inline(
+        changed_files={".inline-snapshot/files_using_external.txt": """\
+tests/testa/__inline_snapshot__
+tests/testb/test_something.py
+"""}
+    ).with_files(
+        {"tests/testa/test_something.py": some_test}
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        reported_categories={"create"},
+        changed_files={
+            ".inline-snapshot/files_using_external.txt": """\
+tests/testa/test_something.py
+tests/testb/test_something.py
 """,
-        outcomes={"failed": 1},
+            "tests/testa/__inline_snapshot__/test_something/test_a/d95bafc8-f2a4-427b-9cf4-bb99f4bea973.txt": "a",
+            "tests/testa/test_something.py": """\
+
+from inline_snapshot import external
+
+def test_a():
+    assert "a" == external("uuid:d95bafc8-f2a4-427b-9cf4-bb99f4bea973.txt")
+
+""",
+        },
     )
 
 

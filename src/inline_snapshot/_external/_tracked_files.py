@@ -13,11 +13,20 @@ def external_files_list_path() -> Path:
 
 
 def external_files_base_dir() -> Path:
-    path = external_files_list_path()
-    return path.parent.parent.resolve()
+    storage_dir = state().config.storage_dir
+    assert storage_dir is not None
+    return storage_dir.parent.resolve()
 
 
 def read_external_source_files() -> set[Path]:
+    return {
+        item
+        for item in read_external_source_items()
+        if item.is_file() and item.exists()
+    }
+
+
+def read_external_source_items() -> set[Path]:
     result: set[Path] = set()
 
     path = external_files_list_path()
@@ -38,9 +47,11 @@ def read_external_source_files() -> set[Path]:
         file = base_dir / file
 
         if not file.exists():
-            continue
-
-        result.add(file.resolve())
+            snapshot_dir = file.parent / "__inline_snapshot__"
+            if snapshot_dir.exists() and snapshot_dir.is_dir():
+                result.add(snapshot_dir.resolve())
+        else:
+            result.add(file.resolve())
 
     return result
 
@@ -57,15 +68,25 @@ def write_external_source_files(files: set[Path]):
 
     base_dir = external_files_base_dir()
 
+    inline_snapshot_folder = {
+        item
+        for item in read_external_source_items()
+        if item.name == "__inline_snapshot__"
+    }
+
+    known_dir_names = {file.parent for file in files}
+    new_dir_names = {
+        folder.parent for folder in inline_snapshot_folder
+    } - known_dir_names
+
+    files = files | {dir / "__inline_snapshot__" for dir in new_dir_names}
+
     def to_text(file: Path) -> str:
         resolved = file.resolve()
         try:
-            return resolved.relative_to(base_dir).as_posix()
+            return Path(os.path.relpath(resolved, base_dir)).as_posix()
         except ValueError:
-            try:
-                return Path(os.path.relpath(resolved, base_dir)).as_posix()
-            except ValueError:
-                return resolved.as_posix()
+            return resolved.as_posix()
 
     with path.open("w", encoding="utf-8", newline="\n") as f:
-        f.write("".join(f"{to_text(file)}\n" for file in sorted(files)))
+        f.write("".join(f"{file}\n" for file in sorted(map(to_text, files))))
