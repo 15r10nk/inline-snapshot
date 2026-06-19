@@ -16,29 +16,29 @@ from inline_snapshot import snapshot,Is
 
 
 def test_dict_report():
-    usd = snapshot({"name": "US Dollar", "code": "USD", "symbol": "$"})
+    usd = snapshot({"code": "USD", "name": "US Dollar",  "symbol": "$"})
     usd2 = Is([1,2])
 
     price = {
         "amount": 1,
+        "b":[1,2],
         "currency": {
             "code": "USD",
             "name": "US Dollar",
             "symbol": "$",
         },
-        "b":[1,2]
     }
 
     assert price == snapshot({
         "amount": 2,
+        "b":usd2,
         "currency": usd,
-        "b":usd2
     })
 """).run_pytest(
         ["--inline-snapshot=report", "-vv"],
         error=snapshot("""\
 >       assert price == snapshot({
-E       AssertionError: assert {'amount': 1, 'currency': {'code': 'USD', 'name': 'US Dollar', 'symbol': '$'}, 'b': [1, 2]} == {'amount': 2, 'currency': {'name': 'US Dollar', 'code': 'USD', 'symbol': '$'}, 'b': [1, 2]}
+E       AssertionError: assert {'amount': 1, 'b': [1, 2], 'currency': {'code': 'USD', 'name': 'US Dollar', 'symbol': '$'}} == {'amount': 2, 'b': [1, 2], 'currency': {'code': 'USD', 'name': 'US Dollar', 'symbol': '$'}}
 E         \n\
 E         Common items:
 E         {'b': [1, 2], 'currency': {'code': 'USD', 'name': 'US Dollar', 'symbol': '$'}}
