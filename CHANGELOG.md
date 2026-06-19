@@ -1,4 +1,11 @@
 
+<a id='changelog-0.34.2'></a>
+# 0.34.2 — 2026-06-19
+
+## Fixed
+
+- Fixed snapshot updates when pytest reuses stale assertion-rewrite cache files after a test folder is moved, which could leave cached code objects pointing at the old source path ([#369](https://github.com/15r10nk/inline-snapshot/issues/369)).
+
 <a id='changelog-0.34.1'></a>
 # 0.34.1 — 2026-06-05
 
