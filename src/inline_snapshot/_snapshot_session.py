@@ -17,6 +17,7 @@ from rich.syntax import Syntax
 from inline_snapshot._external._storage import default_storages
 from inline_snapshot._utils import category_link
 from inline_snapshot._utils import link
+from inline_snapshot.fix_pytest_cache import fix_pytest_cache
 
 from . import _config
 from ._change import ChangeBase
@@ -381,6 +382,7 @@ class SnapshotSession:
     def fix_libraries(self):
         pydantic_fix()
         fix_pytest_diff()
+        fix_pytest_cache()
 
     def show_report(self, con: Console):
 
