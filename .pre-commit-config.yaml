@@ -45,7 +45,7 @@ repos:
   - id: setup-cfg-fmt
 
 - repo: https://github.com/pycqa/isort
-  rev: 9.0.0a2
+  rev: 9.0.0a3
   hooks:
   - id: isort
     name: isort (python)
@@ -59,7 +59,7 @@ repos:
 - hooks:
   - id: black
   repo: https://github.com/psf/black
-  rev: 26.3.1
+  rev: 26.5.1
 - hooks:
   - id: blacken-docs
     args: [-l80]
@@ -80,7 +80,7 @@ repos:
     stages:
     - commit-msg
   repo: https://github.com/commitizen-tools/commitizen
-  rev: v4.13.10
+  rev: v4.16.3
 
 
 # - repo: https://github.com/PyCQA/docformatter
@@ -94,7 +94,7 @@ repos:
   - id: validate-pyproject
 
 - repo: https://github.com/henryiii/validate-pyproject-schema-store
-  rev: 2026.04.21
+  rev: 2026.05.28
   hooks:
   - id: validate-pyproject
 
