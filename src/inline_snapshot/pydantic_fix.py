@@ -1,3 +1,5 @@
+from inline_snapshot.matcher import IsPydanticAttributes
+
 from ._types import SnapshotBase
 
 is_fixed = False
@@ -16,15 +18,14 @@ def pydantic_fix():
 
     import pydantic
 
-    if not pydantic.version.VERSION.startswith("1."):
-        return
+    if pydantic.version.VERSION.startswith("1."):
 
-    origin_eq = BaseModel.__eq__
+        origin_eq = BaseModel.__eq__
 
-    def new_eq(self, other):
-        if isinstance(other, SnapshotBase):  # type: ignore
-            return other == self
-        else:
-            return origin_eq(self, other)
+        def new_eq(self, other):
+            if isinstance(other, (SnapshotBase, IsPydanticAttributes)):  # type: ignore
+                return other == self
+            else:
+                return origin_eq(self, other)
 
-    BaseModel.__eq__ = new_eq
+        BaseModel.__eq__ = new_eq
