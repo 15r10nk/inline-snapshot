@@ -961,19 +961,19 @@ def test_a():
 | -    assert 1==snapshot(5)                                                   |
 | +    assert 1==snapshot(1)                                                   |
 +------------------------------------------------------------------------------+
-Do you want to fix these snapshots? [y/n] (n):\
+These changes are not applied.
+Use --inline-snapshot=fix to apply them, or use the interactive mode with
+--inline-snapshot=review\
 """),
         returncode=snapshot(1),
         stderr=snapshot(""),
-        changed_files=snapshot({"tests/test_something.py": """\
-import pytest
-from inline_snapshot import snapshot
-
-def test_a():
-    assert 1==snapshot(1)
-"""}),
-        stdin=b"y\n",
-        outcomes={"passed": 1, "errors": 1},
+        changed_files=snapshot({}),
+        error="""\
+>       assert 1==snapshot(5)
+E       assert 1 == 5
+E        +  where 5 = snapshot(5)
+""",
+        outcomes={"failed": 1, "errors": 1},
     )
 
 

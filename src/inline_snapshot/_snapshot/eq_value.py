@@ -3,6 +3,7 @@ from typing import Iterator
 from typing import List
 
 from inline_snapshot._customize._custom_undefined import CustomUndefined
+from inline_snapshot._customize._uncustomized import Uncustomized
 from inline_snapshot._generator_utils import split_gen
 from inline_snapshot._new_adapter import NewAdapter
 
@@ -18,7 +19,6 @@ class EqValue(GenericValue):
     _changes: List[Change]
 
     def __eq__(self, other):
-        custom_other = self.to_custom(other, _build_new_value=True)
 
         if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1
@@ -29,14 +29,16 @@ class EqValue(GenericValue):
             adapter = NewAdapter(self._context)
 
             result = split_gen(
-                adapter.compare(self._old_value, self._ast_node, custom_other)
+                adapter.compare(self._old_value, self._ast_node, Uncustomized(other))
             )
             self._changes = result.list
             self._new_value = result.value
 
+        other_eval = self._eval_value(other)
+
         return self._return(
-            self._old_value._eval() == other,
-            self._new_value._eval() == other,
+            self._old_value._eval() == other_eval,
+            self._new_value._eval() == other_eval,
         )
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
