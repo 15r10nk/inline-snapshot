@@ -14,7 +14,10 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
 
+from inline_snapshot._external._external import External
 from inline_snapshot._external._storage import default_storages
+from inline_snapshot._external._tracked_files import read_external_source_files
+from inline_snapshot._external._tracked_files import write_external_source_files
 from inline_snapshot._utils import category_link
 from inline_snapshot._utils import link
 from inline_snapshot.fix_pytest_cache import fix_pytest_cache
@@ -301,10 +304,6 @@ class SnapshotSession:
         if pyproject is not None:
             _config.read_config(pyproject, state().config)
 
-        if state().config.test_directories is None:
-            if (tests_dir := Path.cwd() / "tests").exists() and tests_dir.is_dir():
-                state().config.test_directories = [tests_dir.resolve()]
-
         console = Console()
 
         if is_ci_run():
@@ -430,17 +429,17 @@ class SnapshotSession:
             try:
                 change_list = list(snapshot._changes())
             except Exception as exception:
-                context = ""
+                error_context = ""
                 if _context := getattr(snapshot, "_context", None):
                     frame = _context._frame
-                    context = f"""
+                    error_context = f"""
 file: {frame.f_code.co_filename}
 line: {frame.f_lineno}\
 """
                 raise RuntimeError(f"""
 error during change collection for snapshot ({snapshot})
 snapshot.\
-{context}
+{error_context}
 """) from exception
 
             for change in change_list:
@@ -451,6 +450,25 @@ snapshot.\
                 snapshot_changes[category] += 1
 
         if "short-report" in state().flags:
+            source_files = read_external_source_files()
+
+            for snapshot in state().snapshots.values():
+                if isinstance(snapshot, External):
+                    source_files.add(Path(snapshot._context.file.filename).resolve())
+
+            files_with_external = set()
+
+            for file in source_files:
+
+                with tokenize.open(file) as f:
+                    content = f.read()
+
+                file_usages = used_externals_in(file, content, check_import=True)
+                if file_usages:
+                    files_with_external.add(file.resolve())
+
+            write_external_source_files(files_with_external)
+
             short_report(snapshot_changes, console)
             return
 
@@ -460,37 +478,46 @@ snapshot.\
         apply_all(used_changes, cr)
         changed_files = {Path(f.filename): f for f in cr.files()}
 
-        tests_dir = state().config.test_directories
-        if tests_dir:
-            assert isinstance(tests_dir, list), tests_dir
-            all_files = {
-                file for test_dir in tests_dir for file in test_dir.rglob("*.py")
-            }
+        source_files = read_external_source_files()
+        source_files |= {file for file in changed_files if file.suffix == ".py"}
 
-            used = []
+        for snapshot in state().snapshots.values():
+            context = getattr(snapshot, "_context", None)
+            if context is not None:
+                source_files.add(Path(context.file.filename).resolve())
 
-            for file in all_files:
-                if file in changed_files:
-                    content = changed_files[file].new_code()
-                    check_import = False
-                else:
-                    with tokenize.open(file) as f:
-                        content = f.read()
-                    check_import = True
+        used = []
+        files_with_external = set()
 
-                used += used_externals_in(file, content, check_import=check_import)
+        for file in source_files:
+            if file in changed_files:
+                content = changed_files[file].new_code()
+                check_import = False
+            elif file.exists():
+                with tokenize.open(file) as f:
+                    content = f.read()
+                check_import = True
+            else:
+                continue
 
-            changes = {f: [] for f in Flags.all()}
+            file_usages = used_externals_in(file, content, check_import=check_import)
+            if file_usages:
+                files_with_external.add(file.resolve())
+                used += file_usages
 
-            for name, storage in state().all_storages.items():
-                externals_for_storage = [e for e in used if e.storage == name]
-                for location in storage.find_unused_externals(externals_for_storage):
-                    if state().update_flags.trim:
-                        changes["trim"].append(ExternalRemove("trim", location))
+        changes = {f: [] for f in Flags.all()}
 
-                storage.check_externals(externals_for_storage)
+        for name, storage in state().all_storages.items():
+            externals_for_storage = [e for e in used if e.storage == name]
+            for location in storage.find_unused_externals(externals_for_storage):
+                if state().update_flags.trim:
+                    changes["trim"].append(ExternalRemove("trim", location))
 
-            used_changes += filter_changes(changes, snapshot_changes, console)
+            storage.check_externals(externals_for_storage)
+
+        used_changes += filter_changes(changes, snapshot_changes, console)
+
+        write_external_source_files(files_with_external)
 
         report_problems(console)
 

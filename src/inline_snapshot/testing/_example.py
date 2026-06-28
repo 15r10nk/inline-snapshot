@@ -63,8 +63,8 @@ def normalize(text):
 
 
 @contextmanager
-def deterministic_uuid():
-    rd = random.Random(0)
+def deterministic_uuid(seed=0):
+    rd = random.Random(seed)
 
     def f():
         return uuid.UUID(int=rd.getrandbits(128), version=4)
@@ -97,19 +97,6 @@ def parse_outcomes(lines):
         "error": "errors",
     }
     return {to_plural.get(k, k): v for k, v in ret.items()}
-
-
-conftest_footer = """
-import uuid
-import random
-
-rd = random.Random(0)
-
-def f():
-    return uuid.UUID(int=rd.getrandbits(128), version=4)
-
-uuid.uuid4 = f
-"""
 
 
 @contextmanager
@@ -165,6 +152,7 @@ class TestingException(Exception):
 
 class Example:
     files: dict[str, str | bytes]
+    seed: int
 
     def __init__(self, files: str | bytes | dict[str, str | bytes]):
         """
@@ -176,6 +164,16 @@ class Example:
             files = {"tests/test_something.py": files}
 
         self.files = files
+        self.seed = 0
+
+    def _new_example(self, files: dict[str, str | bytes]) -> Example:
+        e = Example(files)
+        e.seed = self.seed
+        return e
+
+    def _next_seed(self):
+        self.seed += 1
+        return self
 
     def dump_files(self):
 
@@ -191,6 +189,19 @@ class Example:
             if isinstance(content, str):
                 content = content.encode("utf-8")
             filename.write_bytes(content)
+
+    def conftest_footer(self):
+        return f"""
+import uuid
+import random
+
+rd = random.Random({self.seed})
+
+def f():
+    return uuid.UUID(int=rd.getrandbits(128), version=4)
+
+uuid.uuid4 = f
+"""
 
     def _read_files(self, dir: Path):
 
@@ -220,7 +231,7 @@ class Example:
         Arguments:
             extra_files: dictionary of filenames and file contents.
         """
-        return Example({**self.files, **extra_files})
+        return self._new_example({**self.files, **extra_files})
 
     def read_file(self, filename: str) -> str:
         """
@@ -235,16 +246,23 @@ class Example:
 
     read_text = read_file
 
-    def change_code(self, mapping: Callable[[str], str]) -> Example:
+    def change_code(
+        self, mapping: Callable[[str], str], *, filename: str | None = None
+    ) -> Example:
         """
-        Changes example tests by mapping every file with the given function.
+        Changes example tests by mapping every file (if filename is None) with the given function.
 
         Arguments:
             mapping: function to apply to each file's content.
+            filename: if given only this file is changed
         """
-        return Example(
+        return self._new_example(
             {
-                name: mapping(text) if isinstance(text, str) else text
+                name: (
+                    mapping(text)
+                    if isinstance(text, str) and (name == filename or filename is None)
+                    else text
+                )
                 for name, text in self.files.items()
             }
         )
@@ -266,8 +284,23 @@ class Example:
         Arguments:
             filename: the file to be removed.
         """
-        return Example(
+        return self._new_example(
             {name: file for name, file in self.files.items() if name != filename}
+        )
+
+    def move_file(self, old_filename: str, new_filename: str) -> Example:
+        """
+        Moves a file in the example.
+
+        Arguments:
+            old_filename: the file to be moved.
+            new_filename: the new location of the file.
+        """
+        return self._new_example(
+            {
+                (new_filename if name == old_filename else name): file
+                for name, file in self.files.items()
+            }
         )
 
     def format(self, filename: str = "tests/test_something.py") -> Example:
@@ -289,7 +322,7 @@ class Example:
             file_path = tmp_path / filename
             formatted = format_code(content, file_path)
 
-        return Example({**self.files, filename: formatted})
+        return self._new_example({**self.files, filename: formatted})
 
     def is_formatted(self, filename: str = "tests/test_something.py") -> bool:
         """
@@ -369,7 +402,7 @@ class Example:
             raised_exception = []
 
             with ExitStack() as stack:
-                stack.enter_context(deterministic_uuid())
+                stack.enter_context(deterministic_uuid(self.seed))
                 stack.enter_context(chdir(tmp_path))
                 stack.enter_context(temp_environ(TERM="unknown"))
 
@@ -511,7 +544,7 @@ class Example:
             if report is not None:
                 assert report == normalize(report_output.getvalue())
 
-            return Example(self._read_files(tmp_path))
+            return self._new_example(self._read_files(tmp_path))._next_seed()
 
     def _changed_files(self, tmp_path):
         current_files = {}
@@ -583,7 +616,7 @@ class Example:
             command_env.update(env)
 
             with change_file(
-                tmp_path / "conftest.py", lambda text: text + conftest_footer
+                tmp_path / "conftest.py", lambda text: text + self.conftest_footer()
             ):
                 result = sp.run(
                     cmd, cwd=tmp_path, capture_output=True, env=command_env, input=stdin
@@ -658,4 +691,4 @@ class Example:
 
             assert snapshot_arg(outcomes) == parse_outcomes(result_stdout.splitlines())
 
-            return Example(self._read_files(tmp_path))
+            return self._new_example(self._read_files(tmp_path))._next_seed()

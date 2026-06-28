@@ -73,6 +73,7 @@ def test_external():
 """).run_inline(
         ["--inline-snapshot=create"],
         changed_files={
+            ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
             "tests/__inline_snapshot__/test_something/test_external/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "5",
             "tests/test_something.py": """\
 from inline_snapshot import external,snapshot,get_snapshot_value
@@ -232,5 +233,5 @@ def test_dataclass(try_snapshot_disable):
 
 def test_error_message():
     s = snapshot(0)
-    with raises("UsageError: which must be 'old' or 'new'"):
+    with raises(snapshot("UsageError: which must be 'old' or 'new'")):
         get_snapshot_value(s, "wrong")

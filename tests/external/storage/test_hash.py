@@ -21,6 +21,7 @@ default-storage="hash"
         changed_files=snapshot(
             {
                 ".inline-snapshot/external/ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb.txt": "a",
+                ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
                 "tests/test_something.py": """\
 from inline_snapshot import external
 def test_a():
@@ -44,6 +45,7 @@ def test_a():
         changed_files=snapshot(
             {
                 ".inline-snapshot/external/ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb.txt": "a",
+                ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
                 "tests/test_something.py": """\
 from inline_snapshot import external
 def test_a():

@@ -50,6 +50,7 @@ def test_a():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
+                ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
                 "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "test",
                 "tests/__inline_snapshot__/test_something/test_a/eb1167b3-67a9-4378-bc65-c1e582e2e662.bin": "test",
                 "tests/__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.log": "test",
@@ -105,6 +106,7 @@ def test_a():
                     ".inline-snapshot/external/a140c0c1eda2def2b830363ba362aa4d7d255c262960544821f556e16661b6ff.txt": "test5",
                     ".inline-snapshot/external/a4e624d686e03ed2767c0abd85c14426b0b1157d2ce81d27bb4fe4f6f01d688a.txt": "test4",
                     ".inline-snapshot/external/ed0cb90bdfa4f93981a7d03cff99213a86aa96a6cbcf89ec5e8889871f088727.txt": "test6",
+                    ".inline-snapshot/files_using_external.txt": "tests/test_a.py\n",
                     "tests/test_a.py": """\
 
 from inline_snapshot import outsource,snapshot,external
@@ -158,6 +160,7 @@ def test_something():
             changed_files=snapshot(
                 {
                     ".inline-snapshot/external/2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.txt": "foo",
+                    ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
                     "tests/test_something.py": """\
 from inline_snapshot import outsource,snapshot
 
@@ -207,6 +210,7 @@ E       AssertionError: assert Outsourced(data='test2', suffix=None, storage=Non
 E        +  where Outsourced(data='test2', suffix=None, storage=None) = outsource('test2')
 """,
         changed_files={
+            ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
             "tests/__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt": "test",
             "tests/test_something.py": """\
 from inline_snapshot import external, snapshot, outsource
@@ -260,6 +264,7 @@ E       AssertionError
         ),
         returncode=1,
         changed_files={
+            ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
             "tests/__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.bin": "test",
             "tests/test_something.py": """\
 from inline_snapshot import external, snapshot, outsource
@@ -286,6 +291,7 @@ def test_a():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
+                ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
                 "tests/__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt": "test",
                 "tests/test_something.py": """\
 from inline_snapshot import external, snapshot, outsource
@@ -326,6 +332,7 @@ def test_a():
                 {
                     ".inline-snapshot/external/60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c752.txt": "test2",
                     ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt": "test",
+                    ".inline-snapshot/files_using_external.txt": "tests/test_a.py\n",
                     "tests/test_a.py": """\
 from inline_snapshot import outsource, snapshot
 
@@ -383,6 +390,7 @@ def test_a():
         changed_files=snapshot(
             {
                 ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt": "test",
+                ".inline-snapshot/files_using_external.txt": "tests/test_a.py\n",
                 "tests/test_a.py": """\
 from inline_snapshot import outsource, snapshot
 
@@ -418,6 +426,7 @@ def test_a():
         changed_files=snapshot(
             {
                 ".inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt": "test",
+                ".inline-snapshot/files_using_external.txt": "tests/test_a.py\n",
                 "tests/test_a.py": """\
 from inline_snapshot import outsource, snapshot
 
@@ -479,6 +488,44 @@ def test_uses_external():
     ) == snapshot([])
 
 
+def test_read_external_source_files_ignores_special_lines():
+    Example(
+        {
+            "tests/test_something.py": """\
+from inline_snapshot import external
+
+def test_invalid_external_source_files():
+    assert "hello" == external()
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files={
+            ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
+            "tests/__inline_snapshot__/test_something/test_invalid_external_source_files/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "hello",
+            "tests/test_something.py": """\
+from inline_snapshot import external
+
+def test_invalid_external_source_files():
+    assert "hello" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+""",
+        },
+    ).change_code(
+        lambda s: """
+>>>>>> start
+====== blub
+<<<<<< bar
+# comment
+file_does_not_exist.py
+""" + s,
+        filename=".inline-snapshot/files_using_external.txt",
+    ).run_inline(
+        changed_files={
+            ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n"
+        }
+    )
+
+
 def test_no_imports():
     Example("""\
 def test_something():
@@ -489,6 +536,7 @@ def test_something():
         outcomes=snapshot({"passed": 1, "errors": 1}),
         changed_files=snapshot(
             {
+                ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
                 "tests/__inline_snapshot__/test_something/test_something/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt": "test",
                 "tests/test_something.py": """\
 
@@ -578,6 +626,7 @@ def test_something():
         changed_files=snapshot(
             {
                 ".inline-snapshot/external/2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae.txt": "foo",
+                ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
                 "tests/test_something.py": """\
 from inline_snapshot import outsource, snapshot
 
@@ -611,6 +660,7 @@ def test_a():
         ["--inline-snapshot=create"],
         returncode=1,
         changed_files={
+            ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
             "tests/__inline_snapshot__/test_something/test_a/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt": "testabc",
             "tests/test_something.py": """\
 from inline_snapshot import snapshot,outsource
@@ -650,6 +700,7 @@ def test_something():
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
+                ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
                 "tests/__inline_snapshot__/test_something/test_something/eb1167b3-67a9-4378-bc65-c1e582e2e662.txt": "foo",
                 "tests/__inline_snapshot__/test_something/test_something/f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt": "foo",
                 "tests/test_something.py": """\
@@ -713,6 +764,7 @@ These changes will be applied, because you used create\
 """),
         returncode=1,
         changed_files={
+            ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
             "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": """\
 0
 1
@@ -771,6 +823,7 @@ E       inline_snapshot._exceptions.UsageError: you cannot compare external(...)
 """),
         returncode=1,
         changed_files={
+            ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
             "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.json": '"hi"',
             "tests/test_something.py": """\
 
@@ -799,6 +852,7 @@ E       inline_snapshot._exceptions.UsageError: you cannot compare external(...)
 """),
         returncode=1,
         changed_files={
+            ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
             "tests/__inline_snapshot__/test_something/test_a/e3e70682-c209-4cac-a29f-6fbed82c07cd.json": '"hi"',
             "tests/test_something.py": """\
 
@@ -828,6 +882,9 @@ E           inline_snapshot._exceptions.UsageError: No format handler found for 
 """),
         returncode=1,
         outcomes={"failed": 1},
+        changed_files={
+            ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n"
+        },
     )
 
 
@@ -848,6 +905,9 @@ E           inline_snapshot._exceptions.UsageError: No format handler found for 
 """),
         returncode=1,
         outcomes={"failed": 1},
+        changed_files={
+            ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n"
+        },
     )
 
 
@@ -934,7 +994,8 @@ E        +  and   external("uuid:") = external()
         ["--inline-snapshot=create"],
         changed_files=snapshot(
             {
-                "tests/__inline_snapshot__/test_something/test_example/e3e70682-c209-4cac-a29f-6fbed82c07cd.json": """\
+                ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
+                "tests/__inline_snapshot__/test_something/test_example/cd613e30-d8f1-4adf-91b7-584a2265b1f5.json": """\
 [
   2,
   5
@@ -947,7 +1008,7 @@ from inline_snapshot import external
 
 def test_example():
     n=5
-    assert sorted([n, 2]) == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.json")
+    assert sorted([n, 2]) == external("uuid:cd613e30-d8f1-4adf-91b7-584a2265b1f5.json")
 
 
 """,
@@ -958,7 +1019,7 @@ def test_example():
     ).run_pytest(
         ["--inline-snapshot=report"],
         report=snapshot("""\
-+--------------- uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.json ---------------+
++--------------- uuid:cd613e30-d8f1-4adf-91b7-584a2265b1f5.json ---------------+
 | @@ -1,4 +1,4 @@                                                              |
 |                                                                              |
 |  [                                                                           |
@@ -973,20 +1034,4 @@ Use --inline-snapshot=fix to apply them, or use the interactive mode with
 """),
         returncode=snapshot(1),
         outcomes={"passed": 1, "errors": 1},
-    )
-
-
-def test_uses_external_outside_testdir():
-    Example({"test_a.py": """\
-from inline_snapshot import external
-
-def test_a():
-    assert "a" == external()
-"""}).run_inline(
-        ["--inline-snapshot=create"],
-        changed_files=snapshot({}),
-        raises=snapshot(
-            "UsageError: external() can only be used in files which are inside tests/ or any other folder defined by your tool.inline-snapshot.test-dir in pyproject.toml"
-        ),
-        reported_categories=set(),
     )

@@ -12,22 +12,22 @@ from inline_snapshot._problems import raise_problem
 from inline_snapshot._utils import link
 
 from .._external_location import ExternalLocation
+from .._tracked_files import read_external_source_items
 from ._protocol import StorageLookupError
 from ._protocol import StorageProtocol
 
 
 @state_cached
 def external_files() -> dict[str, Path]:
-    from inline_snapshot._global_state import state
-
     base_folders = set()
 
-    for test_dir in state().config.test_directories or []:
-        base_folders |= set(test_dir.rglob("__inline_snapshot__"))
+    for source_file in read_external_source_items():
+        base_folders.add(source_file.parent / "__inline_snapshot__")
 
     return {
         file.name: file
         for folder in base_folders
+        if folder.exists()
         for file in folder.rglob("????????-????-????-????-????????????.*")
     }
 

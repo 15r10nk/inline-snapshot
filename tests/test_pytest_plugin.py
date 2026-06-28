@@ -591,13 +591,18 @@ def test_sub_snapshot():
 """).run_pytest(
         ["--inline-snapshot=fix"],
         outcomes=snapshot({"passed": 1, "errors": 1}),
-        changed_files=snapshot({"tests/test_something.py": """\
+        changed_files=snapshot(
+            {
+                ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
+                "tests/test_something.py": """\
 from inline_snapshot import external, snapshot
 
 def test_sub_snapshot():
     external("hash:123*.png")
     assert 1==snapshot(1)
-"""}),
+""",
+            }
+        ),
         returncode=1,
     )
 
@@ -759,7 +764,10 @@ def test_a():
     )
 
     e.run_inline(
-        ["--inline-snapshot=creaigflen"], stderr=error, reported_categories=set()
+        ["--inline-snapshot=creaigflen"],
+        stderr=error,
+        reported_categories=set(),
+        raises="AssertionError",
     )
 
 
@@ -802,6 +810,9 @@ def test_outsource():
 """),
                 "tests/snapshots/external/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824.txt": (
                     external_value if relative else None
+                ),
+                "tests/snapshots/files_using_external.txt": (
+                    "test_a.py\n" if relative else None
                 ),
             }
         ),
@@ -851,6 +862,7 @@ def test_something():
         changed_files=snapshot(
             {
                 "project/.inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt": "test",
+                "project/.inline-snapshot/files_using_external.txt": "test_something.py\n",
                 "project/test_something.py": """\
 from inline_snapshot import outsource,snapshot,external
 
@@ -886,6 +898,7 @@ def test_something():
         changed_files=snapshot(
             {
                 "sub_project/.inline-snapshot/external/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.txt": "test",
+                "sub_project/.inline-snapshot/files_using_external.txt": "test_something.py\n",
                 "sub_project/test_something.py": """\
 from inline_snapshot import outsource,snapshot,external
 
