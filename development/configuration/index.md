@@ -30,7 +30,7 @@ Changing these flags will disable pytest assert rewriting for older python versi
 
 - **hash-length:** specifies the length of the hash used by `external()` in the code representation. This does not affect the hash length used to store the data. The hash should be long enough to avoid hash collisions.
 
-- **default-flags:** defines which flags should be used if there are no flags specified with `--inline-snapshot=...` and *default-flags-ide* or *default-flags-tui* are note used. You can also use the environment variable `INLINE_SNAPSHOT_DEFAULT_FLAGS=...` to specify the flags and to override those in the configuration file.
+- **default-flags:** defines which flags should be used if there are no flags specified with `--inline-snapshot=...` and *default-flags-ide* or *default-flags-tui* are not used. You can also use the environment variable `INLINE_SNAPSHOT_DEFAULT_FLAGS=...` to specify the flags and to override those in the configuration file.
 
 - **default-flags-tui:** defines which flags should be used if you run pytest in an interactive terminal. inline-snapshot creates all snapshots by default in this case and asks when there are values to change. This feature requires *cpython>=3.11*
 
