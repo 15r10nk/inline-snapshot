@@ -2,6 +2,7 @@ import ast
 import sys
 from dataclasses import dataclass
 from functools import cached_property
+from pathlib import Path
 from types import FrameType
 from typing import cast
 
@@ -22,6 +23,13 @@ class AdapterContext:
 
     def __init__(self, frame: FrameType):
         self._frame = frame
+        filename = frame.f_code.co_filename
+        if not filename.startswith("<"):
+            filepath = Path(filename)
+            assert (
+                filepath.is_absolute()
+            ), f"{frame!r} has a relative filename {filepath}"
+            assert filepath.exists(), f"{frame!r} has a non existing file {filepath}"
 
     @cached_property
     def expr(self):

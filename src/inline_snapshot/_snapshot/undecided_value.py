@@ -25,7 +25,7 @@ from .generic_value import GenericValue
 class AstToCustom:
     context: AdapterContext
 
-    def __init__(self, context):
+    def __init__(self, context: AdapterContext):
         self.eval = context.eval
         self.context = context
 

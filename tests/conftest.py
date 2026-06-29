@@ -44,9 +44,10 @@ def check_update(
 show-updates=true""",
             "test_a.py": f"""\
 from inline_snapshot import snapshot,outsource
+from pathlib import Path
 
 def test_a():
-    exec(compile(open("source_code.py").read(),"source_code.py","exec"))
+    exec(compile(open("source_code.py").read(),str(Path("source_code.py").resolve()),"exec"))
 """,
             "source_code.py": source_code,
         }

@@ -181,7 +181,7 @@ class CallArg(Change):
 TokenRange = Tuple[Token, Token]
 
 
-def brace_tokens(source, node) -> TokenRange:
+def brace_tokens(source: SourceFile, node: ast.AST) -> TokenRange:
     first_token, *_, end_token = source.asttokens().get_tokens(node)
     return first_token, end_token
 
