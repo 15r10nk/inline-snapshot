@@ -1,4 +1,7 @@
 from inline_snapshot import snapshot
+from inline_snapshot._config import Config
+from inline_snapshot._config import read_config
+from inline_snapshot._exceptions import UsageError
 from inline_snapshot.testing import Example
 
 file_to_trim = {
@@ -123,3 +126,52 @@ default-storage="incorrect"
         returncode=snapshot(4),
         outcomes={},
     )
+
+
+def test_test_dir_config(tmp_path):
+    (tmp_path / "tests_a").mkdir()
+    (tmp_path / "tests_b").mkdir()
+    pyproject = tmp_path / "pyproject.toml"
+
+    pyproject.write_text(
+        """\
+[tool.inline-snapshot]
+test-dir = "tests_a"
+""",
+        encoding="utf-8",
+    )
+
+    assert read_config(pyproject, Config()).test_directories == [tmp_path / "tests_a"]
+
+    pyproject.write_text(
+        """\
+[tool.inline-snapshot]
+test-dir = ["tests_a", "tests_b"]
+""",
+        encoding="utf-8",
+    )
+
+    assert read_config(pyproject, Config()).test_directories == [
+        tmp_path / "tests_a",
+        tmp_path / "tests_b",
+    ]
+
+
+def test_incorrect_test_dir(tmp_path):
+    pyproject = tmp_path / "pyproject.toml"
+    pyproject.write_text(
+        """\
+[tool.inline-snapshot]
+test-dir = 1
+""",
+        encoding="utf-8",
+    )
+
+    try:
+        read_config(pyproject, Config())
+    except UsageError as e:
+        assert str(e) == snapshot(
+            "test-dir has to be a directory or list of directories"
+        )
+    else:
+        assert False
