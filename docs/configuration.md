@@ -55,7 +55,7 @@ fix=["create","fix"]
     By default, it will be `<pytest_config_dir>/.inline-snapshot`,
     where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
     External snapshots will be stored in the `external` subfolder of the storage directory.
-    Source files that use `external()` are tracked in `external_files.txt` in this directory.
+    Source files that use `external()` are tracked in `files_using_external.txt` in this directory.
 * **format-command:[](){#format-command}** allows you to specify a custom command which is used to format the python code after code is changed.
 
     === "ruff format"

@@ -43,7 +43,6 @@ def read_external_source_items() -> set[Path]:
             continue
 
         file = Path(line)
-        assert not file.is_absolute(), file
         file = base_dir / file
 
         if not file.exists():

@@ -1,6 +1,11 @@
 import ast
+import re
 import sys
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
+
+from dirty_equals import IsStr
 
 from inline_snapshot import external
 from inline_snapshot import outsource
@@ -523,6 +528,76 @@ file_does_not_exist.py
         changed_files={
             ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n"
         }
+    )
+
+
+def test_write_external_source_files_falls_back_to_absolute_path():
+    def relpath_raises(path, start):
+        raise ValueError
+
+    Example(
+        {
+            "tests/test_something.py": """\
+from inline_snapshot import external
+
+def test_x():
+    assert "hello" == external()
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        context_managers=[
+            patch(
+                "inline_snapshot._external._tracked_files.os",
+                SimpleNamespace(path=SimpleNamespace(relpath=relpath_raises)),
+            )
+        ],
+        changed_files={
+            ".inline-snapshot/files_using_external.txt": IsStr(
+                regex=r".*/tests/test_something\.py\n"
+            ),
+            "tests/__inline_snapshot__/test_something/test_x/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "hello",
+            "tests/test_something.py": """\
+from inline_snapshot import external
+
+def test_x():
+    assert "hello" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+""",
+        },
+    )
+
+
+def test_remove_external():
+    Example(
+        {
+            "tests/test_something.py": """\
+from inline_snapshot import external
+
+def test_x():
+    assert "hello" == external()
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files={
+            ".inline-snapshot/files_using_external.txt": "tests/test_something.py\n",
+            "tests/__inline_snapshot__/test_something/test_x/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": "hello",
+            "tests/test_something.py": """\
+from inline_snapshot import external
+
+def test_x():
+    assert "hello" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+""",
+        },
+    ).change_code(
+        lambda code: re.sub("assert.*external(.*)", "pass", code)
+    ).run_inline(
+        ["--inline-snapshot=trim"],
+        reported_categories=set(),
+        changed_files={
+            ".inline-snapshot/files_using_external.txt": None,
+            "tests/__inline_snapshot__/test_something/test_x/e3e70682-c209-4cac-a29f-6fbed82c07cd.txt": None,
+        },
     )
 
 

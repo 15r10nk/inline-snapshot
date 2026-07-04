@@ -493,12 +493,11 @@ snapshot.\
             if file in changed_files:
                 content = changed_files[file].new_code()
                 check_import = False
-            elif file.exists():
+            else:
+                assert file.exists()
                 with tokenize.open(file) as f:
                     content = f.read()
                 check_import = True
-            else:
-                continue
 
             file_usages = used_externals_in(file, content, check_import=check_import)
             if file_usages:
