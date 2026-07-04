@@ -55,6 +55,7 @@ fix=["create","fix"]
     By default, it will be `<pytest_config_dir>/.inline-snapshot`,
     where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
     External snapshots will be stored in the `external` subfolder of the storage directory.
+    Source files that use `external()` are tracked in `files_using_external.txt` in this directory.
 * **format-command:[](){#format-command}** allows you to specify a custom command which is used to format the python code after code is changed.
 
     === "ruff format"
@@ -92,6 +93,6 @@ fix=["create","fix"]
 * **test-dir:**[](){#test-dir} can be used to define where your tests are located.
     The default is `<pytest_config_dir>/tests` if it exists,
     where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
-    This directory is used to search through all test files for `external()` calls and to check whether the currently saved external objects are still used in the source.
-    It is therefore required if you want to *trim* unused externals.
+    This setting is only used as a compatibility fallback to discover existing `external()` calls when `files_using_external.txt` does not exist yet.
+    Once that file exists, inline-snapshot uses the tracked file list and ignores `test-dir`.
     You can also specify a list of folders.
