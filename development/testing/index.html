@@ -1836,6 +1836,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#inline_snapshot.testing.Example.move_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;move_file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#inline_snapshot.testing.Example.read_file" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2041,6 +2052,17 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;is_formatted
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline_snapshot.testing.Example.move_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;move_file
       
     </span>
   </a>
@@ -2398,14 +2420,14 @@ This means that you can create an <code>Example</code> and call the <code>run_*<
 
 
 <h4 id="inline_snapshot.testing.Example.change_code" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">change_code</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">change_code</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#inline_snapshot.testing.Example.change_code" class="headerlink" title="Permanent link">&para;</a></h4>
 
 
     <div class="doc doc-contents ">
 
-        <p>Changes example tests by mapping every file with the given function.</p>
+        <p>Changes example tests by mapping every file (if filename is None) with the given function.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -2433,6 +2455,22 @@ This means that you can create an <code>Example</code> and call the <code>run_*<
             </td>
             <td>
                 <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>filename</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if given, only this file is changed</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
             </td>
           </tr>
       </tbody>
@@ -2531,6 +2569,71 @@ This means that you can create an <code>Example</code> and call the <code>run_*<
             </td>
             <td>
                   <code>&#39;tests/test_something.py&#39;</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="inline_snapshot.testing.Example.move_file" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">move_file</span><span class="p">(</span><span class="n">old_filename</span><span class="p">,</span> <span class="n">new_filename</span><span class="p">)</span></code>
+
+<a href="#inline_snapshot.testing.Example.move_file" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Moves a file in the example.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>old_filename</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>the file to be moved.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>new_filename</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>the new location of the file.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
             </td>
           </tr>
       </tbody>

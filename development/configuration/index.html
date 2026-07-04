@@ -1864,7 +1864,8 @@
 <p><strong>storage-dir:</strong> allows you to define the directory where inline-snapshot stores data files such as external snapshots stored with the <code>hash:</code> protocol.
     By default, it will be <code>&lt;pytest_config_dir&gt;/.inline-snapshot</code>,
     where <code>&lt;pytest_config_dir&gt;</code> is replaced by the directory containing the Pytest configuration file, if any.
-    External snapshots will be stored in the <code>external</code> subfolder of the storage directory.</p>
+    External snapshots will be stored in the <code>external</code> subfolder of the storage directory.
+    Source files that use <code>external()</code> are tracked in <code>files_using_external.txt</code> in this directory.</p>
 </li>
 <li>
 <p><strong>format-command:<a href="" id="format-command"></a></strong> allows you to specify a custom command which is used to format the python code after code is changed.</p>
@@ -1908,8 +1909,8 @@
 <p><strong>test-dir:</strong><a href="" id="test-dir"></a> can be used to define where your tests are located.
     The default is <code>&lt;pytest_config_dir&gt;/tests</code> if it exists,
     where <code>&lt;pytest_config_dir&gt;</code> is replaced by the directory containing the Pytest configuration file, if any.
-    This directory is used to search through all test files for <code>external()</code> calls and to check whether the currently saved external objects are still used in the source.
-    It is therefore required if you want to <em>trim</em> unused externals.
+    This setting is only used as a compatibility fallback to discover existing <code>external()</code> calls when <code>files_using_external.txt</code> does not exist yet.
+    Once that file exists, inline-snapshot uses the tracked file list and ignores <code>test-dir</code>.
     You can also specify a list of folders.</p>
 </li>
 </ul>

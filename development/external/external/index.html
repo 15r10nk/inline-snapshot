@@ -1326,6 +1326,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#cleaning-up-old-externals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cleaning up old externals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#pytest-options" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1947,6 +1958,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#cleaning-up-old-externals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cleaning up old externals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#pytest-options" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2174,6 +2196,10 @@ You must specify the suffix in this case.</p>
 <p class="admonition-title">Breaking Change</p>
 <p><code>register_format_alias()</code> is required if you used <code>outsource(value, suffix="html")</code> and are migrating from inline-snapshot prior to version 0.24.</p>
 </div>
+<h2 id="cleaning-up-old-externals">Cleaning up old externals<a class="headerlink" href="#cleaning-up-old-externals" title="Permanent link">&para;</a></h2>
+<p>inline-snapshot tracks the use of <code>external()</code> in your codebase and will <em>trim</em> and remove unused external files when you delete the <code>external(...)</code> in your code.</p>
+<p>It does this by storing a list of files that use <code>external()</code> in <code>.inline-snapshot/files_using_external.txt</code>. It is recommended to put this file into version control. It is robust against merge conflicts and incorrect file names.</p>
+<p>If this file does not exist yet, inline-snapshot falls back to scanning <a href="../../configuration/#test-dir"><code>test-dir</code></a> to discover existing external snapshots and writes the tracked file list for future runs.</p>
 <h2 id="pytest-options">pytest Options<a class="headerlink" href="#pytest-options" title="Permanent link">&para;</a></h2>
 <p>It interacts with the following <code>--inline-snapshot</code> flags:</p>
 <ul>

@@ -179,6 +179,14 @@ Breaking Change
 
 `register_format_alias()` is required if you used `outsource(value, suffix="html")` and are migrating from inline-snapshot prior to version 0.24.
 
+## Cleaning up old externals
+
+inline-snapshot tracks the use of `external()` in your codebase and will *trim* and remove unused external files when you delete the `external(...)` in your code.
+
+It does this by storing a list of files that use `external()` in `.inline-snapshot/files_using_external.txt`. It is recommended to put this file into version control. It is robust against merge conflicts and incorrect file names.
+
+If this file does not exist yet, inline-snapshot falls back to scanning [`test-dir`](https://15r10nk.github.io/inline-snapshot/development/configuration/#test-dir) to discover existing external snapshots and writes the tracked file list for future runs.
+
 ## pytest Options
 
 It interacts with the following `--inline-snapshot` flags:
