@@ -254,7 +254,7 @@ uuid.uuid4 = f
 
         Arguments:
             mapping: function to apply to each file's content.
-            filename: if given only this file is changed
+            filename: if given, only this file is changed
         """
         return self._new_example(
             {
