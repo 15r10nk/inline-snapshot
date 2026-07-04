@@ -570,9 +570,11 @@ uuid.uuid4 = f
         report: Snapshot[str] | None = None,
         error: SnapshotArg[str] = "",
         stderr: SnapshotArg[str] = "",
+        stdout: SnapshotArg[str] | None = None,
         returncode: SnapshotArg[int] = 0,
         stdin: bytes = b"",
         outcomes: SnapshotArg[dict[str, int]] = {"passed": 1},
+        ansi: bool = False,
     ) -> Example:
         """Run pytest with the given args and environment variables in a separate
         process.
@@ -598,16 +600,25 @@ uuid.uuid4 = f
 
             self._write_files(tmp_path)
 
-            cmd = [sys.executable, "-m", "pytest", "-p", "no:randomly", *args]
+            pytest_args = list(args)
+            if ansi and not any(
+                arg == "--color" or arg.startswith("--color=") for arg in pytest_args
+            ):
+                pytest_args = ["--color=yes", *pytest_args]
+
+            cmd = [sys.executable, "-m", "pytest", "-p", "no:randomly", *pytest_args]
 
             command_env = dict(os.environ)
-            command_env["TERM"] = "unknown"
+            command_env["TERM"] = "xterm-256color" if ansi else "unknown"
             command_env["COLUMNS"] = str(
                 term_columns + 1 if platform.system() == "Windows" else term_columns
             )
             command_env.pop("CI", None)
             command_env.pop("GITHUB_ACTIONS", None)
             command_env.pop("PYTEST_XDIST_WORKER", None)
+
+            if ansi:
+                command_env["PY_COLORS"] = "1"
 
             if stdin:
                 # makes Console.is_terminal == True
@@ -632,6 +643,9 @@ uuid.uuid4 = f
                 console.print(Panel(Text(result_stderr), title="stderr"))
 
             assert result.returncode == snapshot_arg(returncode)
+
+            if stdout is not None:
+                assert snapshot_arg(stdout) == result_stdout
 
             original = result_stderr.splitlines()
             lines = [
@@ -673,9 +687,10 @@ uuid.uuid4 = f
             error_str = (
                 "\n".join(
                     [
-                        line
+                        normalize(line)
                         for line in result_stdout.splitlines()
-                        if line and line[:2] in ("> ", "E ")
+                        if (normalize(line) if ansi else line)
+                        and (normalize(line) if ansi else line)[:2] in ("> ", "E ")
                     ]
                 )
                 + "\n"
@@ -689,6 +704,8 @@ uuid.uuid4 = f
 
             assert snapshot_arg(changed_files) == self._changed_files(tmp_path)
 
-            assert snapshot_arg(outcomes) == parse_outcomes(result_stdout.splitlines())
+            assert snapshot_arg(outcomes) == parse_outcomes(
+                [normalize(line) for line in result_stdout.splitlines()]
+            )
 
             return self._new_example(self._read_files(tmp_path))._next_seed()

@@ -185,7 +185,7 @@ It is recommended to use trim only if you run your complete test suite.
 
 Changes in the update category do not change the value of the snapshot, just its representation.
 These updates are not shown by default in your reports, because it can be confusing for users who uses inline-snapshot the first time or want to change the snapshot values manual.
-Updates can be enabled with [show-updates](configuration.md/#show-updates).
+Updates can be enabled with [show-updates](configuration.md#show-updates).
 
 The reason for updates might be that `#!python repr()` of the object has changed or that inline-snapshot provides some new logic which changes the representation. Like with the strings in the following example:
 

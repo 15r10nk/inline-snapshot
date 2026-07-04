@@ -9,6 +9,7 @@ repos:
   - id: check-ast
   - id: check-merge-conflict
   - id: trailing-whitespace
+    exclude: \.rich\.svg$
   - id: mixed-line-ending
   - id: fix-byte-order-marker
   - id: check-case-conflict

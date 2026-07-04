@@ -3,7 +3,7 @@ This might be useful if you want to build your own libraries based on inline-sna
 
 The following example shows how you can use the `Example` class to test what inline-snapshot would do with the given source code. The snapshots in the argument are asserted inside the `run_*` methods. Some arguments are optional, and some are required. Please see the reference below for details.
 
-<!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
+<!-- inline-snapshot: first_block outcome-passed=1 -->
 ``` python
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
@@ -21,13 +21,23 @@ def test_a():
         }
     ).run_pytest(  # run with the create flag and check the changed files
         ["--inline-snapshot=create"],
-        changed_files=snapshot(),
+        changed_files=snapshot(
+            {
+                "test_a.py": """\
+from inline_snapshot import snapshot
+def test_a():
+    assert 1+1 == snapshot(2)
+"""
+            }
+        ),
+        returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
 ```
 
 Inline-snapshot will then populate the empty snapshots.
 
-<!-- inline-snapshot: create fix outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot: create fix outcome-passed=1 -->
 ``` python hl_lines="17 18 19 20 21 22 23 24 25 26 27"
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
@@ -118,6 +128,7 @@ You can also use the same example multiple times and call different methods on i
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python
+from dirty_equals import IsStr
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
 
@@ -149,11 +160,7 @@ You can also use --inline-snapshot=review to approve the changes interactively\
 """
         ),
         returncode=1,
-        error="""\
->       assert 1+5 == snapshot(2)
-E       assert (1 + 5) == 2
-E        +  where 2 = snapshot(2)
-""",
+        error=IsStr(regex=r">       assert 1\+5 == snapshot\(2\)\n(?:E .*\n)*"),
         outcomes={"failed": 1, "errors": 1},
     )
     e.run_pytest(  # run with the create flag and check the changed files

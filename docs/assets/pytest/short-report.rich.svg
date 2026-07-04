@@ -1,0 +1,170 @@
+<svg class="rich-terminal" viewBox="0 0 994 586.8" xmlns="http://www.w3.org/2000/svg">
+<metadata>
+<inline-snapshot-rich-markup>[bold color(6)]$[/bold color(6)] [bold color(7)]pytest tests/test_example.py --inline-snapshot=short-report[/bold color(7)]
+[bold]============================= test session starts ==============================[/bold]
+collected 1 item
+
+tests/test_example.py [color(2)].[color(1)][/color(2)]E[color(1)][/color(1)]                                                 [100%][/color(1)]
+
+[color(10)]═══════════════════════════════ [color(4)][/color(10)]inline-snapshot[color(10)][/color(4)] ════════════════════════════════[/color(10)]
+Info: one snapshot can be trimmed ([bold]--inline-snapshot=trim[/bold])
+Error: one snapshot is missing a value ([bold]--inline-snapshot=create[/bold])
+
+You can also use [bold]--inline-snapshot=review[/bold] to approve the changes interactively
+
+
+==================================== ERRORS ====================================
+[bold color(1)]_____________________ ERROR at teardown of test_something ______________________[/bold color(1)]
+your snapshot is missing one value.
+If you just created this value with --inline-snapshot=create, the value is now created and you can ignore this message.
+[bold color(6)]=========================== short test summary info ============================[/bold color(6)]
+[color(1)]ERROR[/color(1)] tests/test_example.py::[bold]test_something[/bold] - Failed: your snapshot is missing one value.
+[color(1)]========================== [color(2)][/color(1)]1 passed[/color(2)], [bold color(1)]1 error[color(1)][/bold color(1)] in 0.00s[color(1)][/color(1)] ==========================[/color(1)]</inline-snapshot-rich-markup>
+</metadata>
+    <!-- Generated with Rich https://www.textualize.io -->
+    <style>
+
+    @font-face {
+        font-family: "Fira Code";
+        src: local("FiraCode-Regular"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2") format("woff2"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff") format("woff");
+        font-style: normal;
+        font-weight: 400;
+    }
+    @font-face {
+        font-family: "Fira Code";
+        src: local("FiraCode-Bold"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2") format("woff2"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff") format("woff");
+        font-style: bold;
+        font-weight: 700;
+    }
+
+    .pytest-short-report-rich-matrix {
+        font-family: Fira Code, monospace;
+        font-size: 20px;
+        line-height: 24.4px;
+        font-variant-east-asian: full-width;
+    }
+
+    .pytest-short-report-rich-title {
+        font-size: 18px;
+        font-weight: bold;
+        font-family: arial;
+    }
+
+    .pytest-short-report-rich-r1 { fill: #68a0b3;font-weight: bold }
+.pytest-short-report-rich-r2 { fill: #c5c8c6 }
+.pytest-short-report-rich-r3 { fill: #c5c8c6;font-weight: bold }
+.pytest-short-report-rich-r4 { fill: #98a84b }
+.pytest-short-report-rich-r5 { fill: #cc555a }
+.pytest-short-report-rich-r6 { fill: #00823d }
+.pytest-short-report-rich-r7 { fill: #608ab1 }
+.pytest-short-report-rich-r8 { fill: #cc555a;font-weight: bold }
+    </style>
+
+    <defs>
+    <clipPath id="pytest-short-report-rich-clip-terminal">
+      <rect x="0" y="0" width="975.0" height="535.8" />
+    </clipPath>
+    <clipPath id="pytest-short-report-rich-line-0">
+    <rect x="0" y="1.5" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-1">
+    <rect x="0" y="25.9" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-2">
+    <rect x="0" y="50.3" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-3">
+    <rect x="0" y="74.7" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-4">
+    <rect x="0" y="99.1" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-5">
+    <rect x="0" y="123.5" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-6">
+    <rect x="0" y="147.9" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-7">
+    <rect x="0" y="172.3" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-8">
+    <rect x="0" y="196.7" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-9">
+    <rect x="0" y="221.1" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-10">
+    <rect x="0" y="245.5" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-11">
+    <rect x="0" y="269.9" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-12">
+    <rect x="0" y="294.3" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-13">
+    <rect x="0" y="318.7" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-14">
+    <rect x="0" y="343.1" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-15">
+    <rect x="0" y="367.5" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-16">
+    <rect x="0" y="391.9" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-17">
+    <rect x="0" y="416.3" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-18">
+    <rect x="0" y="440.7" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-19">
+    <rect x="0" y="465.1" width="976" height="24.65"/>
+            </clipPath>
+<clipPath id="pytest-short-report-rich-line-20">
+    <rect x="0" y="489.5" width="976" height="24.65"/>
+            </clipPath>
+    </defs>
+
+    <rect fill="#292929" stroke="rgba(255,255,255,0.35)" stroke-width="1" x="1" y="1" width="992" height="584.8" rx="8"/><text class="pytest-short-report-rich-title" fill="#c5c8c6" text-anchor="middle" x="496" y="27">pytest</text>
+            <g transform="translate(26,22)">
+            <circle cx="0" cy="0" r="7" fill="#ff5f57"/>
+            <circle cx="22" cy="0" r="7" fill="#febc2e"/>
+            <circle cx="44" cy="0" r="7" fill="#28c840"/>
+            </g>
+
+    <g transform="translate(9, 41)" clip-path="url(#pytest-short-report-rich-clip-terminal)">
+
+    <g class="pytest-short-report-rich-matrix">
+    <text class="pytest-short-report-rich-r1" x="0" y="20" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-0)">$</text><text class="pytest-short-report-rich-r3" x="24.4" y="20" textLength="719.8" clip-path="url(#pytest-short-report-rich-line-0)">pytest&#160;tests/test_example.py&#160;--inline-snapshot=short-report</text><text class="pytest-short-report-rich-r2" x="976" y="20" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-0)">
+</text><text class="pytest-short-report-rich-r3" x="0" y="44.4" textLength="976" clip-path="url(#pytest-short-report-rich-line-1)">=============================&#160;test&#160;session&#160;starts&#160;==============================</text><text class="pytest-short-report-rich-r2" x="976" y="44.4" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-1)">
+</text><text class="pytest-short-report-rich-r2" x="0" y="68.8" textLength="195.2" clip-path="url(#pytest-short-report-rich-line-2)">collected&#160;1&#160;item</text><text class="pytest-short-report-rich-r2" x="976" y="68.8" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-2)">
+</text><text class="pytest-short-report-rich-r2" x="976" y="93.2" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-3)">
+</text><text class="pytest-short-report-rich-r2" x="0" y="117.6" textLength="268.4" clip-path="url(#pytest-short-report-rich-line-4)">tests/test_example.py&#160;</text><text class="pytest-short-report-rich-r4" x="268.4" y="117.6" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-4)">.</text><text class="pytest-short-report-rich-r5" x="280.6" y="117.6" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-4)">E</text><text class="pytest-short-report-rich-r5" x="292.8" y="117.6" textLength="671" clip-path="url(#pytest-short-report-rich-line-4)">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;[100%]</text><text class="pytest-short-report-rich-r2" x="976" y="117.6" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-4)">
+</text><text class="pytest-short-report-rich-r2" x="976" y="142" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-5)">
+</text><text class="pytest-short-report-rich-r6" x="0" y="166.4" textLength="390.4" clip-path="url(#pytest-short-report-rich-line-6)">═══════════════════════════════&#160;</text><text class="pytest-short-report-rich-r7" x="390.4" y="166.4" textLength="183" clip-path="url(#pytest-short-report-rich-line-6)">inline-snapshot</text><text class="pytest-short-report-rich-r6" x="573.4" y="166.4" textLength="402.6" clip-path="url(#pytest-short-report-rich-line-6)">&#160;════════════════════════════════</text><text class="pytest-short-report-rich-r2" x="976" y="166.4" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-6)">
+</text><text class="pytest-short-report-rich-r2" x="0" y="190.8" textLength="427" clip-path="url(#pytest-short-report-rich-line-7)">Info:&#160;one&#160;snapshot&#160;can&#160;be&#160;trimmed&#160;(</text><text class="pytest-short-report-rich-r3" x="427" y="190.8" textLength="268.4" clip-path="url(#pytest-short-report-rich-line-7)">--inline-snapshot=trim</text><text class="pytest-short-report-rich-r2" x="695.4" y="190.8" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-7)">)</text><text class="pytest-short-report-rich-r2" x="976" y="190.8" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-7)">
+</text><text class="pytest-short-report-rich-r2" x="0" y="215.2" textLength="488" clip-path="url(#pytest-short-report-rich-line-8)">Error:&#160;one&#160;snapshot&#160;is&#160;missing&#160;a&#160;value&#160;(</text><text class="pytest-short-report-rich-r3" x="488" y="215.2" textLength="292.8" clip-path="url(#pytest-short-report-rich-line-8)">--inline-snapshot=create</text><text class="pytest-short-report-rich-r2" x="780.8" y="215.2" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-8)">)</text><text class="pytest-short-report-rich-r2" x="976" y="215.2" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-8)">
+</text><text class="pytest-short-report-rich-r2" x="976" y="239.6" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-9)">
+</text><text class="pytest-short-report-rich-r2" x="0" y="264" textLength="207.4" clip-path="url(#pytest-short-report-rich-line-10)">You&#160;can&#160;also&#160;use&#160;</text><text class="pytest-short-report-rich-r3" x="207.4" y="264" textLength="292.8" clip-path="url(#pytest-short-report-rich-line-10)">--inline-snapshot=review</text><text class="pytest-short-report-rich-r2" x="500.2" y="264" textLength="451.4" clip-path="url(#pytest-short-report-rich-line-10)">&#160;to&#160;approve&#160;the&#160;changes&#160;interactively</text><text class="pytest-short-report-rich-r2" x="976" y="264" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-10)">
+</text><text class="pytest-short-report-rich-r2" x="976" y="288.4" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-11)">
+</text><text class="pytest-short-report-rich-r2" x="976" y="312.8" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-12)">
+</text><text class="pytest-short-report-rich-r2" x="0" y="337.2" textLength="976" clip-path="url(#pytest-short-report-rich-line-13)">====================================&#160;ERRORS&#160;====================================</text><text class="pytest-short-report-rich-r2" x="976" y="337.2" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-13)">
+</text><text class="pytest-short-report-rich-r8" x="0" y="361.6" textLength="976" clip-path="url(#pytest-short-report-rich-line-14)">_____________________&#160;ERROR&#160;at&#160;teardown&#160;of&#160;test_something&#160;______________________</text><text class="pytest-short-report-rich-r2" x="976" y="361.6" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-14)">
+</text><text class="pytest-short-report-rich-r2" x="0" y="386" textLength="427" clip-path="url(#pytest-short-report-rich-line-15)">your&#160;snapshot&#160;is&#160;missing&#160;one&#160;value.</text><text class="pytest-short-report-rich-r2" x="976" y="386" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-15)">
+</text><text class="pytest-short-report-rich-r2" x="0" y="410.4" textLength="963.8" clip-path="url(#pytest-short-report-rich-line-16)">If&#160;you&#160;just&#160;created&#160;this&#160;value&#160;with&#160;--inline-snapshot=create,&#160;the&#160;value&#160;is&#160;now&#160;</text><text class="pytest-short-report-rich-r2" x="976" y="410.4" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-16)">
+</text><text class="pytest-short-report-rich-r2" x="0" y="434.8" textLength="488" clip-path="url(#pytest-short-report-rich-line-17)">created&#160;and&#160;you&#160;can&#160;ignore&#160;this&#160;message.</text><text class="pytest-short-report-rich-r2" x="976" y="434.8" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-17)">
+</text><text class="pytest-short-report-rich-r1" x="0" y="459.2" textLength="976" clip-path="url(#pytest-short-report-rich-line-18)">===========================&#160;short&#160;test&#160;summary&#160;info&#160;============================</text><text class="pytest-short-report-rich-r2" x="976" y="459.2" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-18)">
+</text><text class="pytest-short-report-rich-r5" x="0" y="483.6" textLength="61" clip-path="url(#pytest-short-report-rich-line-19)">ERROR</text><text class="pytest-short-report-rich-r2" x="61" y="483.6" textLength="292.8" clip-path="url(#pytest-short-report-rich-line-19)">&#160;tests/test_example.py::</text><text class="pytest-short-report-rich-r3" x="353.8" y="483.6" textLength="170.8" clip-path="url(#pytest-short-report-rich-line-19)">test_something</text><text class="pytest-short-report-rich-r2" x="524.6" y="483.6" textLength="439.2" clip-path="url(#pytest-short-report-rich-line-19)">&#160;-&#160;Failed:&#160;your&#160;snapshot&#160;is&#160;missing&#160;</text><text class="pytest-short-report-rich-r2" x="976" y="483.6" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-19)">
+</text><text class="pytest-short-report-rich-r2" x="0" y="508" textLength="122" clip-path="url(#pytest-short-report-rich-line-20)">one&#160;value.</text><text class="pytest-short-report-rich-r2" x="976" y="508" textLength="12.2" clip-path="url(#pytest-short-report-rich-line-20)">
+</text><text class="pytest-short-report-rich-r5" x="0" y="532.4" textLength="329.4" clip-path="url(#pytest-short-report-rich-line-21)">==========================&#160;</text><text class="pytest-short-report-rich-r4" x="329.4" y="532.4" textLength="97.6" clip-path="url(#pytest-short-report-rich-line-21)">1&#160;passed</text><text class="pytest-short-report-rich-r2" x="427" y="532.4" textLength="24.4" clip-path="url(#pytest-short-report-rich-line-21)">,&#160;</text><text class="pytest-short-report-rich-r8" x="451.4" y="532.4" textLength="85.4" clip-path="url(#pytest-short-report-rich-line-21)">1&#160;error</text><text class="pytest-short-report-rich-r5" x="536.8" y="532.4" textLength="109.8" clip-path="url(#pytest-short-report-rich-line-21)">&#160;in&#160;0.00s</text><text class="pytest-short-report-rich-r5" x="646.6" y="532.4" textLength="329.4" clip-path="url(#pytest-short-report-rich-line-21)">&#160;==========================</text>
+    </g>
+    </g>
+</svg>
