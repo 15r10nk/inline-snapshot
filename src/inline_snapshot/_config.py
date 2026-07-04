@@ -23,6 +23,7 @@ class Config:
     format_command: str = ""
     storage_dir: Optional[Path] = None
     show_updates: bool = False
+    test_directories: Optional[List[Path]] = None
     default_storage: str = "uuid"
 
 
@@ -71,6 +72,25 @@ def read_config(path: Path, config=Config()) -> Config:
     config.storage_dir = (
         to_path(name) if (name := tool_config.get("storage-dir")) else None
     )
+
+    test_directories = tool_config.get("test-dir")
+
+    if isinstance(test_directories, str):
+        test_directories = [test_directories]
+
+    if isinstance(test_directories, list):
+        config.test_directories = [to_path(d) for d in test_directories]
+    elif (
+        test_directories is None
+        and path.exists()
+        and (std_tests := path.parent / "tests").exists()
+        and std_tests.is_dir()
+    ):
+        config.test_directories = [std_tests.resolve()]
+    elif test_directories is None:
+        config.test_directories = None
+    else:
+        raise UsageError(f"test-dir has to be a directory or list of directories")
 
     config.default_storage = tool_config.get("default-storage", "uuid")
 

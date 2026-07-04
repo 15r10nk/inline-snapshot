@@ -304,6 +304,10 @@ class SnapshotSession:
         if pyproject is not None:
             _config.read_config(pyproject, state().config)
 
+        if state().config.test_directories is None:
+            if (tests_dir := Path.cwd() / "tests").exists() and tests_dir.is_dir():
+                state().config.test_directories = [tests_dir.resolve()]
+
         console = Console()
 
         if is_ci_run():

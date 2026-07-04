@@ -89,3 +89,10 @@ fix=["create","fix"]
 * **default-storage:**[](){#default-storage} defines the default storage protocol to be used when creating snapshots without an explicit storage protocol, such as `external()`.
     Possible values are `hash` and `uuid`.
     External snapshots created by `outsource()` do not currently support this setting due to some internal limitations and will always use the old `hash` protocol.
+
+* **test-dir:**[](){#test-dir} can be used to define where your tests are located.
+    The default is `<pytest_config_dir>/tests` if it exists,
+    where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
+    This setting is only used as a compatibility fallback to discover existing `external()` calls when `files_using_external.txt` does not exist yet.
+    Once that file exists, inline-snapshot uses the tracked file list and ignores `test-dir`.
+    You can also specify a list of folders.

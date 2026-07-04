@@ -209,6 +209,8 @@ inline-snapshot tracks the use of `external()` in your codebase and will *trim* 
 
 It does this by storing a list of files which use `external()` in `.inline-snapshot/files_using_external.txt`. You can (but you don't have to) put this file into version control. It is robust against merge-conflicts and incorrect file names.
 
+If this file does not exist yet, inline-snapshot falls back to scanning `test-dir` to discover existing external snapshots and writes the tracked file list for future runs.
+
 
 ## pytest Options
 

@@ -55,3 +55,56 @@ def test_a():
             }
         ),
     )
+
+
+def test_trim_uses_test_dir_when_tracked_files_are_missing():
+    Example(
+        {
+            "pyproject.toml": """\
+[tool.inline-snapshot]
+default-storage="hash"
+""",
+            "tests/test_a.py": """\
+from inline_snapshot import external
+
+def test_a():
+    assert "a" == external()
+""",
+            "tests/test_b.py": """\
+from inline_snapshot import external
+
+def test_b():
+    assert "b" == external()
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files={
+            ".inline-snapshot/external/3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d.txt": "b",
+            ".inline-snapshot/external/ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb.txt": "a",
+            ".inline-snapshot/files_using_external.txt": """\
+tests/test_a.py
+tests/test_b.py
+""",
+            "tests/test_a.py": """\
+from inline_snapshot import external
+
+def test_a():
+    assert "a" == external("hash:ca978112ca1b*.txt")
+""",
+            "tests/test_b.py": """\
+from inline_snapshot import external
+
+def test_b():
+    assert "b" == external("hash:3e23e8160039*.txt")
+""",
+        },
+    ).remove_file(
+        ".inline-snapshot/files_using_external.txt"
+    ).run_pytest(
+        ["tests/test_a.py", "--inline-snapshot=trim"],
+        changed_files=snapshot({".inline-snapshot/files_using_external.txt": """\
+tests/test_a.py
+tests/test_b.py
+"""}),
+    )

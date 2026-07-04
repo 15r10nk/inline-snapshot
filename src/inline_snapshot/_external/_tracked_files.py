@@ -32,7 +32,12 @@ def read_external_source_items() -> set[Path]:
     path = external_files_list_path()
     base_dir = external_files_base_dir()
     if not path.exists():
-        return result
+        test_directories = state().config.test_directories or []
+        return {
+            file.resolve()
+            for test_dir in test_directories
+            for file in test_dir.rglob("*.py")
+        }
 
     for line in path.read_text("utf-8").splitlines():
         line = line.strip()
