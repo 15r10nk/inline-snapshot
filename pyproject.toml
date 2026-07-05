@@ -63,6 +63,12 @@ dev = [
     "black==25.1.0",
     "isort"
 ]
+docs = [
+    "mike ; python_full_version >= '3.10'",
+    "mkdocstrings[python]>=0.30.1",
+    "zensical>=0.0.2",
+]
+
 
 [project.entry-points.pytest11]
 inline_snapshot = "inline_snapshot.pytest_plugin"
@@ -115,24 +121,16 @@ path="src/inline_snapshot/version.py"
 
 [tool.hatch.envs.docs]
 python = "3.12"
+dependency-groups=["docs"]
 dependencies = [
-  "markdown-exec[ansi]>=1.8.0",
-  "mkdocs>=1.4.2",
-  "mkdocs-material[imaging]>=9.5.17",
-  "mike",
-  "mkdocstrings[python]>=0.19.0",
-  "mkdocs-autorefs",
-  "mkdocs-llmstxt",
   "replace-url @ {root:uri}/docs/plugins",
-  "black",
-  "commitizen",
   "mkdocs-redirects"
 ]
 
 [tool.hatch.envs.docs.scripts]
-build = "mkdocs build --strict {args}"
+build = "zensical build --strict {args}"
 export-deps = "pip freeze"
-serve = "mkdocs serve --livereload {args}"
+serve = "zensical serve --livereload {args}"
 
 
 [tool.hatch.envs.default]
@@ -237,3 +235,6 @@ force_single_line=true
 
 [tool.inline-snapshot]
 show-updates=true
+
+[tool.uv.sources]
+mike = { git = "https://github.com/squidfunk/mike.git" }
