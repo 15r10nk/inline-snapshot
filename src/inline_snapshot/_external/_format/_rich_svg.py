@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import html
-import re
+import json
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
@@ -13,6 +12,9 @@ from ._protocol import Format
 from ._protocol import register_format
 
 RICH_MARKUP_TAG = "inline-snapshot-rich-markup"
+SVG_NAMESPACE = "http://www.w3.org/2000/svg"
+
+ET.register_namespace("", SVG_NAMESPACE)
 
 
 @dataclass
@@ -26,30 +28,39 @@ class RichSnapshot:
         return self.markup == other.markup
 
 
-def _metadata(markup: str) -> str:
-    return (
-        "<metadata>\n"
-        f"<{RICH_MARKUP_TAG}>"
-        f"{html.escape(markup, quote=False)}"
-        f"</{RICH_MARKUP_TAG}>\n"
-        "</metadata>"
-    )
+def _local_name(tag: str) -> str:
+    return tag.rsplit("}", 1)[-1]
+
+
+def _encode_markup(markup: str) -> str:
+    return json.dumps(markup.splitlines(keepends=True), ensure_ascii=False, indent=2)
+
+
+def _decode_markup(markup: str) -> str:
+    try:
+        lines = json.loads(markup)
+    except json.JSONDecodeError as error:
+        raise UsageError(
+            f"Could not parse Rich SVG markup metadata: {error}"
+        ) from error
+
+    if not isinstance(lines, list) or not all(isinstance(line, str) for line in lines):
+        raise UsageError("Rich SVG markup metadata must be a list of strings.")
+
+    return "".join(lines)
 
 
 def _svg_with_metadata(snapshot: RichSnapshot) -> str:
-    svg = re.sub(
-        rf"\s*<metadata>\s*<{RICH_MARKUP_TAG}>.*?</{RICH_MARKUP_TAG}>\s*</metadata>",
-        "",
-        snapshot.svg,
-        count=1,
-        flags=re.DOTALL,
-    )
+    root = ET.fromstring(snapshot.svg)
 
-    svg_start = svg.find(">")
-    if svg_start == -1 or "<svg" not in svg[:svg_start]:
-        raise UsageError("RichSnapshot.svg does not contain an SVG root element.")
+    assert _local_name(root.tag) == "svg"
 
-    return f"{svg[: svg_start + 1]}\n{_metadata(snapshot.markup)}{svg[svg_start + 1:]}"
+    metadata = ET.Element("metadata")
+    markup = ET.SubElement(metadata, RICH_MARKUP_TAG)
+    markup.text = _encode_markup(snapshot.markup)
+    root.insert(0, metadata)
+
+    return ET.tostring(root, encoding="unicode", short_empty_elements=False)
 
 
 def _decode_rich_svg(text: str) -> RichSnapshot:
@@ -59,8 +70,8 @@ def _decode_rich_svg(text: str) -> RichSnapshot:
         raise UsageError(f"Could not parse Rich SVG metadata: {error}") from error
 
     for element in root.iter():
-        if element.tag.rsplit("}", 1)[-1] == RICH_MARKUP_TAG:
-            return RichSnapshot(svg=text, markup=element.text or "")
+        if _local_name(element.tag) == RICH_MARKUP_TAG:
+            return RichSnapshot(svg=text, markup=_decode_markup(element.text or "[]"))
 
     raise UsageError("Rich SVG file does not contain inline-snapshot rich markup.")
 
@@ -81,7 +92,8 @@ class RichSvgFormat(Format[RichSnapshot]):
         return isinstance(value, RichSnapshot)
 
     def encode(self, value: RichSnapshot, path: Path):
-        path.write_text(_svg_with_metadata(value), encoding="utf-8", newline="\n")
+        with path.open("w", encoding="utf-8", newline="\n") as f:
+            f.write(_svg_with_metadata(value))
 
     def decode(self, path: Path) -> RichSnapshot:
         return _decode_rich_svg(path.read_text(encoding="utf-8"))

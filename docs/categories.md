@@ -162,7 +162,7 @@ def test_b():
 ```
 
 <!-- todo-inline-snapshot: trim outcome-passed=2 -->
-``` python hl_lines="1"
+``` python hl_lines="3"
 from inline_snapshot import snapshot
 
 s = snapshot(2)
@@ -190,70 +190,69 @@ Updates can be enabled with [show-updates](configuration.md#show-updates).
 The reason for updates might be that `#!python repr()` of the object has changed or that inline-snapshot provides some new logic which changes the representation. Like with the strings in the following example:
 
 
-=== "original"
-    <!-- inline-snapshot: first_block outcome-passed=1 -->
-    ``` python
-    from inline_snapshot import snapshot
+<!-- inline-snapshot: first_block outcome-passed=1 -->
+``` python
+from inline_snapshot import snapshot
 
 
-    class Vector:
-        def __init__(self, x, y):
-            self.x = x
-            self.y = y
+class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
-        def __eq__(self, other):
-            if not isinstance(other, Vector):
-                return NotImplemented
-            return self.x == other.x and self.y == other.y
+    def __eq__(self, other):
+        if not isinstance(other, Vector):
+            return NotImplemented
+        return self.x == other.x and self.y == other.y
 
-        def __repr__(self):
-            # return f"Vector(x={self.x}, y={self.y})"
-            return f"Vector({self.x}, {self.y})"
-
-
-    def test_something():
-        assert "a\nb\nc\n" == snapshot("a\nb\nc\n")
-
-        assert 5 == snapshot(4 + 1)
-
-        assert Vector(1, 2) == snapshot(Vector(x=1, y=2))
-    ```
-
-=== "--inline-snapshot=update"
-
-    <!-- inline-snapshot: update outcome-passed=1 -->
-    ``` python hl_lines="20 21 22 23 24 25 26 28 30"
-    from inline_snapshot import snapshot
+    def __repr__(self):
+        # return f"Vector(x={self.x}, y={self.y})"
+        return f"Vector({self.x}, {self.y})"
 
 
-    class Vector:
-        def __init__(self, x, y):
-            self.x = x
-            self.y = y
+def test_something():
+    assert "a\nb\nc\n" == snapshot("a\nb\nc\n")
 
-        def __eq__(self, other):
-            if not isinstance(other, Vector):
-                return NotImplemented
-            return self.x == other.x and self.y == other.y
+    assert 5 == snapshot(4 + 1)
 
-        def __repr__(self):
-            # return f"Vector(x={self.x}, y={self.y})"
-            return f"Vector({self.x}, {self.y})"
+    assert Vector(1, 2) == snapshot(Vector(x=1, y=2))
+```
+
+`pytest --inline-snapshot=update` changes the code in the following way.
+
+<!-- inline-snapshot: update outcome-passed=1 -->
+``` python hl_lines="20 21 22 23 24 25 26 28 30"
+from inline_snapshot import snapshot
 
 
-    def test_something():
-        assert "a\nb\nc\n" == snapshot(
-            """\
-    a
-    b
-    c
-    """
-        )
+class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
-        assert 5 == snapshot(5)
+    def __eq__(self, other):
+        if not isinstance(other, Vector):
+            return NotImplemented
+        return self.x == other.x and self.y == other.y
 
-        assert Vector(1, 2) == snapshot(Vector(1, 2))
-    ```
+    def __repr__(self):
+        # return f"Vector(x={self.x}, y={self.y})"
+        return f"Vector({self.x}, {self.y})"
+
+
+def test_something():
+    assert "a\nb\nc\n" == snapshot(
+        """\
+a
+b
+c
+"""
+    )
+
+    assert 5 == snapshot(5)
+
+    assert Vector(1, 2) == snapshot(Vector(1, 2))
+```
 
 
 The approval of this type of changes is easier, because the update category assures that the value has not changed.
@@ -264,13 +263,10 @@ Keep in mind that any changes you make to your snapshots will likely need to be 
 Inline-snapshot uses the *update* category to let you know when it has a different opinion than you about how the code should look.
 You can agree with inline-snapshot and accept the changes or you can use one of the following options to tell inline-snapshot what the code should look like:
 
-1. change the `__repr__` implementation of your object or use [customize repr](customize_repr.md) if the class is not part of your codebase.
+1. change the `__repr__` implementation of your object or use [@customized](plugin.md#customize-examples) if the class is not part of your codebase.
 
 2. define a [format-command](configuration.md#format-command) if another tool has a different opinion about how your code should look. Inline-snapshot will apply this formatting before reporting an update.
 
 3. inline-snapshot manages everything within `snapshot(...)`, but you can take control by using [Is()](eq_snapshot.md#is) in cases where you want to use custom code (like local variables) in your snapshots.
 
 4. you can also open an [issue](https://github.com/15r10nk/inline-snapshot/issues?q=is%3Aissue%20state%3Aopen%20label%3Aupdate_related) if you have a specific problem with the way inline-snapshot generates the code.
-
-!!! note
-    [#177](https://github.com/15r10nk/inline-snapshot/issues/177) will give the developer more control about how snapshots are created. *update* will then become much more useful.

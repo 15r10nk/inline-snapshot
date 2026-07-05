@@ -19,6 +19,7 @@ import pytest
 from dirty_equals import AnyThing
 from dirty_equals import IsStr
 from executing import is_pytest_compatible
+from rich.markup import escape
 
 from inline_snapshot import snapshot
 from inline_snapshot._align import align
@@ -35,24 +36,6 @@ from inline_snapshot.version import is_insider
 
 def normalize_terminal_output(output: str) -> str:
     return re.sub(r"in \d+\.\d+s", "in 0.00s", output)
-
-
-def display_pytest_command(args: list[str], *, stdin_text: str = "") -> str:
-    display_args = ["pytest", "tests/test_example.py"]
-    index = 0
-    while index < len(args):
-        if args[index] == "--inline-snapshot" and index + 1 < len(args):
-            display_args.append(f"--inline-snapshot={args[index + 1]}")
-            index += 2
-        else:
-            display_args.append(args[index])
-            index += 1
-
-    command = shlex.join(display_args)
-    if stdin_text:
-        escaped_stdin = stdin_text.encode("unicode_escape").decode("ascii")
-        return f"printf {shlex.quote(escaped_stdin)} | {command}"
-    return command
 
 
 @dataclass
@@ -424,6 +407,18 @@ print(1 + 1)
     test_doc(
         """\
 <!-- inline-snapshot-last-output -->
+``` python
+print(1)
+```
+""",
+        exception=IsStr(
+            regex=r"AssertionError: .*example\.md:1: inline-snapshot-last-output must be followed by an SVG image"
+        ),
+    )
+
+    test_doc(
+        """\
+<!-- inline-snapshot-last-output -->
 ![](output.svg)
 """,
         exception=IsStr(
@@ -457,6 +452,17 @@ text
 <!-- inline-snapshot-run: report -->
 more text
 """,
+        exception=IsStr(
+            regex=r"AssertionError: .*example\.md:2: inline-snapshot-run has no runner"
+        ),
+    )
+
+    test_doc(
+        """\
+text
+<!-- inline-snapshot-run: report -->
+more text
+""",
         handle_run=lambda header, line: "inline-snapshot-run: report outcome-passed=1",
         run_calls=snapshot([("inline-snapshot-run: report", 3)]),
         new_markdown_code=snapshot("""\
@@ -464,6 +470,26 @@ text
 <!-- inline-snapshot-run: report outcome-passed=1 -->
 more text
 """),
+    )
+
+    test_doc(
+        """\
+<!-- inline-snapshot-run: report -->
+""",
+        handle_run=lambda header, line: None,
+        run_calls=snapshot([("inline-snapshot-run: report", 2)]),
+    )
+
+    test_doc(
+        """\
+text
+<!-- inline-snapshot: create -->
+<!-- inline-snapshot-last-output -->
+![](output.svg)
+""",
+        exception=IsStr(
+            regex=r"AssertionError: .*example\.md:3: inline-snapshot-last-output has no output handler"
+        ),
     )
 
     test_doc(
@@ -587,13 +613,14 @@ uuid.uuid4=f
             )
 
         command = last_pytest_command if prompt is None else prompt
-        terminal_output = (
-            f"\x1b[1;36m$\x1b[0m \x1b[1;37m{command}\x1b[0m\n" f"{last_pytest_stdout}"
-        )
         rendered = render_ansi_to_svg(
-            normalize_terminal_output(terminal_output),
+            normalize_terminal_output(last_pytest_stdout),
             width=terminal_width,
-            title="pytest",
+            title="Terminal",
+            prompt=(
+                f"[bold blue]$[/bold blue] "
+                f"[bold white]{escape(command)}[/bold white]"
+            ),
             unique_id=f"pytest-{image_path.stem.replace('.', '-')}",
         )
 
@@ -630,9 +657,8 @@ uuid.uuid4=f
 
         args = ["--inline-snapshot", ",".join(sorted(cli_flags))] if cli_flags else []
         pytest_args = [*args, "--no-header"]
-        display_command = display_pytest_command(args, stdin_text=stdin_text)
+        display_command = "pytest " + "=".join(args)
 
-        errors = Store[str]()
         outcomes = Store[Dict[str, int]]()
         returncode = Store[int]()
         stdout = Store[str]()
@@ -664,10 +690,10 @@ uuid.uuid4=f
                 print("run with")
                 example = example.run_pytest(
                     pytest_args,
-                    error=errors,
                     outcomes=outcomes,
                     returncode=returncode,
                     changed_files=AnyThing(),
+                    error=AnyThing(),
                     stdin=stdin,
                     stdout=stdout,
                     ansi=True,
@@ -677,10 +703,10 @@ uuid.uuid4=f
         else:
             example = example.run_pytest(
                 pytest_args,
-                error=errors,
                 outcomes=outcomes,
                 returncode=returncode,
                 changed_files=AnyThing(),
+                error=AnyThing(),
                 stdin=stdin,
                 stdout=stdout,
                 ansi=True,
@@ -698,7 +724,6 @@ uuid.uuid4=f
         return {
             "cli_flags": cli_flags,
             "code": code,
-            "errors": errors,
             "example": example,
             "flags": flags,
             "options": options,
@@ -767,7 +792,6 @@ uuid.uuid4=f
 
         cli_flags = result["cli_flags"]
         code = result["code"]
-        errors = result["errors"]
         example = result["example"]
         flags = result["flags"]
         options = result["options"]
@@ -781,10 +805,6 @@ uuid.uuid4=f
             new_code = example.read_file("tests/test_example.py")
         new_code.replace("\n\n", "\n")
 
-        if "show_error" in options:
-            new_code = new_code.split("# Error:")[0]
-            new_code += "# Error:\n" + textwrap.indent(errors.value, "# ")
-
         print("new code:")
         print(new_code)
         print("expected code:")
@@ -792,7 +812,7 @@ uuid.uuid4=f
 
         block.code_header = "inline-snapshot: " + " ".join(
             sorted(cli_flags)
-            + sorted(options & {"first_block", "show_error", "requires_assert"})
+            + sorted(options & {"first_block", "requires_assert"})
             + sorted(stdin_options)
             + [
                 f"outcome-{k}={v}"

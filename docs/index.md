@@ -9,8 +9,8 @@
 inline-snapshot is a snapshot testing library that stores values directly in your source code. This makes snapshots easy to read and review, and it saves you time when writing tests.
 It is also possible to store values in [external](external/external.md) files when needed.
 
-inline-snapshot is generally designed as an composeable library which can be customized by the user.
-This introduction will give you an overview over all the features.
+inline-snapshot is generally designed as a composable library which can be [customized](plugin.md#customize-examples) by the user.
+This introduction will give you an overview of all the features.
 
 
 Let's start with a simple example:
@@ -162,6 +162,27 @@ You can place `snapshot()` anywhere in your tests.
         check_string_len(".......", length=7)
     ```
 
+=== "pytest.mark.parametrize"
+
+    You can use `snapshot()` as a parameter in [`pytest.mark.parametrize`](howto/parametrize.md):
+
+    <!-- inline-snapshot: create fix first_block outcome-passed=2 -->
+    ``` python
+    import pytest
+    from inline_snapshot import snapshot
+
+
+    @pytest.mark.parametrize(
+        "name,length",
+        [
+            ("Mia", snapshot(3)),
+            ("Noah", snapshot(4)),
+        ],
+    )
+    def test_name_length(name, length):
+        assert len(name) == length
+    ```
+
 
 ## dirty-equals
 
@@ -230,19 +251,22 @@ def test_total():
     assert Money(12, "EUR") == snapshot(Money.euro(12))
 ```
 
-## :heart: Insider
+## :heart: Insiders
 
-I have started to offer [insider](insiders.md) features for inline-snapshot. I will only release features as insider features if they will not cause problems for you when used in an open source project. This mainly includes tooling around inline-snapshot and better integration into IDEs.
+I have started to offer [insider](insiders.md) features for inline-snapshot.
+I will only release features as insider features if they will not cause problems for you when used in an open source project.
+This mainly includes tooling around inline-snapshot and better integration into IDEs.
 
 I hope this will allow me to spend more time working on open source projects.
 Thank you for using inline-snapshot, the future will be 🚀.
 
-The first feature is that inline-snapshot can now also fix normal assertions that do not use `snapshot()`, such as:
+The next feature, which will be released when I reach 20 sponsors, is the ability for inline-snapshot to fix normal assertions that do not use `snapshot()`, such as:
 
 ``` python
 assert 1 + 1 == ...
 ```
 
+This allows you to fix assertions in codebases which do not use inline-snapshot jet.
 You can learn more about this feature [here](fix_assert.md).
 
 

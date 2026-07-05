@@ -1,57 +1,108 @@
-from pathlib import Path
-
 import pytest
+from dirty_equals import AnyThing
 
 from inline_snapshot import snapshot
-from inline_snapshot._exceptions import UsageError
-from inline_snapshot._external._format._rich_svg import RICH_MARKUP_TAG
-from inline_snapshot._external._format._rich_svg import RichSnapshot
-from inline_snapshot._external._format._rich_svg import RichSvgFormat
 from inline_snapshot.testing._example import Example
 
+RICH_SVG_WITH_DIFFERENT_MARKUP = """\
+<svg xmlns="http://www.w3.org/2000/svg"><metadata><inline-snapshot-rich-markup>[
+  "goodbye\\n"
+]</inline-snapshot-rich-markup></metadata><text>old render</text></svg>"""
 
-def test_rich_svg_format(tmp_path: Path):
-    path = tmp_path / "terminal.rich.svg"
-    format = RichSvgFormat()
+RICH_SVG_WITHOUT_METADATA = """\
+<svg xmlns="http://www.w3.org/2000/svg"><text>old render</text></svg>"""
 
-    format.encode(
-        RichSnapshot(
-            svg='<svg xmlns="http://www.w3.org/2000/svg"><text>terminal</text></svg>',
-            markup="[bold]hello[/bold] & <world>",
+MALFORMED_RICH_SVG = "<svg>"
+
+MALFORMED_RICH_SVG_METADATA = """\
+<svg xmlns="http://www.w3.org/2000/svg"><metadata><inline-snapshot-rich-markup>not json</inline-snapshot-rich-markup></metadata></svg>"""
+
+WRONG_RICH_SVG_METADATA_TYPE = """\
+<svg xmlns="http://www.w3.org/2000/svg"><metadata><inline-snapshot-rich-markup>{"line": "hello"}</inline-snapshot-rich-markup></metadata></svg>"""
+
+
+@pytest.mark.parametrize(
+    "svg,error",
+    [
+        (RICH_SVG_WITH_DIFFERENT_MARKUP, snapshot("<no exception>")),
+        (
+            RICH_SVG_WITHOUT_METADATA,
+            snapshot(
+                "UsageError: Rich SVG file does not contain inline-snapshot rich markup."
+            ),
         ),
-        path,
+        (
+            MALFORMED_RICH_SVG,
+            snapshot(
+                "UsageError: Could not parse Rich SVG metadata: no element found: line 1, column 5"
+            ),
+        ),
+        (
+            MALFORMED_RICH_SVG_METADATA,
+            snapshot(
+                "UsageError: Could not parse Rich SVG markup metadata: Expecting value: line 1 column 1 (char 0)"
+            ),
+        ),
+        (
+            WRONG_RICH_SVG_METADATA_TYPE,
+            snapshot("UsageError: Rich SVG markup metadata must be a list of strings."),
+        ),
+    ],
+)
+def test_rich_svg_external_file_detects_different_markup(svg, error):
+    Example(
+        {
+            "tests/terminal.rich.svg": svg,
+            "tests/test_something.py": """\
+from inline_snapshot import external_file
+from inline_snapshot.testing._terminal_svg import render_ansi_to_svg
+
+
+def test_a():
+    assert render_ansi_to_svg("hello\\n", width=80, title="Terminal") == external_file(
+        "terminal.rich.svg", format=".rich.svg"
     )
+""",
+        }
+    ).run_inline(raises=error, reported_categories=AnyThing())
 
-    content = path.read_text("utf-8")
 
-    assert f"<{RICH_MARKUP_TAG}>" in content
-    assert "[bold]hello[/bold] &amp; &lt;world&gt;" in content
-    assert format.decode(path) == RichSnapshot(
-        svg="<svg>different rendering</svg>",
-        markup="[bold]hello[/bold] & <world>",
+def test_rich_svg_external_file_create_and_read():
+
+    Example("""\
+from inline_snapshot import external_file
+from inline_snapshot.testing._terminal_svg import render_ansi_to_svg
+
+
+def test_a():
+    text="hello"
+    assert render_ansi_to_svg(text, width=80, title="Terminal") == external_file(
+        "terminal.rich.svg", format=".rich.svg"
     )
-    assert format.decode(path) != RichSnapshot(
-        svg=content,
-        markup="[bold]goodbye[/bold]",
+""").run_pytest(
+        ["--inline-snapshot=create"],
+        changed_files=AnyThing(),
+        returncode=1,
+        outcomes={"passed": 1, "errors": 1},
+    ).run_pytest().replace(
+        'text="hello"',
+        'text="something [blue]else[/]"',
+    ).run_pytest(
+        ["--inline-snapshot=report"],
+        report=snapshot("""\
++-------------------------- tests/terminal.rich.svg ---------------------------+
+| @@ -1 +1 @@                                                                  |
+|                                                                              |
+| -hello                                                                       |
+| +something \\[blue]else\\[/]                                                   |
++------------------------------------------------------------------------------+
+These changes are not applied.
+Use --inline-snapshot=fix to apply them, or use the interactive mode with
+--inline-snapshot=review\
+"""),
+        returncode=1,
+        outcomes={"passed": 1, "errors": 1},
     )
-
-
-def test_rich_svg_format_requires_metadata(tmp_path: Path):
-    path = tmp_path / "terminal.rich.svg"
-    path.write_text("<svg></svg>", encoding="utf-8")
-
-    with pytest.raises(
-        UsageError, match="Rich SVG file does not contain inline-snapshot rich markup"
-    ):
-        RichSvgFormat().decode(path)
-
-
-def test_rich_svg_format_rejects_malformed_svg(tmp_path: Path):
-    path = tmp_path / "terminal.rich.svg"
-    path.write_text("<svg>", encoding="utf-8")
-
-    with pytest.raises(UsageError, match="Could not parse Rich SVG metadata"):
-        RichSvgFormat().decode(path)
 
 
 def test_json_format():

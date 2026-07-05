@@ -58,7 +58,7 @@ To distribute inline-snapshot plugins as a package, register your plugin class u
 === "pyproject.toml (recommended)"
     ``` toml
     [project.entry-points.inline_snapshot]
-    my_plugin = "my_package.plugin:MyInlineSnapshotPlugin"
+    my_plugin = "my_package.plugin"
     ```
 
 === "setup.py"
@@ -179,8 +179,7 @@ def is_now_handler(value):
         return IsNow
 ```
 
-As explained in the [customize hook specification][inline_snapshot.plugin.
-InlineSnapshotPluginSpec.customize], you can return types other than Custom objects.
+As explained in the [customize hook specification][inline_snapshot.plugin.InlineSnapshotPluginSpec.customize], you can return types other than Custom objects.
 inline-snapshot includes a built-in handler in its default plugin that converts dirty-equals expressions back into source code, which is why you can return `IsNow` directly without using the builder.
 This approach is much simpler than using `builder.create_call()` for complex dirty-equals expressions.
 

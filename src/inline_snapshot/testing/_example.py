@@ -99,6 +99,13 @@ def parse_outcomes(lines):
     return {to_plural.get(k, k): v for k, v in ret.items()}
 
 
+def _pytest_error_line(line: str, *, ansi: bool) -> str | None:
+    normalized = normalize(line) if ansi else line
+    if normalized and normalized.lstrip()[:2] in ("> ", "E "):
+        return normalized
+    return None
+
+
 @contextmanager
 def chdir(path):
     cwd = os.getcwd()
@@ -110,6 +117,37 @@ def chdir(path):
 
 
 console = Console(width=80)
+
+
+def _subprocess_env() -> dict[str, str]:
+    env_keys = [
+        "PATH",
+        "PWD",
+        "VIRTUAL_ENV",
+        "TOP",
+        "COVERAGE_PROCESS_START",
+        "PYTHONIOENCODING",
+    ]
+    if platform.system() == "Windows":  # pragma: no cover
+        env_keys.extend(
+            [
+                "APPDATA",
+                "COMSPEC",
+                "LOCALAPPDATA",
+                "PATHEXT",
+                "PROGRAMDATA",
+                "PROGRAMFILES",
+                "PROGRAMFILES(X86)",
+                "SYSTEMDRIVE",
+                "SYSTEMROOT",
+                "TEMP",
+                "TMP",
+                "USERPROFILE",
+                "WINDIR",
+            ]
+        )
+
+    return {key: os.environ[key] for key in env_keys if key in os.environ}
 
 
 @contextmanager
@@ -608,14 +646,11 @@ uuid.uuid4 = f
 
             cmd = [sys.executable, "-m", "pytest", "-p", "no:randomly", *pytest_args]
 
-            command_env = dict(os.environ)
+            command_env = _subprocess_env()
             command_env["TERM"] = "xterm-256color" if ansi else "unknown"
             command_env["COLUMNS"] = str(
                 term_columns + 1 if platform.system() == "Windows" else term_columns
             )
-            command_env.pop("CI", None)
-            command_env.pop("GITHUB_ACTIONS", None)
-            command_env.pop("PYTEST_XDIST_WORKER", None)
 
             if ansi:
                 command_env["PY_COLORS"] = "1"
@@ -687,10 +722,10 @@ uuid.uuid4 = f
             error_str = (
                 "\n".join(
                     [
-                        normalize(line)
+                        error_line
                         for line in result_stdout.splitlines()
-                        if (normalize(line) if ansi else line)
-                        and (normalize(line) if ansi else line)[:2] in ("> ", "E ")
+                        if (error_line := _pytest_error_line(line, ansi=ansi))
+                        is not None
                     ]
                 )
                 + "\n"

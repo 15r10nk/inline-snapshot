@@ -13,9 +13,15 @@ def render_ansi_to_svg(
     *,
     width: int,
     title: str,
+    prompt: str | None = None,
     unique_id: str | None = None,
 ) -> RichSnapshot:
     rich_text = Text.from_ansi(text)
+    if prompt is not None:
+        prompt_text = Text.from_markup(prompt)
+        prompt_text.append("\n")
+        prompt_text.append_text(rich_text)
+        rich_text = prompt_text
 
     console = Console(file=io.StringIO(), record=True, width=width)
     console.print(rich_text, end="")

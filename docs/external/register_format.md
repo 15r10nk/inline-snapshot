@@ -2,6 +2,7 @@
 
 `register_format()` allows you to add support for your custom file formats, such as the following `Array` type.
 
+[](){#array-example}
 <!-- inline-snapshot-lib: my_array.py -->
 ``` python title="my_array.py"
 from dataclasses import dataclass
@@ -12,7 +13,6 @@ from typing import List
 class Array:
     numbers: List[int]
 ```
-[](){#array-example}
 <!-- inline-snapshot-lib: conftest.py -->
 ``` python title="conftest.py"
 from pathlib import Path
@@ -54,22 +54,16 @@ def test_array():
 
 inline-snapshot will check if the type matches by using `is_format_for()` and create a file with the given suffix.
 
-<!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
-``` python hl_lines="6 7 8"
-from my_array import Array
-from inline_snapshot import external
+
+<!-- inline-snapshot-run: create outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot-last-output: pytest -->
+![](assets/register-is-array-for.rich.svg)
 
 
-def test_array():
-    assert Array([1, 2, 3]) == external(
-        "uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.arr"
-    )
-```
 
+## Report
 
-### Report
-
-inline-snapshot needs to know how changes in your external files should be displayed. `TextDiff` and `BinaryDiff` can be used as mixin classes (see the `Array` example (above)[#array-example]) to provide generic representations for text or binary formats, but you can also define custom functions for your files.
+inline-snapshot needs to know how changes in your external files should be displayed. `TextDiff` and `BinaryDiff` can be used as mixin classes (see the `Array` example [above](#array-example)) to provide generic representations for text or binary formats, but you can also define custom functions for your files.
 
 * `rich_diff()` is used every time the external snapshot value is changed and should show the difference between the original and new versions in a human-readable form.
 * `rich_show()` is used every time an external snapshot is created and should show a human-readable form of the initial value.
@@ -122,21 +116,20 @@ class NumberSet:
 
 The custom format is then used every time a `NumberSet` is compared with an empty external.
 
-=== "example pytest output"
-
-    ![](/assets/number_set_output.png)
-
-=== "example"
-    <!-- inline-snapshot: create first_block outcome-failed=1 -->
-    ``` python
-    from number_set import NumberSet
-    from inline_snapshot import external
+<!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
+``` python
+from number_set import NumberSet
+from inline_snapshot import external
 
 
-    def test():
-        assert NumberSet([1, 2, 5]) == external("hash:b85198032326*.numberset")
-        assert NumberSet([1, 2, 8]) == external("hash:f8a68eb0c510*.numberset")
-    ```
+def test():
+    assert NumberSet([1, 2, 5]) == external()
+    assert NumberSet([1, 2, 8]) == external()
+```
+
+<!-- inline-snapshot-run: create outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot-last-output: pytest -->
+![](assets/register-numberset-format.rich.svg)
 
 ## Reference
 
