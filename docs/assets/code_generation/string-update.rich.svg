@@ -27,7 +27,7 @@
   "\n",
   "\n",
   "\n",
-  "[color(2)]============================== [bold color(2)][/color(2)]1 passed[color(2)][/bold color(2)] in 0.00s[color(2)][/color(2)] ===============================[/color(2)]"
+  "[color(2)]============================== [bold color(2)][/color(2)]1 passed[color(2)][/bold color(2)] in 0.00s[color(2)][/color(2)] ===============================[/color(2)]\n"
 ]</inline-snapshot-rich-markup></metadata><style>
 
     @font-face {
@@ -193,7 +193,8 @@
 </text><text class="pytest-string-update-rich-r2" x="976" y="581.2" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-23)">
 </text><text class="pytest-string-update-rich-r2" x="976" y="605.6" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-24)">
 </text><text class="pytest-string-update-rich-r2" x="976" y="630" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-25)">
-</text><text class="pytest-string-update-rich-r4" x="0" y="654.4" textLength="378.2" clip-path="url(#pytest-string-update-rich-line-26)">============================== </text><text class="pytest-string-update-rich-r11" x="378.2" y="654.4" textLength="97.6" clip-path="url(#pytest-string-update-rich-line-26)">1 passed</text><text class="pytest-string-update-rich-r4" x="475.8" y="654.4" textLength="109.8" clip-path="url(#pytest-string-update-rich-line-26)"> in 0.00s</text><text class="pytest-string-update-rich-r4" x="585.6" y="654.4" textLength="390.4" clip-path="url(#pytest-string-update-rich-line-26)"> ===============================</text>
+</text><text class="pytest-string-update-rich-r4" x="0" y="654.4" textLength="378.2" clip-path="url(#pytest-string-update-rich-line-26)">============================== </text><text class="pytest-string-update-rich-r11" x="378.2" y="654.4" textLength="97.6" clip-path="url(#pytest-string-update-rich-line-26)">1 passed</text><text class="pytest-string-update-rich-r4" x="475.8" y="654.4" textLength="109.8" clip-path="url(#pytest-string-update-rich-line-26)"> in 0.00s</text><text class="pytest-string-update-rich-r4" x="585.6" y="654.4" textLength="390.4" clip-path="url(#pytest-string-update-rich-line-26)"> ===============================</text><text class="pytest-string-update-rich-r2" x="976" y="654.4" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-26)">
+</text>
     </g>
     </g>
 </svg>

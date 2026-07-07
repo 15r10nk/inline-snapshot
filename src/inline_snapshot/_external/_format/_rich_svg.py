@@ -27,6 +27,9 @@ class RichSnapshot:
             return NotImplemented
         return self.markup == other.markup
 
+    def __repr__(self):
+        return f"RichSnapshot({self.markup!r})"
+
 
 def _local_name(tag: str) -> str:
     return tag.rsplit("}", 1)[-1]

@@ -20,7 +20,7 @@
   "[bold color(1)]tests/test_example.py[/bold color(1)]:7: TypeError\n",
   "[bold color(6)]=========================== short test summary info ============================[/bold color(6)]\n",
   "[color(1)]FAILED[/color(1)] tests/test_example.py::[bold]test_something[/bold] - TypeError: This snapshot cannot be use with `==`, because it was previously...\n",
-  "[color(1)]============================== [bold color(1)][/color(1)]1 failed[color(1)][/bold color(1)] in 0.00s[color(1)][/color(1)] ===============================[/color(1)]"
+  "[color(1)]============================== [bold color(1)][/color(1)]1 failed[color(1)][/bold color(1)] in 0.00s[color(1)][/color(1)] ===============================[/color(1)]\n"
 ]</inline-snapshot-rich-markup></metadata><style>
 
     @font-face {
@@ -164,7 +164,8 @@
 </text><text class="pytest-show-error-rich-r9" x="0" y="459.2" textLength="976" clip-path="url(#pytest-show-error-rich-line-18)">=========================== short test summary info ============================</text><text class="pytest-show-error-rich-r2" x="976" y="459.2" textLength="12.2" clip-path="url(#pytest-show-error-rich-line-18)">
 </text><text class="pytest-show-error-rich-r4" x="0" y="483.6" textLength="73.2" clip-path="url(#pytest-show-error-rich-line-19)">FAILED</text><text class="pytest-show-error-rich-r2" x="73.2" y="483.6" textLength="292.8" clip-path="url(#pytest-show-error-rich-line-19)"> tests/test_example.py::</text><text class="pytest-show-error-rich-r3" x="366" y="483.6" textLength="170.8" clip-path="url(#pytest-show-error-rich-line-19)">test_something</text><text class="pytest-show-error-rich-r2" x="536.8" y="483.6" textLength="427" clip-path="url(#pytest-show-error-rich-line-19)"> - TypeError: This snapshot cannot </text><text class="pytest-show-error-rich-r2" x="976" y="483.6" textLength="12.2" clip-path="url(#pytest-show-error-rich-line-19)">
 </text><text class="pytest-show-error-rich-r2" x="0" y="508" textLength="561.2" clip-path="url(#pytest-show-error-rich-line-20)">be use with `==`, because it was previously...</text><text class="pytest-show-error-rich-r2" x="976" y="508" textLength="12.2" clip-path="url(#pytest-show-error-rich-line-20)">
-</text><text class="pytest-show-error-rich-r4" x="0" y="532.4" textLength="378.2" clip-path="url(#pytest-show-error-rich-line-21)">============================== </text><text class="pytest-show-error-rich-r5" x="378.2" y="532.4" textLength="97.6" clip-path="url(#pytest-show-error-rich-line-21)">1 failed</text><text class="pytest-show-error-rich-r4" x="475.8" y="532.4" textLength="109.8" clip-path="url(#pytest-show-error-rich-line-21)"> in 0.00s</text><text class="pytest-show-error-rich-r4" x="585.6" y="532.4" textLength="390.4" clip-path="url(#pytest-show-error-rich-line-21)"> ===============================</text>
+</text><text class="pytest-show-error-rich-r4" x="0" y="532.4" textLength="378.2" clip-path="url(#pytest-show-error-rich-line-21)">============================== </text><text class="pytest-show-error-rich-r5" x="378.2" y="532.4" textLength="97.6" clip-path="url(#pytest-show-error-rich-line-21)">1 failed</text><text class="pytest-show-error-rich-r4" x="475.8" y="532.4" textLength="109.8" clip-path="url(#pytest-show-error-rich-line-21)"> in 0.00s</text><text class="pytest-show-error-rich-r4" x="585.6" y="532.4" textLength="390.4" clip-path="url(#pytest-show-error-rich-line-21)"> ===============================</text><text class="pytest-show-error-rich-r2" x="976" y="532.4" textLength="12.2" clip-path="url(#pytest-show-error-rich-line-21)">
+</text>
     </g>
     </g>
 </svg>
