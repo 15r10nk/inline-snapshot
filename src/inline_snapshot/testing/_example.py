@@ -673,7 +673,7 @@ uuid.uuid4 = f
 
             console.print("run>", *cmd)
 
-            console.print(Panel(Text(result_stdout), title="stdout"))
+            console.print(Panel(Text.from_ansi(result_stdout), title="stdout"))
             if result_stderr:
                 console.print(Panel(Text(result_stderr), title="stderr"))
 

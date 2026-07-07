@@ -152,7 +152,7 @@ def test_cmd():
 inline-snapshot provides some advanced ways to work with snapshots.
 
 I would like to know how these features are used to further improve this small library.
-Let me know if you've found interesting use cases for this library via [twitter](https://twitter.com/15r10nk), [fosstodon](https://fosstodon.org/deck/@15r10nk) or in the github [discussions](https://github.com/15r10nk/inline-snapshot/discussions/new?category=show-and-tell).
+Let me know if you've found interesting use cases for this library via [X](https://x.com/15r10nk), [fosstodon](https://fosstodon.org/deck/@15r10nk) or in the github [discussions](https://github.com/15r10nk/inline-snapshot/discussions/new?category=show-and-tell).
 
 <!--[[[cog
 import requests,cog

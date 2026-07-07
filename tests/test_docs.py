@@ -621,7 +621,6 @@ uuid.uuid4=f
                 f"[bold blue]$[/bold blue] "
                 f"[bold white]{escape(command)}[/bold white]"
             ),
-            unique_id=f"pytest-{image_path.stem.replace('.', '-')}",
         )
 
         assert external_file(image_path.resolve(), format=".rich.svg") == rendered

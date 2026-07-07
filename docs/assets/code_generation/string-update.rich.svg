@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" class="rich-terminal" viewBox="0 0 994 708.8">
     
     <metadata><inline-snapshot-rich-markup>[
-  "[bold blue]$[/bold blue] [bold white]pytest --inline-snapshot=update[/bold white]\n",
+  "[bold color(4)]$[/bold color(4)] [bold color(7)]pytest --inline-[bold color(7)][/bold color(7)]snapshot[bold color(7)][/bold color(7)]=[bold color(7)][/bold color(7)]update[/bold color(7)]\n",
   "[bold]============================= test session starts ==============================[/bold]\n",
   "collected 1 item\n",
   "\n",
@@ -47,153 +47,153 @@
         font-weight: 700;
     }
 
-    .pytest-string-update-rich-matrix {
+    .terminal-2737987125-matrix {
         font-family: Fira Code, monospace;
         font-size: 20px;
         line-height: 24.4px;
         font-variant-east-asian: full-width;
     }
 
-    .pytest-string-update-rich-title {
+    .terminal-2737987125-title {
         font-size: 18px;
         font-weight: bold;
         font-family: arial;
     }
 
-    .pytest-string-update-rich-r1 { fill: #608ab1;font-weight: bold }
-.pytest-string-update-rich-r2 { fill: #c5c8c6 }
-.pytest-string-update-rich-r3 { fill: #c5c8c6;font-weight: bold }
-.pytest-string-update-rich-r4 { fill: #98a84b }
-.pytest-string-update-rich-r5 { fill: #00823d }
-.pytest-string-update-rich-r6 { fill: #608ab1 }
-.pytest-string-update-rich-r7 { fill: #d0b344;font-weight: bold }
-.pytest-string-update-rich-r8 { fill: #98729f;font-weight: bold }
-.pytest-string-update-rich-r9 { fill: #ff2627 }
-.pytest-string-update-rich-r10 { fill: #608ab1;font-style: italic; }
-.pytest-string-update-rich-r11 { fill: #98a84b;font-weight: bold }
+    .terminal-2737987125-r1 { fill: #608ab1;font-weight: bold }
+.terminal-2737987125-r2 { fill: #c5c8c6 }
+.terminal-2737987125-r3 { fill: #c5c8c6;font-weight: bold }
+.terminal-2737987125-r4 { fill: #98a84b }
+.terminal-2737987125-r5 { fill: #00823d }
+.terminal-2737987125-r6 { fill: #608ab1 }
+.terminal-2737987125-r7 { fill: #d0b344;font-weight: bold }
+.terminal-2737987125-r8 { fill: #98729f;font-weight: bold }
+.terminal-2737987125-r9 { fill: #ff2627 }
+.terminal-2737987125-r10 { fill: #608ab1;font-style: italic; }
+.terminal-2737987125-r11 { fill: #98a84b;font-weight: bold }
     </style>
 
     <defs>
-    <clipPath id="pytest-string-update-rich-clip-terminal">
+    <clipPath id="terminal-2737987125-clip-terminal">
       <rect x="0" y="0" width="975.0" height="657.8"></rect>
     </clipPath>
-    <clipPath id="pytest-string-update-rich-line-0">
+    <clipPath id="terminal-2737987125-line-0">
     <rect x="0" y="1.5" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-1">
+<clipPath id="terminal-2737987125-line-1">
     <rect x="0" y="25.9" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-2">
+<clipPath id="terminal-2737987125-line-2">
     <rect x="0" y="50.3" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-3">
+<clipPath id="terminal-2737987125-line-3">
     <rect x="0" y="74.7" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-4">
+<clipPath id="terminal-2737987125-line-4">
     <rect x="0" y="99.1" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-5">
+<clipPath id="terminal-2737987125-line-5">
     <rect x="0" y="123.5" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-6">
+<clipPath id="terminal-2737987125-line-6">
     <rect x="0" y="147.9" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-7">
+<clipPath id="terminal-2737987125-line-7">
     <rect x="0" y="172.3" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-8">
+<clipPath id="terminal-2737987125-line-8">
     <rect x="0" y="196.7" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-9">
+<clipPath id="terminal-2737987125-line-9">
     <rect x="0" y="221.1" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-10">
+<clipPath id="terminal-2737987125-line-10">
     <rect x="0" y="245.5" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-11">
+<clipPath id="terminal-2737987125-line-11">
     <rect x="0" y="269.9" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-12">
+<clipPath id="terminal-2737987125-line-12">
     <rect x="0" y="294.3" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-13">
+<clipPath id="terminal-2737987125-line-13">
     <rect x="0" y="318.7" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-14">
+<clipPath id="terminal-2737987125-line-14">
     <rect x="0" y="343.1" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-15">
+<clipPath id="terminal-2737987125-line-15">
     <rect x="0" y="367.5" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-16">
+<clipPath id="terminal-2737987125-line-16">
     <rect x="0" y="391.9" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-17">
+<clipPath id="terminal-2737987125-line-17">
     <rect x="0" y="416.3" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-18">
+<clipPath id="terminal-2737987125-line-18">
     <rect x="0" y="440.7" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-19">
+<clipPath id="terminal-2737987125-line-19">
     <rect x="0" y="465.1" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-20">
+<clipPath id="terminal-2737987125-line-20">
     <rect x="0" y="489.5" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-21">
+<clipPath id="terminal-2737987125-line-21">
     <rect x="0" y="513.9" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-22">
+<clipPath id="terminal-2737987125-line-22">
     <rect x="0" y="538.3" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-23">
+<clipPath id="terminal-2737987125-line-23">
     <rect x="0" y="562.7" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-24">
+<clipPath id="terminal-2737987125-line-24">
     <rect x="0" y="587.1" width="976" height="24.65"></rect>
             </clipPath>
-<clipPath id="pytest-string-update-rich-line-25">
+<clipPath id="terminal-2737987125-line-25">
     <rect x="0" y="611.5" width="976" height="24.65"></rect>
             </clipPath>
     </defs>
 
-    <rect fill="#292929" stroke="rgba(255,255,255,0.35)" stroke-width="1" x="1" y="1" width="992" height="706.8" rx="8"></rect><text class="pytest-string-update-rich-title" fill="#c5c8c6" text-anchor="middle" x="496" y="27">Terminal</text>
+    <rect fill="#292929" stroke="rgba(255,255,255,0.35)" stroke-width="1" x="1" y="1" width="992" height="706.8" rx="8"></rect><text class="terminal-2737987125-title" fill="#c5c8c6" text-anchor="middle" x="496" y="27">Terminal</text>
             <g transform="translate(26,22)">
             <circle cx="0" cy="0" r="7" fill="#ff5f57"></circle>
             <circle cx="22" cy="0" r="7" fill="#febc2e"></circle>
             <circle cx="44" cy="0" r="7" fill="#28c840"></circle>
             </g>
         
-    <g transform="translate(9, 41)" clip-path="url(#pytest-string-update-rich-clip-terminal)">
+    <g transform="translate(9, 41)" clip-path="url(#terminal-2737987125-clip-terminal)">
     
-    <g class="pytest-string-update-rich-matrix">
-    <text class="pytest-string-update-rich-r1" x="0" y="20" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-0)">$</text><text class="pytest-string-update-rich-r3" x="24.4" y="20" textLength="378.2" clip-path="url(#pytest-string-update-rich-line-0)">pytest --inline-snapshot=update</text><text class="pytest-string-update-rich-r2" x="976" y="20" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-0)">
-</text><text class="pytest-string-update-rich-r3" x="0" y="44.4" textLength="976" clip-path="url(#pytest-string-update-rich-line-1)">============================= test session starts ==============================</text><text class="pytest-string-update-rich-r2" x="976" y="44.4" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-1)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="68.8" textLength="195.2" clip-path="url(#pytest-string-update-rich-line-2)">collected 1 item</text><text class="pytest-string-update-rich-r2" x="976" y="68.8" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-2)">
-</text><text class="pytest-string-update-rich-r2" x="976" y="93.2" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-3)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="117.6" textLength="268.4" clip-path="url(#pytest-string-update-rich-line-4)">tests/test_example.py </text><text class="pytest-string-update-rich-r4" x="268.4" y="117.6" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-4)">.</text><text class="pytest-string-update-rich-r4" x="280.6" y="117.6" textLength="683.2" clip-path="url(#pytest-string-update-rich-line-4)">                                                  [100%]</text><text class="pytest-string-update-rich-r2" x="976" y="117.6" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-4)">
-</text><text class="pytest-string-update-rich-r2" x="976" y="142" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-5)">
-</text><text class="pytest-string-update-rich-r5" x="0" y="166.4" textLength="390.4" clip-path="url(#pytest-string-update-rich-line-6)">═══════════════════════════════ </text><text class="pytest-string-update-rich-r6" x="390.4" y="166.4" textLength="183" clip-path="url(#pytest-string-update-rich-line-6)">inline-snapshot</text><text class="pytest-string-update-rich-r5" x="573.4" y="166.4" textLength="402.6" clip-path="url(#pytest-string-update-rich-line-6)"> ════════════════════════════════</text><text class="pytest-string-update-rich-r2" x="976" y="166.4" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-6)">
-</text><text class="pytest-string-update-rich-r5" x="0" y="190.8" textLength="390.4" clip-path="url(#pytest-string-update-rich-line-7)">─────────────────────────────── </text><text class="pytest-string-update-rich-r7" x="390.4" y="190.8" textLength="195.2" clip-path="url(#pytest-string-update-rich-line-7)">Update snapshots</text><text class="pytest-string-update-rich-r5" x="585.6" y="190.8" textLength="390.4" clip-path="url(#pytest-string-update-rich-line-7)"> ───────────────────────────────</text><text class="pytest-string-update-rich-r2" x="976" y="190.8" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-7)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="215.2" textLength="976" clip-path="url(#pytest-string-update-rich-line-8)">╭─────────────────────────── tests/test_example.py ────────────────────────────╮</text><text class="pytest-string-update-rich-r2" x="976" y="215.2" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-8)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="239.6" textLength="24.4" clip-path="url(#pytest-string-update-rich-line-9)">│ </text><text class="pytest-string-update-rich-r8" x="24.4" y="239.6" textLength="183" clip-path="url(#pytest-string-update-rich-line-9)">@@ -3,6 +3,8 @@</text><text class="pytest-string-update-rich-r2" x="207.4" y="239.6" textLength="768.6" clip-path="url(#pytest-string-update-rich-line-9)">                                                              │</text><text class="pytest-string-update-rich-r2" x="976" y="239.6" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-9)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="264" textLength="976" clip-path="url(#pytest-string-update-rich-line-10)">│                                                                              │</text><text class="pytest-string-update-rich-r2" x="976" y="264" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-10)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="288.4" textLength="24.4" clip-path="url(#pytest-string-update-rich-line-11)">│ </text><text class="pytest-string-update-rich-r2" x="36.6" y="288.4" textLength="939.4" clip-path="url(#pytest-string-update-rich-line-11)">                                                                            │</text><text class="pytest-string-update-rich-r2" x="976" y="288.4" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-11)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="312.8" textLength="24.4" clip-path="url(#pytest-string-update-rich-line-12)">│ </text><text class="pytest-string-update-rich-r2" x="36.6" y="312.8" textLength="939.4" clip-path="url(#pytest-string-update-rich-line-12)">def test_something():                                                       │</text><text class="pytest-string-update-rich-r2" x="976" y="312.8" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-12)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="337.2" textLength="24.4" clip-path="url(#pytest-string-update-rich-line-13)">│ </text><text class="pytest-string-update-rich-r2" x="36.6" y="337.2" textLength="939.4" clip-path="url(#pytest-string-update-rich-line-13)">    assert "first line\nsecond line" == snapshot(                           │</text><text class="pytest-string-update-rich-r2" x="976" y="337.2" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-13)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="361.6" textLength="24.4" clip-path="url(#pytest-string-update-rich-line-14)">│ </text><text class="pytest-string-update-rich-r9" x="24.4" y="361.6" textLength="268.4" clip-path="url(#pytest-string-update-rich-line-14)">-        """first line</text><text class="pytest-string-update-rich-r2" x="292.8" y="361.6" textLength="683.2" clip-path="url(#pytest-string-update-rich-line-14)">                                                       │</text><text class="pytest-string-update-rich-r2" x="976" y="361.6" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-14)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="386" textLength="24.4" clip-path="url(#pytest-string-update-rich-line-15)">│ </text><text class="pytest-string-update-rich-r9" x="24.4" y="386" textLength="183" clip-path="url(#pytest-string-update-rich-line-15)">-second line"""</text><text class="pytest-string-update-rich-r2" x="207.4" y="386" textLength="768.6" clip-path="url(#pytest-string-update-rich-line-15)">                                                              │</text><text class="pytest-string-update-rich-r2" x="976" y="386" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-15)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="410.4" textLength="24.4" clip-path="url(#pytest-string-update-rich-line-16)">│ </text><text class="pytest-string-update-rich-r4" x="24.4" y="410.4" textLength="158.6" clip-path="url(#pytest-string-update-rich-line-16)">+        """\</text><text class="pytest-string-update-rich-r2" x="183" y="410.4" textLength="793" clip-path="url(#pytest-string-update-rich-line-16)">                                                                │</text><text class="pytest-string-update-rich-r2" x="976" y="410.4" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-16)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="434.8" textLength="24.4" clip-path="url(#pytest-string-update-rich-line-17)">│ </text><text class="pytest-string-update-rich-r4" x="24.4" y="434.8" textLength="134.2" clip-path="url(#pytest-string-update-rich-line-17)">+first line</text><text class="pytest-string-update-rich-r2" x="158.6" y="434.8" textLength="817.4" clip-path="url(#pytest-string-update-rich-line-17)">                                                                  │</text><text class="pytest-string-update-rich-r2" x="976" y="434.8" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-17)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="459.2" textLength="24.4" clip-path="url(#pytest-string-update-rich-line-18)">│ </text><text class="pytest-string-update-rich-r4" x="24.4" y="459.2" textLength="158.6" clip-path="url(#pytest-string-update-rich-line-18)">+second line\</text><text class="pytest-string-update-rich-r2" x="183" y="459.2" textLength="793" clip-path="url(#pytest-string-update-rich-line-18)">                                                                │</text><text class="pytest-string-update-rich-r2" x="976" y="459.2" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-18)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="483.6" textLength="24.4" clip-path="url(#pytest-string-update-rich-line-19)">│ </text><text class="pytest-string-update-rich-r4" x="24.4" y="483.6" textLength="48.8" clip-path="url(#pytest-string-update-rich-line-19)">+"""</text><text class="pytest-string-update-rich-r2" x="73.2" y="483.6" textLength="902.8" clip-path="url(#pytest-string-update-rich-line-19)">                                                                         │</text><text class="pytest-string-update-rich-r2" x="976" y="483.6" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-19)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="508" textLength="24.4" clip-path="url(#pytest-string-update-rich-line-20)">│ </text><text class="pytest-string-update-rich-r2" x="36.6" y="508" textLength="939.4" clip-path="url(#pytest-string-update-rich-line-20)">    )                                                                       │</text><text class="pytest-string-update-rich-r2" x="976" y="508" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-20)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="532.4" textLength="976" clip-path="url(#pytest-string-update-rich-line-21)">╰──────────────────────────────────────────────────────────────────────────────╯</text><text class="pytest-string-update-rich-r2" x="976" y="532.4" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-21)">
-</text><text class="pytest-string-update-rich-r2" x="0" y="556.8" textLength="585.6" clip-path="url(#pytest-string-update-rich-line-22)">These changes will be applied, because you used </text><text class="pytest-string-update-rich-r10" x="585.6" y="556.8" textLength="73.2" clip-path="url(#pytest-string-update-rich-line-22)">update</text><text class="pytest-string-update-rich-r2" x="976" y="556.8" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-22)">
-</text><text class="pytest-string-update-rich-r2" x="976" y="581.2" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-23)">
-</text><text class="pytest-string-update-rich-r2" x="976" y="605.6" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-24)">
-</text><text class="pytest-string-update-rich-r2" x="976" y="630" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-25)">
-</text><text class="pytest-string-update-rich-r4" x="0" y="654.4" textLength="378.2" clip-path="url(#pytest-string-update-rich-line-26)">============================== </text><text class="pytest-string-update-rich-r11" x="378.2" y="654.4" textLength="97.6" clip-path="url(#pytest-string-update-rich-line-26)">1 passed</text><text class="pytest-string-update-rich-r4" x="475.8" y="654.4" textLength="109.8" clip-path="url(#pytest-string-update-rich-line-26)"> in 0.00s</text><text class="pytest-string-update-rich-r4" x="585.6" y="654.4" textLength="390.4" clip-path="url(#pytest-string-update-rich-line-26)"> ===============================</text><text class="pytest-string-update-rich-r2" x="976" y="654.4" textLength="12.2" clip-path="url(#pytest-string-update-rich-line-26)">
+    <g class="terminal-2737987125-matrix">
+    <text class="terminal-2737987125-r1" x="0" y="20" textLength="12.2" clip-path="url(#terminal-2737987125-line-0)">$</text><text class="terminal-2737987125-r3" x="24.4" y="20" textLength="195.2" clip-path="url(#terminal-2737987125-line-0)">pytest --inline-</text><text class="terminal-2737987125-r3" x="219.6" y="20" textLength="97.6" clip-path="url(#terminal-2737987125-line-0)">snapshot</text><text class="terminal-2737987125-r3" x="317.2" y="20" textLength="12.2" clip-path="url(#terminal-2737987125-line-0)">=</text><text class="terminal-2737987125-r3" x="329.4" y="20" textLength="73.2" clip-path="url(#terminal-2737987125-line-0)">update</text><text class="terminal-2737987125-r2" x="976" y="20" textLength="12.2" clip-path="url(#terminal-2737987125-line-0)">
+</text><text class="terminal-2737987125-r3" x="0" y="44.4" textLength="976" clip-path="url(#terminal-2737987125-line-1)">============================= test session starts ==============================</text><text class="terminal-2737987125-r2" x="976" y="44.4" textLength="12.2" clip-path="url(#terminal-2737987125-line-1)">
+</text><text class="terminal-2737987125-r2" x="0" y="68.8" textLength="195.2" clip-path="url(#terminal-2737987125-line-2)">collected 1 item</text><text class="terminal-2737987125-r2" x="976" y="68.8" textLength="12.2" clip-path="url(#terminal-2737987125-line-2)">
+</text><text class="terminal-2737987125-r2" x="976" y="93.2" textLength="12.2" clip-path="url(#terminal-2737987125-line-3)">
+</text><text class="terminal-2737987125-r2" x="0" y="117.6" textLength="268.4" clip-path="url(#terminal-2737987125-line-4)">tests/test_example.py </text><text class="terminal-2737987125-r4" x="268.4" y="117.6" textLength="12.2" clip-path="url(#terminal-2737987125-line-4)">.</text><text class="terminal-2737987125-r4" x="280.6" y="117.6" textLength="683.2" clip-path="url(#terminal-2737987125-line-4)">                                                  [100%]</text><text class="terminal-2737987125-r2" x="976" y="117.6" textLength="12.2" clip-path="url(#terminal-2737987125-line-4)">
+</text><text class="terminal-2737987125-r2" x="976" y="142" textLength="12.2" clip-path="url(#terminal-2737987125-line-5)">
+</text><text class="terminal-2737987125-r5" x="0" y="166.4" textLength="390.4" clip-path="url(#terminal-2737987125-line-6)">═══════════════════════════════ </text><text class="terminal-2737987125-r6" x="390.4" y="166.4" textLength="183" clip-path="url(#terminal-2737987125-line-6)">inline-snapshot</text><text class="terminal-2737987125-r5" x="573.4" y="166.4" textLength="402.6" clip-path="url(#terminal-2737987125-line-6)"> ════════════════════════════════</text><text class="terminal-2737987125-r2" x="976" y="166.4" textLength="12.2" clip-path="url(#terminal-2737987125-line-6)">
+</text><text class="terminal-2737987125-r5" x="0" y="190.8" textLength="390.4" clip-path="url(#terminal-2737987125-line-7)">─────────────────────────────── </text><text class="terminal-2737987125-r7" x="390.4" y="190.8" textLength="195.2" clip-path="url(#terminal-2737987125-line-7)">Update snapshots</text><text class="terminal-2737987125-r5" x="585.6" y="190.8" textLength="390.4" clip-path="url(#terminal-2737987125-line-7)"> ───────────────────────────────</text><text class="terminal-2737987125-r2" x="976" y="190.8" textLength="12.2" clip-path="url(#terminal-2737987125-line-7)">
+</text><text class="terminal-2737987125-r2" x="0" y="215.2" textLength="976" clip-path="url(#terminal-2737987125-line-8)">╭─────────────────────────── tests/test_example.py ────────────────────────────╮</text><text class="terminal-2737987125-r2" x="976" y="215.2" textLength="12.2" clip-path="url(#terminal-2737987125-line-8)">
+</text><text class="terminal-2737987125-r2" x="0" y="239.6" textLength="24.4" clip-path="url(#terminal-2737987125-line-9)">│ </text><text class="terminal-2737987125-r8" x="24.4" y="239.6" textLength="183" clip-path="url(#terminal-2737987125-line-9)">@@ -3,6 +3,8 @@</text><text class="terminal-2737987125-r2" x="207.4" y="239.6" textLength="768.6" clip-path="url(#terminal-2737987125-line-9)">                                                              │</text><text class="terminal-2737987125-r2" x="976" y="239.6" textLength="12.2" clip-path="url(#terminal-2737987125-line-9)">
+</text><text class="terminal-2737987125-r2" x="0" y="264" textLength="976" clip-path="url(#terminal-2737987125-line-10)">│                                                                              │</text><text class="terminal-2737987125-r2" x="976" y="264" textLength="12.2" clip-path="url(#terminal-2737987125-line-10)">
+</text><text class="terminal-2737987125-r2" x="0" y="288.4" textLength="24.4" clip-path="url(#terminal-2737987125-line-11)">│ </text><text class="terminal-2737987125-r2" x="36.6" y="288.4" textLength="939.4" clip-path="url(#terminal-2737987125-line-11)">                                                                            │</text><text class="terminal-2737987125-r2" x="976" y="288.4" textLength="12.2" clip-path="url(#terminal-2737987125-line-11)">
+</text><text class="terminal-2737987125-r2" x="0" y="312.8" textLength="24.4" clip-path="url(#terminal-2737987125-line-12)">│ </text><text class="terminal-2737987125-r2" x="36.6" y="312.8" textLength="939.4" clip-path="url(#terminal-2737987125-line-12)">def test_something():                                                       │</text><text class="terminal-2737987125-r2" x="976" y="312.8" textLength="12.2" clip-path="url(#terminal-2737987125-line-12)">
+</text><text class="terminal-2737987125-r2" x="0" y="337.2" textLength="24.4" clip-path="url(#terminal-2737987125-line-13)">│ </text><text class="terminal-2737987125-r2" x="36.6" y="337.2" textLength="939.4" clip-path="url(#terminal-2737987125-line-13)">    assert "first line\nsecond line" == snapshot(                           │</text><text class="terminal-2737987125-r2" x="976" y="337.2" textLength="12.2" clip-path="url(#terminal-2737987125-line-13)">
+</text><text class="terminal-2737987125-r2" x="0" y="361.6" textLength="24.4" clip-path="url(#terminal-2737987125-line-14)">│ </text><text class="terminal-2737987125-r9" x="24.4" y="361.6" textLength="268.4" clip-path="url(#terminal-2737987125-line-14)">-        """first line</text><text class="terminal-2737987125-r2" x="292.8" y="361.6" textLength="683.2" clip-path="url(#terminal-2737987125-line-14)">                                                       │</text><text class="terminal-2737987125-r2" x="976" y="361.6" textLength="12.2" clip-path="url(#terminal-2737987125-line-14)">
+</text><text class="terminal-2737987125-r2" x="0" y="386" textLength="24.4" clip-path="url(#terminal-2737987125-line-15)">│ </text><text class="terminal-2737987125-r9" x="24.4" y="386" textLength="183" clip-path="url(#terminal-2737987125-line-15)">-second line"""</text><text class="terminal-2737987125-r2" x="207.4" y="386" textLength="768.6" clip-path="url(#terminal-2737987125-line-15)">                                                              │</text><text class="terminal-2737987125-r2" x="976" y="386" textLength="12.2" clip-path="url(#terminal-2737987125-line-15)">
+</text><text class="terminal-2737987125-r2" x="0" y="410.4" textLength="24.4" clip-path="url(#terminal-2737987125-line-16)">│ </text><text class="terminal-2737987125-r4" x="24.4" y="410.4" textLength="158.6" clip-path="url(#terminal-2737987125-line-16)">+        """\</text><text class="terminal-2737987125-r2" x="183" y="410.4" textLength="793" clip-path="url(#terminal-2737987125-line-16)">                                                                │</text><text class="terminal-2737987125-r2" x="976" y="410.4" textLength="12.2" clip-path="url(#terminal-2737987125-line-16)">
+</text><text class="terminal-2737987125-r2" x="0" y="434.8" textLength="24.4" clip-path="url(#terminal-2737987125-line-17)">│ </text><text class="terminal-2737987125-r4" x="24.4" y="434.8" textLength="134.2" clip-path="url(#terminal-2737987125-line-17)">+first line</text><text class="terminal-2737987125-r2" x="158.6" y="434.8" textLength="817.4" clip-path="url(#terminal-2737987125-line-17)">                                                                  │</text><text class="terminal-2737987125-r2" x="976" y="434.8" textLength="12.2" clip-path="url(#terminal-2737987125-line-17)">
+</text><text class="terminal-2737987125-r2" x="0" y="459.2" textLength="24.4" clip-path="url(#terminal-2737987125-line-18)">│ </text><text class="terminal-2737987125-r4" x="24.4" y="459.2" textLength="158.6" clip-path="url(#terminal-2737987125-line-18)">+second line\</text><text class="terminal-2737987125-r2" x="183" y="459.2" textLength="793" clip-path="url(#terminal-2737987125-line-18)">                                                                │</text><text class="terminal-2737987125-r2" x="976" y="459.2" textLength="12.2" clip-path="url(#terminal-2737987125-line-18)">
+</text><text class="terminal-2737987125-r2" x="0" y="483.6" textLength="24.4" clip-path="url(#terminal-2737987125-line-19)">│ </text><text class="terminal-2737987125-r4" x="24.4" y="483.6" textLength="48.8" clip-path="url(#terminal-2737987125-line-19)">+"""</text><text class="terminal-2737987125-r2" x="73.2" y="483.6" textLength="902.8" clip-path="url(#terminal-2737987125-line-19)">                                                                         │</text><text class="terminal-2737987125-r2" x="976" y="483.6" textLength="12.2" clip-path="url(#terminal-2737987125-line-19)">
+</text><text class="terminal-2737987125-r2" x="0" y="508" textLength="24.4" clip-path="url(#terminal-2737987125-line-20)">│ </text><text class="terminal-2737987125-r2" x="36.6" y="508" textLength="939.4" clip-path="url(#terminal-2737987125-line-20)">    )                                                                       │</text><text class="terminal-2737987125-r2" x="976" y="508" textLength="12.2" clip-path="url(#terminal-2737987125-line-20)">
+</text><text class="terminal-2737987125-r2" x="0" y="532.4" textLength="976" clip-path="url(#terminal-2737987125-line-21)">╰──────────────────────────────────────────────────────────────────────────────╯</text><text class="terminal-2737987125-r2" x="976" y="532.4" textLength="12.2" clip-path="url(#terminal-2737987125-line-21)">
+</text><text class="terminal-2737987125-r2" x="0" y="556.8" textLength="585.6" clip-path="url(#terminal-2737987125-line-22)">These changes will be applied, because you used </text><text class="terminal-2737987125-r10" x="585.6" y="556.8" textLength="73.2" clip-path="url(#terminal-2737987125-line-22)">update</text><text class="terminal-2737987125-r2" x="976" y="556.8" textLength="12.2" clip-path="url(#terminal-2737987125-line-22)">
+</text><text class="terminal-2737987125-r2" x="976" y="581.2" textLength="12.2" clip-path="url(#terminal-2737987125-line-23)">
+</text><text class="terminal-2737987125-r2" x="976" y="605.6" textLength="12.2" clip-path="url(#terminal-2737987125-line-24)">
+</text><text class="terminal-2737987125-r2" x="976" y="630" textLength="12.2" clip-path="url(#terminal-2737987125-line-25)">
+</text><text class="terminal-2737987125-r4" x="0" y="654.4" textLength="378.2" clip-path="url(#terminal-2737987125-line-26)">============================== </text><text class="terminal-2737987125-r11" x="378.2" y="654.4" textLength="97.6" clip-path="url(#terminal-2737987125-line-26)">1 passed</text><text class="terminal-2737987125-r4" x="475.8" y="654.4" textLength="109.8" clip-path="url(#terminal-2737987125-line-26)"> in 0.00s</text><text class="terminal-2737987125-r4" x="585.6" y="654.4" textLength="390.4" clip-path="url(#terminal-2737987125-line-26)"> ===============================</text><text class="terminal-2737987125-r2" x="976" y="654.4" textLength="12.2" clip-path="url(#terminal-2737987125-line-26)">
 </text>
     </g>
     </g>

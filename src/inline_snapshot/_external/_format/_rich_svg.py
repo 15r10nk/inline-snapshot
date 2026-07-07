@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import json
+import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
+
+from rich.console import Console
+from rich.text import Text
 
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._external._diff import diff
@@ -19,6 +23,17 @@ ET.register_namespace("", SVG_NAMESPACE)
 
 @dataclass
 class RichSnapshot:
+    """
+    represents rich text as markup.
+    This class stores two thinks:
+
+    * the svg which is can be stored in an external file with `rich_snapshot == external()`
+    * and the markup which is also stored as metadata in this file and is used for comparison.
+
+    This allows you to mask specific parts in your code and show the original output at the same time, which is very useful when you want to test terminal output in your docs.
+
+    """
+
     svg: str
     markup: str
 
@@ -29,6 +44,16 @@ class RichSnapshot:
 
     def __repr__(self):
         return f"RichSnapshot({self.markup!r})"
+
+    @staticmethod
+    def from_console(console: Console, title="Terminal", include_styles=True):
+        return RichSnapshot(
+            svg=console.export_svg(title=title, clear=False),
+            markup=Text.from_ansi(console.export_text(styles=include_styles)).markup,
+        )
+
+    def mask(self, regex):
+        return RichSnapshot(svg=self.svg, markup=re.sub(regex, "", self.markup))
 
 
 def _local_name(tag: str) -> str:

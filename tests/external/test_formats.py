@@ -94,7 +94,7 @@ def test_a():
 | @@ -1 +1 @@                                                                  |
 |                                                                              |
 | -hello                                                                       |
-| +something \\[blue]else\\[/]                                                   |
+| +something [blue]else[/]                                                     |
 +------------------------------------------------------------------------------+
 These changes are not applied.
 Use --inline-snapshot=fix to apply them, or use the interactive mode with
