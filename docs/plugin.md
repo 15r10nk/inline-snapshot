@@ -53,7 +53,7 @@ All customizations defined in your `conftest.py` are active globally for all you
 
 ### Creating a Plugin Package
 
-To distribute inline-snapshot plugins as a package, register your plugin class using the `inline-snapshot` entry point in your `setup.py` or `pyproject.toml`:
+To distribute inline-snapshot plugins as a package, register your plugin module using the `inline-snapshot` entry point in your `setup.py` or `pyproject.toml`:
 
 === "pyproject.toml (recommended)"
     ``` toml
@@ -73,7 +73,7 @@ To distribute inline-snapshot plugins as a package, register your plugin class u
     )
     ```
 
-Your plugin class should contain methods decorated with `@customize`, just like in conftest.py:
+Your plugin module should contain functions decorated with `@customize`, just like in conftest.py:
 
 ``` python title="my_package/plugin.py"
 from inline_snapshot.plugin import customize, Builder
@@ -163,7 +163,7 @@ def test_square():
 3. Your handler is not used because width and height are different
 4. The handler is applied recursively to each Rect inside the list - the first is converted to `make_square()` while the second uses the regular constructor
 
-### dirty-equal expressions
+### dirty-equals expressions
 It can also be used to instruct inline-snapshot to use specific dirty-equals expressions for specific values.
 
 <!-- inline-snapshot-lib-set: conftest.py -->

@@ -61,8 +61,3 @@ def test_captcha():
 
 !!! info
     It is not possible to specify the storage protocol when you call `outsource()` because this is something that should be under the control of the user who uses this external object.
-
-!!! limitation
-    `outsource()` currently always uses the *hash* protocol when it creates a new external object.
-    This is a limitation that will be addressed in the future.
-    It is possible to change it later to `#!python external("uuid:")` manually if you want to store it in a different location.

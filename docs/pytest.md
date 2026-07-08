@@ -88,6 +88,6 @@ This can be useful if you think that snapshot logic causes a problem in your tes
 
 ## Default Flags
 
-The [default flags](configuration.md#default-flags) are `--inline-snapshot=create,review` (or `--inline-snapshot=short-report` when you are using *CPython 3.10 or older*).
+The [default flags](configuration.md#default-flags) when you are in an interactive terminal are `--inline-snapshot=create,review` (or `--inline-snapshot=short-report` when you are using *CPython 3.10 or older*).
 
 This allows you to work with pytest and inline-snapshot without changing your usual pytest workflow.

@@ -1,4 +1,4 @@
-inline-snapshot is not the only snapshot testing library for python.
+inline-snapshot is not the only snapshot testing library for Python.
 There are several others to:
 
 * [syrupy](https://github.com/syrupy-project/syrupy)

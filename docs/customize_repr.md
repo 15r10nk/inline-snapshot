@@ -19,7 +19,7 @@
         return "my_class_repr"
     ```
 
-    `@customize` allows you not only to generate code but also imports and function calls which can be analysed by inline-snapshot.
+    `@customize` allows you not only to generate code but also imports and function calls which can be analyzed by inline-snapshot.
 
 
 That said, what is/was `@customize_repr` for?
@@ -37,7 +37,7 @@ Here are some examples:
 '<E.a: 1>'
 ```
 
-`customize_repr` can be used to overwrite the default `repr()` behaviour.
+`customize_repr` can be used to overwrite the default `repr()` behavior.
 
 The implementation for `MyClass` could look like this:
 

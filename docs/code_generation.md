@@ -1,7 +1,7 @@
 
 
-You can use almost any python data type and also complex values like `datetime.date`, because `repr()` is used to convert the values to source code.
-The default `__repr__()` behaviour can be [customized](plugin.md#customize-examples).
+You can use almost any Python data type and also complex values like `datetime.date`, because `repr()` is used to convert the values to source code.
+The default `__repr__()` behavior can be [customized](plugin.md#customize-examples).
 
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->
 ``` python
@@ -39,14 +39,14 @@ The code is generated in the following way:
 
 1. The value is copied with `value = copy.deepcopy(value)` and it is checked if the copied value is equal to the original value.
 2. The code is generated with:
-    * a defined [@customized](plugin.md#customize-examples) hook which can also be defined by the user.
+    * a defined [@customize](plugin.md#customize-examples) hook which can also be defined by the user.
     * or by a fallback `repr(value)`
     * Strings which contain newlines are converted to triple quoted strings.
 
     !!! note
         Missing newlines at start or end are escaped (since 0.4.0).
 
-        This changes are part of the [update](categories.md#update) category, which is not reported by default. You can apply all these update changes with `pytest --inline-snapshot=update`.
+        These changes are part of the [update](categories.md#update) category, which is not reported by default. You can apply all these update changes with `pytest --inline-snapshot=update`.
 
         <!-- inline-snapshot: first_block outcome-passed=1 -->
         ``` python
@@ -65,7 +65,7 @@ The code is generated in the following way:
         ![](assets/code_generation/string-update.rich.svg)
 
 
-4. The new code fragments are formatted with black if it is installed.
+3. The new code fragments are formatted with black if it is installed.
 
     !!! note
         Black is an optional dependency since inline-snapshot v0.19.0.
@@ -74,7 +74,7 @@ The code is generated in the following way:
         pip install inline-snapshot[black]
         ```
 
-5. The whole file is formatted
+4. The whole file is formatted
     * with black if it was formatted with black before.
 
         !!! note

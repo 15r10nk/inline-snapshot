@@ -266,7 +266,7 @@ The next feature, which will be released when I reach 20 sponsors, is the abilit
 assert 1 + 1 == ...
 ```
 
-This allows you to fix assertions in codebases which do not use inline-snapshot jet.
+This allows you to fix assertions in codebases which do not use inline-snapshot yet.
 You can learn more about this feature [here](fix_assert.md).
 
 

@@ -1,6 +1,6 @@
 ## General
 
-It is possible to check if an value is in a snapshot. The value of the generated snapshot will be a list of all values which are tested.
+It is possible to check if a value is in a snapshot. The value of the generated snapshot will be a list of all tested values.
 
 Example:
 

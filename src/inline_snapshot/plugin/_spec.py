@@ -38,7 +38,7 @@ class InlineSnapshotPluginSpec:
 
         This hook allows you to control how inline-snapshot represents objects in generated code.
         When multiple handlers are registered, they are called until one returns a non-None value.
-        `customize` is also called for each attribute of the converted hook which is not a Custom node, which means that a hook for `int` does not only apply for `snapshot(5)` but also for `snaspshot([1,2,3])` 3 times.
+        `customize` is also called for each attribute of the converted hook which is not a Custom node, which means that a hook for `int` does not only apply for `snapshot(5)` but also for `snapshot([1,2,3])` 3 times.
 
         Arguments:
             value: The Python object that needs to be converted into source code representation.

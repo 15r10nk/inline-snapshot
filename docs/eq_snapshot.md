@@ -49,7 +49,7 @@ Example:
 
 inline-snapshots manages everything inside `snapshot(...)`, which means that the developer should not change these parts, but there are cases where it is useful to give the developer the control over the snapshot content back.
 
-Therefor some types will be ignored by inline-snapshot and will **not be updated or fixed**, even if they cause tests to fail.
+Therefore, some types will be ignored by inline-snapshot and will **not be updated or fixed**, even if they cause tests to fail.
 
 These types are:
 
