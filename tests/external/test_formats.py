@@ -2,6 +2,8 @@ import pytest
 from dirty_equals import AnyThing
 
 from inline_snapshot import snapshot
+from inline_snapshot._external._format._rich_svg import RichSnapshot
+from inline_snapshot._external._format._rich_svg import RichSvgFormat
 from inline_snapshot.testing._example import Example
 
 RICH_SVG_WITH_DIFFERENT_MARKUP = """\
@@ -19,6 +21,32 @@ MALFORMED_RICH_SVG_METADATA = """\
 
 WRONG_RICH_SVG_METADATA_TYPE = """\
 <svg xmlns="http://www.w3.org/2000/svg"><metadata><inline-snapshot-rich-markup>{"line": "hello"}</inline-snapshot-rich-markup></metadata></svg>"""
+
+
+def test_rich_snapshot_equality_with_other_type():
+    assert (
+        RichSnapshot.__eq__(RichSnapshot("<svg></svg>", "hello"), object())
+        is NotImplemented
+    )
+
+
+def test_rich_snapshot_repr_and_mask():
+    snapshot = RichSnapshot("<svg></svg>", "hello 2026")
+
+    assert repr(snapshot) == "RichSnapshot('hello 2026')"
+    assert snapshot.mask(r" \d+") == RichSnapshot("<svg></svg>", "hello")
+
+
+def test_rich_svg_format_rich_diff_and_show(tmp_path):
+    format = RichSvgFormat()
+    original = tmp_path / "original.rich.svg"
+    new = tmp_path / "new.rich.svg"
+
+    format.encode(RichSnapshot("<svg></svg>", "old"), original)
+    format.encode(RichSnapshot("<svg></svg>", "new"), new)
+
+    assert format.rich_show(original) == "old"
+    assert format.rich_diff(original, new) is not None
 
 
 @pytest.mark.parametrize(
@@ -94,7 +122,7 @@ def test_a():
 | @@ -1 +1 @@                                                                  |
 |                                                                              |
 | -hello                                                                       |
-| +something [blue]else[/]                                                     |
+| +something \\[blue]else\\[/]                                                   |
 +------------------------------------------------------------------------------+
 These changes are not applied.
 Use --inline-snapshot=fix to apply them, or use the interactive mode with

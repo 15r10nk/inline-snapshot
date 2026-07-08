@@ -255,8 +255,8 @@ def test_map_code_blocks(tmp_path):
             recorded_last_output_calls = []
 
             def test_last_output(path, line, prompt):
-                if handle_last_output is not None:
-                    handle_last_output(path, line, prompt)
+                assert handle_last_output is not None
+                handle_last_output(path, line, prompt)
                 recorded_last_output_calls.append(
                     (path.relative_to(file.parent), line, prompt)
                 )
@@ -264,9 +264,8 @@ def test_map_code_blocks(tmp_path):
             recorded_run_calls = []
 
             def test_run(header, line):
-                new_header = None
-                if handle_run is not None:
-                    new_header = handle_run(header, line)
+                assert handle_run is not None
+                new_header = handle_run(header, line)
                 recorded_run_calls.append((header, line))
                 return new_header
 
@@ -402,6 +401,19 @@ print(1 + 1)
             [Block(code="print(1 + 1)\n", code_header=None, block_options={}, line=2)]
         ),
         last_output_calls=snapshot([(Path("output.svg"), 6, "pytest")]),
+    )
+
+    test_doc(
+        """\
+<!-- inline-snapshot-last-output -->
+<!-- inline-snapshot: create -->
+``` python
+print(1)
+```
+""",
+        exception=IsStr(
+            regex=r"AssertionError: .*example\.md:1: inline-snapshot-last-output must be followed by an SVG image"
+        ),
     )
 
     test_doc(
@@ -610,7 +622,7 @@ uuid.uuid4=f
         if last_pytest_command is None or last_pytest_stdout is None:
             raise AssertionError(
                 f"{file}:{line - 1}: inline-snapshot-last-output needs a previous inline-snapshot block"
-            )
+            )  # pragma: no cover
 
         command = last_pytest_command if prompt is None else prompt
         rendered = render_ansi_to_svg(
@@ -734,14 +746,14 @@ uuid.uuid4=f
         if last_code is None:
             raise AssertionError(
                 f"{file}:{line - 1}: inline-snapshot-run needs a previous code block"
-            )
+            )  # pragma: no cover
 
         print(f"test run line {line - 1}")
         result = run_example(
             last_code, code_header.removeprefix("inline-snapshot-run:").strip()
         )
         if result is None:
-            return None
+            return None  # pragma: no cover
 
         cli_flags = result["cli_flags"]
         options = result["options"]
