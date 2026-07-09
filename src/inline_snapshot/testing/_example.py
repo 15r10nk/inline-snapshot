@@ -52,12 +52,18 @@ ansi_escape = re.compile(
     re.VERBOSE,
 )
 
+ansi_osc_escape = re.compile(r"\x1B\].*?(?:\x07|\x1B\\)")
+
 
 def normalize(text):
+    text = ansi_osc_escape.sub("", text)
     text = ansi_escape.sub("", text)
 
     # fix windows problems
     text = text.replace("\u2500", "-")
+    text = text.replace("\u2502", "|")
+    for c in "┌┐└┘\u256d\u256e\u2570\u256f":
+        text = text.replace(c, "+")
     text = text.replace("\r", "")
     return text
 
@@ -99,10 +105,9 @@ def parse_outcomes(lines):
     return {to_plural.get(k, k): v for k, v in ret.items()}
 
 
-def _pytest_error_line(line: str, *, ansi: bool) -> str | None:
-    normalized = normalize(line) if ansi else line
-    if normalized and normalized.lstrip()[:2] in ("> ", "E "):
-        return normalized
+def _pytest_error_line(line: str) -> str | None:
+    if line and line.lstrip()[:2] in ("> ", "E "):
+        return line
     return None
 
 
@@ -612,7 +617,6 @@ uuid.uuid4 = f
         returncode: SnapshotArg[int] = 0,
         stdin: bytes = b"",
         outcomes: SnapshotArg[dict[str, int]] = {"passed": 1},
-        ansi: bool = False,
     ) -> Example:
         """Run pytest with the given args and environment variables in a separate
         process.
@@ -625,6 +629,7 @@ uuid.uuid4 = f
             changed_files: snapshot of files changed by this run.
             report: snapshot of the report at the end of the pytest run.
             stderr: pytest stderr output
+            stdout: raw pytest stdout output with ansi escape sequences (this is still **experimental** and the datatype might change or it might be removed again in the future).
             returncode: snapshot of the pytest return code.
 
         Returns:
@@ -639,21 +644,16 @@ uuid.uuid4 = f
             self._write_files(tmp_path)
 
             pytest_args = list(args)
-            if ansi and not any(
-                arg == "--color" or arg.startswith("--color=") for arg in pytest_args
-            ):
-                pytest_args = ["--color=yes", *pytest_args]
+            pytest_args = ["--color=yes", *pytest_args]
 
             cmd = [sys.executable, "-m", "pytest", "-p", "no:randomly", *pytest_args]
 
             command_env = _subprocess_env()
-            command_env["TERM"] = "xterm-256color" if ansi else "unknown"
+            command_env["TERM"] = "xterm-256color"
             command_env["COLUMNS"] = str(
                 term_columns + 1 if platform.system() == "Windows" else term_columns
             )
-
-            if ansi:
-                command_env["PY_COLORS"] = "1"
+            command_env["PY_COLORS"] = "1"
 
             if stdin:
                 # makes Console.is_terminal == True
@@ -670,6 +670,7 @@ uuid.uuid4 = f
 
             result_stdout = result.stdout.decode("utf-8")
             result_stderr = result.stderr.decode("utf-8")
+            plain_stdout = normalize(result_stdout)
 
             console.print("run>", *cmd)
 
@@ -682,7 +683,7 @@ uuid.uuid4 = f
             if stdout is not None:
                 assert snapshot_arg(stdout) == result_stdout
 
-            original = result_stderr.splitlines()
+            original = normalize(result_stderr).splitlines()
             lines = [
                 line
                 for line in original
@@ -701,8 +702,8 @@ uuid.uuid4 = f
 
                 report_list = []
                 record = False
-                for line in result_stdout.splitlines():
-                    line = normalize(line.strip())
+                for line in plain_stdout.splitlines():
+                    line = line.strip()
                     if line.startswith("===="):
                         record = False
 
@@ -723,9 +724,8 @@ uuid.uuid4 = f
                 "\n".join(
                     [
                         error_line
-                        for line in result_stdout.splitlines()
-                        if (error_line := _pytest_error_line(line, ansi=ansi))
-                        is not None
+                        for line in plain_stdout.splitlines()
+                        if (error_line := _pytest_error_line(line)) is not None
                     ]
                 )
                 + "\n"
@@ -739,8 +739,6 @@ uuid.uuid4 = f
 
             assert snapshot_arg(changed_files) == self._changed_files(tmp_path)
 
-            assert snapshot_arg(outcomes) == parse_outcomes(
-                [normalize(line) for line in result_stdout.splitlines()]
-            )
+            assert snapshot_arg(outcomes) == parse_outcomes(plain_stdout.splitlines())
 
             return self._new_example(self._read_files(tmp_path))._next_seed()

@@ -65,7 +65,11 @@ E        +  where 2 = snapshot(2)
         env={"INLINE_SNAPSHOT_DEFAULT_FLAGS": "trim"},
         changed_files=trimmed_files,
         returncode=snapshot(1),
-        error=">       assert 1 == snapshot(2)\n",
+        error="""\
+>       assert 1 == snapshot(2)
+E       assert 1 == 2
+E        +  where 2 = snapshot(2)
+""",
         outcomes={"failed": 1, "errors": 1},
     )
 

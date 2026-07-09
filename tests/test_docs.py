@@ -707,7 +707,6 @@ uuid.uuid4=f
                     error=AnyThing(),
                     stdin=stdin,
                     stdout=stdout,
-                    ansi=True,
                     term_columns=terminal_width,
                 )
 
@@ -720,7 +719,6 @@ uuid.uuid4=f
                 error=AnyThing(),
                 stdin=stdin,
                 stdout=stdout,
-                ansi=True,
                 term_columns=terminal_width,
             )
 
