@@ -6,6 +6,7 @@ from collections import UserList
 from collections import defaultdict
 from collections import namedtuple
 from dataclasses import dataclass
+from types import CodeType
 from typing import NamedTuple
 
 import pytest
@@ -144,6 +145,15 @@ def test_hasrepr_type():
     assert not "a" == HasRepr(int, "5")
     assert not HasRepr(float, "nan") == HasRepr(str, "nan")
     assert not HasRepr(str, "a") == HasRepr(str, "b")
+
+
+def test_code_object_type_repr():
+    # delete when customize_repr is removed
+    code_object = (lambda: None).__code__
+    code = code_repr(code_object)
+
+    assert code.startswith("HasRepr(CodeType, '<code object ")
+    assert eval(code) == HasRepr(CodeType, repr(code_object))
 
 
 def test_enum_in_dataclass():
