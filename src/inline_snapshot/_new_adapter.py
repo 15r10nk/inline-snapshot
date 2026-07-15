@@ -422,15 +422,17 @@ class NewAdapter:
         else:
             pass  # pragma: no cover
 
+        old_keys = list(old_value.value.keys())
+        old_value_nodes = (
+            old_node.values if old_node is not None else [None] * len(old_keys)
+        )
+        old_entries = {
+            old_key: (old_key, value_node)
+            for old_key, value_node in zip(old_keys, old_value_nodes)
+        }
+
         result = {}
-        for key2, node2 in zip(
-            old_value.value.keys(),
-            (
-                old_node.values
-                if old_node is not None
-                else [None] * len(old_value.value)
-            ),
-        ):
+        for key2, (_, node2) in old_entries.items():
             if key2 not in new_value.value:
                 # delete entries
                 yield Delete("fix", self.context.file, node2)
@@ -445,14 +447,8 @@ class NewAdapter:
                 to_insert.append((result_key, new_value_element))
                 result[result_key] = new_value_element
             else:
-                old_key = next(
-                    old_key for old_key in old_value.value.keys() if old_key == key
-                )
+                old_key, node = old_entries[key]
                 result_key = self.customize_all(key, old_key)
-                if isinstance(old_node, ast.Dict):
-                    node = old_node.values[list(old_value.value.keys()).index(key)]
-                else:
-                    node = None
                 # check values with same keys
                 result[result_key] = yield from self.compare(
                     old_value.value[key], node, new_value_element
