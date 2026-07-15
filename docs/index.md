@@ -253,20 +253,22 @@ def test_total():
 
 ## :heart: Insiders
 
-I have started to offer [insider](insiders.md) features for inline-snapshot.
-I will only release features as insider features if they will not cause problems for you when used in an open source project.
-This mainly includes tooling around inline-snapshot and better integration into IDEs.
+inline-snapshot also has an [insiders](insiders.md) version for sponsors.
+Insider features focus on workflow improvements, editor integration, and tooling around inline-snapshot.
 
-I hope this will allow me to spend more time working on open source projects.
-Thank you for using inline-snapshot, the future will be 🚀.
+These features are designed so that they do not make your tests harder to share.
+You can still run tests created with the insiders version using the normal open-source version of inline-snapshot.
 
-The next feature, which will be released when I reach 20 sponsors, is the ability for inline-snapshot to fix normal assertions that do not use `snapshot()`, such as:
+Sponsoring helps me spend more time on inline-snapshot and related open-source projects.
+As sponsor goals are reached, insider features are released for everyone.
+
+Insiders can already fix normal assertions that do not use `snapshot()`, such as:
 
 ``` python
 assert 1 + 1 == ...
 ```
 
-This allows you to fix assertions in codebases which do not use inline-snapshot yet.
+This is especially useful for existing codebases that do not use inline-snapshot yet.
 You can learn more about this feature [here](fix_assert.md).
 
 
