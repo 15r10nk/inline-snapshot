@@ -32,15 +32,6 @@ class Missing:
         return "missing"
 
 
-class CustomMissing(Custom):
-    def _map(self, f):
-        return missing
-
-    def _code_repr(self, context):
-        yield from ()
-        return "<missing>"
-
-
 missing = Missing()
 
 
@@ -59,7 +50,12 @@ class Builder:
             return value._eval()
         return value
 
-    def _customize(self, v, snapshot_value: Custom = CustomMissing()) -> Custom:
+    def _eval_snapshot_value(self, snapshot_value: Custom | None):
+        if snapshot_value is None:
+            return missing
+        return snapshot_value._eval()
+
+    def _customize(self, v, snapshot_value: Custom | None = None) -> Custom:
         from inline_snapshot._global_state import state
 
         if isinstance(v, Uncustomized):
@@ -77,7 +73,7 @@ class Builder:
                     builder=self,
                     local_vars=self._local_vars,
                     global_vars=self._global_vars,
-                    snapshot_value=snapshot_value._eval(),
+                    snapshot_value=self._eval_snapshot_value(snapshot_value),
                 )
 
             if r is None:
@@ -123,7 +119,7 @@ customized_representation={result!r}
         object.__setattr__(result, "original_value", stored_original_value)
         return result
 
-    def _customize_all(self, value, snapshot_value: Custom = CustomMissing()):
+    def _customize_all(self, value, snapshot_value: Custom | None = None):
         if isinstance(value, Uncustomized):
             value = self._customize(value._value, snapshot_value)
         elif not isinstance(value, Custom):
