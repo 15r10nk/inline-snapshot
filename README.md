@@ -87,7 +87,7 @@ def test_something():
 The following examples show how you can use inline-snapshot in your tests. Take a look at the
 [documentation](https://15r10nk.github.io/inline-snapshot/latest) if you want to know more.
 
-<!-- inline-snapshot: create fix trim first_block outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
 ``` python
 from inline_snapshot import external, outsource, snapshot
 
@@ -95,22 +95,14 @@ from inline_snapshot import external, outsource, snapshot
 def test_something():
     for number in range(5):
         # testing for numeric limits
-        assert number <= snapshot(4)
-        assert number >= snapshot(0)
+        assert number <= snapshot()
+        assert number >= snapshot()
 
     for c in "hello world":
         # test if something is part of a set
-        assert c in snapshot(["h", "e", "l", "o", " ", "w", "r", "d"])
+        assert c in snapshot()
 
-    s = snapshot(
-        {
-            0: {"square": 0, "pow_of_two": False},
-            1: {"square": 1, "pow_of_two": True},
-            2: {"square": 4, "pow_of_two": True},
-            3: {"square": 9, "pow_of_two": False},
-            4: {"square": 16, "pow_of_two": True},
-        }
-    )
+    s = snapshot()
 
     for number in range(5):
         # create sub-snapshots at runtime
@@ -119,23 +111,19 @@ def test_something():
             (number & (number - 1) == 0) and number != 0
         )
 
-    assert outsource("large string\n" * 1000) == snapshot(
-        external("hash:8bf10bdf2c30*.txt")
-    )
+    assert outsource("large string\n" * 5) == snapshot()
 
-    assert "generates\nmultiline\nstrings" == snapshot(
-        """\
-generates
-multiline
-strings\
-"""
-    )
+    assert "generates\nmultiline\nstrings" == snapshot()
 ```
+
+<!-- inline-snapshot-run: create fix trim outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot-last-output: pytest -->
+![pytest output for pytest](docs/assets/readme/example-snapshot.rich.svg)
 
 
 `snapshot_arg()` can also be used for function parameters:
 
-<!-- inline-snapshot: create fix trim first_block outcome-passed=1 -->
+<!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
 ``` python
 import subprocess as sp
 import sys
@@ -149,17 +137,14 @@ def run_python(cmd, stdout="", stderr=""):
 
 
 def test_cmd():
-    run_python("print('hello world')", stdout="hello world\n")
+    run_python("print('hello world')")
 
-    run_python(
-        "1/0",
-        stderr="""\
-Traceback (most recent call last):
-  File "<string>", line 1, in <module>
-ZeroDivisionError: division by zero
-""",
-    )
+    run_python("1/0")
 ```
+
+<!-- inline-snapshot-run: create fix trim outcome-passed=1 outcome-errors=1 -->
+<!-- inline-snapshot-last-output: pytest -->
+![pytest output for pytest](docs/assets/readme/example-snapshot-arg.rich.svg)
 
 <!-- -8<- [start:Feedback] -->
 ## Feedback
@@ -167,7 +152,7 @@ ZeroDivisionError: division by zero
 inline-snapshot provides some advanced ways to work with snapshots.
 
 I would like to know how these features are used to further improve this small library.
-Let me know if you've found interesting use cases for this library via [twitter](https://twitter.com/15r10nk), [fosstodon](https://fosstodon.org/deck/@15r10nk) or in the github [discussions](https://github.com/15r10nk/inline-snapshot/discussions/new?category=show-and-tell).
+Let me know if you've found interesting use cases for this library via [𝕏](https://twitter.com/15r10nk), [fosstodon](https://fosstodon.org/deck/@15r10nk) or in the github [discussions](https://github.com/15r10nk/inline-snapshot/discussions/new?category=show-and-tell).
 
 <!--[[[cog
 import requests,cog

@@ -1,6 +1,7 @@
 import itertools
 import platform
 import re
+import shlex
 import sys
 import textwrap
 from collections import defaultdict
@@ -16,7 +17,9 @@ from typing import TypeVar
 import isort.api
 import pytest
 from dirty_equals import AnyThing
+from dirty_equals import IsStr
 from executing import is_pytest_compatible
+from rich.markup import escape
 
 from inline_snapshot import snapshot
 from inline_snapshot._align import align
@@ -27,7 +30,12 @@ from inline_snapshot._snapshot_arg import snapshot_arg
 from inline_snapshot._unmanaged import declare_unmanaged
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
+from inline_snapshot.testing._terminal_svg import render_ansi_to_svg
 from inline_snapshot.version import is_insider
+
+
+def normalize_terminal_output(output: str) -> str:
+    return re.sub(r"in \d+\.\d+s", "in 0.00s", output)
 
 
 @dataclass
@@ -38,10 +46,12 @@ class Block:
     line: int
 
 
-def map_code_blocks(file: Path, func):
+def map_code_blocks(file: Path, func, map_last_output=None, run=None):
 
     block_start = re.compile("( *)``` *python(.*)")
     block_end = re.compile("```.*")
+    image = re.compile(r"( *)!\[[^\]]*\]\(([^)]+\.svg)\)")
+    last_output_marker = "inline-snapshot-last-output"
 
     header = re.compile("<!--(.*)-->")
 
@@ -57,8 +67,48 @@ def map_code_blocks(file: Path, func):
     header_line = ""
     block_found = False
 
+    def is_last_output_marker(header: Optional[str]) -> bool:
+        return header == last_output_marker or (
+            header is not None and header.startswith(f"{last_output_marker}:")
+        )
+
+    def last_output_prompt(header: str) -> Optional[str]:
+        if header == last_output_marker:
+            return None
+        return header.removeprefix(f"{last_output_marker}:").strip()
+
+    def handle_inline_snapshot_run(line_number: int) -> None:
+        nonlocal code_header
+        nonlocal header_line
+        if not code_header or not code_header.startswith("inline-snapshot-run:"):
+            return
+        if run is None:
+            raise AssertionError(
+                f"{file}:{line_number}: inline-snapshot-run has no runner"
+            )
+        new_code_header = run(code_header, line_number + 1)
+        if new_code_header is not None:
+            indent = header_line.split("<!--", 1)[0]
+            header_line = f"{indent}<!-- {new_code_header.strip()} -->"
+        code_header = None
+
     for linenumber, line in enumerate(current_code.splitlines(), start=1):
         m = block_start.fullmatch(line)
+        if m and not is_block and is_last_output_marker(code_header):
+            raise AssertionError(
+                f"{file}:{linenumber - 1}: inline-snapshot-last-output must be followed by an SVG image"
+            )
+
+        if (
+            m
+            and not is_block
+            and code_header
+            and code_header.startswith("inline-snapshot-run:")
+        ):
+            raise AssertionError(
+                f"{file}:{linenumber - 1}: inline-snapshot-run does not use a code block"
+            )
+
         if m and not is_block:
             # ``` python
             block_found = True
@@ -123,20 +173,55 @@ def map_code_blocks(file: Path, func):
         m = header.fullmatch(line.strip())
         if m:
             # comment <!-- ... -->
+            if header_line:
+                if is_last_output_marker(code_header):
+                    raise AssertionError(
+                        f"{file}:{linenumber - 1}: inline-snapshot-last-output must be followed by an SVG image"
+                    )
+                handle_inline_snapshot_run(linenumber - 1)
+                new_lines.append(header_line)
+                code_header = None
+                header_line = ""
+
             header_line = line
             code_header = m[1].strip()
             continue
         else:
             if header_line:
+                if is_last_output_marker(code_header):
+                    assert code_header is not None
+                    image_match = image.fullmatch(line)
+                    if image_match is None:
+                        raise AssertionError(
+                            f"{file}:{linenumber - 1}: inline-snapshot-last-output must be followed by an SVG image"
+                        )
+                    if map_last_output is None:
+                        raise AssertionError(
+                            f"{file}:{linenumber - 1}: inline-snapshot-last-output has no output handler"
+                        )
+
+                    map_last_output(
+                        file.parent / image_match[2],
+                        linenumber,
+                        last_output_prompt(code_header),
+                    )
+
+                elif code_header and code_header.startswith("inline-snapshot-run:"):
+                    handle_inline_snapshot_run(linenumber - 1)
+
                 new_lines.append(header_line)
                 code_header = None
                 header_line = ""
 
         new_lines.append(line)
 
+    if header_line:
+        handle_inline_snapshot_run(linenumber)
+        new_lines.append(header_line)
+
     new_code = "\n".join(new_lines) + "\n"
 
-    if block_found:
+    if block_found or new_code != current_code and new_code.strip():
         assert external_file(file, format=".txt") == new_code
 
 
@@ -147,7 +232,11 @@ def test_map_code_blocks(tmp_path):
     def test_doc(
         markdown_code,
         handle_block=lambda block: exec(block.code),
+        handle_last_output=None,
+        handle_run=None,
         blocks=[],
+        last_output_calls=[],
+        run_calls=[],
         exception="<no exception>",
         new_markdown_code=None,
     ):
@@ -163,20 +252,49 @@ def test_map_code_blocks(tmp_path):
                 recorded_blocks.append(block)
                 return block
 
+            recorded_last_output_calls = []
+
+            def test_last_output(path, line, prompt):
+                assert handle_last_output is not None
+                handle_last_output(path, line, prompt)
+                recorded_last_output_calls.append(
+                    (path.relative_to(file.parent), line, prompt)
+                )
+
+            recorded_run_calls = []
+
+            def test_run(header, line):
+                assert handle_run is not None
+                new_header = handle_run(header, line)
+                recorded_run_calls.append((header, line))
+                return new_header
+
             with snapshot_env() as state:
                 state.update_flags.fix = True
                 state.active = True
 
-                map_code_blocks(file, test_block)
+                map_code_blocks(
+                    file,
+                    test_block,
+                    test_last_output if handle_last_output is not None else None,
+                    test_run if handle_run is not None else None,
+                )
 
                 for snapshot in state.snapshots.values():
                     for change in snapshot._changes():
                         change.apply_external_changes()
 
             assert recorded_blocks == blocks
+            assert recorded_last_output_calls == last_output_calls
+            assert recorded_run_calls == run_calls
 
             with snapshot_env():
-                map_code_blocks(file, test_block)
+                map_code_blocks(
+                    file,
+                    test_block,
+                    test_last_output if handle_last_output is not None else None,
+                    test_run if handle_run is not None else None,
+                )
 
         recorded_markdown_code = file.read_text()
         if recorded_markdown_code != markdown_code:
@@ -253,6 +371,151 @@ text
 """),
     )
 
+    test_doc(
+        """\
+text
+``` python
+print(1 + 1)
+```
+<!-- inline-snapshot-last-output -->
+![](output.svg)
+""",
+        handle_last_output=lambda path, line, prompt: None,
+        blocks=snapshot(
+            [Block(code="print(1 + 1)\n", code_header=None, block_options={}, line=2)]
+        ),
+        last_output_calls=snapshot([(Path("output.svg"), 6, None)]),
+    )
+
+    test_doc(
+        """\
+text
+``` python
+print(1 + 1)
+```
+<!-- inline-snapshot-last-output: pytest -->
+![](output.svg)
+""",
+        handle_last_output=lambda path, line, prompt: None,
+        blocks=snapshot(
+            [Block(code="print(1 + 1)\n", code_header=None, block_options={}, line=2)]
+        ),
+        last_output_calls=snapshot([(Path("output.svg"), 6, "pytest")]),
+    )
+
+    test_doc(
+        """\
+<!-- inline-snapshot-last-output -->
+<!-- inline-snapshot: create -->
+``` python
+print(1)
+```
+""",
+        exception=IsStr(
+            regex=r"AssertionError: .*example\.md:1: inline-snapshot-last-output must be followed by an SVG image"
+        ),
+    )
+
+    test_doc(
+        """\
+<!-- inline-snapshot-last-output -->
+``` python
+print(1)
+```
+""",
+        exception=IsStr(
+            regex=r"AssertionError: .*example\.md:1: inline-snapshot-last-output must be followed by an SVG image"
+        ),
+    )
+
+    test_doc(
+        """\
+<!-- inline-snapshot-last-output -->
+![](output.svg)
+""",
+        exception=IsStr(
+            regex=r"AssertionError: .*example\.md:1: inline-snapshot-last-output has no output handler"
+        ),
+    )
+
+    test_doc(
+        """\
+<!-- inline-snapshot-last-output -->
+not an image
+""",
+        exception=IsStr(
+            regex=r"AssertionError: .*example\.md:1: inline-snapshot-last-output must be followed by an SVG image"
+        ),
+    )
+
+    test_doc(
+        """\
+text
+<!-- inline-snapshot-run: report -->
+more text
+""",
+        handle_run=lambda header, line: None,
+        run_calls=snapshot([("inline-snapshot-run: report", 3)]),
+    )
+
+    test_doc(
+        """\
+text
+<!-- inline-snapshot-run: report -->
+more text
+""",
+        exception=IsStr(
+            regex=r"AssertionError: .*example\.md:2: inline-snapshot-run has no runner"
+        ),
+    )
+
+    test_doc(
+        """\
+text
+<!-- inline-snapshot-run: report -->
+more text
+""",
+        handle_run=lambda header, line: "inline-snapshot-run: report outcome-passed=1",
+        run_calls=snapshot([("inline-snapshot-run: report", 3)]),
+        new_markdown_code=snapshot("""\
+text
+<!-- inline-snapshot-run: report outcome-passed=1 -->
+more text
+"""),
+    )
+
+    test_doc(
+        """\
+<!-- inline-snapshot-run: report -->
+""",
+        handle_run=lambda header, line: None,
+        run_calls=snapshot([("inline-snapshot-run: report", 2)]),
+    )
+
+    test_doc(
+        """\
+text
+<!-- inline-snapshot: create -->
+<!-- inline-snapshot-last-output -->
+![](output.svg)
+""",
+        exception=IsStr(
+            regex=r"AssertionError: .*example\.md:3: inline-snapshot-last-output has no output handler"
+        ),
+    )
+
+    test_doc(
+        """\
+<!-- inline-snapshot-run: report -->
+``` python
+print(1)
+```
+""",
+        exception=IsStr(
+            regex=r"AssertionError: .*example\.md:1: inline-snapshot-run does not use a code block"
+        ),
+    )
+
 
 @pytest.mark.skipif(
     platform.system() == "Windows",
@@ -302,6 +565,7 @@ def file_test(
     """
 
     last_code = None
+    terminal_width = 80
 
     std_files = {
         "pyproject.toml": f"""
@@ -349,9 +613,167 @@ uuid.uuid4=f
     }
 
     extra_files: Dict[str, List[str]] = defaultdict(list)
+    last_pytest_command: Optional[str] = None
+    last_pytest_stdout: Optional[str] = None
+
+    def map_last_output(
+        image_path: Path, line: int, prompt: Optional[str] = None
+    ) -> None:
+        if last_pytest_command is None or last_pytest_stdout is None:
+            raise AssertionError(
+                f"{file}:{line - 1}: inline-snapshot-last-output needs a previous inline-snapshot block"
+            )  # pragma: no cover
+
+        command = last_pytest_command if prompt is None else prompt
+        rendered = render_ansi_to_svg(
+            normalize_terminal_output(last_pytest_stdout),
+            width=terminal_width,
+            title="Terminal",
+            prompt=(
+                f"[bold blue]$[/bold blue] "
+                f"[bold white]{escape(command)}[/bold white]"
+            ),
+        )
+
+        assert external_file(image_path.resolve(), format=".rich.svg") == rendered
+
+    def run_example(code: str, code_header: str, block: Optional[Block] = None):
+        nonlocal last_pytest_command
+        nonlocal last_pytest_stdout
+
+        raw_options = shlex.split(code_header)
+        options = set(raw_options)
+        stdin = b""
+        stdin_text = ""
+        stdin_options = []
+        for option in raw_options:
+            if option.startswith("stdin="):
+                stdin_text = (
+                    option.removeprefix("stdin=")
+                    .encode("utf-8")
+                    .decode("unicode_escape")
+                )
+                stdin_options.append(
+                    f'stdin="{stdin_text.encode("unicode_escape").decode("ascii")}"'
+                )
+                stdin = stdin_text.encode("utf-8")
+
+        if "requires_assert" in options and (
+            not is_pytest_compatible() or not is_insider
+        ):
+            return None
+
+        flags = options & Flags.all().to_set()
+        cli_flags = flags | (options & {"disable", "report", "review", "short-report"})
+
+        args = ["--inline-snapshot", ",".join(sorted(cli_flags))] if cli_flags else []
+        pytest_args = [*args, "--no-header"]
+        display_command = "pytest " + "=".join(args)
+
+        outcomes = Store[Dict[str, int]]()
+        returncode = Store[int]()
+        stdout = Store[str]()
+
+        if flags and "first_block" not in options:
+            assert last_code is not None
+            test_files = {"tests/test_example.py": last_code}
+        else:
+            code = isort.api.sort_code_string(
+                code,
+                config=isort.Config(
+                    profile="black",
+                    combine_as_imports=True,
+                    lines_between_sections=0,
+                ),
+            )
+            if block is not None:
+                block.code = code
+            test_files = {"tests/test_example.py": code}
+
+        example = Example({**std_files, **test_files})
+        if extra_files:
+            all_files = [
+                [(key, file) for file in files] for key, files in extra_files.items()
+            ]
+            for files in itertools.product(*all_files):
+                example = example.with_files(dict(files))
+
+                print("run with")
+                example = example.run_pytest(
+                    pytest_args,
+                    outcomes=outcomes,
+                    returncode=returncode,
+                    changed_files=AnyThing(),
+                    error=AnyThing(),
+                    stdin=stdin,
+                    stdout=stdout,
+                    term_columns=terminal_width,
+                )
+
+        else:
+            example = example.run_pytest(
+                pytest_args,
+                outcomes=outcomes,
+                returncode=returncode,
+                changed_files=AnyThing(),
+                error=AnyThing(),
+                stdin=stdin,
+                stdout=stdout,
+                term_columns=terminal_width,
+            )
+
+        last_pytest_stdout = stdout.value
+        last_pytest_command = display_command
+
+        if "fix" in flags:
+            next_outcomes: Store[Dict[str, int]]
+            example.run_pytest(outcomes=(next_outcomes := Store()))
+            assert "errors" not in next_outcomes.value
+
+        return {
+            "cli_flags": cli_flags,
+            "code": code,
+            "example": example,
+            "flags": flags,
+            "options": options,
+            "outcomes": outcomes,
+            "stdin_options": stdin_options,
+        }
+
+    def run_header(code_header: str, line: int) -> Optional[str]:
+        if last_code is None:
+            raise AssertionError(
+                f"{file}:{line - 1}: inline-snapshot-run needs a previous code block"
+            )  # pragma: no cover
+
+        print(f"test run line {line - 1}")
+        result = run_example(
+            last_code, code_header.removeprefix("inline-snapshot-run:").strip()
+        )
+        if result is None:
+            return None  # pragma: no cover
+
+        cli_flags = result["cli_flags"]
+        options = result["options"]
+        outcomes = result["outcomes"]
+        stdin_options = result["stdin_options"]
+
+        return "inline-snapshot-run: " + " ".join(
+            sorted(cli_flags)
+            + sorted(options & {"requires_assert"})
+            + sorted(stdin_options)
+            + [
+                f"outcome-{k}={v}"
+                for k, v in outcomes.value.items()
+                if k in ("failed", "errors", "passed")
+            ]
+        )
 
     def test_block(block: Block):
+        nonlocal last_code
+
         if block.code_header is None:
+            last_code = block.code
             return block
 
         if block.code_header.startswith("inline-snapshot-lib:"):
@@ -369,71 +791,21 @@ uuid.uuid4=f
         if block.code_header.startswith("todo-inline-snapshot:"):
             return block
 
-        nonlocal last_code
         print(f"test block line {block.line}")
 
         code = block.code
 
-        options = set(block.code_header.split())
-
-        if "requires_assert" in options and (
-            not is_pytest_compatible() or not is_insider
-        ):
+        result = run_example(code, block.code_header, block)
+        if result is None:
             return block
 
-        flags = options & Flags.all().to_set()
-
-        args = ["--inline-snapshot", ",".join(flags)] if flags else []
-
-        errors = Store[str]()
-        outcomes = Store[Dict[str, int]]()
-        returncode = Store[int]()
-
-        if flags and "first_block" not in options:
-            assert last_code is not None
-            test_files = {"tests/test_example.py": last_code}
-        else:
-            code = isort.api.sort_code_string(
-                code,
-                config=isort.Config(
-                    profile="black",
-                    combine_as_imports=True,
-                    lines_between_sections=0,
-                ),
-            )
-            block.code = code
-            test_files = {"tests/test_example.py": code}
-
-        example = Example({**std_files, **test_files})
-        if extra_files:
-            all_files = [
-                [(key, file) for file in files] for key, files in extra_files.items()
-            ]
-            for files in itertools.product(*all_files):
-                example = example.with_files(dict(files))
-
-                print("run with")
-                example = example.run_pytest(
-                    args,
-                    error=errors,
-                    outcomes=outcomes,
-                    returncode=returncode,
-                    changed_files=AnyThing(),
-                )
-
-        else:
-            example = example.run_pytest(
-                args,
-                error=errors,
-                outcomes=outcomes,
-                returncode=returncode,
-                changed_files=AnyThing(),
-            )
-
-        if "fix" in flags:
-            next_outcomes: Store[Dict[str, int]]
-            example.run_pytest(outcomes=(next_outcomes := Store()))
-            assert "errors" not in next_outcomes.value
+        cli_flags = result["cli_flags"]
+        code = result["code"]
+        example = result["example"]
+        flags = result["flags"]
+        options = result["options"]
+        outcomes = result["outcomes"]
+        stdin_options = result["stdin_options"]
 
         print("flags:", flags, repr(block.block_options))
 
@@ -442,18 +814,15 @@ uuid.uuid4=f
             new_code = example.read_file("tests/test_example.py")
         new_code.replace("\n\n", "\n")
 
-        if "show_error" in options:
-            new_code = new_code.split("# Error:")[0]
-            new_code += "# Error:\n" + textwrap.indent(errors.value, "# ")
-
         print("new code:")
         print(new_code)
         print("expected code:")
         print(code)
 
         block.code_header = "inline-snapshot: " + " ".join(
-            sorted(flags)
-            + sorted(options & {"first_block", "show_error", "requires_assert"})
+            sorted(cli_flags)
+            + sorted(options & {"first_block", "requires_assert"})
+            + sorted(stdin_options)
             + [
                 f"outcome-{k}={v}"
                 for k, v in outcomes.value.items()
@@ -487,7 +856,7 @@ uuid.uuid4=f
         last_code = code
         return block
 
-    map_code_blocks(file, test_block)
+    map_code_blocks(file, test_block, map_last_output, run_header)
 
 
 if __name__ == "__main__":  # pragma: no cover

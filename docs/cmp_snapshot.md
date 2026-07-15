@@ -1,7 +1,7 @@
 ## General
 
 A snapshot can be compared against any value with `<=` or `>=`.
-This can be used to create a upper/lower bound for some result.
+This can be used to create an upper/lower bound for some result.
 The snapshot value can be trimmed to the lowest/largest valid value.
 
 Example:
@@ -139,5 +139,5 @@ The same snapshot value can also be used in multiple assertions.
 It interacts with the following `--inline-snapshot` flags:
 
 - `create` create a new value if the snapshot value is undefined.
-- `fix` record the new value and store it in the source code if it is contradicts the comparison.
-- `trim` record the new value and store it in the source code if it is more strict than the old one.
+- `fix` record the new value and store it in the source code if it contradicts the comparison.
+- `trim` record the new value and store it in the source code if it is stricter than the old one.

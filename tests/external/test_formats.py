@@ -1,5 +1,136 @@
+import pytest
+from dirty_equals import AnyThing
+
 from inline_snapshot import snapshot
+from inline_snapshot._external._format._rich_svg import RichSnapshot
+from inline_snapshot._external._format._rich_svg import RichSvgFormat
 from inline_snapshot.testing._example import Example
+
+RICH_SVG_WITH_DIFFERENT_MARKUP = """\
+<svg xmlns="http://www.w3.org/2000/svg"><metadata><inline-snapshot-rich-markup>[
+  "goodbye\\n"
+]</inline-snapshot-rich-markup></metadata><text>old render</text></svg>"""
+
+RICH_SVG_WITHOUT_METADATA = """\
+<svg xmlns="http://www.w3.org/2000/svg"><text>old render</text></svg>"""
+
+MALFORMED_RICH_SVG = "<svg>"
+
+MALFORMED_RICH_SVG_METADATA = """\
+<svg xmlns="http://www.w3.org/2000/svg"><metadata><inline-snapshot-rich-markup>not json</inline-snapshot-rich-markup></metadata></svg>"""
+
+WRONG_RICH_SVG_METADATA_TYPE = """\
+<svg xmlns="http://www.w3.org/2000/svg"><metadata><inline-snapshot-rich-markup>{"line": "hello"}</inline-snapshot-rich-markup></metadata></svg>"""
+
+
+def test_rich_snapshot_equality_with_other_type():
+    assert (
+        RichSnapshot.__eq__(RichSnapshot("<svg></svg>", "hello"), object())
+        is NotImplemented
+    )
+
+
+def test_rich_snapshot_repr_and_mask():
+    snapshot = RichSnapshot("<svg></svg>", "hello 2026")
+
+    assert repr(snapshot) == "RichSnapshot('hello 2026')"
+    assert snapshot.mask(r" \d+") == RichSnapshot("<svg></svg>", "hello")
+
+
+def test_rich_svg_format_rich_diff_and_show(tmp_path):
+    format = RichSvgFormat()
+    original = tmp_path / "original.rich.svg"
+    new = tmp_path / "new.rich.svg"
+
+    format.encode(RichSnapshot("<svg></svg>", "old"), original)
+    format.encode(RichSnapshot("<svg></svg>", "new"), new)
+
+    assert format.rich_show(original) == "old"
+    assert format.rich_diff(original, new) is not None
+
+
+@pytest.mark.parametrize(
+    "svg,error",
+    [
+        (RICH_SVG_WITH_DIFFERENT_MARKUP, snapshot("<no exception>")),
+        (
+            RICH_SVG_WITHOUT_METADATA,
+            snapshot(
+                "UsageError: Rich SVG file does not contain inline-snapshot rich markup."
+            ),
+        ),
+        (
+            MALFORMED_RICH_SVG,
+            snapshot(
+                "UsageError: Could not parse Rich SVG metadata: no element found: line 1, column 5"
+            ),
+        ),
+        (
+            MALFORMED_RICH_SVG_METADATA,
+            snapshot(
+                "UsageError: Could not parse Rich SVG markup metadata: Expecting value: line 1 column 1 (char 0)"
+            ),
+        ),
+        (
+            WRONG_RICH_SVG_METADATA_TYPE,
+            snapshot("UsageError: Rich SVG markup metadata must be a list of strings."),
+        ),
+    ],
+)
+def test_rich_svg_external_file_detects_different_markup(svg, error):
+    Example(
+        {
+            "tests/terminal.rich.svg": svg,
+            "tests/test_something.py": """\
+from inline_snapshot import external_file
+from inline_snapshot.testing._terminal_svg import render_ansi_to_svg
+
+
+def test_a():
+    assert render_ansi_to_svg("hello\\n", width=80, title="Terminal") == external_file(
+        "terminal.rich.svg", format=".rich.svg"
+    )
+""",
+        }
+    ).run_inline(raises=error, reported_categories=AnyThing())
+
+
+def test_rich_svg_external_file_create_and_read():
+
+    Example("""\
+from inline_snapshot import external_file
+from inline_snapshot.testing._terminal_svg import render_ansi_to_svg
+
+
+def test_a():
+    text="hello"
+    assert render_ansi_to_svg(text, width=80, title="Terminal") == external_file(
+        "terminal.rich.svg", format=".rich.svg"
+    )
+""").run_pytest(
+        ["--inline-snapshot=create"],
+        changed_files=AnyThing(),
+        returncode=1,
+        outcomes={"passed": 1, "errors": 1},
+    ).run_pytest().replace(
+        'text="hello"',
+        'text="something [blue]else[/]"',
+    ).run_pytest(
+        ["--inline-snapshot=report"],
+        report=snapshot("""\
++-------------------------- tests/terminal.rich.svg ---------------------------+
+| @@ -1 +1 @@                                                                  |
+|                                                                              |
+| -hello                                                                       |
+| +something \\[blue]else\\[/]                                                   |
++------------------------------------------------------------------------------+
+These changes are not applied.
+Use --inline-snapshot=fix to apply them, or use the interactive mode with
+--inline-snapshot=review\
+"""),
+        returncode=1,
+        outcomes={"passed": 1, "errors": 1},
+    )
 
 
 def test_json_format():

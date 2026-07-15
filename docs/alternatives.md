@@ -1,19 +1,53 @@
-inline-snapshot is not the only snapshot testing library for python.
+inline-snapshot is not the only snapshot testing library for Python.
 There are several others to:
 
-* [syrupy](https://github.com/syrupy-project/syrupy)
-* [snapshottest](https://github.com/syrusakbary/snapshottest)
-* [pytest-snapshot](https://github.com/joseph-roitman/pytest-snapshot)
-* [pytest-insta](https://github.com/vberlier/pytest-insta)
+<!--[[[cog
+import cog
+from urllib.parse import urlencode
 
-All of them have things that make them unique. What sets inline-snapshot apart is the ability to store snapshots directly in the source code. This leads to less indirections in the code which improves readability and code-reviews.
+packages = [
+    ("syrupy", "https://github.com/syrupy-project/syrupy"),
+    ("snapshottest", "https://github.com/syrusakbary/snapshottest"),
+    ("pytest-snapshot", "https://github.com/joseph-roitman/pytest-snapshot"),
+    ("pytest-insta", "https://github.com/vberlier/pytest-insta"),
+    ("pytest-accept", "https://github.com/max-sixty/pytest-accept"),
+]
 
-If you miss a feature that is available in other libraries, please let me know.
+for name, url in packages:
+    cog.out(f"* [{name}]({url})\n")
 
+
+query = urlencode(
+    [
+        ("packages", package)
+        for package in ["inline-snapshot", *[name for name, _ in packages]]
+    ]
+    + [("time_range", "2years")]
+)
+
+cog.out(
+    f"""
 <iframe
-    src="https://pypacktrends.com/embed?packages=inline-snapshot&packages=snapshottest&packages=syrupy&packages=pytest-snapshot&packages=pytest-insta&time_range=2years"
+    src="https://pypacktrends.com/embed?{query}"
     width="100%"
     height="520"
     frameborder="0"
 >
 </iframe>
+"""
+)
+]]]-->
+* [syrupy](https://github.com/syrupy-project/syrupy)
+* [snapshottest](https://github.com/syrusakbary/snapshottest)
+* [pytest-snapshot](https://github.com/joseph-roitman/pytest-snapshot)
+* [pytest-insta](https://github.com/vberlier/pytest-insta)
+* [pytest-accept](https://github.com/max-sixty/pytest-accept)
+
+<iframe
+    src="https://pypacktrends.com/embed?packages=inline-snapshot&packages=syrupy&packages=snapshottest&packages=pytest-snapshot&packages=pytest-insta&packages=pytest-accept&time_range=2years"
+    width="100%"
+    height="520"
+    frameborder="0"
+>
+</iframe>
+<!--[[[end]]]-->

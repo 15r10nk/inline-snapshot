@@ -5,6 +5,8 @@ from ._protocol import get_format_handler
 from ._protocol import get_format_handler_from_suffix
 from ._protocol import register_format
 from ._protocol import register_format_alias
+from ._rich_svg import RichSnapshot
+from ._rich_svg import RichSvgFormat
 from ._text import TextFormat
 
 __all__ = (
@@ -16,4 +18,6 @@ __all__ = (
     "TextFormat",
     "BinaryFormat",
     "JsonFormat",
+    "RichSnapshot",
+    "RichSvgFormat",
 )

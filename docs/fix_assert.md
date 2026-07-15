@@ -3,11 +3,11 @@
 
 !!! info
 
-    The following feature is available for [insider](insiders.md) :heart: only
-    and requires cpython>=3.11 to generate code. The generated code can be used with every python version.
+    The following feature is available for [insiders](insiders.md) :heart: only
+    and requires CPython >= 3.11 to generate code. The generated code can be used with every Python version.
 
 
-The `snapshot()` function provides a lot of flexibility, but there is a easier way for simple assertion.
+The `snapshot()` function provides a lot of flexibility, but there is an easier way for simple assertions.
 You can write a normal assertion and use `...` where inline-snapshot should create the new value, like in the following example.
 
 <!-- inline-snapshot: first_block requires_assert outcome-failed=1 outcome-errors=1 -->
@@ -42,8 +42,8 @@ def test_assert():
 
 This is especially useful to fix values in existing codebases where `snapshot()` is currently not used.
 
-The logic to create/fix the assertions is the same like for snapshots, but there are rules which specify which side of the `==` should be fixed.
-This allows assertions like `#!python assert 5 == 1 + 2` to be fixed and prevents inline-snapshot to try to fix code like `#!python assert f1() == f2()`.
+The logic to create/fix assertions is the same as for snapshots, but there are rules which specify which side of the `==` should be fixed.
+This allows assertions like `#!python assert 5 == 1 + 2` to be fixed and prevents inline-snapshot from trying to fix code like `#!python assert f1() == f2()`.
 
 The rule is that exactly one side of the equation must be a *value expression*, which is defined as follows:
 
@@ -56,9 +56,9 @@ The rule is that exactly one side of the equation must be a *value expression*, 
 
 ## Limitations
 
-* `cpython>=3.11` is required to create/fix assertions.
+* `CPython >= 3.11` is required to create/fix assertions.
 * It can only fix the first failing assertion in a test.
-  You need to run your tests a multiple times to fix the remaining ones.
+  You need to run your tests multiple times to fix the remaining ones.
 * It is not possible to fix values where inline-snapshot did not know which side of the equal sign should be fixed.
   You can use `snapshot()` in this case to make this clear.
 
@@ -72,7 +72,7 @@ It interacts with the following `--inline-snapshot` flags:
 
     !!! note
 
-        fix-assert is used to distinguisch between snapshot fixes and assertion fixes without snapshot().
+        fix-assert is used to distinguish between snapshot fixes and assertion fixes without snapshot().
         This should help in deciding whether some fixes should be approved.
         Fixing normal assertions is inherently more complicated because these assertions are written by a human without the intention of being automatically fixed.
         Separating the two helps in approving the changes.

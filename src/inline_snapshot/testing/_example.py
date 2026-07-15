@@ -52,12 +52,18 @@ ansi_escape = re.compile(
     re.VERBOSE,
 )
 
+ansi_osc_escape = re.compile(r"\x1B\].*?(?:\x07|\x1B\\)")
+
 
 def normalize(text):
+    text = ansi_osc_escape.sub("", text)
     text = ansi_escape.sub("", text)
 
     # fix windows problems
     text = text.replace("\u2500", "-")
+    text = text.replace("\u2502", "|")
+    for c in "┌┐└┘\u256d\u256e\u2570\u256f":
+        text = text.replace(c, "+")
     text = text.replace("\r", "")
     return text
 
@@ -99,6 +105,12 @@ def parse_outcomes(lines):
     return {to_plural.get(k, k): v for k, v in ret.items()}
 
 
+def _pytest_error_line(line: str) -> str | None:
+    if line and line.lstrip()[:2] in ("> ", "E "):
+        return line
+    return None
+
+
 @contextmanager
 def chdir(path):
     cwd = os.getcwd()
@@ -110,6 +122,37 @@ def chdir(path):
 
 
 console = Console(width=80)
+
+
+def _subprocess_env() -> dict[str, str]:
+    env_keys = [
+        "PATH",
+        "PWD",
+        "VIRTUAL_ENV",
+        "TOP",
+        "COVERAGE_PROCESS_START",
+        "PYTHONIOENCODING",
+    ]
+    if platform.system() == "Windows":  # pragma: no cover
+        env_keys.extend(
+            [
+                "APPDATA",
+                "COMSPEC",
+                "LOCALAPPDATA",
+                "PATHEXT",
+                "PROGRAMDATA",
+                "PROGRAMFILES",
+                "PROGRAMFILES(X86)",
+                "SYSTEMDRIVE",
+                "SYSTEMROOT",
+                "TEMP",
+                "TMP",
+                "USERPROFILE",
+                "WINDIR",
+            ]
+        )
+
+    return {key: os.environ[key] for key in env_keys if key in os.environ}
 
 
 @contextmanager
@@ -570,6 +613,7 @@ uuid.uuid4 = f
         report: Snapshot[str] | None = None,
         error: SnapshotArg[str] = "",
         stderr: SnapshotArg[str] = "",
+        stdout: SnapshotArg[str] | None = None,
         returncode: SnapshotArg[int] = 0,
         stdin: bytes = b"",
         outcomes: SnapshotArg[dict[str, int]] = {"passed": 1},
@@ -585,6 +629,7 @@ uuid.uuid4 = f
             changed_files: snapshot of files changed by this run.
             report: snapshot of the report at the end of the pytest run.
             stderr: pytest stderr output
+            stdout: raw pytest stdout output with ansi escape sequences (this is still **experimental** and the datatype might change or it might be removed again in the future).
             returncode: snapshot of the pytest return code.
 
         Returns:
@@ -598,16 +643,17 @@ uuid.uuid4 = f
 
             self._write_files(tmp_path)
 
-            cmd = [sys.executable, "-m", "pytest", "-p", "no:randomly", *args]
+            pytest_args = list(args)
+            pytest_args = ["--color=yes", *pytest_args]
 
-            command_env = dict(os.environ)
-            command_env["TERM"] = "unknown"
+            cmd = [sys.executable, "-m", "pytest", "-p", "no:randomly", *pytest_args]
+
+            command_env = _subprocess_env()
+            command_env["TERM"] = "xterm-256color"
             command_env["COLUMNS"] = str(
                 term_columns + 1 if platform.system() == "Windows" else term_columns
             )
-            command_env.pop("CI", None)
-            command_env.pop("GITHUB_ACTIONS", None)
-            command_env.pop("PYTEST_XDIST_WORKER", None)
+            command_env["PY_COLORS"] = "1"
 
             if stdin:
                 # makes Console.is_terminal == True
@@ -624,16 +670,20 @@ uuid.uuid4 = f
 
             result_stdout = result.stdout.decode("utf-8")
             result_stderr = result.stderr.decode("utf-8")
+            plain_stdout = normalize(result_stdout)
 
             console.print("run>", *cmd)
 
-            console.print(Panel(Text(result_stdout), title="stdout"))
+            console.print(Panel(Text.from_ansi(result_stdout), title="stdout"))
             if result_stderr:
                 console.print(Panel(Text(result_stderr), title="stderr"))
 
             assert result.returncode == snapshot_arg(returncode)
 
-            original = result_stderr.splitlines()
+            if stdout is not None:
+                assert snapshot_arg(stdout) == result_stdout
+
+            original = normalize(result_stderr).splitlines()
             lines = [
                 line
                 for line in original
@@ -652,8 +702,8 @@ uuid.uuid4 = f
 
                 report_list = []
                 record = False
-                for line in result_stdout.splitlines():
-                    line = normalize(line.strip())
+                for line in plain_stdout.splitlines():
+                    line = line.strip()
                     if line.startswith("===="):
                         record = False
 
@@ -673,9 +723,9 @@ uuid.uuid4 = f
             error_str = (
                 "\n".join(
                     [
-                        line
-                        for line in result_stdout.splitlines()
-                        if line and line[:2] in ("> ", "E ")
+                        error_line
+                        for line in plain_stdout.splitlines()
+                        if (error_line := _pytest_error_line(line)) is not None
                     ]
                 )
                 + "\n"
@@ -689,6 +739,6 @@ uuid.uuid4 = f
 
             assert snapshot_arg(changed_files) == self._changed_files(tmp_path)
 
-            assert snapshot_arg(outcomes) == parse_outcomes(result_stdout.splitlines())
+            assert snapshot_arg(outcomes) == parse_outcomes(plain_stdout.splitlines())
 
             return self._new_example(self._read_files(tmp_path))._next_seed()

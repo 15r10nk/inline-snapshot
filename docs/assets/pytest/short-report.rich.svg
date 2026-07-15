@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="rich-terminal" viewBox="0 0 994 586.8">
+    
+    <metadata><inline-snapshot-rich-markup>[
+  "[bold color(4)]$[/bold color(4)] [bold color(7)]pytest --inline-[bold color(7)][/bold color(7)]snapshot[bold color(7)][/bold color(7)]=[bold color(7)][/bold color(7)]short[bold color(7)][/bold color(7)]-report[/bold color(7)]\n",
+  "[bold]============================= test session starts ==============================[/bold]\n",
+  "collected 1 item\n",
+  "\n",
+  "tests/test_example.py [color(2)].[color(1)][/color(2)]E[color(1)][/color(1)]                                                 [100%][/color(1)]\n",
+  "\n",
+  "[color(10)]═══════════════════════════════ [color(4)][/color(10)]inline-snapshot[color(10)][/color(4)] ════════════════════════════════[/color(10)]\n",
+  "Info: one snapshot can be trimmed ([bold]--inline-snapshot=trim[/bold])\n",
+  "Error: one snapshot is missing a value ([bold]--inline-snapshot=create[/bold])\n",
+  "\n",
+  "You can also use [bold]--inline-snapshot=review[/bold] to approve the changes interactively\n",
+  "\n",
+  "\n",
+  "==================================== ERRORS ====================================\n",
+  "[bold color(1)]_____________________ ERROR at teardown of test_something ______________________[/bold color(1)]\n",
+  "your snapshot is missing one value.\n",
+  "If you just created this value with --inline-snapshot=create, the value is now \n",
+  "created and you can ignore this message.\n",
+  "[bold color(6)]=========================== short test summary info ============================[/bold color(6)]\n",
+  "[color(1)]ERROR[/color(1)] tests/test_example.py::[bold]test_something[/bold] - Failed: your snapshot is missing \n",
+  "one value.\n",
+  "[color(1)]========================== [color(2)][/color(1)]1 passed[/color(2)], [bold color(1)]1 error[color(1)][/bold color(1)] in 0.00s[color(1)][/color(1)] ==========================[/color(1)]\n"
+]</inline-snapshot-rich-markup></metadata><style>
+
+    @font-face {
+        font-family: "Fira Code";
+        src: local("FiraCode-Regular"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2") format("woff2"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff") format("woff");
+        font-style: normal;
+        font-weight: 400;
+    }
+    @font-face {
+        font-family: "Fira Code";
+        src: local("FiraCode-Bold"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2") format("woff2"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff") format("woff");
+        font-style: bold;
+        font-weight: 700;
+    }
+
+    .terminal-1221441117-matrix {
+        font-family: Fira Code, monospace;
+        font-size: 20px;
+        line-height: 24.4px;
+        font-variant-east-asian: full-width;
+    }
+
+    .terminal-1221441117-title {
+        font-size: 18px;
+        font-weight: bold;
+        font-family: arial;
+    }
+
+    .terminal-1221441117-r1 { fill: #608ab1;font-weight: bold }
+.terminal-1221441117-r2 { fill: #c5c8c6 }
+.terminal-1221441117-r3 { fill: #c5c8c6;font-weight: bold }
+.terminal-1221441117-r4 { fill: #98a84b }
+.terminal-1221441117-r5 { fill: #cc555a }
+.terminal-1221441117-r6 { fill: #00823d }
+.terminal-1221441117-r7 { fill: #608ab1 }
+.terminal-1221441117-r8 { fill: #cc555a;font-weight: bold }
+.terminal-1221441117-r9 { fill: #68a0b3;font-weight: bold }
+    </style>
+
+    <defs>
+    <clipPath id="terminal-1221441117-clip-terminal">
+      <rect x="0" y="0" width="975.0" height="535.8"></rect>
+    </clipPath>
+    <clipPath id="terminal-1221441117-line-0">
+    <rect x="0" y="1.5" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-1">
+    <rect x="0" y="25.9" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-2">
+    <rect x="0" y="50.3" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-3">
+    <rect x="0" y="74.7" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-4">
+    <rect x="0" y="99.1" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-5">
+    <rect x="0" y="123.5" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-6">
+    <rect x="0" y="147.9" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-7">
+    <rect x="0" y="172.3" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-8">
+    <rect x="0" y="196.7" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-9">
+    <rect x="0" y="221.1" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-10">
+    <rect x="0" y="245.5" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-11">
+    <rect x="0" y="269.9" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-12">
+    <rect x="0" y="294.3" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-13">
+    <rect x="0" y="318.7" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-14">
+    <rect x="0" y="343.1" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-15">
+    <rect x="0" y="367.5" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-16">
+    <rect x="0" y="391.9" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-17">
+    <rect x="0" y="416.3" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-18">
+    <rect x="0" y="440.7" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-19">
+    <rect x="0" y="465.1" width="976" height="24.65"></rect>
+            </clipPath>
+<clipPath id="terminal-1221441117-line-20">
+    <rect x="0" y="489.5" width="976" height="24.65"></rect>
+            </clipPath>
+    </defs>
+
+    <rect fill="#292929" stroke="rgba(255,255,255,0.35)" stroke-width="1" x="1" y="1" width="992" height="584.8" rx="8"></rect><text class="terminal-1221441117-title" fill="#c5c8c6" text-anchor="middle" x="496" y="27">Terminal</text>
+            <g transform="translate(26,22)">
+            <circle cx="0" cy="0" r="7" fill="#ff5f57"></circle>
+            <circle cx="22" cy="0" r="7" fill="#febc2e"></circle>
+            <circle cx="44" cy="0" r="7" fill="#28c840"></circle>
+            </g>
+        
+    <g transform="translate(9, 41)" clip-path="url(#terminal-1221441117-clip-terminal)">
+    
+    <g class="terminal-1221441117-matrix">
+    <text class="terminal-1221441117-r1" x="0" y="20" textLength="12.2" clip-path="url(#terminal-1221441117-line-0)">$</text><text class="terminal-1221441117-r3" x="24.4" y="20" textLength="195.2" clip-path="url(#terminal-1221441117-line-0)">pytest --inline-</text><text class="terminal-1221441117-r3" x="219.6" y="20" textLength="97.6" clip-path="url(#terminal-1221441117-line-0)">snapshot</text><text class="terminal-1221441117-r3" x="317.2" y="20" textLength="12.2" clip-path="url(#terminal-1221441117-line-0)">=</text><text class="terminal-1221441117-r3" x="329.4" y="20" textLength="61" clip-path="url(#terminal-1221441117-line-0)">short</text><text class="terminal-1221441117-r3" x="390.4" y="20" textLength="85.4" clip-path="url(#terminal-1221441117-line-0)">-report</text><text class="terminal-1221441117-r2" x="976" y="20" textLength="12.2" clip-path="url(#terminal-1221441117-line-0)">
+</text><text class="terminal-1221441117-r3" x="0" y="44.4" textLength="976" clip-path="url(#terminal-1221441117-line-1)">============================= test session starts ==============================</text><text class="terminal-1221441117-r2" x="976" y="44.4" textLength="12.2" clip-path="url(#terminal-1221441117-line-1)">
+</text><text class="terminal-1221441117-r2" x="0" y="68.8" textLength="195.2" clip-path="url(#terminal-1221441117-line-2)">collected 1 item</text><text class="terminal-1221441117-r2" x="976" y="68.8" textLength="12.2" clip-path="url(#terminal-1221441117-line-2)">
+</text><text class="terminal-1221441117-r2" x="976" y="93.2" textLength="12.2" clip-path="url(#terminal-1221441117-line-3)">
+</text><text class="terminal-1221441117-r2" x="0" y="117.6" textLength="268.4" clip-path="url(#terminal-1221441117-line-4)">tests/test_example.py </text><text class="terminal-1221441117-r4" x="268.4" y="117.6" textLength="12.2" clip-path="url(#terminal-1221441117-line-4)">.</text><text class="terminal-1221441117-r5" x="280.6" y="117.6" textLength="12.2" clip-path="url(#terminal-1221441117-line-4)">E</text><text class="terminal-1221441117-r5" x="292.8" y="117.6" textLength="671" clip-path="url(#terminal-1221441117-line-4)">                                                 [100%]</text><text class="terminal-1221441117-r2" x="976" y="117.6" textLength="12.2" clip-path="url(#terminal-1221441117-line-4)">
+</text><text class="terminal-1221441117-r2" x="976" y="142" textLength="12.2" clip-path="url(#terminal-1221441117-line-5)">
+</text><text class="terminal-1221441117-r6" x="0" y="166.4" textLength="390.4" clip-path="url(#terminal-1221441117-line-6)">═══════════════════════════════ </text><text class="terminal-1221441117-r7" x="390.4" y="166.4" textLength="183" clip-path="url(#terminal-1221441117-line-6)">inline-snapshot</text><text class="terminal-1221441117-r6" x="573.4" y="166.4" textLength="402.6" clip-path="url(#terminal-1221441117-line-6)"> ════════════════════════════════</text><text class="terminal-1221441117-r2" x="976" y="166.4" textLength="12.2" clip-path="url(#terminal-1221441117-line-6)">
+</text><text class="terminal-1221441117-r2" x="0" y="190.8" textLength="427" clip-path="url(#terminal-1221441117-line-7)">Info: one snapshot can be trimmed (</text><text class="terminal-1221441117-r3" x="427" y="190.8" textLength="268.4" clip-path="url(#terminal-1221441117-line-7)">--inline-snapshot=trim</text><text class="terminal-1221441117-r2" x="695.4" y="190.8" textLength="12.2" clip-path="url(#terminal-1221441117-line-7)">)</text><text class="terminal-1221441117-r2" x="976" y="190.8" textLength="12.2" clip-path="url(#terminal-1221441117-line-7)">
+</text><text class="terminal-1221441117-r2" x="0" y="215.2" textLength="488" clip-path="url(#terminal-1221441117-line-8)">Error: one snapshot is missing a value (</text><text class="terminal-1221441117-r3" x="488" y="215.2" textLength="292.8" clip-path="url(#terminal-1221441117-line-8)">--inline-snapshot=create</text><text class="terminal-1221441117-r2" x="780.8" y="215.2" textLength="12.2" clip-path="url(#terminal-1221441117-line-8)">)</text><text class="terminal-1221441117-r2" x="976" y="215.2" textLength="12.2" clip-path="url(#terminal-1221441117-line-8)">
+</text><text class="terminal-1221441117-r2" x="976" y="239.6" textLength="12.2" clip-path="url(#terminal-1221441117-line-9)">
+</text><text class="terminal-1221441117-r2" x="0" y="264" textLength="207.4" clip-path="url(#terminal-1221441117-line-10)">You can also use </text><text class="terminal-1221441117-r3" x="207.4" y="264" textLength="292.8" clip-path="url(#terminal-1221441117-line-10)">--inline-snapshot=review</text><text class="terminal-1221441117-r2" x="500.2" y="264" textLength="451.4" clip-path="url(#terminal-1221441117-line-10)"> to approve the changes interactively</text><text class="terminal-1221441117-r2" x="976" y="264" textLength="12.2" clip-path="url(#terminal-1221441117-line-10)">
+</text><text class="terminal-1221441117-r2" x="976" y="288.4" textLength="12.2" clip-path="url(#terminal-1221441117-line-11)">
+</text><text class="terminal-1221441117-r2" x="976" y="312.8" textLength="12.2" clip-path="url(#terminal-1221441117-line-12)">
+</text><text class="terminal-1221441117-r2" x="0" y="337.2" textLength="976" clip-path="url(#terminal-1221441117-line-13)">==================================== ERRORS ====================================</text><text class="terminal-1221441117-r2" x="976" y="337.2" textLength="12.2" clip-path="url(#terminal-1221441117-line-13)">
+</text><text class="terminal-1221441117-r8" x="0" y="361.6" textLength="976" clip-path="url(#terminal-1221441117-line-14)">_____________________ ERROR at teardown of test_something ______________________</text><text class="terminal-1221441117-r2" x="976" y="361.6" textLength="12.2" clip-path="url(#terminal-1221441117-line-14)">
+</text><text class="terminal-1221441117-r2" x="0" y="386" textLength="427" clip-path="url(#terminal-1221441117-line-15)">your snapshot is missing one value.</text><text class="terminal-1221441117-r2" x="976" y="386" textLength="12.2" clip-path="url(#terminal-1221441117-line-15)">
+</text><text class="terminal-1221441117-r2" x="0" y="410.4" textLength="963.8" clip-path="url(#terminal-1221441117-line-16)">If you just created this value with --inline-snapshot=create, the value is now </text><text class="terminal-1221441117-r2" x="976" y="410.4" textLength="12.2" clip-path="url(#terminal-1221441117-line-16)">
+</text><text class="terminal-1221441117-r2" x="0" y="434.8" textLength="488" clip-path="url(#terminal-1221441117-line-17)">created and you can ignore this message.</text><text class="terminal-1221441117-r2" x="976" y="434.8" textLength="12.2" clip-path="url(#terminal-1221441117-line-17)">
+</text><text class="terminal-1221441117-r9" x="0" y="459.2" textLength="976" clip-path="url(#terminal-1221441117-line-18)">=========================== short test summary info ============================</text><text class="terminal-1221441117-r2" x="976" y="459.2" textLength="12.2" clip-path="url(#terminal-1221441117-line-18)">
+</text><text class="terminal-1221441117-r5" x="0" y="483.6" textLength="61" clip-path="url(#terminal-1221441117-line-19)">ERROR</text><text class="terminal-1221441117-r2" x="61" y="483.6" textLength="292.8" clip-path="url(#terminal-1221441117-line-19)"> tests/test_example.py::</text><text class="terminal-1221441117-r3" x="353.8" y="483.6" textLength="170.8" clip-path="url(#terminal-1221441117-line-19)">test_something</text><text class="terminal-1221441117-r2" x="524.6" y="483.6" textLength="439.2" clip-path="url(#terminal-1221441117-line-19)"> - Failed: your snapshot is missing </text><text class="terminal-1221441117-r2" x="976" y="483.6" textLength="12.2" clip-path="url(#terminal-1221441117-line-19)">
+</text><text class="terminal-1221441117-r2" x="0" y="508" textLength="122" clip-path="url(#terminal-1221441117-line-20)">one value.</text><text class="terminal-1221441117-r2" x="976" y="508" textLength="12.2" clip-path="url(#terminal-1221441117-line-20)">
+</text><text class="terminal-1221441117-r5" x="0" y="532.4" textLength="329.4" clip-path="url(#terminal-1221441117-line-21)">========================== </text><text class="terminal-1221441117-r4" x="329.4" y="532.4" textLength="97.6" clip-path="url(#terminal-1221441117-line-21)">1 passed</text><text class="terminal-1221441117-r2" x="427" y="532.4" textLength="24.4" clip-path="url(#terminal-1221441117-line-21)">, </text><text class="terminal-1221441117-r8" x="451.4" y="532.4" textLength="85.4" clip-path="url(#terminal-1221441117-line-21)">1 error</text><text class="terminal-1221441117-r5" x="536.8" y="532.4" textLength="109.8" clip-path="url(#terminal-1221441117-line-21)"> in 0.00s</text><text class="terminal-1221441117-r5" x="646.6" y="532.4" textLength="329.4" clip-path="url(#terminal-1221441117-line-21)"> ==========================</text><text class="terminal-1221441117-r2" x="976" y="532.4" textLength="12.2" clip-path="url(#terminal-1221441117-line-21)">
+</text>
+    </g>
+    </g>
+</svg>

@@ -16,7 +16,7 @@ fix=["create","fix"]
 ```
 
 !!! note
-    The default flags are different if you use *cpython<3.11* due to [technical limitations](limitations.md#pytest-assert-rewriting-is-disabled):
+    The default flags are different if you use *CPython < 3.11* due to [technical limitations](limitations.md#pytest-assert-rewriting-is-disabled):
     ``` toml
     [tool.inline-snapshot]
     default-flags=["short-report"]
@@ -24,26 +24,26 @@ fix=["create","fix"]
     default-flags-ide=["short-report"]
     ```
 
-    Changing these flags will disable pytest assert rewriting for older python versions.
+    Changing these flags will disable pytest assert rewriting for older Python versions.
 
 
 
 * **hash-length:** specifies the length of the hash used by `external()` in the code representation.
     This does not affect the hash length used to store the data.
     The hash should be long enough to avoid hash collisions.
-* **default-flags:** defines which flags should be used if there are no flags specified with `--inline-snapshot=...` and *default-flags-ide* or *default-flags-tui* are not used.
+* **default-flags:**{#default-flags} defines which flags should be used if there are no flags specified with `--inline-snapshot=...` and *default-flags-ide* or *default-flags-tui* are not used.
     You can also use the environment variable `INLINE_SNAPSHOT_DEFAULT_FLAGS=...` to specify the flags and to override those in the configuration file.
 
 * **default-flags-tui:** defines which flags should be used if you run pytest in an interactive terminal.
     inline-snapshot creates all snapshots by default in this case and asks when there are values to change.
-    This feature requires *cpython>=3.11*
+    This feature requires *CPython >= 3.11*.
 
 * **default-flags-ide:** [(insider only)](insiders.md) defines which flags should be used if you run your tests with the "run test" button in [PyCharm](pycharm.md).
     inline-snapshot creates in this case all snapshots by default and reports other changes.
     The *review* flag is not supported here because inline-snapshot is not able to read user input.
 
     !!! Danger
-        You can use `["create","fix"]` if this fits your work flow, but keep in mind that this will change your snapshot values every time you press the "run test" button and you will have to undo these changes if they are incorrect.
+        You can use `["create","fix"]` if this fits your workflow, but keep in mind that this will change your snapshot values every time you press the "run test" button and you will have to undo these changes if they are incorrect.
 
         What you can do instead is to replace the incorrect values with `...` and run your test again. The change from `...` to the new value is part of the *create* category, which is enabled by default.
 
@@ -53,10 +53,10 @@ fix=["create","fix"]
 
 * **storage-dir:** allows you to define the directory where inline-snapshot stores data files such as external snapshots stored with the `hash:` protocol.
     By default, it will be `<pytest_config_dir>/.inline-snapshot`,
-    where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
+    where `<pytest_config_dir>` is replaced by the directory containing the pytest configuration file, if any.
     External snapshots will be stored in the `external` subfolder of the storage directory.
     Source files that use `external()` are tracked in `files_using_external.txt` in this directory.
-* **format-command:[](){#format-command}** allows you to specify a custom command which is used to format the python code after code is changed.
+* **format-command:[](){#format-command}** allows you to specify a custom command which is used to format the Python code after code is changed.
 
     === "ruff format"
         ``` toml
@@ -92,7 +92,10 @@ fix=["create","fix"]
 
 * **test-dir:**[](){#test-dir} can be used to define where your tests are located.
     The default is `<pytest_config_dir>/tests` if it exists,
-    where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any.
-    This setting is only used as a compatibility fallback to discover existing `external()` calls when `files_using_external.txt` does not exist yet.
-    Once that file exists, inline-snapshot uses the tracked file list and ignores `test-dir`.
+    where `<pytest_config_dir>` is replaced by the directory containing the pytest configuration file, if any.
     You can also specify a list of folders.
+
+    !!! info "deprecated"
+
+        This setting is only used as a compatibility fallback to discover existing `external()` calls when `files_using_external.txt` does not exist yet.
+        Once that file exists, inline-snapshot uses the tracked file list and ignores `test-dir`.
