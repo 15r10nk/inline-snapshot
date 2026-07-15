@@ -170,9 +170,7 @@ class NewAdapter:
         self, old_value: Custom, old_node, new_value: Custom
     ) -> Generator[ChangeBase, None, Custom]:
 
-        if isinstance(new_value, Uncustomized):
-            new_value = self.customize(new_value._value, old_value)
-        elif not isinstance(new_value, Custom):
+        if isinstance(new_value, Uncustomized) or not isinstance(new_value, Custom):
             new_value = self.customize(new_value, old_value)
 
         if not hasattr(new_value, "original_value"):
