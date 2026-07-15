@@ -59,7 +59,7 @@ class Builder:
             return value._eval()
         return value
 
-    def _to_custom(self, v, snapshot_value: Custom = CustomMissing()) -> Custom:
+    def _customize(self, v, snapshot_value: Custom = CustomMissing()) -> Custom:
         from inline_snapshot._global_state import state
 
         if isinstance(v, Uncustomized):
@@ -122,9 +122,6 @@ customized_representation={result!r}
 
         object.__setattr__(result, "original_value", stored_original_value)
         return result
-
-    def _customize(self, value, snapshot_value: Custom = CustomMissing()):
-        return self._to_custom(value, snapshot_value)
 
     def _customize_all(self, value, snapshot_value: Custom = CustomMissing()):
         if isinstance(value, Uncustomized):

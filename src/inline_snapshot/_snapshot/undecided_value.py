@@ -107,7 +107,7 @@ class ValueToCustom:
         if value is ...:
             return CustomUndefined()
         else:
-            result = Builder(self.context)._to_custom(value)
+            result = Builder(self.context)._customize(value)
             function_value = (
                 result.function._eval()
                 if isinstance(result, CustomCall)
