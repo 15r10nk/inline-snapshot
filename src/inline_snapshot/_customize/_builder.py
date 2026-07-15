@@ -50,6 +50,13 @@ class Builder:
             return value._eval()
         return value
 
+    def _get_original_value(self, value: Custom):
+        return getattr(value, "original_value", value._eval())
+
+    def _set_original_value(self, value: Custom, original_value):
+        object.__setattr__(value, "original_value", original_value)
+        return value
+
     def _eval_snapshot_value(self, snapshot_value: Custom | None):
         if snapshot_value is None:
             return missing
@@ -116,8 +123,7 @@ customized_value={result._eval()!r}
 customized_representation={result!r}
 """)
 
-        object.__setattr__(result, "original_value", stored_original_value)
-        return result
+        return self._set_original_value(result, stored_original_value)
 
     def _customize_all(self, value, snapshot_value: Custom | None = None):
         if isinstance(value, Uncustomized):
@@ -126,12 +132,9 @@ customized_representation={result!r}
             value = self._customize(value, snapshot_value)
 
         def with_original(new_value: Custom, old_value: Custom) -> Custom:
-            object.__setattr__(
-                new_value,
-                "original_value",
-                getattr(old_value, "original_value", old_value._eval()),
+            return self._set_original_value(
+                new_value, self._get_original_value(old_value)
             )
-            return new_value
 
         if isinstance(value, CustomSequence):
             return with_original(
@@ -160,7 +163,7 @@ customized_representation={result!r}
             return with_original(CustomDefault(self._customize_all(value.value)), value)
 
         if not hasattr(value, "original_value"):
-            object.__setattr__(value, "original_value", value._eval())
+            self._set_original_value(value, value._eval())
 
         return value
 
