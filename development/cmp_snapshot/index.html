@@ -1903,7 +1903,7 @@
 
 <h2 id="general">General<a class="headerlink" href="#general" title="Permanent link">&para;</a></h2>
 <p>A snapshot can be compared against any value with <code>&lt;=</code> or <code>&gt;=</code>.
-This can be used to create a upper/lower bound for some result.
+This can be used to create an upper/lower bound for some result.
 The snapshot value can be trimmed to the lowest/largest valid value.</p>
 <p>Example:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">original code</label><label for="__tabbed_1_2">--inline-snapshot=create</label><label for="__tabbed_1_3">optimized code </label><label for="__tabbed_1_4">--inline-snapshot=trim</label></div>
@@ -2041,8 +2041,8 @@ The snapshot value can be trimmed to the lowest/largest valid value.</p>
 <p>It interacts with the following <code>--inline-snapshot</code> flags:</p>
 <ul>
 <li><code>create</code> create a new value if the snapshot value is undefined.</li>
-<li><code>fix</code> record the new value and store it in the source code if it is contradicts the comparison.</li>
-<li><code>trim</code> record the new value and store it in the source code if it is more strict than the old one.</li>
+<li><code>fix</code> record the new value and store it in the source code if it contradicts the comparison.</li>
+<li><code>trim</code> record the new value and store it in the source code if it is stricter than the old one.</li>
 </ul>
 
 

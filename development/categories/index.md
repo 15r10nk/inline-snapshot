@@ -1,13 +1,13 @@
 Each snapshot change is assigned to a different category. This is done because inline-snapshot supports more than just `==` checks.
 
-There are changes which:
+There are changes that:
 
 - [create](#create) new snapshot values
 - [fix](#fix) your tests
 - [update](#update) only the syntax to a new representation
 - [trim](#trim) unused pieces from your snapshots
 
-*Create* and *fix* are mainly used, but it is good to know what type of change you are approving, because it helps with the decision if this changes should be applied.
+*Create* and *fix* are used most often, but it is good to know what type of change you are approving, because it helps you decide whether the change should be applied.
 
 ## Categories
 
@@ -15,7 +15,7 @@ There are changes which:
 
 These changes are made when new snapshots are created.
 
-The result of each comparison is `True`, which allows to run the whole test to fill all new snapshots with values.
+The result of each comparison is `True`, which allows the whole test to run and fill all new snapshots with values.
 
 Example:
 
@@ -51,7 +51,7 @@ def test_something():
 
 ### Fix
 
-These changes are made when the snapshots comparison does not return `True` any more (depending on the operation `==`, `<=`, `in`). The result of each comparison is `True` if you change something from this category, which allows to run the whole test and to fix other snapshots.
+These changes are made when the snapshot comparison no longer returns `True` (depending on the operation `==`, `<=`, `in`). The result of each comparison is `True` if you change something from this category, which allows the whole test to run and fix other snapshots.
 
 ```
 from inline_snapshot import snapshot
@@ -117,7 +117,7 @@ def test_something():
     assert 2 == s["key2"]
 ```
 
-There might be problems in cases where you use the same snapshot in different tests, run only one test and trim the snapshot with `pytest -k test_a --inline-snapshot=trim` in this case:
+There can be problems if you use the same snapshot in different tests and trim it while running only one test with `pytest -k test_a --inline-snapshot=trim`:
 
 ```
 from inline_snapshot import snapshot
@@ -151,9 +151,9 @@ The value of the snapshot is reduced to `2`, because `test_a()` was the only tes
 
 ### Update
 
-Changes in the update category do not change the value of the snapshot, just its representation. These updates are not shown by default in your reports, because it can be confusing for users who uses inline-snapshot the first time or want to change the snapshot values manual. Updates can be enabled with [show-updates](https://15r10nk.github.io/inline-snapshot/development/configuration/#show-updates).
+Changes in the update category do not change the value of the snapshot, just its representation. These updates are not shown by default in your reports, because they can be confusing for users who use inline-snapshot for the first time or want to change snapshot values manually. Updates can be enabled with [show-updates](https://15r10nk.github.io/inline-snapshot/development/configuration/#show-updates).
 
-The reason for updates might be that `repr()` of the object has changed or that inline-snapshot provides some new logic which changes the representation. Like with the strings in the following example:
+The reason for updates might be that `repr()` of the object has changed, or that inline-snapshot provides new logic which changes the representation, as with the strings in the following example:
 
 ```
 from inline_snapshot import snapshot
@@ -181,6 +181,8 @@ def test_something():
 
     assert Vector(1, 2) == snapshot(Vector(x=1, y=2))
 ```
+
+`pytest --inline-snapshot=update` changes the code in the following way.
 
 ```
 from inline_snapshot import snapshot
@@ -217,13 +219,9 @@ c
 
 The approval of this type of changes is easier, because the update category assures that the value has not changed.
 
-The goal of inline-snapshot is to generate the values for you in the correct format so that no manual editing is required. This improves your productivity and saves time. Keep in mind that any changes you make to your snapshots will likely need to be redone if your program's behaviour (and expected values) change. Inline-snapshot uses the *update* category to let you know when it has a different opinion than you about how the code should look. You can agree with inline-snapshot and accept the changes or you can use one of the following options to tell inline-snapshot what the code should look like:
+The goal of inline-snapshot is to generate the values for you in the correct format so that no manual editing is required. This improves your productivity and saves time. Keep in mind that any changes you make to your snapshots will likely need to be redone if your program's behavior (and expected values) change. Inline-snapshot uses the *update* category to let you know when it has a different opinion than you about how the code should look. You can agree with inline-snapshot and accept the changes or you can use one of the following options to tell inline-snapshot what the code should look like:
 
-1. change the `__repr__` implementation of your object or use [customize repr](https://15r10nk.github.io/inline-snapshot/development/customize_repr/index.md) if the class is not part of your codebase.
+1. change the `__repr__` implementation of your object or use [@customize](https://15r10nk.github.io/inline-snapshot/development/plugin/#customize-examples) if the class is not part of your codebase.
 1. define a [format-command](https://15r10nk.github.io/inline-snapshot/development/configuration/#format-command) if another tool has a different opinion about how your code should look. Inline-snapshot will apply this formatting before reporting an update.
 1. inline-snapshot manages everything within `snapshot(...)`, but you can take control by using [Is()](https://15r10nk.github.io/inline-snapshot/development/eq_snapshot/#is) in cases where you want to use custom code (like local variables) in your snapshots.
 1. you can also open an [issue](https://github.com/15r10nk/inline-snapshot/issues?q=is%3Aissue%20state%3Aopen%20label%3Aupdate_related) if you have a specific problem with the way inline-snapshot generates the code.
-
-Note
-
-[#177](https://github.com/15r10nk/inline-snapshot/issues/177) will give the developer more control about how snapshots are created. *update* will then become much more useful.

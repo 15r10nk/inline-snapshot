@@ -17,7 +17,7 @@ fix=["create","fix"]
 
 Note
 
-The default flags are different if you use *cpython\<3.11* due to [technical limitations](https://15r10nk.github.io/inline-snapshot/development/limitations/#pytest-assert-rewriting-is-disabled):
+The default flags are different if you use *CPython < 3.11* due to [technical limitations](https://15r10nk.github.io/inline-snapshot/development/limitations/#pytest-assert-rewriting-is-disabled):
 
 ```
 [tool.inline-snapshot]
@@ -26,27 +26,27 @@ default-flags-tui=["short-report"]
 default-flags-ide=["short-report"]
 ```
 
-Changing these flags will disable pytest assert rewriting for older python versions.
+Changing these flags will disable pytest assert rewriting for older Python versions.
 
 - **hash-length:** specifies the length of the hash used by `external()` in the code representation. This does not affect the hash length used to store the data. The hash should be long enough to avoid hash collisions.
 
 - **default-flags:** defines which flags should be used if there are no flags specified with `--inline-snapshot=...` and *default-flags-ide* or *default-flags-tui* are not used. You can also use the environment variable `INLINE_SNAPSHOT_DEFAULT_FLAGS=...` to specify the flags and to override those in the configuration file.
 
-- **default-flags-tui:** defines which flags should be used if you run pytest in an interactive terminal. inline-snapshot creates all snapshots by default in this case and asks when there are values to change. This feature requires *cpython>=3.11*
+- **default-flags-tui:** defines which flags should be used if you run pytest in an interactive terminal. inline-snapshot creates all snapshots by default in this case and asks when there are values to change. This feature requires *CPython >= 3.11*.
 
 - **default-flags-ide:** [(insider only)](https://15r10nk.github.io/inline-snapshot/development/insiders/index.md) defines which flags should be used if you run your tests with the "run test" button in [PyCharm](https://15r10nk.github.io/inline-snapshot/development/pycharm/index.md). inline-snapshot creates in this case all snapshots by default and reports other changes. The *review* flag is not supported here because inline-snapshot is not able to read user input.
 
   Danger
 
-  You can use `["create","fix"]` if this fits your work flow, but keep in mind that this will change your snapshot values every time you press the "run test" button and you will have to undo these changes if they are incorrect.
+  You can use `["create","fix"]` if this fits your workflow, but keep in mind that this will change your snapshot values every time you press the "run test" button and you will have to undo these changes if they are incorrect.
 
   What you can do instead is to replace the incorrect values with `...` and run your test again. The change from `...` to the new value is part of the *create* category, which is enabled by default.
 
 - **shortcuts:** allows you to define custom commands to simplify your workflows. `--fix` and `--review` are defined by default, but this configuration can be changed to fit your needs.
 
-- **storage-dir:** allows you to define the directory where inline-snapshot stores data files such as external snapshots stored with the `hash:` protocol. By default, it will be `<pytest_config_dir>/.inline-snapshot`, where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any. External snapshots will be stored in the `external` subfolder of the storage directory. Source files that use `external()` are tracked in `files_using_external.txt` in this directory.
+- **storage-dir:** allows you to define the directory where inline-snapshot stores data files such as external snapshots stored with the `hash:` protocol. By default, it will be `<pytest_config_dir>/.inline-snapshot`, where `<pytest_config_dir>` is replaced by the directory containing the pytest configuration file, if any. External snapshots will be stored in the `external` subfolder of the storage directory. Source files that use `external()` are tracked in `files_using_external.txt` in this directory.
 
-- **format-command:** allows you to specify a custom command which is used to format the python code after code is changed.
+- **format-command:** allows you to specify a custom command which is used to format the Python code after code is changed.
 
   ```
   [tool.inline-snapshot]
@@ -75,4 +75,8 @@ Changing these flags will disable pytest assert rewriting for older python versi
 
 - **default-storage:** defines the default storage protocol to be used when creating snapshots without an explicit storage protocol, such as `external()`. Possible values are `hash` and `uuid`. External snapshots created by `outsource()` do not currently support this setting due to some internal limitations and will always use the old `hash` protocol.
 
-- **test-dir:** can be used to define where your tests are located. The default is `<pytest_config_dir>/tests` if it exists, where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any. This setting is only used as a compatibility fallback to discover existing `external()` calls when `files_using_external.txt` does not exist yet. Once that file exists, inline-snapshot uses the tracked file list and ignores `test-dir`. You can also specify a list of folders.
+- **test-dir:** can be used to define where your tests are located. The default is `<pytest_config_dir>/tests` if it exists, where `<pytest_config_dir>` is replaced by the directory containing the pytest configuration file, if any. You can also specify a list of folders.
+
+  deprecated
+
+  This setting is only used as a compatibility fallback to discover existing `external()` calls when `files_using_external.txt` does not exist yet. Once that file exists, inline-snapshot uses the tracked file list and ignores `test-dir`.

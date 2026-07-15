@@ -1980,18 +1980,18 @@
   <h1>Categories</h1>
 
 <p>Each snapshot change is assigned to a different category. This is done because inline-snapshot supports more than just <code>==</code> checks.</p>
-<p>There are changes which:</p>
+<p>There are changes that:</p>
 <ul>
 <li><a href="#create">create</a> new snapshot values</li>
 <li><a href="#fix">fix</a> your tests</li>
 <li><a href="#update">update</a> only the syntax to a new representation</li>
 <li><a href="#trim">trim</a> unused pieces from your snapshots</li>
 </ul>
-<p><em>Create</em> and <em>fix</em> are mainly used, but it is good to know what type of change you are approving, because it helps with the decision if this changes should be applied.</p>
+<p><em>Create</em> and <em>fix</em> are used most often, but it is good to know what type of change you are approving, because it helps you decide whether the change should be applied.</p>
 <h2 id="categories">Categories<a class="headerlink" href="#categories" title="Permanent link">&para;</a></h2>
 <h3 id="create">Create<a class="headerlink" href="#create" title="Permanent link">&para;</a></h3>
 <p>These changes are made when new snapshots are created.</p>
-<p>The result of each comparison is <code>True</code>, which allows to run the whole test to fill all new snapshots with values.</p>
+<p>The result of each comparison is <code>True</code>, which allows the whole test to run and fill all new snapshots with values.</p>
 <p>Example:</p>
 <div class="grid" markdown>
 
@@ -2028,8 +2028,8 @@
 </div>
 
 <h3 id="fix">Fix<a class="headerlink" href="#fix" title="Permanent link">&para;</a></h3>
-<p>These changes are made when the snapshots comparison does not return <code>True</code> any more (depending on the operation <code>==</code>, <code>&lt;=</code>, <code>in</code>).
-The result of each comparison is <code>True</code> if you change something from this category, which allows to run the whole test and to fix other snapshots.</p>
+<p>These changes are made when the snapshot comparison no longer returns <code>True</code> (depending on the operation <code>==</code>, <code>&lt;=</code>, <code>in</code>).
+The result of each comparison is <code>True</code> if you change something from this category, which allows the whole test to run and fix other snapshots.</p>
 <div class="grid" markdown>
 
 <!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
@@ -2101,7 +2101,7 @@ The changes in the <strong>fix</strong> category are the only changes which chan
 
 </div>
 
-<p>There might be problems in cases where you use the same snapshot in different tests, run only one test and trim the snapshot with <code>pytest -k test_a --inline-snapshot=trim</code> in this case:</p>
+<p>There can be problems if you use the same snapshot in different tests and trim it while running only one test with <code>pytest -k test_a --inline-snapshot=trim</code>:</p>
 <div class="grid" markdown>
 
 <!-- todo-inline-snapshot: first_block outcome-passed=2 -->
@@ -2119,10 +2119,10 @@ The changes in the <strong>fix</strong> category are the only changes which chan
 </code></pre></div>
 
 <!-- todo-inline-snapshot: trim outcome-passed=2 -->
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
-</span><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">s</span> <span class="o">=</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="hll"><span class="n">s</span> <span class="o">=</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
 <a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_a</span><span class="p">():</span>
 <a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="k">assert</span> <span class="mi">2</span> <span class="o">&lt;=</span> <span class="n">s</span>
@@ -2138,13 +2138,10 @@ The changes in the <strong>fix</strong> category are the only changes which chan
 It is recommended to use trim only if you run your complete test suite.</p>
 <h3 id="update">Update<a class="headerlink" href="#update" title="Permanent link">&para;</a></h3>
 <p>Changes in the update category do not change the value of the snapshot, just its representation.
-These updates are not shown by default in your reports, because it can be confusing for users who uses inline-snapshot the first time or want to change the snapshot values manual.
+These updates are not shown by default in your reports, because they can be confusing for users who use inline-snapshot for the first time or want to change snapshot values manually.
 Updates can be enabled with <a href="../configuration/#show-updates">show-updates</a>.</p>
-<p>The reason for updates might be that <code class="highlight"><span class="nb">repr</span><span class="p">()</span></code> of the object has changed or that inline-snapshot provides some new logic which changes the representation. Like with the strings in the following example:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">original</label><label for="__tabbed_1_2">--inline-snapshot=update</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p><!-- inline-snapshot: first_block outcome-passed=1 -->
+<p>The reason for updates might be that <code class="highlight"><span class="nb">repr</span><span class="p">()</span></code> of the object has changed, or that inline-snapshot provides new logic which changes the representation, as with the strings in the following example:</p>
+<!-- inline-snapshot: first_block outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
@@ -2169,10 +2166,9 @@ Updates can be enabled with <a href="../configuration/#show-updates">show-update
 <a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>    <span class="k">assert</span> <span class="mi">5</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 <a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>
 <a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>    <span class="k">assert</span> <span class="n">Vector</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="n">Vector</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
-</code></pre></div></p>
-</div>
-<div class="tabbed-block">
-<p><!-- inline-snapshot: update outcome-passed=1 -->
+</code></pre></div>
+<p><code>pytest --inline-snapshot=update</code> changes the code in the following way.</p>
+<!-- inline-snapshot: update outcome-passed=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
@@ -2203,19 +2199,16 @@ Updates can be enabled with <a href="../configuration/#show-updates">show-update
 <a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a><span class="hll">    <span class="k">assert</span> <span class="mi">5</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 </span><a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>
 <a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a><span class="hll">    <span class="k">assert</span> <span class="n">Vector</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="n">Vector</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-</span></code></pre></div></p>
-</div>
-</div>
-</div>
+</span></code></pre></div>
 <p>The approval of this type of changes is easier, because the update category assures that the value has not changed.</p>
 <p>The goal of inline-snapshot is to generate the values for you in the correct format so that no manual editing is required.
 This improves your productivity and saves time.
-Keep in mind that any changes you make to your snapshots will likely need to be redone if your program's behaviour (and expected values) change.
+Keep in mind that any changes you make to your snapshots will likely need to be redone if your program's behavior (and expected values) change.
 Inline-snapshot uses the <em>update</em> category to let you know when it has a different opinion than you about how the code should look.
 You can agree with inline-snapshot and accept the changes or you can use one of the following options to tell inline-snapshot what the code should look like:</p>
 <ol>
 <li>
-<p>change the <code>__repr__</code> implementation of your object or use <a href="../customize_repr/">customize repr</a> if the class is not part of your codebase.</p>
+<p>change the <code>__repr__</code> implementation of your object or use <a href="../plugin/#customize-examples">@customize</a> if the class is not part of your codebase.</p>
 </li>
 <li>
 <p>define a <a href="../configuration/#format-command">format-command</a> if another tool has a different opinion about how your code should look. Inline-snapshot will apply this formatting before reporting an update.</p>
@@ -2227,10 +2220,6 @@ You can agree with inline-snapshot and accept the changes or you can use one of 
 <p>you can also open an <a href="https://github.com/15r10nk/inline-snapshot/issues?q=is%3Aissue%20state%3Aopen%20label%3Aupdate_related">issue</a> if you have a specific problem with the way inline-snapshot generates the code.</p>
 </li>
 </ol>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><a href="https://github.com/15r10nk/inline-snapshot/issues/177">#177</a> will give the developer more control about how snapshots are created. <em>update</em> will then become much more useful.</p>
-</div>
 
 
 

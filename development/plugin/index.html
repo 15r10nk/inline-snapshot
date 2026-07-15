@@ -948,10 +948,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#dirty-equal-expressions" class="md-nav__link">
+  <a href="#dirty-equals-expressions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        dirty-equal expressions
+        dirty-equals expressions
       
     </span>
   </a>
@@ -2364,10 +2364,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#dirty-equal-expressions" class="md-nav__link">
+  <a href="#dirty-equals-expressions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        dirty-equal expressions
+        dirty-equals expressions
       
     </span>
   </a>
@@ -2651,12 +2651,12 @@ It searches for plugins in:</p>
 </code></pre></div>
 <p>All customizations defined in your <code>conftest.py</code> are active globally for all your tests.</p>
 <h3 id="creating-a-plugin-package">Creating a Plugin Package<a class="headerlink" href="#creating-a-plugin-package" title="Permanent link">&para;</a></h3>
-<p>To distribute inline-snapshot plugins as a package, register your plugin class using the <code>inline-snapshot</code> entry point in your <code>setup.py</code> or <code>pyproject.toml</code>:</p>
+<p>To distribute inline-snapshot plugins as a package, register your plugin module using the <code>inline-snapshot</code> entry point in your <code>setup.py</code> or <code>pyproject.toml</code>:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">pyproject.toml (recommended)</label><label for="__tabbed_1_2">setup.py</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[project.entry-points.inline_snapshot]</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">my_plugin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_package.plugin:MyInlineSnapshotPlugin&quot;</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">my_plugin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_package.plugin&quot;</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
@@ -2672,7 +2672,7 @@ It searches for plugins in:</p>
 </div>
 </div>
 </div>
-<p>Your plugin class should contain methods decorated with <code>@customize</code>, just like in conftest.py:</p>
+<p>Your plugin module should contain functions decorated with <code>@customize</code>, just like in conftest.py:</p>
 <div class="highlight"><span class="filename">my_package/plugin.py</span><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">customize</span><span class="p">,</span> <span class="n">Builder</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
@@ -2762,7 +2762,7 @@ It searches for plugins in:</p>
         <p>The customize hook is called every time a snapshot value should be converted into code.</p>
 <p>This hook allows you to control how inline-snapshot represents objects in generated code.
 When multiple handlers are registered, they are called until one returns a non-None value.
-<code>customize</code> is also called for each attribute of the converted hook which is not a Custom node, which means that a hook for <code>int</code> does not only apply for <code>snapshot(5)</code> but also for <code>snaspshot([1,2,3])</code> 3 times.</p>
+<code>customize</code> is also called for each attribute of the converted hook which is not a Custom node, which means that a hook for <code>int</code> does not only apply for <code>snapshot(5)</code> but also for <code>snapshot([1,2,3])</code> 3 times.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -3015,7 +3015,7 @@ You should use it when you find yourself manually editing snapshots after they w
 <li>Your handler is not used because width and height are different</li>
 <li>The handler is applied recursively to each Rect inside the list - the first is converted to <code>make_square()</code> while the second uses the regular constructor</li>
 </ol>
-<h3 id="dirty-equal-expressions">dirty-equal expressions<a class="headerlink" href="#dirty-equal-expressions" title="Permanent link">&para;</a></h3>
+<h3 id="dirty-equals-expressions">dirty-equals expressions<a class="headerlink" href="#dirty-equals-expressions" title="Permanent link">&para;</a></h3>
 <p>It can also be used to instruct inline-snapshot to use specific dirty-equals expressions for specific values.</p>
 <!-- inline-snapshot-lib-set: conftest.py -->
 <div class="highlight"><span class="filename">conftest.py</span><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">customize</span>
@@ -3028,8 +3028,7 @@ You should use it when you find yourself manually editing snapshots after they w
 <a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="n">IsNow</span><span class="p">():</span>
 <a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        <span class="k">return</span> <span class="n">IsNow</span>
 </code></pre></div>
-<p>As explained in the [customize hook specification][inline_snapshot.plugin.
-InlineSnapshotPluginSpec.customize], you can return types other than Custom objects.
+<p>As explained in the <a class="autorefs autorefs-internal" title="            customize(value, builder, local_vars, global_vars)" href="#inline_snapshot.plugin.InlineSnapshotPluginSpec.customize">customize hook specification</a>, you can return types other than Custom objects.
 inline-snapshot includes a built-in handler in its default plugin that converts dirty-equals expressions back into source code, which is why you can return <code>IsNow</code> directly without using the builder.
 This approach is much simpler than using <code>builder.create_call()</code> for complex dirty-equals expressions.</p>
 <!-- inline-snapshot: create fix first_block outcome-passed=1 -->

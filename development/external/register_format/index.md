@@ -55,20 +55,9 @@ def test_array():
 
 inline-snapshot will check if the type matches by using `is_format_for()` and create a file with the given suffix.
 
-```
-from my_array import Array
-from inline_snapshot import external
+## Report
 
-
-def test_array():
-    assert Array([1, 2, 3]) == external(
-        "uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.arr"
-    )
-```
-
-### Report
-
-inline-snapshot needs to know how changes in your external files should be displayed. `TextDiff` and `BinaryDiff` can be used as mixin classes (see the `Array` example (above)[#array-example]) to provide generic representations for text or binary formats, but you can also define custom functions for your files.
+inline-snapshot needs to know how changes in your external files should be displayed. `TextDiff` and `BinaryDiff` can be used as mixin classes (see the `Array` example [above](#array-example)) to provide generic representations for text or binary formats, but you can also define custom functions for your files.
 
 - `rich_diff()` is used every time the external snapshot value is changed and should show the difference between the original and new versions in a human-readable form.
 - `rich_show()` is used every time an external snapshot is created and should show a human-readable form of the initial value.
@@ -129,8 +118,8 @@ from inline_snapshot import external
 
 
 def test():
-    assert NumberSet([1, 2, 5]) == external("hash:b85198032326*.numberset")
-    assert NumberSet([1, 2, 8]) == external("hash:f8a68eb0c510*.numberset")
+    assert NumberSet([1, 2, 5]) == external()
+    assert NumberSet([1, 2, 8]) == external()
 ```
 
 ## Reference

@@ -1,25 +1,4 @@
-You can use almost any python data type and also complex values like `datetime.date`, because `repr()` is used to convert the values to source code. The default `__repr__()` behaviour can be [customized](https://15r10nk.github.io/inline-snapshot/development/customize_repr/index.md). It might be necessary to import the right modules to match the `repr()` output.
-
-```
-import datetime
-from inline_snapshot import snapshot
-
-
-def something():
-    return {
-        "name": "hello",
-        "one number": 5,
-        "numbers": list(range(10)),
-        "sets": {1, 2, 15},
-        "datetime": datetime.date(1, 2, 22),
-        "complex stuff": 5j + 3,
-        "bytes": b"byte abc\n\x16",
-    }
-
-
-def test_something():
-    assert something() == snapshot()
-```
+You can use almost any Python data type and also complex values like `datetime.date`, because `repr()` is used to convert the values to source code. The default `__repr__()` behavior can be [customized](https://15r10nk.github.io/inline-snapshot/development/plugin/#customize-examples).
 
 ```
 import datetime
@@ -58,14 +37,15 @@ The code is generated in the following way:
 
 1. The code is generated with:
 
-   - `repr(value)` (which can be [customized](https://15r10nk.github.io/inline-snapshot/development/customize_repr/index.md))
-   - or a special internal implementation for container types to support [unmanaged snapshot values](https://15r10nk.github.io/inline-snapshot/development/eq_snapshot/#unmanaged-snapshot-values). This can currently not be customized.
-
-1. Strings which contain newlines are converted to triple quoted strings.
+   - a defined [@customize](https://15r10nk.github.io/inline-snapshot/development/plugin/#customize-examples) hook which can also be defined by the user.
+   - or by a fallback `repr(value)`
+   - Strings which contain newlines are converted to triple quoted strings.
 
    Note
 
    Missing newlines at start or end are escaped (since 0.4.0).
+
+   These changes are part of the [update](https://15r10nk.github.io/inline-snapshot/development/categories/#update) category, which is not reported by default. You can apply all these update changes with `pytest --inline-snapshot=update`.
 
    ```
    from inline_snapshot import snapshot
@@ -75,19 +55,6 @@ The code is generated in the following way:
        assert "first line\nsecond line" == snapshot(
            """first line
    second line"""
-       )
-   ```
-
-   ```
-   from inline_snapshot import snapshot
-
-
-   def test_something():
-       assert "first line\nsecond line" == snapshot(
-           """\
-   first line
-   second line\
-   """
        )
    ```
 

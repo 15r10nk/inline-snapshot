@@ -1,6 +1,6 @@
-## Only CPython is supported
+## Updating snapshots requires CPython
 
-Currently, inline-snapshot only works with CPython. On other Python implementations, such as PyPy, inline-snapshot acts as if `--inline-snapshot=disable` is set, allowing tests to pass but not providing any way to update snapshots.
+Currently, inline-snapshot can only update snapshots on CPython. On other Python implementations, such as PyPy, inline-snapshot acts as if `--inline-snapshot=disable` is set, allowing tests to pass but not providing any way to update snapshots.
 
 ## pytest-xdist is not supported
 

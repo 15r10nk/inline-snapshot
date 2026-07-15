@@ -1,6 +1,6 @@
 ## General
 
-It is possible to generate sub-snapshots during runtime. This sub-snapshots can be used like a normal snapshot.
+It is possible to generate sub-snapshots during runtime. These sub-snapshots can be used like normal snapshots.
 
 Example:
 
@@ -33,6 +33,6 @@ def test_something():
 It interacts with the following `--inline-snapshot` flags:
 
 - `create` create a new value if the snapshot value is undefined or create a new sub-snapshot if one is missing.
-- `trim` remove sub-snapshots if they are not needed any more.
+- `trim` remove sub-snapshots if they are no longer needed.
 
-The flags `fix` and `update` are applied recursive to all sub-snapshots.
+The flags `fix` and `update` are applied recursively to all sub-snapshots.

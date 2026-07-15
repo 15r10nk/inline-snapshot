@@ -1,6 +1,8 @@
-inline-snapshot provides one pytest option with different flags (*create*, *fix*, *trim*, *update*, *short-report*, *report*, *disable*).
+# pytest
 
-Snapshot comparisons return always `True` if you use one of the flags *create*, *fix* or *review*. This is necessary because the whole test needs to be run to fix all snapshots like in this case:
+inline-snapshot provides a single pytest option with several flags (*create*, *fix*, *trim*, *update*, *short-report*, *report*, *review*, *disable*). You can also use inline-snapshot without any CLI options, in which case the [default flags](#default-flags) will be used.
+
+Snapshot comparisons always return `True` when you use one of the flags *create*, *fix*, or *review*. This is necessary because the whole test needs to run before inline-snapshot can fix all snapshots, as in this example:
 
 ```
 from inline_snapshot import snapshot
@@ -13,13 +15,13 @@ def test_something():
 
 Note
 
-Every flag with the exception of *disable* and *short-report* disables the pytest assert-rewriting.
+Every flag except *disable* and *short-report* disables pytest assertion rewriting for *CPython 3.10 or older*.
 
 ## --inline-snapshot=create,fix,trim,update
 
-Approve the changes of the given [category](https://15r10nk.github.io/inline-snapshot/development/categories/index.md). These flags can be combined with *report* and *review*.
+Approve the changes for the given [category](https://15r10nk.github.io/inline-snapshot/development/categories/index.md). These flags can be combined with *report* and *review*.
 
-test_something.py
+test_example.py
 
 ```
 from inline_snapshot import snapshot
@@ -30,197 +32,34 @@ def test_something():
     assert 2 <= snapshot(5)
 ```
 
-```
-> pytest test_something.py --inline-snapshot=create,report
-============================= test session starts ==============================
-platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0
-rootdir: /tmp/tmp.NRB8B5mysF
-plugins: inline-snapshot-0.34.2
-collected 1 item
-
-test_something.py .E                                                     [100%]
-
-═══════════════════════════════ inline-snapshot ════════════════════════════════
-─────────────────────────────── Create snapshots ───────────────────────────────
-╭───────────────────────────── test_something.py ──────────────────────────────╮
-│ @@ -2,5 +2,5 @@                                                              │
-│                                                                              │
-│                                                                              │
-│                                                                              │
-│  def test_something():                                                       │
-│ -    assert 1 == snapshot()                                                  │
-│ +    assert 1 == snapshot(1)                                                 │
-│      assert 2 <= snapshot(5)                                                 │
-╰──────────────────────────────────────────────────────────────────────────────╯
-These changes will be applied, because you used ]8;id=4596958;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\
-
-──────────────────────────────── Trim snapshots ────────────────────────────────
-╭───────────────────────────── test_something.py ──────────────────────────────╮
-│ @@ -3,4 +3,4 @@                                                              │
-│                                                                              │
-│                                                                              │
-│  def test_something():                                                       │
-│      assert 1 == snapshot(1)                                                 │
-│ -    assert 2 <= snapshot(5)                                                 │
-│ +    assert 2 <= snapshot(2)                                                 │
-╰──────────────────────────────────────────────────────────────────────────────╯
-These changes are not applied.
-Use --inline-snapshot=]8;id=4596963;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ to apply them, or use the interactive mode with 
---inline-snapshot=]8;id=4596964;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
-
-
-
-==================================== ERRORS ====================================
-_____________________ ERROR at teardown of test_something ______________________
-your snapshot is missing one value.
-If you just created this value with --inline-snapshot=create, the value is now created and you can ignore this message.
-=========================== short test summary info ============================
-ERROR test_something.py::test_something - Failed: your snapshot is missing one value.
-========================== 1 passed, 1 error in 0.12s ==========================
-```
+`--inline-snapshot=create,report` creates the missing value and reports that `snapshot(5)` can be changed to `snapshot(2)` in two separate diffs.
 
 ## --inline-snapshot=short-report
 
-give a short report over which changes can be made to the snapshots
-
-```
-> pytest test_something.py --inline-snapshot=short-report
-============================= test session starts ==============================
-platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0
-rootdir: /tmp/tmp.3w6Tj19F0G
-plugins: inline-snapshot-0.34.2
-collected 1 item
-
-test_something.py .E                                                     [100%]
-
-═══════════════════════════════ inline-snapshot ════════════════════════════════
-Info: one snapshot can be trimmed (--inline-snapshot=trim)
-Error: one snapshot is missing a value (--inline-snapshot=create)
-
-You can also use --inline-snapshot=review to approve the changes interactively
-
-
-==================================== ERRORS ====================================
-_____________________ ERROR at teardown of test_something ______________________
-your snapshot is missing one value.
-If you just created this value with --inline-snapshot=create, the value is now created and you can ignore this message.
-=========================== short test summary info ============================
-ERROR test_something.py::test_something - Failed: your snapshot is missing one value.
-========================== 1 passed, 1 error in 0.08s ==========================
-```
+Shows a short report of the changes that can be made to the snapshots.
 
 Info
 
-short-report exists mainly to show that snapshots have changed with enabled pytest assert-rewriting. This option will be replaced with *report* when this restriction is lifted.
+short-report exists mainly to show that snapshots have changed while pytest assertion rewriting is enabled. This option will be replaced with *report* when this restriction is lifted.
 
 ## --inline-snapshot=report
 
-Shows a diff report over which changes can be made to the snapshots
-
-```
-> pytest test_something.py --inline-snapshot=report
-============================= test session starts ==============================
-platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0
-rootdir: /tmp/tmp.7DqjXnSimp
-plugins: inline-snapshot-0.34.2
-collected 1 item
-
-test_something.py .E                                                     [100%]
-
-═══════════════════════════════ inline-snapshot ════════════════════════════════
-─────────────────────────────── Create snapshots ───────────────────────────────
-╭───────────────────────────── test_something.py ──────────────────────────────╮
-│ @@ -2,5 +2,5 @@                                                              │
-│                                                                              │
-│                                                                              │
-│                                                                              │
-│  def test_something():                                                       │
-│ -    assert 1 == snapshot()                                                  │
-│ +    assert 1 == snapshot(1)                                                 │
-│      assert 2 <= snapshot(5)                                                 │
-╰──────────────────────────────────────────────────────────────────────────────╯
-These changes are not applied.
-Use --inline-snapshot=]8;id=12227899;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\ to apply them, or use the interactive mode with 
---inline-snapshot=]8;id=12227900;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
-
-──────────────────────────────── Trim snapshots ────────────────────────────────
-╭───────────────────────────── test_something.py ──────────────────────────────╮
-│ @@ -3,4 +3,4 @@                                                              │
-│                                                                              │
-│                                                                              │
-│  def test_something():                                                       │
-│      assert 1 == snapshot()                                                  │
-│ -    assert 2 <= snapshot(5)                                                 │
-│ +    assert 2 <= snapshot(2)                                                 │
-╰──────────────────────────────────────────────────────────────────────────────╯
-These changes are not applied.
-Use --inline-snapshot=]8;id=12227904;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ to apply them, or use the interactive mode with 
---inline-snapshot=]8;id=12227905;https://15r10nk.github.io/inline-snapshot/latest/pytest/#-inline-snapshotreview\review]8;;\
-
-
-
-==================================== ERRORS ====================================
-_____________________ ERROR at teardown of test_something ______________________
-your snapshot is missing one value.
-If you just created this value with --inline-snapshot=create, the value is now created and you can ignore this message.
-=========================== short test summary info ============================
-ERROR test_something.py::test_something - Failed: your snapshot is missing one value.
-========================== 1 passed, 1 error in 0.09s ==========================
-```
+Shows a diff report of the changes that can be made to the snapshots.
 
 ## --inline-snapshot=review
 
-Shows a diff report for each category and ask if you want to apply the changes
-
-```
-> pytest test_something.py --inline-snapshot=review
-============================= test session starts ==============================
-platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0
-rootdir: /tmp/tmp.SxgQhanD3X
-plugins: inline-snapshot-0.34.2
-collected 1 item
-
-test_something.py .E                                                     [100%]
-
-═══════════════════════════════ inline-snapshot ════════════════════════════════
-─────────────────────────────── Create snapshots ───────────────────────────────
-╭───────────────────────────── test_something.py ──────────────────────────────╮
-│ @@ -2,5 +2,5 @@                                                              │
-│                                                                              │
-│                                                                              │
-│                                                                              │
-│  def test_something():                                                       │
-│ -    assert 1 == snapshot()                                                  │
-│ +    assert 1 == snapshot(1)                                                 │
-│      assert 2 <= snapshot(5)                                                 │
-╰──────────────────────────────────────────────────────────────────────────────╯
-Do you want to ]8;id=14987614;https://15r10nk.github.io/inline-snapshot/latest/categories/#create\create]8;;\ these snapshots? [y/n] (n): 
-──────────────────────────────── Trim snapshots ────────────────────────────────
-╭───────────────────────────── test_something.py ──────────────────────────────╮
-│ @@ -3,4 +3,4 @@                                                              │
-│                                                                              │
-│                                                                              │
-│  def test_something():                                                       │
-│      assert 1 == snapshot(1)                                                 │
-│ -    assert 2 <= snapshot(5)                                                 │
-│ +    assert 2 <= snapshot(2)                                                 │
-╰──────────────────────────────────────────────────────────────────────────────╯
-Do you want to ]8;id=14987617;https://15r10nk.github.io/inline-snapshot/latest/categories/#trim\trim]8;;\ these snapshots? [y/n] (n): 
-
-
-==================================== ERRORS ====================================
-_____________________ ERROR at teardown of test_something ______________________
-your snapshot is missing one value.
-If you just created this value with --inline-snapshot=create, the value is now created and you can ignore this message.
-=========================== short test summary info ============================
-ERROR test_something.py::test_something - Failed: your snapshot is missing one value.
-========================== 1 passed, 1 error in 0.10s ==========================
-```
+Shows a diff report for each category and asks whether you want to apply the changes.
 
 ## --inline-snapshot=disable
 
-Disables all the snapshot logic. `snapshot(x)` will just return `x` and inline-snapshot will not be able to fix snapshots or to generate reports. This can be used if you think that snapshot logic causes a problem in your tests. It is also the default for CI runs.
+Disables all snapshot logic. `snapshot(x)` will just return `x`, and inline-snapshot will not be able to fix snapshots or generate reports. This can be useful if you think that snapshot logic causes a problem in your tests. It is also the default for CI runs.
 
 deprecation
 
 This option was previously called `--inline-snapshot-disable`
+
+## Default Flags
+
+The [default flags](https://15r10nk.github.io/inline-snapshot/development/configuration/#default-flags) when you are in an interactive terminal are `--inline-snapshot=create,review` (or `--inline-snapshot=short-report` when you are using *CPython 3.10 or older*).
+
+This allows you to work with pytest and inline-snapshot without changing your usual pytest workflow.

@@ -1340,7 +1340,7 @@
   <a href="#pytest-options" class="md-nav__link">
     <span class="md-ellipsis">
       
-        pytest Options
+        pytest options
       
     </span>
   </a>
@@ -1972,7 +1972,7 @@
   <a href="#pytest-options" class="md-nav__link">
     <span class="md-ellipsis">
       
-        pytest Options
+        pytest options
       
     </span>
   </a>
@@ -2090,7 +2090,7 @@ It stores a reference to the external data in a special <code>external()</code> 
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Using the same external uuid multiple times like this is not supported:</p>
+<p>Using the same external UUID multiple times like this is not supported:</p>
 <p><!-- inline-snapshot: create first_block outcome-failed=2 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">external</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
@@ -2103,7 +2103,7 @@ It stores a reference to the external data in a special <code>external()</code> 
 <a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="k">assert</span> <span class="s2">&quot;test&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt&quot;</span><span class="p">)</span>
 </code></pre></div></p>
 <p>This can happen when you copy tests and change them for another use case. inline-snapshot notifies you in this case, and you should change one external back to <code class="highlight"><span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:&quot;</span><span class="p">)</span></code> and create new external snapshots.</p>
-<p>The correct way to do use the same external in different tests is to assign the external to a variable and reuse this variable.</p>
+<p>The correct way to use the same external in different tests is to assign the external to a variable and reuse this variable.</p>
 <p><!-- inline-snapshot: create first_block outcome-failed=2 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">external</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
@@ -2122,7 +2122,7 @@ It stores a reference to the external data in a special <code>external()</code> 
 <h3 id="hash">Hash<a class="headerlink" href="#hash" title="Permanent link">&para;</a></h3>
 <p>The <code>hash:</code> storage can be used to store snapshot files based on the hash of their content. This was the first storage protocol supported by inline-snapshot and can still be useful in some cases. It also preserves backward compatibility with older inline-snapshot versions.</p>
 <p>The external data is by default stored inside <code>&lt;pytest_config_dir&gt;/.inline-snapshot/external</code>,
-where <code>&lt;pytest_config_dir&gt;</code> is replaced by the directory containing the Pytest configuration file, if any.
+where <code>&lt;pytest_config_dir&gt;</code> is replaced by the directory containing the pytest configuration file, if any.
 To store data in a different location, set the <code>storage-dir</code> option in pyproject.toml.</p>
 <ul>
 <li><span class="twemoji green"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg></span> Value changes cause source code changes because the hash changes.</li>
@@ -2200,7 +2200,7 @@ You must specify the suffix in this case.</p>
 <p>inline-snapshot tracks the use of <code>external()</code> in your codebase and will <em>trim</em> and remove unused external files when you delete the <code>external(...)</code> in your code.</p>
 <p>It does this by storing a list of files that use <code>external()</code> in <code>.inline-snapshot/files_using_external.txt</code>. It is recommended to put this file into version control. It is robust against merge conflicts and incorrect file names.</p>
 <p>If this file does not exist yet, inline-snapshot falls back to scanning <a href="../../configuration/#test-dir"><code>test-dir</code></a> to discover existing external snapshots and writes the tracked file list for future runs.</p>
-<h2 id="pytest-options">pytest Options<a class="headerlink" href="#pytest-options" title="Permanent link">&para;</a></h2>
+<h2 id="pytest-options">pytest options<a class="headerlink" href="#pytest-options" title="Permanent link">&para;</a></h2>
 <p>It interacts with the following <code>--inline-snapshot</code> flags:</p>
 <ul>
 <li><code>create</code>: Creates new external files.</li>

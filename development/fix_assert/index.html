@@ -1926,10 +1926,10 @@
 <h2 id="general">General<a class="headerlink" href="#general" title="Permanent link">&para;</a></h2>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>The following feature is available for <a href="../insiders/">insider</a> <img alt="❤" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2764.svg" title=":heart:" /> only
-and requires cpython&gt;=3.11 to generate code. The generated code can be used with every python version.</p>
+<p>The following feature is available for <a href="../insiders/">insiders</a> <img alt="❤" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2764.svg" title=":heart:" /> only
+and requires CPython &gt;= 3.11 to generate code. The generated code can be used with every Python version.</p>
 </div>
-<p>The <code>snapshot()</code> function provides a lot of flexibility, but there is a easier way for simple assertion.
+<p>The <code>snapshot()</code> function provides a lot of flexibility, but there is an easier way for simple assertions.
 You can write a normal assertion and use <code>...</code> where inline-snapshot should create the new value, like in the following example.</p>
 <!-- inline-snapshot: first_block requires_assert outcome-failed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_assert</span><span class="p">():</span>
@@ -1951,8 +1951,8 @@ You can write a normal assertion and use <code>...</code> where inline-snapshot 
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="hll">    <span class="k">assert</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">2</span>
 </span></code></pre></div>
 <p>This is especially useful to fix values in existing codebases where <code>snapshot()</code> is currently not used.</p>
-<p>The logic to create/fix the assertions is the same like for snapshots, but there are rules which specify which side of the <code>==</code> should be fixed.
-This allows assertions like <code class="highlight"><span class="k">assert</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span></code> to be fixed and prevents inline-snapshot to try to fix code like <code class="highlight"><span class="k">assert</span> <span class="n">f1</span><span class="p">()</span> <span class="o">==</span> <span class="n">f2</span><span class="p">()</span></code>.</p>
+<p>The logic to create/fix assertions is the same as for snapshots, but there are rules which specify which side of the <code>==</code> should be fixed.
+This allows assertions like <code class="highlight"><span class="k">assert</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span></code> to be fixed and prevents inline-snapshot from trying to fix code like <code class="highlight"><span class="k">assert</span> <span class="n">f1</span><span class="p">()</span> <span class="o">==</span> <span class="n">f2</span><span class="p">()</span></code>.</p>
 <p>The rule is that exactly one side of the equation must be a <em>value expression</em>, which is defined as follows:</p>
 <ul>
 <li>a constant</li>
@@ -1965,9 +1965,9 @@ This allows assertions like <code class="highlight"><span class="k">assert</span
 </ul>
 <h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>cpython&gt;=3.11</code> is required to create/fix assertions.</li>
+<li><code>CPython &gt;= 3.11</code> is required to create/fix assertions.</li>
 <li>It can only fix the first failing assertion in a test.
-  You need to run your tests a multiple times to fix the remaining ones.</li>
+  You need to run your tests multiple times to fix the remaining ones.</li>
 <li>It is not possible to fix values where inline-snapshot did not know which side of the equal sign should be fixed.
   You can use <code>snapshot()</code> in this case to make this clear.</li>
 </ul>
@@ -1979,7 +1979,7 @@ This allows assertions like <code class="highlight"><span class="k">assert</span
 <p><code>fix-assert</code> fix the value if the assertion fails.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>fix-assert is used to distinguisch between snapshot fixes and assertion fixes without snapshot().
+<p>fix-assert is used to distinguish between snapshot fixes and assertion fixes without snapshot().
 This should help in deciding whether some fixes should be approved.
 Fixing normal assertions is inherently more complicated because these assertions are written by a human without the intention of being automatically fixed.
 Separating the two helps in approving the changes.</p>

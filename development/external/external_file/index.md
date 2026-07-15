@@ -13,14 +13,14 @@ Another use case is to check if some files in your project are correct by readin
 
 ```
 def test_files():
-    for file in root.rglob("*.md", format=".txt"):
+    for file in root.rglob("*.md"):
         current_text = file.read_text()
 
         # eval_code_blocks is a custom function that could run your examples in a project-specific way and store the output in the documentation.
         # It is up to you to implement such functions for your specific use case.
         correct_text = eval_code_blocks(current_text)
 
-        assert correct_text == external_file(file)
+        assert correct_text == external_file(file, format=".txt")
 ```
 
 ### `external_file(path, *, format=None)`

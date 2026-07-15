@@ -96,7 +96,7 @@ The `uuid:` storage protocol is the default protocol and stores the external fil
 
 Note
 
-Using the same external uuid multiple times like this is not supported:
+Using the same external UUID multiple times like this is not supported:
 
 ```
 from inline_snapshot import external
@@ -112,7 +112,7 @@ def test_b():
 
 This can happen when you copy tests and change them for another use case. inline-snapshot notifies you in this case, and you should change one external back to `external("uuid:")` and create new external snapshots.
 
-The correct way to do use the same external in different tests is to assign the external to a variable and reuse this variable.
+The correct way to use the same external in different tests is to assign the external to a variable and reuse this variable.
 
 ```
 from inline_snapshot import external
@@ -132,7 +132,7 @@ def test_b():
 
 The `hash:` storage can be used to store snapshot files based on the hash of their content. This was the first storage protocol supported by inline-snapshot and can still be useful in some cases. It also preserves backward compatibility with older inline-snapshot versions.
 
-The external data is by default stored inside `<pytest_config_dir>/.inline-snapshot/external`, where `<pytest_config_dir>` is replaced by the directory containing the Pytest configuration file, if any. To store data in a different location, set the `storage-dir` option in pyproject.toml.
+The external data is by default stored inside `<pytest_config_dir>/.inline-snapshot/external`, where `<pytest_config_dir>` is replaced by the directory containing the pytest configuration file, if any. To store data in a different location, set the `storage-dir` option in pyproject.toml.
 
 - Value changes cause source code changes because the hash changes.
 - GitHub/GitLab web UIs cannot be used to view the diffs, because the filename changes.
@@ -187,7 +187,7 @@ It does this by storing a list of files that use `external()` in `.inline-snapsh
 
 If this file does not exist yet, inline-snapshot falls back to scanning [`test-dir`](https://15r10nk.github.io/inline-snapshot/development/configuration/#test-dir) to discover existing external snapshots and writes the tracked file list for future runs.
 
-## pytest Options
+## pytest options
 
 It interacts with the following `--inline-snapshot` flags:
 
