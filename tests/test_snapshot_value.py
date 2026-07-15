@@ -66,7 +66,7 @@ from inline_snapshot.plugin import customize
 
 @customize
 def check_dict_key(value, builder, snapshot_value):
-    if value == 1:
+    if value == 1 and builder._build_new_value:
         assert snapshot_value == 1, repr(snapshot_value)
         return builder.create_code(str(value))
 
