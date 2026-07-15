@@ -160,8 +160,11 @@ class NewAdapter:
     def customize(self, value, snapshot_value: Custom):
         return self.get_builder(_build_new_value=True)._customize(value, snapshot_value)
 
-    def customize_all(self, value):
-        return self.get_builder(_build_new_value=True)._customize_all(value)
+    def customize_all(self, value, snapshot_value: Custom | None = None):
+        builder = self.get_builder(_build_new_value=True)
+        if snapshot_value is None:
+            return builder._customize_all(value)
+        return builder._customize_all(value, snapshot_value)
 
     def compare(
         self, old_value: Custom, old_node, new_value: Custom
@@ -435,13 +438,17 @@ class NewAdapter:
         to_insert = []
         insert_pos = 0
         for key, new_value_element in new_value.value.items():
-            result_key = self.customize_all(key)
             if key not in old_value.value:
                 # add new values
+                result_key = self.customize_all(key)
                 new_value_element = self.customize_all(new_value_element)
                 to_insert.append((result_key, new_value_element))
                 result[result_key] = new_value_element
             else:
+                old_key = next(
+                    old_key for old_key in old_value.value.keys() if old_key == key
+                )
+                result_key = self.customize_all(key, old_key)
                 if isinstance(old_node, ast.Dict):
                     node = old_node.values[list(old_value.value.keys()).index(key)]
                 else:

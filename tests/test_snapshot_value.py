@@ -55,3 +55,27 @@ def test_it():
 """}),
         outcomes={"passed": 1, "errors": 1},
     )
+
+
+def test_snapshot_value_in_dict_key():
+    """Test that snapshot_value works with existing dict keys."""
+    Example(
+        {
+            "tests/conftest.py": """\
+from inline_snapshot.plugin import customize
+
+@customize
+def check_dict_key(value, builder, snapshot_value):
+    if value == 1:
+        assert snapshot_value == 1, repr(snapshot_value)
+        return builder.create_code(str(value))
+
+""",
+            "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_it():
+    assert snapshot({1: "x"}) == {1: "x"}
+""",
+        }
+    ).run_pytest()
