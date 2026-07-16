@@ -7,6 +7,7 @@ from inline_snapshot._customize._uncustomized import Uncustomized
 from inline_snapshot._generator_utils import split_gen
 from inline_snapshot._new_adapter import NewAdapter
 
+from .._change import CategoryChange
 from .._change import Change
 from .._change import ChangeBase
 from .._compare_context import compare_only
@@ -19,6 +20,7 @@ class EqValue(GenericValue):
     _changes: List[Change]
 
     def __eq__(self, other):
+        other_eval = self._eval_value(other)
 
         if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1
@@ -26,15 +28,22 @@ class EqValue(GenericValue):
         if not compare_only() and isinstance(self._new_value, CustomUndefined):
             self._changes = []
 
-            adapter = NewAdapter(self._context)
+            if not state().active or self._ast_node is None:
+                self._new_value = self.to_custom(other, _build_new_value=True)
+                if isinstance(self._old_value, CustomUndefined):
+                    self._changes.append(CategoryChange("create"))
+                elif self._old_value._eval() != other_eval:
+                    self._changes.append(CategoryChange("fix"))
+            else:
+                adapter = NewAdapter(self._context)
 
-            result = split_gen(
-                adapter.compare(self._old_value, self._ast_node, Uncustomized(other))
-            )
-            self._changes = result.list
-            self._new_value = result.value
-
-        other_eval = self._eval_value(other)
+                result = split_gen(
+                    adapter.compare(
+                        self._old_value, self._ast_node, Uncustomized(other)
+                    )
+                )
+                self._changes = result.list
+                self._new_value = result.value
 
         return self._return(
             self._old_value._eval() == other_eval,

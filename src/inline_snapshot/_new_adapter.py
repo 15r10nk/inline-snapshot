@@ -23,7 +23,6 @@ from inline_snapshot._customize._custom_call import CustomDefault
 from inline_snapshot._customize._custom_code import CustomCode
 from inline_snapshot._customize._custom_dict import CustomDict
 from inline_snapshot._customize._custom_sequence import CustomList
-from inline_snapshot._customize._custom_sequence import CustomSequence
 from inline_snapshot._customize._custom_sequence import CustomSet
 from inline_snapshot._customize._custom_sequence import CustomTuple
 from inline_snapshot._customize._custom_undefined import CustomUndefined
@@ -152,6 +151,7 @@ def reeval_CustomDict(old_value, value):
 class NewAdapter:
 
     def __init__(self, context: AdapterContext):
+        assert context.expr.node is not None
         self.context = context
 
     def get_builder(self, **args):
@@ -185,18 +185,8 @@ class NewAdapter:
         if isinstance(new_value, CustomUnmanaged):
             raise UsageError("unmanaged values cannot be compared with snapshots")
 
-        if (
-            type(old_value) is type(new_value)
-            and (
-                isinstance(old_node, new_value.node_type)
-                if old_node is not None
-                else True
-            )
-            and (
-                isinstance(old_value, (CustomCall, CustomSequence, CustomDict))
-                if old_node is None
-                else True
-            )
+        if type(old_value) is type(new_value) and isinstance(
+            old_node, new_value.node_type
         ):
             function_name = f"compare_{type(old_value).__name__}"
             result_gen = getattr(self, function_name)(old_value, old_node, new_value)
@@ -226,7 +216,7 @@ class NewAdapter:
         assert isinstance(old_value, Custom)
         new_value = self.customize_all(new_value)
         assert isinstance(new_value, Custom)
-        assert isinstance(old_node, (ast.expr, type(None))), old_node
+        assert isinstance(old_node, ast.expr), old_node
 
         new_code, new_changes = split_gen(new_value._code_repr(self.context))
 
@@ -276,20 +266,16 @@ class NewAdapter:
         self, old_value: CustomList, old_node: ast.AST, new_value: CustomList
     ) -> Generator[ChangeBase, None, CustomList]:
 
-        if old_node is not None:
-            assert isinstance(
-                old_node, ast.List if isinstance(old_value._eval(), list) else ast.Tuple
-            )
-            assert isinstance(old_node, (ast.List, ast.Tuple))
-
-        else:
-            pass  # pragma: no cover
+        assert isinstance(
+            old_node, ast.List if isinstance(old_value._eval(), list) else ast.Tuple
+        )
+        assert isinstance(old_node, (ast.List, ast.Tuple))
 
         with compare_context():
             diff = add_x(align(old_value.value, new_value.value))
         old = zip(
             old_value.value,
-            old_node.elts if old_node is not None else [None] * len(old_value.value),
+            old_node.elts,
         )
         new = iter(new_value.value)
         old_position = 0
@@ -334,12 +320,11 @@ class NewAdapter:
         """Compare tuples positionally: match elements at the same index,
         delete surplus old elements, insert extra new elements."""
 
-        if old_node is not None:
-            assert isinstance(old_node, ast.Tuple)
+        assert isinstance(old_node, ast.Tuple)
 
         old_elts = old_value.value
         new_elts = new_value.value
-        old_nodes = old_node.elts if old_node is not None else [None] * len(old_elts)
+        old_nodes = old_node.elts
 
         common = min(len(old_elts), len(new_elts))
         result = []
@@ -407,23 +392,17 @@ class NewAdapter:
         assert isinstance(old_value, CustomDict)
         assert isinstance(new_value, CustomDict)
 
-        if old_node is not None:
-
-            for value2, node in zip(old_value.value.keys(), old_node.keys):
-                assert node is not None
-                try:
-                    # this is just a sanity check, dicts should be ordered
-                    node_value = ast.literal_eval(node)
-                except Exception:
-                    continue
-                assert node_value == value2._eval()
-        else:
-            pass  # pragma: no cover
+        for value2, node in zip(old_value.value.keys(), old_node.keys):
+            assert node is not None
+            try:
+                # this is just a sanity check, dicts should be ordered
+                node_value = ast.literal_eval(node)
+            except Exception:
+                continue
+            assert node_value == value2._eval()
 
         old_keys = list(old_value.value.keys())
-        old_value_nodes = (
-            old_node.values if old_node is not None else [None] * len(old_keys)
-        )
+        old_value_nodes = old_node.values
         old_entries = {
             old_key: (old_key, value_node)
             for old_key, value_node in zip(old_keys, old_value_nodes)
@@ -505,13 +484,9 @@ class NewAdapter:
 
         flag = "update" if old_value._eval() == new_value.original_value else "fix"
 
-        old_node_args: Sequence[ast.expr | None]
-        if old_node:
-            old_node_args = old_node.args
-        else:
-            old_node_args = [None] * len(new_args)
+        old_node_args: Sequence[ast.expr | None] = old_node.args
 
-        old_args_len = len(old_node.args if old_node else old_value.args)
+        old_args_len = len(old_node.args)
 
         for i, (new_value_element, node) in list(
             enumerate(zip(new_args, old_node_args))
@@ -522,14 +497,13 @@ class NewAdapter:
             )
             result_args.append(result)
 
-        if old_node is not None:
-            if old_args_len > len(new_args):
-                for arg_pos, node in list(enumerate(old_node.args))[len(new_args) :]:
-                    yield Delete(
-                        flag,
-                        self.context.file,
-                        node,
-                    )
+        if old_args_len > len(new_args):
+            for arg_pos, node in list(enumerate(old_node.args))[len(new_args) :]:
+                yield Delete(
+                    flag,
+                    self.context.file,
+                    node,
+                )
 
         if old_args_len < len(new_args):
             for insert_pos, insert_value in list(enumerate(new_args))[old_args_len:]:
@@ -547,12 +521,9 @@ class NewAdapter:
 
         # keyword arguments
         result_kwargs = {}
-        if old_node is None:
-            old_keywords = {key: None for key in old_value.kwargs.keys()}
-        else:
-            old_keywords = {
-                kw.arg: kw.value for kw in old_node.keywords if kw.arg is not None
-            }
+        old_keywords = {
+            kw.arg: kw.value for kw in old_node.keywords if kw.arg is not None
+        }
 
         for kw_arg, kw_value in old_keywords.items():
             missing = kw_arg not in new_kwargs
@@ -622,7 +593,7 @@ class NewAdapter:
                 yield from (
                     self.compare(
                         old_value.function,
-                        old_node.func if old_node else None,
+                        old_node.func,
                         new_value.function,
                     )
                 )
