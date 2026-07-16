@@ -1,4 +1,12 @@
 
+<a id='changelog-0.35.2'></a>
+# 0.35.2 — 2026-07-16
+
+## Fixed
+
+- fix passing `PYTHONPATH`, `PYTHONWARNINGS`, and `PYTHONDONTWRITEBYTECODE`
+  while running the test suite.
+
 <a id='changelog-0.35.1'></a>
 # 0.35.1 — 2026-07-16
 
