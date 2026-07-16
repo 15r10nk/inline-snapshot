@@ -131,7 +131,10 @@ def _subprocess_env() -> dict[str, str]:
         "VIRTUAL_ENV",
         "TOP",
         "COVERAGE_PROCESS_START",
+        "PYTHONDONTWRITEBYTECODE",
         "PYTHONIOENCODING",
+        "PYTHONPATH",
+        "PYTHONWARNINGS",
         "PYTEST_DISABLE_PLUGIN_AUTOLOAD",
         "PYTEST_PLUGINS",
     ]
