@@ -1,4 +1,11 @@
 
+<a id='changelog-0.35.1'></a>
+# 0.35.1 — 2026-07-16
+
+## Fixed
+
+- fix passing `PYTEST_DISABLE_PLUGIN_AUTOLOAD` and `PYTEST_PLUGINS` while running the test suite.
+
 <a id='changelog-0.35.0'></a>
 # 0.35.0 — 2026-07-15
 
