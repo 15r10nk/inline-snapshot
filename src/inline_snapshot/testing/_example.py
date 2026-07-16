@@ -134,6 +134,7 @@ def _subprocess_env() -> dict[str, str]:
         "PYTHONDONTWRITEBYTECODE",
         "PYTHONIOENCODING",
         "PYTHONPATH",
+        "PYTHONWARNINGS",
         "PYTEST_DISABLE_PLUGIN_AUTOLOAD",
         "PYTEST_PLUGINS",
     ]
