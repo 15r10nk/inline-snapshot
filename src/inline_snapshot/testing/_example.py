@@ -132,6 +132,8 @@ def _subprocess_env() -> dict[str, str]:
         "TOP",
         "COVERAGE_PROCESS_START",
         "PYTHONIOENCODING",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD",
+        "PYTEST_PLUGINS",
     ]
     if platform.system() == "Windows":  # pragma: no cover
         env_keys.extend(
