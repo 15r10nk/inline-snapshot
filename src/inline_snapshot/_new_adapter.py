@@ -329,10 +329,9 @@ class NewAdapter:
         return CustomTuple(result)
 
     def compare_CustomSet(
-        self, old_value: CustomSet, old_node: ast.AST, new_value: CustomSet
+        self, old_value: CustomSet, old_node: ast.Set, new_value: CustomSet
     ) -> Generator[ChangeBase, None, CustomSet]:
-        if old_node is not None:
-            assert isinstance(old_node, ast.Set)
+        assert isinstance(old_node, ast.Set)
 
         # A set's iteration order cannot be associated with the source order of
         # its AST elements. Compare it atomically instead of attempting

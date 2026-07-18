@@ -13,7 +13,11 @@ import pytest
 from inline_snapshot import HasRepr
 from inline_snapshot import snapshot
 from inline_snapshot._code_repr import code_repr
+from inline_snapshot._customize._custom_code import CustomCode
+from inline_snapshot._customize._custom_sequence import CustomSet
+from inline_snapshot._new_adapter import reeval
 from inline_snapshot._sentinels import undefined
+from inline_snapshot._snapshot.undecided_value import ValueToCustom
 from inline_snapshot.testing import Example
 from tests.conftest import check_update
 
@@ -399,6 +403,47 @@ def test_set_is_replaced_atomically():
     assert {1, 2, 20} == snapshot({1, 2, 20})
 """},
     )
+
+
+def test_set_is_replaced_atomically_with_child_changes():
+    Example("""\
+from pathlib import Path
+
+from inline_snapshot import snapshot
+
+
+def test_set_is_replaced_atomically_with_child_changes():
+    assert {Path("new")} == snapshot({Path("old")})
+""").run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files={"tests/test_something.py": """\
+from pathlib import Path
+
+from inline_snapshot import snapshot
+
+
+def test_set_is_replaced_atomically_with_child_changes():
+    assert {Path("new")} == snapshot({Path("new")})
+"""},
+    )
+
+
+def test_set_is_reevaluated():
+    Example("""\
+from inline_snapshot import snapshot
+
+
+def test_set_is_reevaluated():
+    for value in [{1, 2}, {1, 2}]:
+        assert value == snapshot({2, 1})
+""").run_inline(reported_categories=set())
+
+
+def test_set_custom_helpers():
+    old = CustomSet([CustomCode(1, "1")])
+    new = CustomSet([CustomCode(1, "1")])
+    assert reeval(old, new)._eval() == {1}
+    assert ValueToCustom(None).convert_set(set())._eval() == set()
 
 
 def test_datatypes_explicit():
