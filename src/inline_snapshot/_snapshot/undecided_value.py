@@ -11,6 +11,7 @@ from inline_snapshot._customize._custom_call import CustomDefault
 from inline_snapshot._customize._custom_code import CustomCode
 from inline_snapshot._customize._custom_dict import CustomDict
 from inline_snapshot._customize._custom_sequence import CustomList
+from inline_snapshot._customize._custom_sequence import CustomSet
 from inline_snapshot._customize._custom_sequence import CustomTuple
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
@@ -61,6 +62,9 @@ class AstToCustom:
 
     def convert_Tuple(self, value: tuple, node: ast.Tuple):
         return CustomTuple([self.convert(v, n) for v, n in zip(value, node.elts)])
+
+    def convert_Set(self, value: set, node: ast.Set):
+        return CustomSet([self.convert(v, n) for v, n in zip(value, node.elts)])
 
     def convert_Dict(self, value: dict, node: ast.Dict):
         return CustomDict(
@@ -115,6 +119,9 @@ class ValueToCustom:
 
     def convert_tuple(self, value: tuple):
         return CustomTuple([self.convert(v) for v in value])
+
+    def convert_set(self, value: set):
+        return CustomSet([self.convert(v) for v in value])
 
     def convert_dict(self, value: dict):
         return CustomDict(

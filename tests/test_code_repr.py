@@ -335,6 +335,72 @@ def test_set():
     )
 
 
+def test_set_partial_order_is_deterministic():
+    Example("""\
+from itertools import permutations
+
+from inline_snapshot import snapshot
+from inline_snapshot._code_repr import code_repr
+
+
+def test_set_partial_order_is_deterministic():
+    a = frozenset({"a", "b"})
+    b = frozenset({"a", "c"})
+    c = frozenset({"a", "d"})
+
+    for items in permutations([a, b, c]):
+        assert set(items) == snapshot()
+""").run_inline(
+        ["--inline-snapshot=create"],
+        changed_files={"tests/test_something.py": """\
+from itertools import permutations
+
+from inline_snapshot import snapshot
+from inline_snapshot._code_repr import code_repr
+
+
+def test_set_partial_order_is_deterministic():
+    a = frozenset({"a", "b"})
+    b = frozenset({"a", "c"})
+    c = frozenset({"a", "d"})
+
+    for items in permutations([a, b, c]):
+        assert set(items) == snapshot(
+            {frozenset({"a", "b"}), frozenset({"a", "c"}), frozenset({"a", "d"})}
+        )
+"""},
+    )
+
+
+def test_set_is_compared_atomically():
+    Example("""\
+from inline_snapshot import snapshot
+
+
+def test_set_is_compared_atomically():
+    assert {1, 2, 10} == snapshot({10, 1, 2})
+""").run_inline(reported_categories=set())
+
+
+def test_set_is_replaced_atomically():
+    Example("""\
+from inline_snapshot import snapshot
+
+
+def test_set_is_replaced_atomically():
+    assert {1, 2, 20} == snapshot({10, 1, 2})
+""").run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files={"tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+
+def test_set_is_replaced_atomically():
+    assert {1, 2, 20} == snapshot({1, 2, 20})
+"""},
+    )
+
+
 def test_datatypes_explicit():
     assert code_repr(C(a=1, c=2)) == snapshot("C(a=1, c=2)")
     assert code_repr(B(b=5)) == snapshot("B(b=5)")

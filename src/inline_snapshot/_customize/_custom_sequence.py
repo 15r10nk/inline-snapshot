@@ -46,3 +46,28 @@ class CustomTuple(CustomSequence):
     value_type = tuple
     braces = "()"
     trailing_comma = True
+
+
+class CustomSet(CustomSequence):
+    node_type = ast.Set
+    value_type = set
+    braces = "{}"
+    trailing_comma = False
+
+    def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+        if len(self.value) == 0:
+            return "set()"
+        values = []
+        for v in self.value:
+            code = yield from v._code_repr(context)
+            values.append((v, code))
+
+        # Keep a deterministic fallback order for non-comparable elements.
+        values = sorted(values, key=lambda item: item[1])
+        try:
+            values = sorted(values, key=lambda item: item[0]._eval())
+        except TypeError:
+            # Mixed/non-orderable elements must use the stable code-based order.
+            pass
+
+        return "{" + ", ".join(code for _, code in values) + "}"

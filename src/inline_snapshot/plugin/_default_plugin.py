@@ -163,31 +163,10 @@ class InlineSnapshotPlugin:
         if isinstance(value, PurePath):
             return builder.create_call(PurePath, [value.as_posix()])
 
-    def sort_set_values(self, set_values):
-        is_sorted = False
-        try:
-            set_values = sorted(set_values)
-            is_sorted = True
-        except TypeError:
-            # cannot be sorted by value
-            pass
-
-        set_values = list(map(repr, set_values))
-        if not is_sorted:
-            # sort by string representation
-            set_values = sorted(set_values)
-
-        return set_values
-
     @customize
     def set_handler(self, value, builder: Builder):
         if isinstance(value, set):
-            if len(value) == 0:
-                return builder.create_code("set()")
-            else:
-                return builder.create_code(
-                    "{" + ", ".join(self.sort_set_values(value)) + "}"
-                )
+            return builder.create_set(value)
 
     @customize
     def frozenset_handler(self, value, builder: Builder):
