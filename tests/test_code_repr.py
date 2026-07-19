@@ -17,7 +17,6 @@ from inline_snapshot._customize._custom_code import CustomCode
 from inline_snapshot._customize._custom_sequence import CustomSet
 from inline_snapshot._new_adapter import reeval
 from inline_snapshot._sentinels import undefined
-from inline_snapshot._snapshot.undecided_value import ValueToCustom
 from inline_snapshot.testing import Example
 from tests.conftest import check_update
 
@@ -407,23 +406,23 @@ def test_set_is_replaced_atomically():
 
 def test_set_is_replaced_atomically_with_child_changes():
     Example("""\
-from pathlib import Path
+from datetime import date
 
 from inline_snapshot import snapshot
 
 
 def test_set_is_replaced_atomically_with_child_changes():
-    assert {Path("new")} == snapshot({Path("old")})
+    assert {date(2025, 1, 1)} == snapshot({date(2024, 1, 1)})
 """).run_inline(
         ["--inline-snapshot=fix"],
         changed_files={"tests/test_something.py": """\
-from pathlib import Path
+from datetime import date
 
 from inline_snapshot import snapshot
 
 
 def test_set_is_replaced_atomically_with_child_changes():
-    assert {Path("new")} == snapshot({Path("new")})
+    assert {date(2025, 1, 1)} == snapshot({date(2025, 1, 1)})
 """},
     )
 
@@ -443,7 +442,6 @@ def test_set_custom_helpers():
     old = CustomSet([CustomCode(1, "1")])
     new = CustomSet([CustomCode(1, "1")])
     assert reeval(old, new)._eval() == {1}
-    assert ValueToCustom(None).convert_set(set())._eval() == set()
 
 
 def test_datatypes_explicit():

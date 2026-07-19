@@ -64,7 +64,10 @@ class AstToCustom:
         return CustomTuple([self.convert(v, n) for v, n in zip(value, node.elts)])
 
     def convert_Set(self, value: set, node: ast.Set):
-        return CustomSet([self.convert(v, n) for v, n in zip(value, node.elts)])
+        # Set elements cannot be associated with their AST nodes because set
+        # iteration order is unrelated to source order. Use the value Python
+        # has already evaluated instead of evaluating each expression again.
+        return ValueToCustom(self.context).convert_set(value)
 
     def convert_Dict(self, value: dict, node: ast.Dict):
         return CustomDict(
