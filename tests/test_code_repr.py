@@ -13,7 +13,11 @@ import pytest
 from inline_snapshot import HasRepr
 from inline_snapshot import snapshot
 from inline_snapshot._code_repr import code_repr
+from inline_snapshot._customize._custom_code import CustomCode
+from inline_snapshot._customize._custom_sequence import CustomSet
+from inline_snapshot._new_adapter import reeval
 from inline_snapshot._sentinels import undefined
+from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
 from tests.conftest import check_update
 
@@ -333,6 +337,120 @@ def test_set():
     assert code_repr({1, 2, 3, 10, 11, 20, 200}) == snapshot(
         "{1, 2, 3, 10, 11, 20, 200}"
     )
+
+
+def test_set_partial_order_is_deterministic():
+    Example("""\
+from itertools import permutations
+
+from inline_snapshot import snapshot
+from inline_snapshot._code_repr import code_repr
+
+
+def test_set_partial_order_is_deterministic():
+    a = frozenset({"a", "b"})
+    b = frozenset({"a", "c"})
+    c = frozenset({"a", "d"})
+
+    for items in permutations([a, b, c]):
+        assert set(items) == snapshot()
+""").run_inline(
+        ["--inline-snapshot=create"],
+        changed_files={"tests/test_something.py": """\
+from itertools import permutations
+
+from inline_snapshot import snapshot
+from inline_snapshot._code_repr import code_repr
+
+
+def test_set_partial_order_is_deterministic():
+    a = frozenset({"a", "b"})
+    b = frozenset({"a", "c"})
+    c = frozenset({"a", "d"})
+
+    for items in permutations([a, b, c]):
+        assert set(items) == snapshot(
+            {frozenset({"a", "b"}), frozenset({"a", "c"}), frozenset({"a", "d"})}
+        )
+"""},
+    )
+
+
+def test_set_is_compared_atomically():
+    Example("""\
+from inline_snapshot import snapshot
+
+
+def test_set_is_compared_atomically():
+    assert {1, 2, 10} == snapshot({10, 1, 2})
+""").run_inline(reported_categories=set())
+
+
+def test_set_is_replaced_atomically():
+    Example("""\
+from inline_snapshot import snapshot
+
+
+def test_set_is_replaced_atomically():
+    assert {1, 2, 20} == snapshot({10, 1, 2})
+""").run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files={"tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+
+def test_set_is_replaced_atomically():
+    assert {1, 2, 20} == snapshot({1, 2, 20})
+"""},
+    )
+
+
+def test_set_is_replaced_atomically_with_child_changes():
+    Example("""\
+from pathlib import Path
+
+from inline_snapshot import snapshot
+
+
+def test_set_is_replaced_atomically_with_child_changes():
+    assert {Path("new")} == snapshot({Path("old")})
+""").run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files={"tests/test_something.py": """\
+from pathlib import Path
+
+from inline_snapshot import snapshot
+
+
+def test_set_is_replaced_atomically_with_child_changes():
+    assert {Path("new")} == snapshot({Path("new")})
+"""},
+    )
+
+
+def test_set_is_reevaluated():
+    Example("""\
+from inline_snapshot import snapshot
+
+
+def test_set_is_reevaluated():
+    for value in [{1, 2}, {1, 2}]:
+        assert value == snapshot({2, 1})
+""").run_inline(reported_categories=set())
+
+
+def test_set_custom_helpers():
+    old = CustomSet([CustomCode(1, "1"), CustomCode(2, "2")])
+    reordered = CustomSet([CustomCode(2, "2"), CustomCode(1, "1")])
+    assert reeval(old, reordered) is reordered
+
+    changed = CustomSet([CustomCode(3, "3")])
+    with raises(
+        snapshot(
+            "UsageError: snapshot value should not change. Use Is(...) for dynamic snapshot parts."
+        )
+    ):
+        reeval(old, changed)
 
 
 def test_datatypes_explicit():

@@ -20,6 +20,7 @@ from ._custom_code import ImportFrom
 from ._custom_dict import CustomDict
 from ._custom_external import CustomExternal
 from ._custom_sequence import CustomList
+from ._custom_sequence import CustomSet
 from ._custom_sequence import CustomTuple
 
 
@@ -114,6 +115,16 @@ customized_representation={result!r}
         """
         custom = [self._get_handler_recursive(v) for v in value]
         return CustomTuple(value=custom)
+
+    def create_set(self, value: set) -> Custom:
+        """
+        Creates an intermediate node for a set-expression which can be used as a result for your customization function.
+
+        `create_set({1, 2, 3})` becomes `{1, 2, 3}` in the code.
+        Set elements don't have to be Custom nodes and are converted by inline-snapshot if needed.
+        """
+        custom = [self._get_handler_recursive(v) for v in value]
+        return CustomSet(value=custom)
 
     def with_default(self, value: Any, default: Any):
         """

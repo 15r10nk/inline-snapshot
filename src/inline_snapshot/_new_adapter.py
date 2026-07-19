@@ -23,6 +23,7 @@ from inline_snapshot._customize._custom_code import CustomCode
 from inline_snapshot._customize._custom_dict import CustomDict
 from inline_snapshot._customize._custom_sequence import CustomList
 from inline_snapshot._customize._custom_sequence import CustomSequence
+from inline_snapshot._customize._custom_sequence import CustomSet
 from inline_snapshot._customize._custom_sequence import CustomTuple
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
@@ -99,6 +100,14 @@ def reeval_CustomList(old_value: CustomList, value: CustomList):
 def reeval_CustomTuple(old_value: CustomTuple, value: CustomTuple):
     assert len(old_value.value) == len(value.value)
     return CustomTuple([reeval(a, b) for a, b in zip(old_value.value, value.value)])
+
+
+def reeval_CustomSet(old_value: CustomSet, value: CustomSet):
+    if old_value._eval() != value._eval():
+        raise UsageError(
+            "snapshot value should not change. Use Is(...) for dynamic snapshot parts."
+        )
+    return value
 
 
 def reeval_CustomUnmanaged(old_value: CustomUnmanaged, value: CustomUnmanaged):
@@ -321,6 +330,31 @@ class NewAdapter:
             )
 
         return CustomTuple(result)
+
+    def compare_CustomSet(
+        self, old_value: CustomSet, old_node: ast.Set, new_value: CustomSet
+    ) -> Generator[ChangeBase, None, CustomSet]:
+        assert isinstance(old_node, ast.Set)
+
+        # A set's iteration order cannot be associated with the source order of
+        # its AST elements. Compare it atomically instead of attempting
+        # positional element updates.
+        if old_value._eval() == new_value.original_value:
+            return old_value
+
+        new_code, new_changes = split_gen(new_value._code_repr(self.context))
+        for change in new_changes:
+            change.flag = "fix"
+            yield change
+
+        yield Replace(
+            node=old_node,
+            file=self.context.file,
+            new_code=new_code,
+            flag="fix",
+        )
+
+        return new_value
 
     def compare_CustomDict(
         self, old_value: CustomDict, old_node: ast.Dict, new_value: CustomDict
