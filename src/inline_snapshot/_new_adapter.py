@@ -103,8 +103,11 @@ def reeval_CustomTuple(old_value: CustomTuple, value: CustomTuple):
 
 
 def reeval_CustomSet(old_value: CustomSet, value: CustomSet):
-    assert len(old_value.value) == len(value.value)
-    return CustomSet([reeval(a, b) for a, b in zip(old_value.value, value.value)])
+    if old_value._eval() != value._eval():
+        raise UsageError(
+            "snapshot value should not change. Use Is(...) for dynamic snapshot parts."
+        )
+    return value
 
 
 def reeval_CustomUnmanaged(old_value: CustomUnmanaged, value: CustomUnmanaged):

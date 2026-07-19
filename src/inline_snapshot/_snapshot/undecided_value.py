@@ -1,4 +1,5 @@
 import ast
+from pathlib import PurePath
 from typing import Any
 from typing import Iterator
 
@@ -105,7 +106,9 @@ class ValueToCustom:
         else:
             with mock_repr(self.context):
                 result = Builder(self.context, _recursive=False)._get_handler(value)
-            if isinstance(result, CustomCall) and result.function == type(value):
+            if isinstance(result, CustomCall) and (
+                result.function == type(value) or isinstance(value, PurePath)
+            ):
                 function = self.convert(result.function)
                 posonly_args = [self.convert(arg) for arg in result.args]
                 kwargs = {k: self.convert(arg) for k, arg in result.kwargs.items()}
