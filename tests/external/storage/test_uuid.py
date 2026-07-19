@@ -145,7 +145,7 @@ def test_b():
     ).remove_file(
         "my_tests_a/test_a.py"
     ).run_pytest(
-        ["my_tests_b/test_b.py", "--inline-snapshot=trim"],
+        ["--inline-snapshot=trim"],
         changed_files=snapshot(
             {
                 ".inline-snapshot/files_using_external.txt": """\

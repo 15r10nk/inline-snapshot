@@ -180,6 +180,189 @@ def test_a():
     )
 
 
+def test_trim_is_allowed_with_skipped_tests():
+    Example("""\
+import pytest
+
+from inline_snapshot import snapshot
+
+@pytest.mark.skip
+def test_skipped():
+    pass
+
+def test_selected():
+    assert 5 in snapshot([4, 5])
+""").run_pytest(
+        ["--inline-snapshot=trim"],
+        outcomes={"passed": 1, "skipped": 1},
+        changed_files={"tests/test_something.py": """\
+import pytest
+
+from inline_snapshot import snapshot
+
+@pytest.mark.skip
+def test_skipped():
+    pass
+
+def test_selected():
+    assert 5 in snapshot([5])
+"""},
+    )
+
+
+def test_trim_is_allowed_with_fixture_teardown_error():
+    Example("""\
+import pytest
+
+from inline_snapshot import snapshot
+
+@pytest.fixture
+def teardown_error():
+    yield
+    raise RuntimeError("teardown failed")
+
+def test_selected(teardown_error):
+    assert 5 in snapshot([4, 5])
+""").run_pytest(
+        ["--inline-snapshot=trim"],
+        returncode=1,
+        outcomes={"passed": 1, "errors": 1},
+        changed_files={"tests/test_something.py": """\
+import pytest
+
+from inline_snapshot import snapshot
+
+@pytest.fixture
+def teardown_error():
+    yield
+    raise RuntimeError("teardown failed")
+
+def test_selected(teardown_error):
+    assert 5 in snapshot([5])
+"""},
+        error="""\
+>       raise RuntimeError("teardown failed")
+E       RuntimeError: teardown failed
+""",
+    )
+
+
+def test_trim_is_disabled_for_failed_test():
+    Example("""\
+from inline_snapshot import snapshot
+
+def test_failed():
+    assert 5 in snapshot([4, 5])
+    assert False
+""").run_pytest(
+        env={"INLINE_SNAPSHOT_DEFAULT_FLAGS": "trim"},
+        outcomes={"failed": 1},
+        returncode=1,
+        report="""\
+INFO: --inline-snapshot=trim was disabled because a test failed.""",
+        error="""\
+>       assert False
+E       assert False
+""",
+    )
+
+
+def test_trim_is_disabled_for_incomplete_test_run():
+    Example("""\
+from inline_snapshot import snapshot
+
+assert 2 == snapshot(1)
+""").run_pytest(
+        env={"INLINE_SNAPSHOT_DEFAULT_FLAGS": "trim"},
+        outcomes={"errors": 1},
+        returncode=2,
+        report="""\
+INFO: --inline-snapshot=trim was disabled because the pytest run did not
+complete.""",
+        error="""\
+E   assert 2 == 1
+E    +  where 1 = snapshot(1)
+""",
+    )
+
+
+def test_trim_is_disabled_for_keyword_selection():
+    Example(
+        {
+            "tests/test_selected.py": """\
+from inline_snapshot import snapshot
+
+def test_selected():
+    assert 5 in snapshot([4, 5])
+""",
+            "tests/test_other.py": """\
+def test_other():
+    pass
+""",
+        }
+    ).run_pytest(
+        ["-k", "test_selected"],
+        env={"INLINE_SNAPSHOT_DEFAULT_FLAGS": "trim"},
+        outcomes={"passed": 1, "deselected": 1},
+        report="""\
+INFO: --inline-snapshot=trim was disabled because pytest test selection was
+used.""",
+    )
+
+
+@pytest.mark.parametrize(
+    "selection",
+    [["tests/test_selected.py"], ["tests/test_selected.py::test_selected"]],
+)
+def test_trim_is_disabled_for_path_selection(selection):
+    Example(
+        {
+            "tests/test_selected.py": """\
+from inline_snapshot import snapshot
+
+def test_selected():
+    assert 5 in snapshot([4, 5])
+""",
+            "tests/test_other.py": """\
+def test_other():
+    pass
+""",
+        }
+    ).run_pytest(
+        selection,
+        env={"INLINE_SNAPSHOT_DEFAULT_FLAGS": "trim"},
+        report="""\
+INFO: --inline-snapshot=trim was disabled because pytest test selection was
+used.""",
+    )
+
+
+def test_explicit_trim_overrides_test_selection():
+    Example(
+        {
+            "tests/test_selected.py": """\
+from inline_snapshot import snapshot
+
+def test_selected():
+    assert 5 in snapshot([4, 5])
+""",
+            "tests/test_other.py": """\
+def test_other():
+    pass
+""",
+        }
+    ).run_pytest(
+        ["--inline-snapshot=trim", "-k", "test_selected"],
+        outcomes={"passed": 1, "deselected": 1},
+        changed_files={"tests/test_selected.py": """\
+from inline_snapshot import snapshot
+
+def test_selected():
+    assert 5 in snapshot([5])
+"""},
+    )
+
+
 def test_multiple():
     Example("""\
 from inline_snapshot import snapshot
@@ -194,14 +377,12 @@ def test_a():
         report=(
             snapshot("""\
 Error: one snapshot has incorrect values (--inline-snapshot=fix)
-Info: one snapshot can be trimmed (--inline-snapshot=trim)
 Info: one snapshot changed its representation (--inline-snapshot=update)
 You can also use --inline-snapshot=review to approve the changes interactively\
 """)
             if is_pytest_compatible()
             else snapshot("""\
 Error: one snapshot has incorrect values (--inline-snapshot=fix)
-Info: one snapshot can be trimmed (--inline-snapshot=trim)
 You can also use --inline-snapshot=review to approve the changes interactively\
 """)
         ),

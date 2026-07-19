@@ -31,7 +31,7 @@ The project is configured around `uv` and Hatch.
 - Run tests with coverage locally: `hatch test -acp`
 - Run the full Hatch test matrix: `hatch test`
 - Run one Hatch Python version with pytest args: `hatch test -py 3.10 -- --sw`
-- Run mypy like CI: `uv run --with pip --group dev -p 3.12 mypy --non-interactive --install-types src/inline_snapshot tests`
+- Run mypy like one CI matrix job: `uv run --with pip --group dev -p 3.12 mypy --non-interactive --install-types src/inline_snapshot tests`
 - Build docs strictly: `hatch run docs:build`
 - Serve docs: `hatch run docs:serve`
 - Run pre-commit on all files: `pre-commit run -a`
@@ -85,7 +85,3 @@ uvx scriv create --add
 ```
 
 Fill in only the relevant headings in the generated `changelog.d/*.md` file. Do not edit `CHANGELOG.md` manually; it is assembled by `scriv collect`.
-
-## Current Workspace Caution
-
-At the time this file was created, `src/inline_snapshot/_adapter_context.py` already had uncommitted changes. Treat unrelated local modifications as user work and do not revert them.

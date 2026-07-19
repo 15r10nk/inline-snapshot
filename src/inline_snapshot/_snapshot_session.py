@@ -6,6 +6,7 @@ from types import FunctionType
 from types import SimpleNamespace
 from typing import Dict
 from typing import List
+from typing import Sequence
 
 from executing import is_pytest_compatible
 from rich import box
@@ -390,7 +391,13 @@ class SnapshotSession:
         fix_pytest_diff()
         fix_pytest_cache()
 
-    def show_report(self, con: Console):
+    def show_report(
+        self,
+        con: Console,
+        *,
+        trim_allowed: bool = True,
+        trim_disabled_reasons: Sequence[str] = (),
+    ):
         if not self.configured:
             return
 
@@ -458,6 +465,16 @@ snapshot.\
             for category in all_categories:
                 snapshot_changes[category] += 1
 
+        if not trim_allowed:
+            changes["trim"].clear()
+            snapshot_changes["trim"] = 0
+            if "trim" in state().flags and trim_disabled_reasons:
+                console().print(
+                    "INFO: --inline-snapshot=trim was disabled because "
+                    + " and ".join(trim_disabled_reasons)
+                    + "."
+                )
+
         if "short-report" in state().flags:
             source_files = read_external_source_files()
 
@@ -518,7 +535,7 @@ snapshot.\
         for name, storage in state().all_storages.items():
             externals_for_storage = [e for e in used if e.storage == name]
             for location in storage.find_unused_externals(externals_for_storage):
-                if state().update_flags.trim:
+                if trim_allowed and state().update_flags.trim:
                     changes["trim"].append(ExternalRemove("trim", location))
 
             storage.check_externals(externals_for_storage)

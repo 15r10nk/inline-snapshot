@@ -40,6 +40,7 @@ class GenericValue(SnapshotBase):
         if (
             flags.fix
             or flags.create
+            #            or flags.trim
             or flags.update
             or isinstance(self._old_value, CustomUndefined)
         ):

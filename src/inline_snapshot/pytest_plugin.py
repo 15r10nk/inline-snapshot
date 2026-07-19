@@ -125,6 +125,14 @@ class InlineSnapshotPlugin:
 
     def __init__(self):
         self.session = SnapshotSession()
+        self.test_selection = False
+        self.test_failed = False
+        self.trim_explicitly_requested = False
+
+    @pytest.hookimpl
+    def pytest_runtest_logreport(self, report):
+        if report.when == "call" and report.failed:
+            self.test_failed = True
 
     @pytest.hookimpl(tryfirst=True)
     def pytest_plugin_registered(self, plugin, manager):
@@ -143,6 +151,10 @@ class InlineSnapshotPlugin:
     @pytest.hookimpl
     def pytest_configure(self, config):
         enter_snapshot_context()
+
+        self.test_selection = bool(
+            config.option.keyword or getattr(config.option, "file_or_dir", ())
+        )
 
         # Register customize hooks from all already loaded conftest.py files
         for plugin in config.pluginmanager.get_plugins():
@@ -163,6 +175,7 @@ class InlineSnapshotPlugin:
         if config.option.inline_snapshot is not None:
             cli_flags = config.option.inline_snapshot.split(",")
             cli_flags = {flag for flag in cli_flags if flag}
+            self.trim_explicitly_requested = "trim" in cli_flags
         else:
             cli_flags = None
 
@@ -180,6 +193,18 @@ class InlineSnapshotPlugin:
     @pytest.hookimpl(trylast=True)
     def pytest_sessionfinish(self, session, exitstatus):
         config = session.config
+
+        session_completed = exitstatus in {
+            pytest.ExitCode.OK,
+            pytest.ExitCode.TESTS_FAILED,
+        }
+        trim_disabled_reasons = []
+        if not session_completed:
+            trim_disabled_reasons.append("the pytest run did not complete")
+        if self.test_failed:
+            trim_disabled_reasons.append("a test failed")
+        if self.test_selection:
+            trim_disabled_reasons.append("pytest test selection was used")
 
         capture = config.pluginmanager.getplugin("capturemanager")
 
@@ -201,7 +226,11 @@ class InlineSnapshotPlugin:
                     color_system=(
                         "standard" if config.getoption("color") == "yes" else "auto"
                     ),
-                )
+                ),
+                trim_allowed=(
+                    self.trim_explicitly_requested or not trim_disabled_reasons
+                ),
+                trim_disabled_reasons=trim_disabled_reasons,
             )
 
         finally:
