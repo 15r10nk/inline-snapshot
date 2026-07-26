@@ -336,6 +336,12 @@ class SnapshotSession:
 
         state().flags = flags
 
+        storage_dir = state().config.storage_dir
+        if storage_dir is None:
+            storage_dir = project_root / ".inline-snapshot"
+            state().config.storage_dir = storage_dir
+        state().all_storages = default_storages(storage_dir)
+
         # check flags
         unknown_flags = (
             flags - categories - {"disable", "review", "report", "short-report"}
@@ -364,13 +370,6 @@ class SnapshotSession:
         else:
             state().active = "disable" not in flags
             state().update_flags = Flags(flags & categories)
-
-        storage_dir = state().config.storage_dir
-        if storage_dir is None:
-            storage_dir = project_root / ".inline-snapshot"
-            state().config.storage_dir = storage_dir
-
-        state().all_storages = default_storages(storage_dir)
 
         if flags - {"short-report", "disable"} and not is_pytest_compatible():
 

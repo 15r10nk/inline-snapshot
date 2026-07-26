@@ -770,7 +770,7 @@ def test_a():
         ["--inline-snapshot=creaigflen"],
         stderr=error,
         reported_categories=set(),
-        raises="AssertionError",
+        raises="<no exception>",
     )
 
 
