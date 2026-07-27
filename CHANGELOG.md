@@ -1,4 +1,19 @@
 
+<a id='changelog-0.35.3'></a>
+# 0.35.3 — 2026-07-27
+
+## Added
+
+- Added `Builder.create_set()` for creating set expressions in customization
+  functions.
+
+## Fixed
+
+- Fixed set snapshot serialization to be deterministic for partially ordered values
+  such as incomparable `frozenset` members.
+
+- Fixed a crash when an unknown `--inline-snapshot` flag is provided, without running report finalization or modifying external snapshot tracking files.
+
 <a id='changelog-0.35.2'></a>
 # 0.35.2 — 2026-07-16
 
