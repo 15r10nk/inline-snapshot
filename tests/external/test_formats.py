@@ -35,6 +35,9 @@ def test_rich_snapshot_repr_and_mask():
 
     assert repr(snapshot) == "RichSnapshot('hello 2026')"
     assert snapshot.mask(r" \d+") == RichSnapshot("<svg></svg>", "hello")
+    assert snapshot.mask(r"\d+", "<year>") == RichSnapshot(
+        "<svg></svg>", "hello <year>"
+    )
 
 
 def test_rich_svg_format_rich_diff_and_show(tmp_path):
