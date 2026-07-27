@@ -34,10 +34,6 @@ from inline_snapshot.testing._terminal_svg import render_ansi_to_svg
 from inline_snapshot.version import is_insider
 
 
-def normalize_terminal_output(output: str) -> str:
-    return re.sub(r"in \d+\.\d+s", "in 0.00s", output)
-
-
 @dataclass
 class Block:
     code: str
@@ -625,14 +621,18 @@ uuid.uuid4=f
             )  # pragma: no cover
 
         command = last_pytest_command if prompt is None else prompt
-        rendered = render_ansi_to_svg(
-            normalize_terminal_output(last_pytest_stdout),
-            width=terminal_width,
-            title="Terminal",
-            prompt=(
-                f"[bold blue]$[/bold blue] "
-                f"[bold white]{escape(command)}[/bold white]"
-            ),
+        rendered = (
+            render_ansi_to_svg(
+                last_pytest_stdout,
+                width=terminal_width,
+                title="Terminal",
+                prompt=(
+                    f"[bold blue]$[/bold blue] "
+                    f"[bold white]{escape(command)}[/bold white]"
+                ),
+            )
+            .mask(r".*═+.*inline-snapshot.*═+.*", "<heading>")
+            .mask(r"in \d+\.\d+s", "in <time>")
         )
 
         assert external_file(image_path.resolve(), format=".rich.svg") == rendered

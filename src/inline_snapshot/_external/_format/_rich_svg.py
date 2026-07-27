@@ -52,8 +52,11 @@ class RichSnapshot:
             markup=Text.from_ansi(console.export_text(styles=include_styles)).markup,
         )
 
-    def mask(self, regex):
-        return RichSnapshot(svg=self.svg, markup=re.sub(regex, "", self.markup))
+    def mask(self, regex, replacement=""):
+        return RichSnapshot(
+            svg=self.svg,
+            markup=re.sub(regex, replacement, self.markup),
+        )
 
 
 def _local_name(tag: str) -> str:
