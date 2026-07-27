@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1102,6 +1102,17 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;create_list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline_snapshot.plugin.Builder.create_set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;create_set
       
     </span>
   </a>
@@ -2525,6 +2536,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#inline_snapshot.plugin.Builder.create_set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;create_set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#inline_snapshot.plugin.Builder.create_tuple" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3446,6 +3468,26 @@ List elements don't have to be Custom nodes and are converted by inline-snapshot
 <div class="doc doc-object doc-function">
 
 
+<h4 id="inline_snapshot.plugin.Builder.create_set" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">create_set</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></code>
+
+<a href="#inline_snapshot.plugin.Builder.create_set" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Creates an intermediate node for a set-expression which can be used as a result for your customization function.</p>
+<p><code>create_set({1, 2, 3})</code> becomes <code>{1, 2, 3}</code> in the code.
+Set elements don't have to be Custom nodes and are converted by inline-snapshot if needed.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h4 id="inline_snapshot.plugin.Builder.create_tuple" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">create_tuple</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></code>
 
@@ -3727,7 +3769,7 @@ They should only be returned in your customize function or used as arguments for
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["toc.follow", "content.code.annotate", "navigation.tabs", "navigation.expand"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": ["latest", "development"], "provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../assets/_markdown_exec_pyodide.js"></script>
       
