@@ -247,6 +247,7 @@ class SnapshotSession:
 
     def __init__(self):
         self.registered_modules = set()
+        self.configured = False
 
     def register_customize_hooks_from_module(self, module):
         """Find and register functions decorated with @customize from a module"""
@@ -299,6 +300,7 @@ class SnapshotSession:
             )
 
     def load_config(self, pyproject, cli_flags, parallel_run, error, project_root):
+        self.configured = False
 
         # read config
         if pyproject is not None:
@@ -336,12 +338,6 @@ class SnapshotSession:
 
         state().flags = flags
 
-        storage_dir = state().config.storage_dir
-        if storage_dir is None:
-            storage_dir = project_root / ".inline-snapshot"
-            state().config.storage_dir = storage_dir
-        state().all_storages = default_storages(storage_dir)
-
         # check flags
         unknown_flags = (
             flags - categories - {"disable", "review", "report", "short-report"}
@@ -371,6 +367,13 @@ class SnapshotSession:
             state().active = "disable" not in flags
             state().update_flags = Flags(flags & categories)
 
+        storage_dir = state().config.storage_dir
+        if storage_dir is None:
+            storage_dir = project_root / ".inline-snapshot"
+            state().config.storage_dir = storage_dir
+
+        state().all_storages = default_storages(storage_dir)
+
         if flags - {"short-report", "disable"} and not is_pytest_compatible():
 
             # hack to disable the assertion rewriting
@@ -380,6 +383,7 @@ class SnapshotSession:
             ]
 
         self.fix_libraries()
+        self.configured = True
 
     def fix_libraries(self):
         pydantic_fix()
@@ -387,6 +391,8 @@ class SnapshotSession:
         fix_pytest_cache()
 
     def show_report(self, con: Console):
+        if not self.configured:
+            return
 
         @call_once
         def console():
