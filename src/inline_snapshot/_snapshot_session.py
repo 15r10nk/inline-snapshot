@@ -247,6 +247,7 @@ class SnapshotSession:
 
     def __init__(self):
         self.registered_modules = set()
+        self.configured = False
 
     def register_customize_hooks_from_module(self, module):
         """Find and register functions decorated with @customize from a module"""
@@ -299,6 +300,7 @@ class SnapshotSession:
             )
 
     def load_config(self, pyproject, cli_flags, parallel_run, error, project_root):
+        self.configured = False
 
         # read config
         if pyproject is not None:
@@ -381,6 +383,7 @@ class SnapshotSession:
             ]
 
         self.fix_libraries()
+        self.configured = True
 
     def fix_libraries(self):
         pydantic_fix()
@@ -388,6 +391,8 @@ class SnapshotSession:
         fix_pytest_cache()
 
     def show_report(self, con: Console):
+        if not self.configured:
+            return
 
         @call_once
         def console():

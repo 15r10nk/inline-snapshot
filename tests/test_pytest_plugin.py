@@ -752,7 +752,10 @@ Please fix the way your object is copied or your __eq__ implementation.
 def test_unknown_flag():
 
     e = Example("""\
+from inline_snapshot import external
+
 def test_a():
+    external("hash:123*.png")
     assert 1==1
 """)
 
@@ -770,7 +773,6 @@ def test_a():
         ["--inline-snapshot=creaigflen"],
         stderr=error,
         reported_categories=set(),
-        raises="AssertionError",
     )
 
 
