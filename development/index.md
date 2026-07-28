@@ -249,6 +249,8 @@ I would like to thank my sponsors. Without them, I would not be able to invest s
 
 ### Silver sponsor 🥈
 
+### Bronze sponsor 🥉
+
 I have also started to offer [insider](https://15r10nk.github.io/inline-snapshot/latest/insiders/) features for inline-snapshot. I will only release features as insider features if they will not cause problems for you when used in an open source project. I hope sponsoring will allow me to spend more time working on open source projects. Thank you for using inline-snapshot, the future will be 🚀.
 
 ## Issues
