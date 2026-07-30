@@ -247,7 +247,7 @@ I would like to know how these features are used to further improve this small l
 
 I would like to thank my sponsors. Without them, I would not be able to invest so much time in my projects.
 
-### Silver sponsor 🥈
+### Gold sponsor 🥇
 
 ### Bronze sponsor 🥉
 
