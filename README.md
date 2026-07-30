@@ -166,11 +166,13 @@ cog.out(response.text)
 
 I would like to thank my sponsors. Without them, I would not be able to invest so much time in my projects.
 
-### Silver sponsor 🥈
+### Gold sponsor 🥇
 
 <p align="center">
   <a href="https://pydantic.dev/logfire">
-    <img src="https://pydantic.dev/assets/for-external/pydantic_logfire_logo_endorsed_lithium_rgb.svg" alt="logfire" width="300"/>
+    <picture>
+      <img src="https://pydantic.dev/assets/for-external/pydantic_logfire_logo_endorsed_lithium_rgb.svg" alt="logfire" width="300"/>
+    </picture>
   </a>
 </p>
 
@@ -184,6 +186,7 @@ I would like to thank my sponsors. Without them, I would not be able to invest s
     </picture>
   </a>
 </p>
+
 <!--[[[end]]]-->
 
 I have also started to offer [insider](https://15r10nk.github.io/inline-snapshot/latest/insiders/) features for inline-snapshot. I will only release features as insider features if they will not cause problems for you when used in an open source project.
