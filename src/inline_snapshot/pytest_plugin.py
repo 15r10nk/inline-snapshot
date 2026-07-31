@@ -184,7 +184,8 @@ class InlineSnapshotPlugin:
         capture = config.pluginmanager.getplugin("capturemanager")
 
         suspend_capture = (
-            capture._global_capturing is not None
+            capture is not None
+            and capture._global_capturing is not None
             and capture._global_capturing.in_ is not None
             and capture._global_capturing.in_._state == "started"
         )

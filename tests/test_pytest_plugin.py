@@ -14,6 +14,13 @@ def test_help_message(testdir):
     result.stdout.fnmatch_lines(["inline-snapshot:", "*--inline-snapshot*"])
 
 
+def test_no_capture_plugin():
+    Example("""\
+def test_ok():
+    assert True
+""").run_pytest(["-p", "no:capture"])
+
+
 def test_create():
     Example("""\
 from inline_snapshot import snapshot
