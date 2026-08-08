@@ -134,6 +134,10 @@ class InlineSnapshotPlugin:
         if report.when == "call" and report.failed:
             self.test_failed = True
 
+    @pytest.hookimpl
+    def pytest_deselected(self, items):
+        self.test_selection = True
+
     @pytest.hookimpl(tryfirst=True)
     def pytest_plugin_registered(self, plugin, manager):
         """Register @customize hooks from conftest.py files"""
@@ -153,7 +157,9 @@ class InlineSnapshotPlugin:
         enter_snapshot_context()
 
         self.test_selection = bool(
-            config.option.keyword or getattr(config.option, "file_or_dir", ())
+            getattr(config.option, "file_or_dir", ())
+            or getattr(config.option, "ignore", ())
+            or getattr(config.option, "ignore_glob", ())
         )
 
         # Register customize hooks from all already loaded conftest.py files

@@ -286,7 +286,49 @@ E    +  where 1 = snapshot(1)
     )
 
 
-def test_trim_is_disabled_for_keyword_selection():
+@pytest.mark.parametrize(
+    "selection",
+    [["-k", "test_selected"], ["-m", "selected"]],
+)
+def test_trim_is_disabled_for_deselection(selection):
+    Example(
+        {
+            "tests/test_selected.py": """\
+import pytest
+
+from inline_snapshot import snapshot
+
+@pytest.mark.selected
+def test_selected():
+    assert 5 in snapshot([4, 5])
+""",
+            "tests/test_other.py": """\
+def test_other():
+    pass
+""",
+            "pytest.ini": """\
+[pytest]
+markers = selected
+""",
+        }
+    ).run_pytest(
+        selection,
+        env={"INLINE_SNAPSHOT_DEFAULT_FLAGS": "trim"},
+        outcomes={"passed": 1, "deselected": 1},
+        report="""\
+INFO: --inline-snapshot=trim was disabled because pytest test selection was
+used.""",
+    )
+
+
+@pytest.mark.parametrize(
+    "selection",
+    [
+        ["--ignore=tests/test_other.py"],
+        ["--ignore-glob=*other.py"],
+    ],
+)
+def test_trim_is_disabled_for_ignored_tests(selection):
     Example(
         {
             "tests/test_selected.py": """\
@@ -301,9 +343,8 @@ def test_other():
 """,
         }
     ).run_pytest(
-        ["-k", "test_selected"],
+        selection,
         env={"INLINE_SNAPSHOT_DEFAULT_FLAGS": "trim"},
-        outcomes={"passed": 1, "deselected": 1},
         report="""\
 INFO: --inline-snapshot=trim was disabled because pytest test selection was
 used.""",
