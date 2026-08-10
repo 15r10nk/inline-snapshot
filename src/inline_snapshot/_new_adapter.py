@@ -372,6 +372,10 @@ class NewAdapter:
         if old_value._eval() == new_value.original_value:
             return old_value
 
+        # Sets are replaced atomically, so their elements do not pass through
+        # compare() individually.  Resolve the lazy nodes before rendering the
+        # replacement.
+        new_value = self.customize_all(new_value)
         new_code, new_changes = split_gen(new_value._code_repr(self.context))
         for change in new_changes:
             change.flag = "fix"
