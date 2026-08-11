@@ -431,7 +431,7 @@ class InlineSnapshotPlugin:
     @customize
     def handle_L(self,value,builder):
         if isinstance(value,L):
-            return builder.create_call(L,value.l)
+            return builder.create_call(L,list(value.l))
 """,
             "tests/test_something.py": """\
 from inline_snapshot import snapshot
