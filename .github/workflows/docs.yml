@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout main
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Set up documentation mutex
-      uses: suzuki-shunsuke/lock-action@latest
+      uses: suzuki-shunsuke/lock-action@4a69996f86294a4eacc7450392eb70804b6543c4 # v0.2.0
       with:
         mode: lock
         key: docs-lock
