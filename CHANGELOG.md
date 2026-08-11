@@ -1,4 +1,17 @@
 
+<a id='changelog-0.35.4'></a>
+# 0.35.4 — 2026-08-11
+
+## Fixed
+
+- Prevented `--inline-snapshot=trim` from changing snapshots when a test body
+  fails or pytest is limited with `-k`, a test path, or a test node ID. Skipped
+  tests and fixture teardown errors do not prevent trimming. A message now
+  explains why trimming was disabled when it was requested implicitly. An
+  explicit `--inline-snapshot=trim` overrides this safeguard.
+
+- Fixed a crash during session finalization when pytest's capture plugin is disabled.
+
 <a id='changelog-0.35.3'></a>
 # 0.35.3 — 2026-07-27
 
