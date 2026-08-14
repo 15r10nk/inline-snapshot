@@ -165,6 +165,7 @@ for format in sorted(state().all_formats.values(),key=lambda f:-f.priority):
 |Suffix|Priority|Description|
 |---|---|---|
 | `.bin` | 0| Stores bytes in `.bin` files and shows them as a hexdump.|
+| `.rich.svg` | 0| Stores rich terminal snapshots as SVG files with embedded markup.|
 | `.txt` | 0| Stores strings in `.txt` files.|
 | `.json` | -10| Stores the data with `json.dump()`.|
 <!--[[[end]]]-->
