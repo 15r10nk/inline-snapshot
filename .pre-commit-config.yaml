@@ -25,7 +25,7 @@ repos:
     - --ignore-init-module-imports
     id: autoflake
   repo: https://github.com/myint/autoflake
-  rev: v2.3.3
+  rev: v2.4.0
 
 - repo: local
   hooks:
@@ -46,7 +46,7 @@ repos:
   - id: setup-cfg-fmt
 
 - repo: https://github.com/pycqa/isort
-  rev: 9.0.0a3
+  rev: 9.0.1
   hooks:
   - id: isort
     name: isort (python)
@@ -81,7 +81,7 @@ repos:
     stages:
     - commit-msg
   repo: https://github.com/commitizen-tools/commitizen
-  rev: v4.16.4
+  rev: v4.18.0
 
 
 # - repo: https://github.com/PyCQA/docformatter
@@ -90,7 +90,7 @@ repos:
 #   - id: docformatter
 
 - repo: https://github.com/abravalheri/validate-pyproject
-  rev: v0.25
+  rev: '0.26'
   hooks:
   - id: validate-pyproject
 
