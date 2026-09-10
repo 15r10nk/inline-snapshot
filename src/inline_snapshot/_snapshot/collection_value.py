@@ -27,13 +27,13 @@ class CollectionValue(GenericValue):
         if isinstance(self._new_value, CustomUndefined):
             self._new_value = CustomList([self.to_custom(item)])
         else:
-            if item not in self._new_value._eval():
+            if self._eval_value(item) not in self._new_value._eval():
                 self._new_value.value.append(self.to_custom(item))
 
         if ignore_old_value() or isinstance(self._old_value, CustomUndefined):
             return True
         else:
-            return self._return(item in self._old_value._eval())
+            return self._return(self._eval_value(item) in self._old_value._eval())
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
         code = yield from self._new_value._code_repr(self._context)

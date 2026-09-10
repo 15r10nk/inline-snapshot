@@ -107,6 +107,11 @@ The following examples demonstrate common use cases for the `@customize` hook. E
 The [customize][inline_snapshot.plugin.InlineSnapshotPluginSpec.customize] hook controls how inline-snapshot generates your snapshots.
 You should use it when you find yourself manually editing snapshots after they were created by inline-snapshot.
 
+The hook can accept a `snapshot_value` argument. It contains the corresponding
+existing snapshot value when inline-snapshot compares against one, and
+[`missing`][inline_snapshot.plugin.missing] when there is no corresponding
+snapshot value.
+
 
 ### Custom constructor methods
 One use case might be that you have a dataclass with a special constructor function that can be used for specific instances of this dataclass, and you want inline-snapshot to use this constructor when possible.
@@ -370,7 +375,7 @@ def test_my_class():
 ::: inline_snapshot.plugin
     options:
       heading_level: 3
-      members: [hookimpl,customize,Builder,Custom,Import,ImportFrom]
+      members: [hookimpl,customize,Builder,Custom,Import,ImportFrom,missing]
       show_root_heading: false
       show_bases: false
       show_source: false

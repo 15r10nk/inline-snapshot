@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+import ast
 from dataclasses import dataclass
 from typing import Any
 from typing import Callable
 
 from inline_snapshot._adapter_context import AdapterContext
-from inline_snapshot._sentinels import undefined
-
-missing = undefined
+from inline_snapshot._code_repr import HasRepr
+from inline_snapshot._code_repr import mock_repr
+from inline_snapshot._code_repr import value_code_repr
 from inline_snapshot._compare_context import compare_context
+from inline_snapshot._customize._custom_sequence import CustomSequence
+from inline_snapshot._customize._uncustomized import Uncustomized
 from inline_snapshot._exceptions import UsageError
 
 from ._custom import Custom
@@ -24,26 +27,49 @@ from ._custom_sequence import CustomSet
 from ._custom_sequence import CustomTuple
 
 
+class Missing:
+    def __repr__(self):
+        return "missing"
+
+
+missing = Missing()
+
+
 @dataclass
 class Builder:
     _snapshot_context: AdapterContext
     _build_new_value: bool = False
-    _recursive: bool = True
 
     def _get_handler_recursive(self, v) -> Custom:
-        if self._recursive:
-            return self._get_handler(v)
-        else:
+        if isinstance(v, Custom):
             return v
+        return Uncustomized(v)
 
     def _get_value(self, value):
         if isinstance(value, Custom):
             return value._eval()
         return value
 
-    def _get_handler(self, v) -> Custom:
+    def _get_original_value(self, value: Custom):
+        return getattr(value, "original_value", value._eval())
 
+    def _set_original_value(self, value: Custom, original_value):
+        object.__setattr__(value, "original_value", original_value)
+        return value
+
+    def _eval_snapshot_value(self, snapshot_value: Custom | None):
+        if snapshot_value is None:
+            return missing
+        return snapshot_value._eval()
+
+    def _customize(self, v, snapshot_value: Custom | None = None) -> Custom:
         from inline_snapshot._global_state import state
+
+        if isinstance(v, Uncustomized):
+            v = v._value
+
+        if isinstance(v, Custom):
+            return v
 
         result = v
 
@@ -54,23 +80,35 @@ class Builder:
                     builder=self,
                     local_vars=self._local_vars,
                     global_vars=self._global_vars,
+                    snapshot_value=self._eval_snapshot_value(snapshot_value),
                 )
+
             if r is None:
-                result = CustomCode(result)
+
+                with mock_repr(self._snapshot_context):
+                    repr_str = value_code_repr(result)
+
+                try:
+                    ast.parse(repr_str)
+                except SyntaxError:
+                    result = self.create_call(HasRepr, [type(result), repr_str])
+                else:
+                    result = CustomCode(result, repr_str)
             else:
                 result = r
 
-        result.__dict__["original_value"] = v._eval() if isinstance(v, Custom) else v
-
+        stored_original_value = v
         if not isinstance(v, Custom) and self._build_new_value:
             is_same = False
             v_eval = result._eval()
+            assert not isinstance(v_eval, Custom)
 
             if (
                 hasattr(v, "__pydantic_generic_metadata__")
                 and v.__pydantic_generic_metadata__["origin"] == v_eval
             ):
                 is_same = True
+                stored_original_value = v_eval
 
             if not is_same and v_eval == v:
                 is_same = True
@@ -85,7 +123,71 @@ customized_value={result._eval()!r}
 customized_representation={result!r}
 """)
 
-        return result
+        return self._set_original_value(result, stored_original_value)
+
+    def _customize_all(self, value, snapshot_value: Custom | None = None):
+        if isinstance(value, Uncustomized):
+            value = self._customize(value._value, snapshot_value)
+        elif not isinstance(value, Custom):
+            value = self._customize(value, snapshot_value)
+
+        def with_original(new_value: Custom, old_value: Custom) -> Custom:
+            return self._set_original_value(
+                new_value, self._get_original_value(old_value)
+            )
+
+        if isinstance(value, CustomSequence):
+            old_values = (
+                snapshot_value.value if isinstance(snapshot_value, type(value)) else []
+            )
+            return with_original(
+                type(value)(
+                    [
+                        self._customize_all(
+                            child,
+                            old_values[index] if index < len(old_values) else None,
+                        )
+                        for index, child in enumerate(value.value)
+                    ]
+                ),
+                value,
+            )
+        elif isinstance(value, CustomDict):
+            old_items = (
+                list(snapshot_value.value.items())
+                if isinstance(snapshot_value, CustomDict)
+                else []
+            )
+
+            def customize_item(key, item):
+                for old_key, old_item in old_items:
+                    if key == old_key:
+                        return (
+                            self._customize_all(key, old_key),
+                            self._customize_all(item, old_item),
+                        )
+                return self._customize_all(key), self._customize_all(item)
+
+            return with_original(
+                CustomDict(dict(customize_item(k, v) for k, v in value.value.items())),
+                value,
+            )
+        elif isinstance(value, CustomCall):
+            return with_original(
+                CustomCall(
+                    function=self._customize_all(value.function),
+                    args=[self._customize_all(c) for c in value.args],
+                    kwargs={k: self._customize_all(v) for k, v in value.kwargs.items()},
+                ),
+                value,
+            )
+        elif isinstance(value, CustomDefault):
+            return with_original(CustomDefault(self._customize_all(value.value)), value)
+
+        if not hasattr(value, "original_value"):
+            self._set_original_value(value, value._eval())
+
+        return value
 
     def create_external(
         self, value: Any, format: str | None = None, storage: str | None = None
