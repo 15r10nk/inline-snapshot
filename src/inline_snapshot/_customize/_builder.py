@@ -137,17 +137,39 @@ customized_representation={result!r}
             )
 
         if isinstance(value, CustomSequence):
+            old_values = (
+                snapshot_value.value if isinstance(snapshot_value, type(value)) else []
+            )
             return with_original(
-                type(value)([self._customize_all(c) for c in value.value]), value
+                type(value)(
+                    [
+                        self._customize_all(
+                            child,
+                            old_values[index] if index < len(old_values) else None,
+                        )
+                        for index, child in enumerate(value.value)
+                    ]
+                ),
+                value,
             )
         elif isinstance(value, CustomDict):
+            old_items = (
+                list(snapshot_value.value.items())
+                if isinstance(snapshot_value, CustomDict)
+                else []
+            )
+
+            def customize_item(key, item):
+                for old_key, old_item in old_items:
+                    if key == old_key:
+                        return (
+                            self._customize_all(key, old_key),
+                            self._customize_all(item, old_item),
+                        )
+                return self._customize_all(key), self._customize_all(item)
+
             return with_original(
-                CustomDict(
-                    {
-                        self._customize_all(k): self._customize_all(v)
-                        for k, v in value.value.items()
-                    }
-                ),
+                CustomDict(dict(customize_item(k, v) for k, v in value.value.items())),
                 value,
             )
         elif isinstance(value, CustomCall):

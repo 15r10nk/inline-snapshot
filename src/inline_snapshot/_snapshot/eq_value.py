@@ -29,7 +29,11 @@ class EqValue(GenericValue):
             self._changes = []
 
             if not state().active or self._ast_node is None:
-                self._new_value = self.to_custom(other, _build_new_value=True)
+                self._new_value = self.to_custom(
+                    other,
+                    snapshot_value=self._old_value,
+                    _build_new_value=True,
+                )
                 if isinstance(self._old_value, CustomUndefined):
                     self._changes.append(CategoryChange("create"))
                 elif self._old_value._eval() != other_eval:
