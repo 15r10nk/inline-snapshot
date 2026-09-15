@@ -53,7 +53,7 @@ class CollectionValue(GenericValue):
             self._element_changes.extend(result.list)
             return result.value
 
-        return self.to_custom(item, CustomUndefined(), _build_new_value=True)
+        return self.to_custom(item, _build_new_value=True)
 
     def __contains__(self, item):
         if not hasattr(self, "_element_changes"):

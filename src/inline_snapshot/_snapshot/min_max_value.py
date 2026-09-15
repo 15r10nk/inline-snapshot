@@ -38,9 +38,7 @@ class MinMaxValue(GenericValue):
             self._new_value = result.value
             self._changes = result.list
         else:
-            self._new_value = self.to_custom(
-                other, CustomUndefined(), _build_new_value=True
-            )
+            self._new_value = self.to_custom(other, _build_new_value=True)
             self._changes = None
 
     def _generic_cmp(self, other):

@@ -160,10 +160,8 @@ class NewAdapter:
     def customize(self, value, snapshot_value: Custom):
         return self.get_builder(_build_new_value=True)._customize(value, snapshot_value)
 
-    def customize_all(self, value, snapshot_value: Custom):
-        return self.get_builder(_build_new_value=True)._customize_all(
-            value, snapshot_value
-        )
+    def customize_all(self, value):
+        return self.get_builder(_build_new_value=True)._customize_all(value)
 
     def compare(
         self, old_value: Custom, old_node, new_value: Custom
@@ -173,10 +171,10 @@ class NewAdapter:
             new_value = self.customize(new_value, old_value)
 
         if not hasattr(new_value, "original_value"):
-            new_value = self.customize_all(new_value, CustomUndefined())
+            new_value = self.customize_all(new_value)
 
         if isinstance(old_value, CustomUndefined):
-            new_value = self.customize_all(new_value, CustomUndefined())
+            new_value = self.customize_all(new_value)
 
         if isinstance(old_value, CustomUnmanaged):
             return old_value
@@ -213,7 +211,7 @@ class NewAdapter:
     ) -> Generator[ChangeBase, None, Custom]:
 
         assert isinstance(old_value, Custom)
-        new_value = self.customize_all(new_value, CustomUndefined())
+        new_value = self.customize_all(new_value)
         assert isinstance(new_value, Custom)
         assert isinstance(old_node, ast.expr), old_node
 
@@ -293,9 +291,7 @@ class NewAdapter:
                 old_position += 1
             elif c == "i":
                 new_value_element = next(new)
-                new_value_element = self.customize_all(
-                    new_value_element, CustomUndefined()
-                )
+                new_value_element = self.customize_all(new_value_element)
                 new_code = yield from new_value_element._code_repr(self.context)
                 result.append(new_value_element)
                 to_insert[old_position].append(new_code)
@@ -347,7 +343,7 @@ class NewAdapter:
         if len(new_elts) > common:
             to_insert = []
             for new_elem in new_elts[common:]:
-                new_elem = self.customize_all(new_elem, CustomUndefined())
+                new_elem = self.customize_all(new_elem)
                 new_code = yield from new_elem._code_repr(self.context)
                 to_insert.append(new_code)
                 result.append(new_elem)
@@ -376,7 +372,7 @@ class NewAdapter:
         # Sets are replaced atomically, so their elements do not pass through
         # compare() individually.  Resolve the lazy nodes before rendering the
         # replacement.
-        new_value = self.customize_all(new_value, CustomUndefined())
+        new_value = self.customize_all(new_value)
         new_code, new_changes = split_gen(new_value._code_repr(self.context))
         for change in new_changes:
             change.flag = "fix"
@@ -425,10 +421,8 @@ class NewAdapter:
         for key, new_value_element in new_value.value.items():
             if key not in old_value.value:
                 # add new values
-                result_key = self.customize_all(key, CustomUndefined())
-                new_value_element = self.customize_all(
-                    new_value_element, CustomUndefined()
-                )
+                result_key = self.customize_all(key)
+                new_value_element = self.customize_all(new_value_element)
                 to_insert.append((result_key, new_value_element))
                 result[result_key] = new_value_element
             else:
@@ -515,7 +509,7 @@ class NewAdapter:
 
         if old_args_len < len(new_args):
             for insert_pos, insert_value in list(enumerate(new_args))[old_args_len:]:
-                insert_value = self.customize_all(insert_value, CustomUndefined())
+                insert_value = self.customize_all(insert_value)
                 new_code = yield from insert_value._code_repr(self.context)
                 yield CallArg(
                     flag=flag,
@@ -555,9 +549,7 @@ class NewAdapter:
                 continue
             if key not in old_keywords:
                 # add new values
-                new_value_element = self.customize_all(
-                    new_value_element, CustomUndefined()
-                )
+                new_value_element = self.customize_all(new_value_element)
                 to_insert.append((key, new_value_element))
                 result_kwargs[key] = new_value_element
             else:

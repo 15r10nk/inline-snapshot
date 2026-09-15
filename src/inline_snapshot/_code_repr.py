@@ -103,12 +103,9 @@ def mock_repr(context: AdapterContext):
 
     def new_repr(obj):
         from inline_snapshot._customize._builder import Builder
-        from inline_snapshot._customize._custom_undefined import CustomUndefined
 
         return only_value(
-            Builder(_snapshot_context=context)
-            ._customize_all(obj, CustomUndefined())
-            ._code_repr(context)
+            Builder(_snapshot_context=context)._customize_all(obj)._code_repr(context)
         )
 
     with mock.patch("builtins.repr", new_repr):

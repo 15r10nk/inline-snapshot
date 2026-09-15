@@ -113,11 +113,11 @@ customized_representation={result!r}
 
         return self._set_original_value(result, stored_original_value)
 
-    def _customize_all(self, value, snapshot_value: Custom):
+    def _customize_all(self, value):
         if isinstance(value, Uncustomized):
-            value = self._customize(value._value, snapshot_value)
+            value = self._customize(value._value, CustomUndefined())
         elif not isinstance(value, Custom):
-            value = self._customize(value, snapshot_value)
+            value = self._customize(value, CustomUndefined())
 
         def with_original(new_value: Custom, old_value: Custom) -> Custom:
             return self._set_original_value(
@@ -125,65 +125,32 @@ customized_representation={result!r}
             )
 
         if isinstance(value, CustomSequence):
-            old_values = (
-                snapshot_value.value if isinstance(snapshot_value, type(value)) else []
-            )
             return with_original(
-                type(value)(
-                    [
-                        self._customize_all(
-                            child,
-                            (
-                                old_values[index]
-                                if index < len(old_values)
-                                else CustomUndefined()
-                            ),
-                        )
-                        for index, child in enumerate(value.value)
-                    ]
-                ),
+                type(value)([self._customize_all(child) for child in value.value]),
                 value,
             )
         elif isinstance(value, CustomDict):
-            old_items = (
-                list(snapshot_value.value.items())
-                if isinstance(snapshot_value, CustomDict)
-                else []
-            )
-
-            def customize_item(key, item):
-                for old_key, old_item in old_items:
-                    if key == old_key:
-                        return (
-                            self._customize_all(key, old_key),
-                            self._customize_all(item, old_item),
-                        )
-                return (
-                    self._customize_all(key, CustomUndefined()),
-                    self._customize_all(item, CustomUndefined()),
-                )
-
             return with_original(
-                CustomDict(dict(customize_item(k, v) for k, v in value.value.items())),
+                CustomDict(
+                    {
+                        self._customize_all(k): self._customize_all(v)
+                        for k, v in value.value.items()
+                    }
+                ),
                 value,
             )
         elif isinstance(value, CustomCall):
             return with_original(
                 CustomCall(
-                    function=self._customize_all(value.function, CustomUndefined()),
-                    args=[
-                        self._customize_all(c, CustomUndefined()) for c in value.args
-                    ],
-                    kwargs={
-                        k: self._customize_all(v, CustomUndefined())
-                        for k, v in value.kwargs.items()
-                    },
+                    function=self._customize_all(value.function),
+                    args=[self._customize_all(c) for c in value.args],
+                    kwargs={k: self._customize_all(v) for k, v in value.kwargs.items()},
                 ),
                 value,
             )
         elif isinstance(value, CustomDefault):
             return with_original(
-                CustomDefault(self._customize_all(value.value, CustomUndefined())),
+                CustomDefault(self._customize_all(value.value)),
                 value,
             )
 
