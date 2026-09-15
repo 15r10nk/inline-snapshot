@@ -18,7 +18,6 @@ from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._generator_utils import with_flag
 from inline_snapshot._inline_snapshot import create_snapshot
-from inline_snapshot._sentinels import undefined
 from inline_snapshot._snapshot.generic_value import GenericValue
 from inline_snapshot._snapshot.undecided_value import UndecidedValue
 from inline_snapshot._types import Snapshot
@@ -237,10 +236,7 @@ class SnapshotArgReference(SnapshotRefBase):
                     self._node = kw.value
                     break
 
-        # No argument at the call site: same as snapshot() with no args.
-        self._value = UndecidedValue(
-            undefined if self._node is None else value, self._node, self._context
-        )
+        self._value = UndecidedValue(value, self._node, self._context)
 
     @staticmethod
     def key_for(frame: FrameType):
@@ -320,6 +316,4 @@ class SnapshotArgReference(SnapshotRefBase):
 
     def _re_eval(self, obj, frame: FrameType):
         call_frame = _get_call_frame(frame)
-        if self._node is None:
-            obj = undefined
         self._value._re_eval(obj, AdapterContext(call_frame))

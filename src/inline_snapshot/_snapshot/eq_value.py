@@ -37,21 +37,12 @@ class EqValue(GenericValue):
                 )
                 self._changes = result.list
                 self._new_value = result.value
-            elif isinstance(self._old_value, CustomUndefined):
-                # snapshot() / snapshot_arg with no argument at the call site
-                if self._context.expr.node is not None:
-                    self._new_value = NewAdapter(self._context).customize_all(
-                        Uncustomized(other)
-                    )
-                else:
-                    self._new_value = self.get_builder(
-                        _build_new_value=True
-                    )._customize_all(other)
-                self._changes.append(CategoryChange("create"))
             else:
-                if self._old_value._eval() != other:
+                self._new_value = self.to_custom(other, _build_new_value=True)
+                if isinstance(self._old_value, CustomUndefined):
+                    self._changes.append(CategoryChange("create"))
+                elif self._old_value._eval() != other:
                     self._changes.append(CategoryChange("fix"))
-                return self._return(self._old_value._eval() == other)
 
         return self._return(
             self._old_value._eval() == other,

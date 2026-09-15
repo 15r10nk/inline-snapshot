@@ -19,7 +19,7 @@ Customized value does not match original value:
 original_value=IsStr()
 
 customized_value=IsStr()
-customized_representation=CustomCall(function=IsStr, args=[], kwargs={})
+customized_representation=CustomCall(function='unmanaged', args=[], kwargs={})
 """),
         reported_categories=set(),
     )

@@ -61,10 +61,11 @@ class MinMaxValue(GenericValue):
         return code
 
     def _get_changes(self) -> Iterator[ChangeBase]:
-        if getattr(self, "_changes", None) is not None:
+        changes = getattr(self, "_changes", None)
+        if changes is not None:
             old_eval = self._old_value._eval()
             new_eval = self._new_value._eval()
-            for change in self._changes:
+            for change in changes:
                 if (
                     change.flag == "fix"
                     and self.cmp(old_eval, new_eval)
