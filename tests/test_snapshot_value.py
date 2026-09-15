@@ -1,7 +1,21 @@
 """Tests for snapshot_value parameter in customize hooks."""
 
+import pytest
+from dirty_equals import AnyThing
+
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
+
+HEX_IF_EXISTING = """\
+from inline_snapshot.plugin import customize
+
+@customize
+def hex_if_existing(value, builder, snapshot_value):
+    if isinstance(value, int):
+        if snapshot_value is not ...:
+            return builder.create_code(hex(value))
+        return builder.create_code(str(value))
+"""
 
 
 def test_snapshot_value_in_list():
@@ -181,3 +195,47 @@ def test_it():
 """,
         }
     ).run_pytest()
+
+
+def test_snapshot_value_preserves_hex_eq():
+    Example(
+        {
+            "conftest.py": HEX_IF_EXISTING,
+            "test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_it():
+    assert 5 == snapshot(0x5)
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot({}),
+        reported_categories=set(),
+    )
+
+
+@pytest.mark.parametrize(
+    "assertion",
+    [
+        "assert 5 in snapshot([0x5])",
+        "assert 5 <= snapshot(0x5)",
+        "assert 5 >= snapshot(0x5)",
+    ],
+)
+def test_snapshot_value_preserves_hex(assertion):
+    Example(
+        {
+            "conftest.py": HEX_IF_EXISTING,
+            "test_something.py": f"""\
+from inline_snapshot import snapshot
+
+def test_it():
+    {assertion}
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        changed_files=snapshot({}),
+        reported_categories=AnyThing(),
+    )
