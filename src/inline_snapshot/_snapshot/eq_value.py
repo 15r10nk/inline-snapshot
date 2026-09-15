@@ -20,8 +20,6 @@ class EqValue(GenericValue):
     _changes: List[Change]
 
     def __eq__(self, other):
-        other_eval = self._eval_value(other)
-
         if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1
 
@@ -36,7 +34,7 @@ class EqValue(GenericValue):
                 )
                 if isinstance(self._old_value, CustomUndefined):
                     self._changes.append(CategoryChange("create"))
-                elif self._old_value._eval() != other_eval:
+                elif self._old_value._eval() != other:
                     self._changes.append(CategoryChange("fix"))
             else:
                 adapter = NewAdapter(self._context)
@@ -50,8 +48,8 @@ class EqValue(GenericValue):
                 self._new_value = result.value
 
         return self._return(
-            self._old_value._eval() == other_eval,
-            self._new_value._eval() == other_eval,
+            self._old_value._eval() == other,
+            self._new_value._eval() == other,
         )
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
