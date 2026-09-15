@@ -49,8 +49,7 @@ class InlineSnapshotPluginSpec:
             local_vars: Dictionary mapping variable names to their values in the local scope.
                        Useful for referencing existing variables instead of creating new literals.
             global_vars: Dictionary mapping variable names to their values in the global scope.
-            snapshot_value: The current snapshot value, or
-                            [missing][inline_snapshot.plugin.missing] when there is
+            snapshot_value: The current snapshot value, or `...` when there is
                             no corresponding snapshot value. Can be used to preserve
                             existing representations when only parts of the value have
                             changed.

@@ -25,7 +25,7 @@ class DictValue(GenericValue):
         if isinstance(self._new_value, CustomUndefined):
             self._new_value = CustomDict({})
 
-        index = self.to_custom(index)
+        index = self.to_custom(index, CustomUndefined())
 
         if index not in self._new_value.value:
             if isinstance(self._old_value, CustomUndefined):

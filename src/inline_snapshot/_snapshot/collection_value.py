@@ -25,10 +25,10 @@ class CollectionValue(GenericValue):
             state().missing_values += 1
 
         if isinstance(self._new_value, CustomUndefined):
-            self._new_value = CustomList([self.to_custom(item)])
+            self._new_value = CustomList([self.to_custom(item, CustomUndefined())])
         else:
             if self._eval_value(item) not in self._new_value._eval():
-                self._new_value.value.append(self.to_custom(item))
+                self._new_value.value.append(self.to_custom(item, CustomUndefined()))
 
         if ignore_old_value() or isinstance(self._old_value, CustomUndefined):
             return True
@@ -59,9 +59,9 @@ class CollectionValue(GenericValue):
                 continue
 
             # check for update
-            new_code = yield from self.to_custom(old_value._eval())._code_repr(
-                self._context
-            )
+            new_code = yield from self.to_custom(
+                old_value._eval(), CustomUndefined()
+            )._code_repr(self._context)
 
             if self._file.code_changed(old_node, new_code):
 

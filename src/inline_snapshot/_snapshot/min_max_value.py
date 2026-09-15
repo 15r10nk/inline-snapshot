@@ -22,7 +22,7 @@ class MinMaxValue(GenericValue):
             state().missing_values += 1
 
         if isinstance(self._new_value, CustomUndefined):
-            self._new_value = self.to_custom(other)
+            self._new_value = self.to_custom(other, CustomUndefined())
             if isinstance(self._old_value, CustomUndefined) or ignore_old_value():
                 return True
             return self._return(
@@ -30,7 +30,7 @@ class MinMaxValue(GenericValue):
             )
         else:
             if not self.cmp(self._new_value._eval(), self._eval_value(other)):
-                self._new_value = self.to_custom(other)
+                self._new_value = self.to_custom(other, CustomUndefined())
 
         return self._return(
             self.cmp(self._visible_value()._eval(), self._eval_value(other))

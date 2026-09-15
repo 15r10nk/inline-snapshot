@@ -57,6 +57,108 @@ def test_it():
     )
 
 
+def test_snapshot_value_undefined():
+    Example(
+        {
+            "tests/conftest.py": """\
+from inline_snapshot.plugin import customize
+
+@customize
+def check_undefined(value, builder, snapshot_value):
+    if isinstance(value, int):
+        assert snapshot_value is ...
+        return builder.create_code(str(value))
+""",
+            "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_it():
+    assert 5 == snapshot()
+""",
+        }
+    ).run_pytest(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot({"tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_it():
+    assert 5 == snapshot(5)
+"""}),
+        returncode=1,
+        outcomes={"passed": 1, "errors": 1},
+    )
+
+
+def test_snapshot_value_list_insert():
+    Example(
+        {
+            "tests/conftest.py": """\
+from inline_snapshot.plugin import customize
+
+@customize
+def check_list_insert(value, builder, snapshot_value):
+    if value == 1:
+        assert snapshot_value == 1
+        return builder.create_code(str(value))
+    if value == 2:
+        assert snapshot_value is ...
+        return builder.create_code(str(value))
+""",
+            "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_it():
+    assert [1, 2] == snapshot([1])
+""",
+        }
+    ).run_pytest(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot({"tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_it():
+    assert [1, 2] == snapshot([1, 2])
+"""}),
+        returncode=1,
+        outcomes={"passed": 1, "errors": 1},
+    )
+
+
+def test_snapshot_value_new_dict_key():
+    Example(
+        {
+            "tests/conftest.py": """\
+from inline_snapshot.plugin import customize
+
+@customize
+def check_new_dict_key(value, builder, snapshot_value):
+    if value == 1:
+        assert snapshot_value == 1
+        return builder.create_code(str(value))
+    if value == 2:
+        assert snapshot_value is ...
+        return builder.create_code(str(value))
+""",
+            "tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_it():
+    assert {1: "a", 2: "b"} == snapshot({1: "a"})
+""",
+        }
+    ).run_pytest(
+        ["--inline-snapshot=fix"],
+        changed_files=snapshot({"tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_it():
+    assert {1: "a", 2: "b"} == snapshot({1: "a", 2: "b"})
+"""}),
+        returncode=1,
+        outcomes={"passed": 1, "errors": 1},
+    )
+
+
 def test_snapshot_value_in_dict_key():
     """Test that snapshot_value works with existing dict keys."""
     Example(

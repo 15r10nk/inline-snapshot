@@ -108,9 +108,10 @@ The [customize][inline_snapshot.plugin.InlineSnapshotPluginSpec.customize] hook 
 You should use it when you find yourself manually editing snapshots after they were created by inline-snapshot.
 
 The hook can accept a `snapshot_value` argument. It contains the corresponding
-existing snapshot value when inline-snapshot compares against one, and
-[`missing`][inline_snapshot.plugin.missing] when there is no corresponding
-snapshot value.
+existing snapshot value when inline-snapshot compares against one, and `...`
+when there is no corresponding snapshot value (for example `snapshot()`, a
+new list item, or a new dict key). Check `snapshot_value is ...` to detect
+those cases.
 
 
 ### Custom constructor methods
@@ -375,7 +376,7 @@ def test_my_class():
 ::: inline_snapshot.plugin
     options:
       heading_level: 3
-      members: [hookimpl,customize,Builder,Custom,Import,ImportFrom,missing]
+      members: [hookimpl,customize,Builder,Custom,Import,ImportFrom]
       show_root_heading: false
       show_bases: false
       show_source: false
