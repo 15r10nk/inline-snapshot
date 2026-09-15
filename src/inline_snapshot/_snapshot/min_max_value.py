@@ -39,7 +39,7 @@ class MinMaxValue(GenericValue):
             self._changes = result.list
         else:
             self._new_value = self.to_custom(
-                other, self._old_value, _build_new_value=True
+                other, CustomUndefined(), _build_new_value=True
             )
             self._changes = None
 

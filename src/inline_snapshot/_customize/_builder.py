@@ -114,7 +114,6 @@ customized_representation={result!r}
         return self._set_original_value(result, stored_original_value)
 
     def _customize_all(self, value, snapshot_value: Custom):
-
         if isinstance(value, Uncustomized):
             value = self._customize(value._value, snapshot_value)
         elif not isinstance(value, Custom):

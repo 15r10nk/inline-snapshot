@@ -26,26 +26,32 @@ class EqValue(GenericValue):
         if not compare_only() and isinstance(self._new_value, CustomUndefined):
             self._changes = []
 
-            if not state().active or self._ast_node is None:
-                self._new_value = self.to_custom(
-                    other,
-                    snapshot_value=self._old_value,
-                    _build_new_value=True,
-                )
-                if isinstance(self._old_value, CustomUndefined):
-                    self._changes.append(CategoryChange("create"))
-                elif self._old_value._eval() != other:
-                    self._changes.append(CategoryChange("fix"))
-            else:
-                adapter = NewAdapter(self._context)
+            if not state().active:
+                return self._return(self._old_value._eval() == other)
 
+            if self._ast_node is not None:
                 result = split_gen(
-                    adapter.compare(
+                    NewAdapter(self._context).compare(
                         self._old_value, self._ast_node, Uncustomized(other)
                     )
                 )
                 self._changes = result.list
                 self._new_value = result.value
+            elif isinstance(self._old_value, CustomUndefined):
+                # snapshot() / snapshot_arg with no argument at the call site
+                if self._context.expr.node is not None:
+                    self._new_value = NewAdapter(self._context).customize_all(
+                        Uncustomized(other), CustomUndefined()
+                    )
+                else:
+                    self._new_value = self.get_builder(
+                        _build_new_value=True
+                    )._customize_all(other, CustomUndefined())
+                self._changes.append(CategoryChange("create"))
+            else:
+                if self._old_value._eval() != other:
+                    self._changes.append(CategoryChange("fix"))
+                return self._return(self._old_value._eval() == other)
 
         return self._return(
             self._old_value._eval() == other,

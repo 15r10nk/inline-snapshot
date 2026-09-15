@@ -221,6 +221,8 @@ def test_it():
         "assert 5 in snapshot([0x5])",
         "assert 5 <= snapshot(0x5)",
         "assert 5 >= snapshot(0x5)",
+        "assert {5: 'x'} == snapshot({0x5: 'x'})",
+        "assert {'x': 5} == snapshot({'x': 0x5})",
     ],
 )
 def test_snapshot_value_preserves_hex(assertion):

@@ -407,17 +407,18 @@ class NewAdapter:
             assert node_value == value2._eval()
 
         old_keys = list(old_value.value.keys())
-        old_value_nodes = old_node.values
         old_entries = {
-            old_key: (old_key, value_node)
-            for old_key, value_node in zip(old_keys, old_value_nodes)
+            old_key: (old_key, key_node, value_node)
+            for old_key, key_node, value_node in zip(
+                old_keys, old_node.keys, old_node.values
+            )
         }
 
         result = {}
-        for key2, (_, node2) in old_entries.items():
+        for key2, (_, _, value_node) in old_entries.items():
             if key2 not in new_value.value:
                 # delete entries
-                yield Delete("fix", self.context.file, node2)
+                yield Delete("fix", self.context.file, value_node)
 
         to_insert = []
         insert_pos = 0
@@ -431,11 +432,11 @@ class NewAdapter:
                 to_insert.append((result_key, new_value_element))
                 result[result_key] = new_value_element
             else:
-                old_key, node = old_entries[key]
-                result_key = self.customize_all(key, old_key)
-                # check values with same keys
+                old_key, key_node, value_node = old_entries[key]
+                assert key_node is not None
+                result_key = yield from self.compare(old_key, key_node, key)
                 result[result_key] = yield from self.compare(
-                    old_value.value[key], node, new_value_element
+                    old_value.value[key], value_node, new_value_element
                 )
 
                 if to_insert:
