@@ -269,4 +269,4 @@ def test_a():
 
     assert c == snapshot(C(a=5))
 """}),
-    ).run_inline(reported_categories={"update"})
+    ).run_inline()

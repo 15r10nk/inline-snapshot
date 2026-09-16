@@ -3,9 +3,11 @@ from typing import Iterator
 from typing import List
 
 from inline_snapshot._customize._custom_undefined import CustomUndefined
+from inline_snapshot._customize._uncustomized import Uncustomized
 from inline_snapshot._generator_utils import split_gen
 from inline_snapshot._new_adapter import NewAdapter
 
+from .._change import CategoryChange
 from .._change import Change
 from .._change import ChangeBase
 from .._compare_context import compare_only
@@ -18,21 +20,35 @@ class EqValue(GenericValue):
     _changes: List[Change]
 
     def __eq__(self, other):
-        custom_other = self.to_custom(other, _build_new_value=True)
-
         if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1
 
         if not compare_only() and isinstance(self._new_value, CustomUndefined):
             self._changes = []
 
-            adapter = NewAdapter(self._context)
+            if not state().active:
+                return self._return(self._old_value._eval() == other)
 
-            result = split_gen(
-                adapter.compare(self._old_value, self._ast_node, custom_other)
-            )
-            self._changes = result.list
-            self._new_value = result.value
+            if self._ast_node is not None:
+                result = split_gen(
+                    NewAdapter(self._context).compare(
+                        self._old_value, self._ast_node, Uncustomized(other)
+                    )
+                )
+                self._changes = result.list
+                self._new_value = result.value
+            else:
+                # No argument node: do not use the adapter (it requires a node)
+                # and do not rewrite source. Report flags only.
+                if isinstance(self._old_value, CustomUndefined):
+                    self._changes.append(CategoryChange("create"))
+                    self._new_value = self.to_custom(other, _build_new_value=True)
+                elif self._old_value._eval() != other:
+                    self._changes.append(CategoryChange("fix"))
+                    if self._context.expr.node is not None:
+                        self._new_value = self.to_custom(other, _build_new_value=True)
+                else:
+                    self._new_value = self._old_value
 
         return self._return(
             self._old_value._eval() == other,

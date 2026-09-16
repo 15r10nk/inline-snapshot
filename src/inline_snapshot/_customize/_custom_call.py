@@ -59,14 +59,15 @@ class CustomCall(Custom):
     def _map(self, f):
         args = [f(x._map(f)) for x in self.args]
         kwargs = {k: f(v._map(f)) for k, v in self.kwargs.items()}
+        function = self.function._map(f)
 
         try:
-            return self.function._map(f)(
+            return function(
                 *args,
                 **kwargs,
             )
         except Exception as e:
             call_args = args + [f"{k}={v}" for k, v in kwargs.items()]
             raise TypeError(
-                f"cannot call {self.function}({', '.join(map(str,call_args))})"
+                f"cannot call {function}({', '.join(map(str,call_args))})"
             ) from e

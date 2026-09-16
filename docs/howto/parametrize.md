@@ -115,10 +115,10 @@ from inline_snapshot import external, outsource, snapshot
 
 external_snapshots = snapshot(
     {
-        "[1]*10": external("uuid:e443df78-9558-467f-9ba9-1faf7a024204.json"),
-        "[2]*10": external("uuid:23a7711a-8133-4876-b7eb-dcd9e87a1613.json"),
-        "[1]*20": external("uuid:1846d424-c17c-4279-a3c6-612f48268673.json"),
-        "[2]*20": external("uuid:fcbd04c3-4021-4ef7-8ca5-a5a19e4d6e3c.json"),
+        "[1]*10": external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.json"),
+        "[2]*10": external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.json"),
+        "[1]*20": external("uuid:eb1167b3-67a9-4378-bc65-c1e582e2e662.json"),
+        "[2]*20": external("uuid:f7c1bd87-4da5-4709-9471-3d60c8a70639.json"),
     }
 )
 

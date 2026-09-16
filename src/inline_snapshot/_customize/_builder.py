@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+import ast
 from dataclasses import dataclass
 from typing import Any
 from typing import Callable
 
 from inline_snapshot._adapter_context import AdapterContext
-from inline_snapshot._sentinels import undefined
-
-missing = undefined
+from inline_snapshot._code_repr import HasRepr
+from inline_snapshot._code_repr import mock_repr
+from inline_snapshot._code_repr import value_code_repr
 from inline_snapshot._compare_context import compare_context
+from inline_snapshot._customize._custom_sequence import CustomSequence
+from inline_snapshot._customize._uncustomized import Uncustomized
 from inline_snapshot._exceptions import UsageError
 
 from ._custom import Custom
@@ -22,28 +25,39 @@ from ._custom_external import CustomExternal
 from ._custom_sequence import CustomList
 from ._custom_sequence import CustomSet
 from ._custom_sequence import CustomTuple
+from ._custom_undefined import CustomUndefined
 
 
 @dataclass
 class Builder:
     _snapshot_context: AdapterContext
     _build_new_value: bool = False
-    _recursive: bool = True
 
-    def _get_handler_recursive(self, v) -> Custom:
-        if self._recursive:
-            return self._get_handler(v)
-        else:
+    def _convert_child(self, v) -> Custom:
+        if isinstance(v, Custom):
             return v
+        return Uncustomized(v)
 
     def _get_value(self, value):
         if isinstance(value, Custom):
             return value._eval()
         return value
 
-    def _get_handler(self, v) -> Custom:
+    def _get_original_value(self, value: Custom):
+        return getattr(value, "original_value", value._eval())
 
+    def _set_original_value(self, value: Custom, original_value):
+        object.__setattr__(value, "original_value", original_value)
+        return value
+
+    def _customize(self, v, snapshot_value: Custom) -> Custom:
         from inline_snapshot._global_state import state
+
+        if isinstance(v, Uncustomized):
+            v = v._value
+
+        if isinstance(v, Custom):
+            return v
 
         result = v
 
@@ -54,23 +68,35 @@ class Builder:
                     builder=self,
                     local_vars=self._local_vars,
                     global_vars=self._global_vars,
+                    snapshot_value=snapshot_value._eval(),
                 )
+
             if r is None:
-                result = CustomCode(result)
+
+                with mock_repr(self._snapshot_context):
+                    repr_str = value_code_repr(result)
+
+                try:
+                    ast.parse(repr_str)
+                except SyntaxError:
+                    result = self.create_call(HasRepr, [type(result), repr_str])
+                else:
+                    result = CustomCode(result, repr_str)
             else:
                 result = r
 
-        result.__dict__["original_value"] = v._eval() if isinstance(v, Custom) else v
-
+        stored_original_value = v
         if not isinstance(v, Custom) and self._build_new_value:
             is_same = False
             v_eval = result._eval()
+            assert not isinstance(v_eval, Custom)
 
             if (
                 hasattr(v, "__pydantic_generic_metadata__")
                 and v.__pydantic_generic_metadata__["origin"] == v_eval
             ):
                 is_same = True
+                stored_original_value = v_eval
 
             if not is_same and v_eval == v:
                 is_same = True
@@ -85,7 +111,53 @@ customized_value={result._eval()!r}
 customized_representation={result!r}
 """)
 
-        return result
+        return self._set_original_value(result, stored_original_value)
+
+    def _customize_all(self, value):
+        if isinstance(value, Uncustomized):
+            value = self._customize(value._value, CustomUndefined())
+        elif not isinstance(value, Custom):
+            value = self._customize(value, CustomUndefined())
+
+        def with_original(new_value: Custom, old_value: Custom) -> Custom:
+            return self._set_original_value(
+                new_value, self._get_original_value(old_value)
+            )
+
+        if isinstance(value, CustomSequence):
+            return with_original(
+                type(value)([self._customize_all(child) for child in value.value]),
+                value,
+            )
+        elif isinstance(value, CustomDict):
+            return with_original(
+                CustomDict(
+                    {
+                        self._customize_all(k): self._customize_all(v)
+                        for k, v in value.value.items()
+                    }
+                ),
+                value,
+            )
+        elif isinstance(value, CustomCall):
+            return with_original(
+                CustomCall(
+                    function=self._customize_all(value.function),
+                    args=[self._customize_all(c) for c in value.args],
+                    kwargs={k: self._customize_all(v) for k, v in value.kwargs.items()},
+                ),
+                value,
+            )
+        elif isinstance(value, CustomDefault):
+            return with_original(
+                CustomDefault(self._customize_all(value.value)),
+                value,
+            )
+
+        if not hasattr(value, "original_value"):
+            self._set_original_value(value, value._eval())
+
+        return value
 
     def create_external(
         self, value: Any, format: str | None = None, storage: str | None = None
@@ -103,7 +175,7 @@ customized_representation={result!r}
         `create_list([1,2,3])` becomes `[1,2,3]` in the code.
         List elements don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
-        custom = [self._get_handler_recursive(v) for v in value]
+        custom = [self._convert_child(v) for v in value]
         return CustomList(value=custom)
 
     def create_tuple(self, value: tuple) -> Custom:
@@ -113,7 +185,7 @@ customized_representation={result!r}
         `create_tuple((1, 2, 3))` becomes `(1, 2, 3)` in the code.
         Tuple elements don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
-        custom = [self._get_handler_recursive(v) for v in value]
+        custom = [self._convert_child(v) for v in value]
         return CustomTuple(value=custom)
 
     def create_set(self, value: set) -> Custom:
@@ -123,7 +195,7 @@ customized_representation={result!r}
         `create_set({1, 2, 3})` becomes `{1, 2, 3}` in the code.
         Set elements don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
-        custom = [self._get_handler_recursive(v) for v in value]
+        custom = [self._convert_child(v) for v in value]
         return CustomSet(value=custom)
 
     def with_default(self, value: Any, default: Any):
@@ -137,7 +209,7 @@ customized_representation={result!r}
             raise UsageError("default value cannot be a Custom value")
 
         if self._get_value(value) == default:
-            return CustomDefault(value=self._get_handler_recursive(value))
+            return CustomDefault(value=self._convert_child(value))
         return value
 
     def create_call(
@@ -149,9 +221,9 @@ customized_representation={result!r}
         `create_call(MyClass, [arg1, arg2], {'key': value})` becomes `MyClass(arg1, arg2, key=value)` in the code.
         Function, arguments, and keyword arguments don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
-        function = self._get_handler_recursive(function)
-        posonly_args = [self._get_handler_recursive(arg) for arg in posonly_args]
-        kwargs = {k: self._get_handler_recursive(arg) for k, arg in kwargs.items()}
+        function = self._convert_child(function)
+        posonly_args = [self._convert_child(arg) for arg in posonly_args]
+        kwargs = {k: self._convert_child(arg) for k, arg in kwargs.items()}
 
         return CustomCall(
             function=function,
@@ -167,8 +239,7 @@ customized_representation={result!r}
         Dict keys and values don't have to be Custom nodes and are converted by inline-snapshot if needed.
         """
         custom = {
-            self._get_handler_recursive(k): self._get_handler_recursive(v)
-            for k, v in value.items()
+            self._convert_child(k): self._convert_child(v) for k, v in value.items()
         }
         assert len(value) == len(custom)
 

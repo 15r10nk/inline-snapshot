@@ -108,6 +108,6 @@ def test_thing():
         }
     ).run_inline(
         ["--inline-snapshot=fix"],
-        raises=snapshot("TypeError: cannot call CustomCode('BadCall')()"),
+        raises=snapshot("TypeError: cannot call <class 'bad_call_type.BadCall'>()"),
         reported_categories=set(),
     )
