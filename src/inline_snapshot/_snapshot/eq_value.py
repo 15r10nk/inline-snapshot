@@ -38,11 +38,17 @@ class EqValue(GenericValue):
                 self._changes = result.list
                 self._new_value = result.value
             else:
-                self._new_value = self.to_custom(other, _build_new_value=True)
+                # No argument node: do not use the adapter (it requires a node)
+                # and do not rewrite source. Report flags only.
                 if isinstance(self._old_value, CustomUndefined):
                     self._changes.append(CategoryChange("create"))
+                    self._new_value = self.to_custom(other, _build_new_value=True)
                 elif self._old_value._eval() != other:
                     self._changes.append(CategoryChange("fix"))
+                    if self._context.expr.node is not None:
+                        self._new_value = self.to_custom(other, _build_new_value=True)
+                else:
+                    self._new_value = self._old_value
 
         return self._return(
             self._old_value._eval() == other,
