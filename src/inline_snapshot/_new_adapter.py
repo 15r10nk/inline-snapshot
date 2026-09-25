@@ -365,7 +365,7 @@ class NewAdapter:
 
     def compare_CustomSet(
         self, old_value: CustomSet, old_node: ast.Set, new_value: CustomSet
-    ) -> Generator[ChangeBase, None, CustomSet]:
+    ) -> Generator[ChangeBase, None, Custom]:
         assert isinstance(old_node, ast.Set)
 
         # A set's iteration order cannot be associated with the source order of
