@@ -78,7 +78,11 @@ Docs are built with MkDocs Material. The nav and plugins are configured in `mkdo
 
 ## Changelog and Release Notes
 
-For user-visible changes, create a scriv fragment:
+For user-visible changes, create a scriv fragment, except for fixes to unreleased
+features. Such fixes do not need a changelog fragment. Update the feature's
+existing fragment only if its description of the final behavior needs to change.
+
+For changes that require a fragment, run:
 
 ```bash
 uvx scriv create --add

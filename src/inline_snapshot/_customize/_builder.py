@@ -43,9 +43,6 @@ class Builder:
             return value._eval()
         return value
 
-    def _get_original_value(self, value: Custom):
-        return getattr(value, "original_value", value._eval())
-
     def _set_original_value(self, value: Custom, original_value):
         object.__setattr__(value, "original_value", original_value)
         return value
@@ -120,9 +117,9 @@ customized_representation={result!r}
             value = self._customize(value, CustomUndefined())
 
         def with_original(new_value: Custom, old_value: Custom) -> Custom:
-            return self._set_original_value(
-                new_value, self._get_original_value(old_value)
-            )
+            if hasattr(old_value, "original_value"):
+                self._set_original_value(new_value, old_value.original_value)
+            return new_value
 
         if isinstance(value, CustomSequence):
             return with_original(
@@ -153,9 +150,6 @@ customized_representation={result!r}
                 CustomDefault(self._customize_all(value.value)),
                 value,
             )
-
-        if not hasattr(value, "original_value"):
-            self._set_original_value(value, value._eval())
 
         return value
 

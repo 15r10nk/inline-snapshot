@@ -150,9 +150,10 @@ def reeval_CustomDict(old_value, value):
 
 class NewAdapter:
 
-    def __init__(self, context: AdapterContext):
+    def __init__(self, context: AdapterContext, *, change_flag: str = "fix"):
         assert context.expr.node is not None
         self.context = context
+        self._change_flag = change_flag
 
     def get_builder(self, **args):
         return Builder(_snapshot_context=self.context, **args)
@@ -163,6 +164,20 @@ class NewAdapter:
     def customize_all(self, value):
         return self.get_builder(_build_new_value=True)._customize_all(value)
 
+    def _get_change_flag(self, old_value: Custom, new_value: Custom) -> str:
+        if isinstance(old_value, CustomUndefined):
+            return "create"
+        if isinstance(new_value, Uncustomized):
+            original_value = new_value._value
+        elif hasattr(new_value, "original_value"):
+            original_value = new_value.original_value
+        else:
+            # Explicit builder nodes inherit the category from the closest
+            # ancestor with a known original runtime value. A matcher's value
+            # cannot substitute for that original value.
+            return self._change_flag
+        return "update" if old_value._eval() == original_value else "fix"
+
     def compare(
         self, old_value: Custom, old_node, new_value: Custom
     ) -> Generator[ChangeBase, None, Custom]:
@@ -170,9 +185,7 @@ class NewAdapter:
         if isinstance(new_value, Uncustomized) or not isinstance(new_value, Custom):
             new_value = self.customize(new_value, old_value)
 
-        if not hasattr(new_value, "original_value"):
-            new_value = self.customize_all(new_value)
-
+        flag = self._get_change_flag(old_value, new_value)
         if isinstance(old_value, CustomUndefined):
             new_value = self.customize_all(new_value)
 
@@ -182,18 +195,16 @@ class NewAdapter:
         if isinstance(new_value, CustomUnmanaged):
             raise UsageError("unmanaged values cannot be compared with snapshots")
 
+        adapter = NewAdapter(self.context, change_flag=flag)
         if type(old_value) is type(new_value) and isinstance(
             old_node, new_value.node_type
         ):
             function_name = f"compare_{type(old_value).__name__}"
-            result_gen = getattr(self, function_name)(old_value, old_node, new_value)
+            result_gen = getattr(adapter, function_name)(old_value, old_node, new_value)
         else:
-            result_gen = self.compare_CustomCode(old_value, old_node, new_value)
+            result_gen = adapter.compare_CustomCode(old_value, old_node, new_value)
 
-        if (
-            hasattr(new_value, "original_value")
-            and new_value.original_value == old_value._eval()
-        ):
+        if flag == "update":
 
             @make_gen_map
             def fix_to_update(change):
@@ -233,19 +244,11 @@ class NewAdapter:
                 )
             return old_value
 
-        if not old_value._eval() == new_value.original_value:
-            if isinstance(old_value, CustomUndefined):
-                flag = "create"
-            else:
-                flag = "fix"
-        elif not isinstance(
-            old_value, CustomUnmanaged
-        ) and self.context.file.code_changed(old_node, new_code):
-            flag = "update"
-        else:
-            # equal and equal repr
-            return old_value
+        if self._change_flag == "update" or not hasattr(new_value, "original_value"):
+            if not self.context.file.code_changed(old_node, new_code):
+                return old_value
 
+        flag = self._change_flag
         for change in new_changes:
             change.flag = flag
             yield change
@@ -298,7 +301,7 @@ class NewAdapter:
             elif c == "d":
                 old_value_element, old_node_element = next(old)
                 yield Delete(
-                    "fix",
+                    self._change_flag,
                     self.context.file,
                     old_node_element,
                 )
@@ -307,7 +310,9 @@ class NewAdapter:
                 assert False
 
         for position, code_values in to_insert.items():
-            yield ListInsert("fix", self.context.file, old_node, position, code_values)
+            yield ListInsert(
+                self._change_flag, self.context.file, old_node, position, code_values
+            )
 
         return type(new_value)(result)
 
@@ -337,7 +342,7 @@ class NewAdapter:
 
         # delete surplus old elements
         for old_node_elem in old_nodes[common:]:
-            yield Delete("fix", self.context.file, old_node_elem)
+            yield Delete(self._change_flag, self.context.file, old_node_elem)
 
         # insert extra new elements
         if len(new_elts) > common:
@@ -349,7 +354,7 @@ class NewAdapter:
                 result.append(new_elem)
 
             yield ListInsert(
-                "fix",
+                self._change_flag,
                 self.context.file,
                 old_node,
                 common,
@@ -366,26 +371,16 @@ class NewAdapter:
         # A set's iteration order cannot be associated with the source order of
         # its AST elements. Compare it atomically instead of attempting
         # positional element updates.
-        if old_value._eval() == new_value.original_value:
+        if (
+            hasattr(new_value, "original_value")
+            and old_value._eval() == new_value.original_value
+        ):
             return old_value
 
         # Sets are replaced atomically, so their elements do not pass through
         # compare() individually.  Resolve the lazy nodes before rendering the
         # replacement.
-        new_value = self.customize_all(new_value)
-        new_code, new_changes = split_gen(new_value._code_repr(self.context))
-        for change in new_changes:
-            change.flag = "fix"
-            yield change
-
-        yield Replace(
-            node=old_node,
-            file=self.context.file,
-            new_code=new_code,
-            flag="fix",
-        )
-
-        return new_value
+        return (yield from self.compare_CustomCode(old_value, old_node, new_value))
 
     def compare_CustomDict(
         self, old_value: CustomDict, old_node: ast.Dict, new_value: CustomDict
@@ -414,7 +409,7 @@ class NewAdapter:
         for key2, (_, _, value_node) in old_entries.items():
             if key2 not in new_value.value:
                 # delete entries
-                yield Delete("fix", self.context.file, value_node)
+                yield Delete(self._change_flag, self.context.file, value_node)
 
         to_insert = []
         insert_pos = 0
@@ -441,7 +436,7 @@ class NewAdapter:
                         new_code.append((new_code_key, new_code_value))
 
                     yield DictInsert(
-                        "fix",
+                        self._change_flag,
                         self.context.file,
                         old_node,
                         insert_pos,
@@ -464,7 +459,7 @@ class NewAdapter:
                 )
 
             yield DictInsert(
-                "fix",
+                self._change_flag,
                 self.context.file,
                 old_node,
                 len(old_value.value),
@@ -484,7 +479,7 @@ class NewAdapter:
 
         result_args = []
 
-        flag = "update" if old_value._eval() == new_value.original_value else "fix"
+        flag = self._change_flag
 
         old_node_args: Sequence[ast.expr | None] = old_node.args
 
@@ -533,10 +528,11 @@ class NewAdapter:
                 # delete entries
                 yield Delete(
                     (
-                        "update"
-                        if not missing
-                        and old_value.argument(kw_arg) == new_value.argument(kw_arg)
-                        else flag
+                        flag
+                        if missing
+                        else self._get_change_flag(
+                            old_value.argument(kw_arg), new_value.argument(kw_arg)
+                        )
                     ),
                     self.context.file,
                     kw_value,

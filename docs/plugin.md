@@ -113,6 +113,12 @@ when there is no corresponding snapshot value (for example `snapshot()`, a
 new list item, or a new dict key). Check `snapshot_value is ...` to detect
 those cases.
 
+For nested nodes you construct explicitly with `builder.create_*()`,
+inline-snapshot may not know the corresponding original runtime value.
+Changes to such nodes inherit their `fix` or `update` category from the nearest
+parent with a known original value. This also applies to matcher nodes: matching
+the old snapshot does not by itself make their replacement an `update`.
+
 
 ### Custom constructor methods
 One use case might be that you have a dataclass with a special constructor function that can be used for specific instances of this dataclass, and you want inline-snapshot to use this constructor when possible.

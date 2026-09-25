@@ -3,6 +3,7 @@
 import pytest
 from dirty_equals import AnyThing
 
+from inline_snapshot import Is
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
 
@@ -16,6 +17,39 @@ def hex_if_existing(value, builder, snapshot_value):
             return builder.create_code(hex(value))
         return builder.create_code(str(value))
 """
+
+
+@pytest.mark.parametrize(
+    "value, existing, child",
+    [
+        ("[[5]]", "[[0x5]]", "builder.create_list(value)"),
+        ("[(5,)]", "[(0x5,)]", "builder.create_tuple(value)"),
+        ("[{5: 5}]", "[{0x5: 0x5}]", "builder.create_dict(value)"),
+        ("[5]", "[int(0x5)]", "builder.create_call(int, [value])"),
+    ],
+)
+def test_snapshot_value_in_nested_builder(value, existing, child):
+    Example(
+        {
+            "conftest.py": HEX_IF_EXISTING
+            + f"""\
+
+@customize
+def nested_builder(value, builder):
+    if isinstance(value, list):
+        return builder.create_list([{child} for value in value])
+""",
+            "test_something.py": f"""\
+from inline_snapshot import snapshot
+
+def test_it():
+    assert {value} == snapshot({existing})
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=update"],
+        reported_categories=set(),
+    )
 
 
 def test_snapshot_value_in_list():
@@ -240,4 +274,148 @@ def test_it():
         ["--inline-snapshot=update"],
         changed_files=snapshot({}),
         reported_categories=AnyThing(),
+    )
+
+
+@pytest.mark.parametrize("old, flag", [(5, "fix"), (6, "update"), (None, "create")])
+@pytest.mark.parametrize(
+    "value, existing, result, node",
+    [
+        ("[6]", "[{old}]", "[IsInt()]", "matcher"),
+        ("[[6]]", "[[{old}]]", "[[IsInt()]]", "builder.create_list([matcher])"),
+        ("[(6,)]", "[({old},)]", "[(IsInt(),)]", "builder.create_tuple((matcher,))"),
+        (
+            "[{'x': 6}]",
+            '[{{"x": {old}}}]',
+            '[{"x": IsInt()}]',
+            "builder.create_dict({'x': matcher})",
+        ),
+        (
+            "[(6,)]",
+            "[tuple([{old}])]",
+            "[tuple([IsInt()])]",
+            "builder.create_call(tuple, [builder.create_list([matcher])])",
+        ),
+        (
+            "[{'x': 6}]",
+            "[dict(x={old})]",
+            "[dict(x=IsInt())]",
+            "builder.create_call(dict, [], {'x': matcher})",
+        ),
+        (
+            "[{6}]",
+            "[{{{old}}}]",
+            "[{0x6}]",
+            "builder.create_set({builder.create_code('0x6')})",
+        ),
+    ],
+)
+def test_explicit_matcher_inherits_category(old, flag, value, existing, result, node):
+    def code(expected):
+        return f"""\
+from inline_snapshot import snapshot
+from dirty_equals import IsInt
+
+def test_it():
+    assert {value} == snapshot({expected})
+"""
+
+    example = Example(
+        {
+            "conftest.py": f"""\
+from inline_snapshot.plugin import customize
+from dirty_equals import IsInt
+
+@customize
+def custom(value, builder):
+    if isinstance(value, list):
+        matcher = builder.create_call(IsInt, [])
+        return builder.create_list([{node}])
+""",
+            "test_something.py": code(
+                existing.format(old=old) if old is not None else ""
+            ),
+        }
+    )
+    example.run_inline(
+        [f"--inline-snapshot={flag}"],
+        changed_files=Is({"test_something.py": code(result)}),
+    ).run_inline(reported_categories=set())
+
+    other_flag = "update" if flag == "fix" else "fix"
+    example.run_inline(
+        [f"--inline-snapshot={other_flag}"],
+        reported_categories=Is({flag}),
+    )
+
+
+@pytest.mark.parametrize(
+    "flag, expected",
+    [
+        ("fix", "[[6], 9]"),
+        ("update", "[[IsInt()], 8]"),
+    ],
+)
+def test_explicit_matcher_uses_nearest_known_parent(flag, expected):
+    def code(value):
+        return f"""\
+from inline_snapshot import snapshot
+from dirty_equals import IsInt
+
+def test_it():
+    assert [[6], 9] == snapshot({value})
+"""
+
+    Example(
+        {
+            "conftest.py": """\
+from inline_snapshot.plugin import customize
+from dirty_equals import IsInt
+
+@customize
+def custom(value, builder):
+    if isinstance(value, list) and len(value) == 1:
+        return builder.create_list([builder.create_call(IsInt, [])])
+""",
+            "test_something.py": code("[[6], 8]"),
+        }
+    ).run_inline(
+        [f"--inline-snapshot={flag}"],
+        reported_categories={"fix", "update"},
+        changed_files=Is({"test_something.py": code(expected)}),
+    )
+
+
+def test_explicit_matcher_unknown_parent_inherits_fix():
+    Example(
+        {
+            "conftest.py": """\
+from inline_snapshot.plugin import customize
+from dirty_equals import IsInt
+
+@customize
+def custom(value, builder):
+    if isinstance(value, list):
+        return builder.create_list([
+            builder.create_list([builder.create_call(IsInt, [])]),
+            builder.create_code("9"),
+        ])
+""",
+            "test_something.py": """\
+from inline_snapshot import snapshot
+from dirty_equals import IsInt
+
+def test_it():
+    assert [[6], 9] == snapshot([[6], 8])
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files={"test_something.py": """\
+from inline_snapshot import snapshot
+from dirty_equals import IsInt
+
+def test_it():
+    assert [[6], 9] == snapshot([[IsInt()], 9])
+"""},
     )
