@@ -65,3 +65,19 @@ def test_something():
         changed_files=snapshot({}),
         raises=snapshot("<no exception>"),
     )
+
+
+@pytest.mark.parametrize("value", ["[1]", "(1,)", "{1}", "{'a': [1]}", "A(value=[1])"])
+def test_repeated_nested_dataclass(executing_used, value):
+    Example(f"""\
+from inline_snapshot import snapshot
+from dataclasses import dataclass
+
+@dataclass
+class A:
+    value: object
+
+def test_something():
+    for _ in range(2):
+        assert snapshot(A(value={value})) == A(value={value})
+""").run_inline(reported_categories=set())

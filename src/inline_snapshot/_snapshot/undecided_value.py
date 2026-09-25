@@ -15,6 +15,7 @@ from inline_snapshot._customize._custom_sequence import CustomSet
 from inline_snapshot._customize._custom_sequence import CustomTuple
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
+from inline_snapshot._customize._uncustomized import Uncustomized
 from inline_snapshot._new_adapter import warn_star_expression
 from inline_snapshot._unmanaged import is_unmanaged
 
@@ -94,6 +95,9 @@ class ValueToCustom:
         self.context = context
 
     def convert(self, value: Any):
+        if isinstance(value, Uncustomized):
+            value = value._value
+
         if is_unmanaged(value):
             return CustomUnmanaged(value)
 
