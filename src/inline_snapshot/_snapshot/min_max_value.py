@@ -4,7 +4,6 @@ from typing import List
 from typing import Optional
 
 from inline_snapshot._customize._custom_undefined import CustomUndefined
-from inline_snapshot._customize._uncustomized import Uncustomized
 from inline_snapshot._generator_utils import split_gen
 from inline_snapshot._new_adapter import NewAdapter
 
@@ -32,7 +31,7 @@ class MinMaxValue(GenericValue):
         ):
             result = split_gen(
                 NewAdapter(self._context).compare(
-                    self._old_value, self._ast_node, Uncustomized(other)
+                    self._old_value, self._ast_node, other
                 )
             )
             self._new_value = result.value

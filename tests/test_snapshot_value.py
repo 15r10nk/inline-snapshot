@@ -419,3 +419,46 @@ def test_it():
     assert [[6], 9] == snapshot([[IsInt()], 9])
 """},
     )
+
+
+def test_reused_builder_node_does_not_retain_original_value():
+    Example(
+        {
+            "conftest.py": """\
+from inline_snapshot.plugin import customize
+from dirty_equals import IsInt
+
+shared = None
+
+@customize
+def custom(value, builder):
+    global shared
+    if shared is None:
+        shared = builder.create_call(IsInt, [])
+    if isinstance(value, int):
+        return shared
+    if isinstance(value, list):
+        return builder.create_list([shared])
+""",
+            "test_something.py": """\
+from inline_snapshot import snapshot
+from dirty_equals import IsInt
+
+def test_it():
+    assert 6 == snapshot(IsInt())
+    assert [7] == snapshot([6])
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files={"test_something.py": """\
+from inline_snapshot import snapshot
+from dirty_equals import IsInt
+
+def test_it():
+    assert 6 == snapshot(IsInt())
+    assert [7] == snapshot([IsInt()])
+"""},
+    ).run_inline(
+        reported_categories=set()
+    )

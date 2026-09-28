@@ -3,6 +3,8 @@ from __future__ import annotations
 import ast
 import warnings
 from collections import defaultdict
+from dataclasses import dataclass
+from typing import Any
 from typing import Generator
 from typing import Sequence
 
@@ -148,12 +150,35 @@ def reeval_CustomDict(old_value, value):
     )
 
 
+@dataclass(frozen=True)
+class OriginalValue:
+    value: Any
+
+    @staticmethod
+    def from_input(value: Any) -> OriginalValue | None:
+        if isinstance(value, Uncustomized):
+            return OriginalValue(value._value)
+        if isinstance(value, Custom):
+            return None
+        return OriginalValue(value)
+
+
+@dataclass(frozen=True)
+class Comparison:
+    # None means an explicit builder node with no known original value.
+    # OriginalValue(None) represents the actual runtime value None.
+    original: OriginalValue | None = None
+    flag: str = "fix"
+
+
 class NewAdapter:
 
-    def __init__(self, context: AdapterContext, *, change_flag: str = "fix"):
+    def __init__(
+        self, context: AdapterContext, *, comparison: Comparison = Comparison()
+    ):
         assert context.expr.node is not None
         self.context = context
-        self._change_flag = change_flag
+        self._comparison = comparison
 
     def get_builder(self, **args):
         return Builder(_snapshot_context=self.context, **args)
@@ -164,28 +189,34 @@ class NewAdapter:
     def customize_all(self, value):
         return self.get_builder(_build_new_value=True)._customize_all(value)
 
-    def _get_change_flag(self, old_value: Custom, new_value: Custom) -> str:
+    def _get_change_flag(
+        self, old_value: Custom, original: OriginalValue | None
+    ) -> str:
         if isinstance(old_value, CustomUndefined):
             return "create"
-        if isinstance(new_value, Uncustomized):
-            original_value = new_value._value
-        elif hasattr(new_value, "original_value"):
-            original_value = new_value.original_value
-        else:
+        if original is None:
             # Explicit builder nodes inherit the category from the closest
             # ancestor with a known original runtime value. A matcher's value
             # cannot substitute for that original value.
-            return self._change_flag
-        return "update" if old_value._eval() == original_value else "fix"
+            return self._comparison.flag
+        return "update" if old_value._eval() == original.value else "fix"
 
     def compare(
-        self, old_value: Custom, old_node, new_value: Custom
+        self, old_value: Custom, old_node, new_value: Any
     ) -> Generator[ChangeBase, None, Custom]:
 
-        if isinstance(new_value, Uncustomized) or not isinstance(new_value, Custom):
-            new_value = self.customize(new_value, old_value)
+        original = OriginalValue.from_input(new_value)
+        if original is not None:
+            new_value = self.customize(original.value, old_value)
 
-        flag = self._get_change_flag(old_value, new_value)
+            # Pydantic generic classes can be represented by their origin.
+            # Match the same equivalence accepted by the builder's validation.
+            if hasattr(original.value, "__pydantic_generic_metadata__"):
+                evaluated = new_value._eval()
+                if original.value.__pydantic_generic_metadata__["origin"] == evaluated:
+                    original = OriginalValue(evaluated)
+
+        flag = self._get_change_flag(old_value, original)
         if isinstance(old_value, CustomUndefined):
             new_value = self.customize_all(new_value)
 
@@ -195,7 +226,7 @@ class NewAdapter:
         if isinstance(new_value, CustomUnmanaged):
             raise UsageError("unmanaged values cannot be compared with snapshots")
 
-        adapter = NewAdapter(self.context, change_flag=flag)
+        adapter = NewAdapter(self.context, comparison=Comparison(original, flag))
         if type(old_value) is type(new_value) and isinstance(
             old_node, new_value.node_type
         ):
@@ -244,11 +275,11 @@ class NewAdapter:
                 )
             return old_value
 
-        if self._change_flag == "update" or not hasattr(new_value, "original_value"):
+        if self._comparison.flag == "update" or self._comparison.original is None:
             if not self.context.file.code_changed(old_node, new_code):
                 return old_value
 
-        flag = self._change_flag
+        flag = self._comparison.flag
         for change in new_changes:
             change.flag = flag
             yield change
@@ -301,7 +332,7 @@ class NewAdapter:
             elif c == "d":
                 old_value_element, old_node_element = next(old)
                 yield Delete(
-                    self._change_flag,
+                    self._comparison.flag,
                     self.context.file,
                     old_node_element,
                 )
@@ -311,7 +342,11 @@ class NewAdapter:
 
         for position, code_values in to_insert.items():
             yield ListInsert(
-                self._change_flag, self.context.file, old_node, position, code_values
+                self._comparison.flag,
+                self.context.file,
+                old_node,
+                position,
+                code_values,
             )
 
         return type(new_value)(result)
@@ -342,7 +377,7 @@ class NewAdapter:
 
         # delete surplus old elements
         for old_node_elem in old_nodes[common:]:
-            yield Delete(self._change_flag, self.context.file, old_node_elem)
+            yield Delete(self._comparison.flag, self.context.file, old_node_elem)
 
         # insert extra new elements
         if len(new_elts) > common:
@@ -354,7 +389,7 @@ class NewAdapter:
                 result.append(new_elem)
 
             yield ListInsert(
-                self._change_flag,
+                self._comparison.flag,
                 self.context.file,
                 old_node,
                 common,
@@ -371,10 +406,7 @@ class NewAdapter:
         # A set's iteration order cannot be associated with the source order of
         # its AST elements. Compare it atomically instead of attempting
         # positional element updates.
-        if (
-            hasattr(new_value, "original_value")
-            and old_value._eval() == new_value.original_value
-        ):
+        if self._comparison.original is not None and self._comparison.flag == "update":
             return old_value
 
         # Sets are replaced atomically, so their elements do not pass through
@@ -409,7 +441,7 @@ class NewAdapter:
         for key2, (_, _, value_node) in old_entries.items():
             if key2 not in new_value.value:
                 # delete entries
-                yield Delete(self._change_flag, self.context.file, value_node)
+                yield Delete(self._comparison.flag, self.context.file, value_node)
 
         to_insert = []
         insert_pos = 0
@@ -436,7 +468,7 @@ class NewAdapter:
                         new_code.append((new_code_key, new_code_value))
 
                     yield DictInsert(
-                        self._change_flag,
+                        self._comparison.flag,
                         self.context.file,
                         old_node,
                         insert_pos,
@@ -459,7 +491,7 @@ class NewAdapter:
                 )
 
             yield DictInsert(
-                self._change_flag,
+                self._comparison.flag,
                 self.context.file,
                 old_node,
                 len(old_value.value),
@@ -479,7 +511,7 @@ class NewAdapter:
 
         result_args = []
 
-        flag = self._change_flag
+        flag = self._comparison.flag
 
         old_node_args: Sequence[ast.expr | None] = old_node.args
 
@@ -531,7 +563,8 @@ class NewAdapter:
                         flag
                         if missing
                         else self._get_change_flag(
-                            old_value.argument(kw_arg), new_value.argument(kw_arg)
+                            old_value.argument(kw_arg),
+                            OriginalValue.from_input(new_value.argument(kw_arg)),
                         )
                     ),
                     self.context.file,

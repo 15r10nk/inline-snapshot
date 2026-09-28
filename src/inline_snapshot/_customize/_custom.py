@@ -4,7 +4,6 @@ import ast
 from abc import ABC
 from abc import abstractmethod
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import Generator
 
 from inline_snapshot._adapter_context import AdapterContext
@@ -21,7 +20,6 @@ class Custom(ABC):
     """
 
     node_type: type[ast.AST] = ast.AST
-    original_value: Any
 
     def __hash__(self):
         return hash(self._eval())

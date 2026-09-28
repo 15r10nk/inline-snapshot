@@ -7,7 +7,6 @@ from typing import Union
 from inline_snapshot._customize._custom import Custom
 from inline_snapshot._customize._custom_sequence import CustomList
 from inline_snapshot._customize._custom_undefined import CustomUndefined
-from inline_snapshot._customize._uncustomized import Uncustomized
 from inline_snapshot._generator_utils import split_gen
 from inline_snapshot._new_adapter import NewAdapter
 
@@ -46,9 +45,7 @@ class CollectionValue(GenericValue):
             and self._context.expr.node is not None
         ):
             result = split_gen(
-                NewAdapter(self._context).compare(
-                    old_value, old_node, Uncustomized(item)
-                )
+                NewAdapter(self._context).compare(old_value, old_node, item)
             )
             self._element_changes.extend(result.list)
             return result.value

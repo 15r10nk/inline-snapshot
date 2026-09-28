@@ -42,8 +42,6 @@ class AstToCustom:
             t = type(node).__name__
             result = getattr(self, "convert_" + t, self.convert_generic)(value, node)
 
-        result.__dict__["original_value"] = value
-
         return result
 
     def eval_convert(self, node):

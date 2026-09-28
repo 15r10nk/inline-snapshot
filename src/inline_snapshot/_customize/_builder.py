@@ -43,10 +43,6 @@ class Builder:
             return value._eval()
         return value
 
-    def _set_original_value(self, value: Custom, original_value):
-        object.__setattr__(value, "original_value", original_value)
-        return value
-
     def _customize(self, v, snapshot_value: Custom) -> Custom:
         from inline_snapshot._global_state import state
 
@@ -82,7 +78,6 @@ class Builder:
             else:
                 result = r
 
-        stored_original_value = v
         if not isinstance(v, Custom) and self._build_new_value:
             is_same = False
             v_eval = result._eval()
@@ -93,7 +88,6 @@ class Builder:
                 and v.__pydantic_generic_metadata__["origin"] == v_eval
             ):
                 is_same = True
-                stored_original_value = v_eval
 
             if not is_same and v_eval == v:
                 is_same = True
@@ -108,7 +102,7 @@ customized_value={result._eval()!r}
 customized_representation={result!r}
 """)
 
-        return self._set_original_value(result, stored_original_value)
+        return result
 
     def _customize_all(self, value):
         if isinstance(value, Uncustomized):
@@ -116,40 +110,23 @@ customized_representation={result!r}
         elif not isinstance(value, Custom):
             value = self._customize(value, CustomUndefined())
 
-        def with_original(new_value: Custom, old_value: Custom) -> Custom:
-            if hasattr(old_value, "original_value"):
-                self._set_original_value(new_value, old_value.original_value)
-            return new_value
-
         if isinstance(value, CustomSequence):
-            return with_original(
-                type(value)([self._customize_all(child) for child in value.value]),
-                value,
-            )
+            return type(value)([self._customize_all(child) for child in value.value])
         elif isinstance(value, CustomDict):
-            return with_original(
-                CustomDict(
-                    {
-                        self._customize_all(k): self._customize_all(v)
-                        for k, v in value.value.items()
-                    }
-                ),
-                value,
+            return CustomDict(
+                {
+                    self._customize_all(k): self._customize_all(v)
+                    for k, v in value.value.items()
+                }
             )
         elif isinstance(value, CustomCall):
-            return with_original(
-                CustomCall(
-                    function=self._customize_all(value.function),
-                    args=[self._customize_all(c) for c in value.args],
-                    kwargs={k: self._customize_all(v) for k, v in value.kwargs.items()},
-                ),
-                value,
+            return CustomCall(
+                function=self._customize_all(value.function),
+                args=[self._customize_all(c) for c in value.args],
+                kwargs={k: self._customize_all(v) for k, v in value.kwargs.items()},
             )
         elif isinstance(value, CustomDefault):
-            return with_original(
-                CustomDefault(self._customize_all(value.value)),
-                value,
-            )
+            return CustomDefault(self._customize_all(value.value))
 
         return value
 
