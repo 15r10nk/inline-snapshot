@@ -11,6 +11,7 @@ from inline_snapshot._code_repr import mock_repr
 from inline_snapshot._code_repr import value_code_repr
 from inline_snapshot._compare_context import compare_context
 from inline_snapshot._customize._custom_sequence import CustomSequence
+from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._customize._uncustomized import Uncustomized
 from inline_snapshot._exceptions import UsageError
 
@@ -46,11 +47,7 @@ class Builder:
     def _customize(self, v, snapshot_value: Custom) -> Custom:
         from inline_snapshot._global_state import state
 
-        if isinstance(v, Uncustomized):
-            v = v._value
-
-        if isinstance(v, Custom):
-            return v
+        assert not isinstance(v, Custom)
 
         result = v
 
@@ -78,7 +75,7 @@ class Builder:
             else:
                 result = r
 
-        if not isinstance(v, Custom) and self._build_new_value:
+        if self._build_new_value:
             is_same = False
             v_eval = result._eval()
             assert not isinstance(v_eval, Custom)
@@ -127,8 +124,12 @@ customized_representation={result!r}
             )
         elif isinstance(value, CustomDefault):
             return CustomDefault(self._customize_all(value.value))
-
-        return value
+        elif isinstance(
+            value, (CustomCode, CustomExternal, CustomUndefined, CustomUnmanaged)
+        ):
+            return value
+        else:
+            assert False, f"missing case for {value}"
 
     def create_external(
         self, value: Any, format: str | None = None, storage: str | None = None
