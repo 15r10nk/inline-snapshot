@@ -42,13 +42,13 @@ class CategoryChange(ChangeBase):
     flag: str
 
     def rich_diff(self):
-        return None
+        return None  # pragma: no cover
 
     def apply_external_changes(self):
-        pass
+        pass  # pragma: no cover
 
     def apply(self, recorder: ChangeRecorder):
-        pass
+        pass  # pragma: no cover
 
 
 @dataclass()
