@@ -80,6 +80,8 @@ class MinMaxValue(GenericValue):
             flag = "fix"
         elif not self.cmp(self._new_value._eval(), self._old_value._eval()):
             flag = "trim"
+        elif self._file.code_changed(self._ast_node, new_code):
+            flag = "update"
         else:
             return
 
