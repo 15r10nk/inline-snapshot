@@ -81,3 +81,34 @@ def test_something():
     for _ in range(2):
         assert snapshot(A(value={value})) == A(value={value})
 """).run_inline(reported_categories=set())
+
+
+@pytest.mark.parametrize("executing_used", [False], indirect=True)
+@pytest.mark.parametrize(
+    "call",
+    [
+        "builder.create_call(complex, [builder.create_code(repr(value.real)), value.imag])",
+        "builder.create_call(complex, [], {'real': builder.create_code(repr(value.real)), 'imag': value.imag})",
+        "builder.create_call(builder.create_code('complex'), [value.real, value.imag])",
+    ],
+)
+def test_explicit_builder_nodes_without_node(executing_used, call):
+    Example(
+        {
+            "conftest.py": f"""\
+from inline_snapshot.plugin import customize
+
+@customize
+def custom(value, builder):
+    if isinstance(value, complex):
+        return {call}
+""",
+            "test_example.py": """\
+from inline_snapshot import snapshot
+
+def test_it():
+    for _ in range(2):
+        assert snapshot(1 + 2j) == 1 + 2j
+""",
+        }
+    ).run_inline(reported_categories=set(), changed_files={})

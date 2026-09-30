@@ -102,6 +102,9 @@ class ValueToCustom:
         if isinstance(value, CustomDefault):
             return self.convert(value.value)
 
+        if isinstance(value, Custom):
+            return value
+
         t = type(value).__name__
         return getattr(self, "convert_" + t, self.convert_generic)(value)
 
