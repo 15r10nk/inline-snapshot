@@ -1814,22 +1814,22 @@ This is useful in cases where you already know that a value can only be stored e
 <!-- inline-snapshot: first_block outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">outsource</span><span class="p">,</span> <span class="n">register_format_alias</span><span class="p">,</span> <span class="n">snapshot</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">register_format_alias</span><span class="p">(</span><span class="s2">&quot;.png&quot;</span><span class="p">,</span> <span class="s2">&quot;.bin&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">register_format_alias</span><span class="p">(</span><span class="s2">".png"</span><span class="p">,</span> <span class="s2">".bin"</span><span class="p">)</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">check_captcha</span><span class="p">(</span><span class="n">input_data</span><span class="p">):</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="c1"># Perform operations on input_data ...</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">the_data</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;image data ...&quot;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">the_data</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">"image data ..."</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="k">return</span> <span class="p">{</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="s2">&quot;200x100&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="s2">&quot;difficulty&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        <span class="s2">&quot;picture&quot;</span><span class="p">:</span> <span class="n">outsource</span><span class="p">(</span><span class="n">the_data</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.png&quot;</span><span class="p">),</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="s2">"size"</span><span class="p">:</span> <span class="s2">"200x100"</span><span class="p">,</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="s2">"difficulty"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        <span class="s2">"picture"</span><span class="p">:</span> <span class="n">outsource</span><span class="p">(</span><span class="n">the_data</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">".png"</span><span class="p">),</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="p">}</span>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_captcha</span><span class="p">():</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="k">assert</span> <span class="n">check_captcha</span><span class="p">(</span><span class="s2">&quot;abc&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">()</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="k">assert</span> <span class="n">check_captcha</span><span class="p">(</span><span class="s2">"abc"</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">()</span>
 </code></pre></div>
 <p>inline-snapshot always generates an external object in this case.</p>
 <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
@@ -1837,27 +1837,27 @@ This is useful in cases where you already know that a value can only be stored e
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">external</span>
 </span><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="hll">
-</span><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">register_format_alias</span><span class="p">(</span><span class="s2">&quot;.png&quot;</span><span class="p">,</span> <span class="s2">&quot;.bin&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">register_format_alias</span><span class="p">(</span><span class="s2">".png"</span><span class="p">,</span> <span class="s2">".bin"</span><span class="p">)</span>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">check_captcha</span><span class="p">(</span><span class="n">input_data</span><span class="p">):</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="c1"># Perform operations on input_data ...</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">the_data</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;image data ...&quot;</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">the_data</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">"image data ..."</span>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="k">return</span> <span class="p">{</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="s2">&quot;200x100&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="s2">&quot;difficulty&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="s2">&quot;picture&quot;</span><span class="p">:</span> <span class="n">outsource</span><span class="p">(</span><span class="n">the_data</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.png&quot;</span><span class="p">),</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="s2">"size"</span><span class="p">:</span> <span class="s2">"200x100"</span><span class="p">,</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="s2">"difficulty"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="s2">"picture"</span><span class="p">:</span> <span class="n">outsource</span><span class="p">(</span><span class="n">the_data</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">".png"</span><span class="p">),</span>
 <a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="p">}</span>
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
 <a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
 <a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_captcha</span><span class="p">():</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="hll">    <span class="k">assert</span> <span class="n">check_captcha</span><span class="p">(</span><span class="s2">&quot;abc&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="hll">    <span class="k">assert</span> <span class="n">check_captcha</span><span class="p">(</span><span class="s2">"abc"</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
 </span><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="hll">        <span class="p">{</span>
-</span><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="hll">            <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="s2">&quot;200x100&quot;</span><span class="p">,</span>
-</span><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="hll">            <span class="s2">&quot;difficulty&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
-</span><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="hll">            <span class="s2">&quot;picture&quot;</span><span class="p">:</span> <span class="n">external</span><span class="p">(</span>
-</span><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="hll">                <span class="s2">&quot;uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.png&quot;</span>
+</span><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="hll">            <span class="s2">"size"</span><span class="p">:</span> <span class="s2">"200x100"</span><span class="p">,</span>
+</span><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="hll">            <span class="s2">"difficulty"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="hll">            <span class="s2">"picture"</span><span class="p">:</span> <span class="n">external</span><span class="p">(</span>
+</span><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="hll">                <span class="s2">"uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.png"</span>
 </span><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="hll">            <span class="p">),</span>
 </span><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="hll">        <span class="p">}</span>
 </span><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="hll">    <span class="p">)</span>

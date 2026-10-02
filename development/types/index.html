@@ -1939,7 +1939,7 @@
 
 
 <h2 id="inline_snapshot.Category" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">Category</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="s1">&#39;fix&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="s1">&#39;trim&#39;</span><span class="p">,</span> <span class="s1">&#39;fix-assert&#39;</span><span class="p">]</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">Category</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'update'</span><span class="p">,</span> <span class="s1">'fix'</span><span class="p">,</span> <span class="s1">'create'</span><span class="p">,</span> <span class="s1">'trim'</span><span class="p">,</span> <span class="s1">'fix-assert'</span><span class="p">]</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -1990,7 +1990,7 @@ values.</p>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_numbers</span><span class="p">():</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="s2">&quot;hello world&quot;</span><span class="p">:</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="s2">"hello world"</span><span class="p">:</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        <span class="n">check_in_bounds</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">32</span><span class="p">),</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">119</span><span class="p">))</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="c1"># use with normal values</span>
@@ -2014,7 +2014,7 @@ values.</p>
 <a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>
 <a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>
 <a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_container</span><span class="p">():</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>    <span class="n">check_container</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">value_repr</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="s2">&quot;[1, 2]&quot;</span><span class="p">),</span> <span class="n">length</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>    <span class="n">check_container</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">value_repr</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="s2">"[1, 2]"</span><span class="p">),</span> <span class="n">length</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 <a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>
 <a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>    <span class="n">check_container</span><span class="p">({</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">},</span> <span class="n">length</span><span class="o">=</span><span class="n">snapshot</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 </code></pre></div>
@@ -2081,7 +2081,7 @@ values.</p>
 <span class="normal"><a href="#__codelineno-0-82">82</a></span>
 <span class="normal"><a href="#__codelineno-0-83">83</a></span>
 <span class="normal"><a href="#__codelineno-0-84">84</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="k">class</span><span class="w"> </span><span class="nc">Snapshot</span><span class="p">(</span><span class="n">Protocol</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Can be used to annotate function arguments which accept snapshot</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="w">    </span><span class="sd">"""Can be used to annotate function arguments which accept snapshot</span>
 <a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="sd">    values.</span>
 <a id="__codelineno-0-35" name="__codelineno-0-35"></a>
 <a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="sd">    You can annotate function arguments with `Snapshot[T]` to declare that a snapshot-value can be passed as function argument.</span>
@@ -2102,7 +2102,7 @@ values.</p>
 <a id="__codelineno-0-51" name="__codelineno-0-51"></a>
 <a id="__codelineno-0-52" name="__codelineno-0-52"></a>
 <a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">    def test_numbers():</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">        for c in &quot;hello world&quot;:</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">        for c in "hello world":</span>
 <a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="sd">            check_in_bounds(ord(c), snapshot(32), snapshot(119))</span>
 <a id="__codelineno-0-56" name="__codelineno-0-56"></a>
 <a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">        # use with normal values</span>
@@ -2126,11 +2126,11 @@ values.</p>
 <a id="__codelineno-0-75" name="__codelineno-0-75"></a>
 <a id="__codelineno-0-76" name="__codelineno-0-76"></a>
 <a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">    def test_container():</span>
-<a id="__codelineno-0-78" name="__codelineno-0-78"></a><span class="sd">        check_container([1, 2], value_repr=snapshot(&quot;[1, 2]&quot;), length=snapshot(2))</span>
+<a id="__codelineno-0-78" name="__codelineno-0-78"></a><span class="sd">        check_container([1, 2], value_repr=snapshot("[1, 2]"), length=snapshot(2))</span>
 <a id="__codelineno-0-79" name="__codelineno-0-79"></a>
 <a id="__codelineno-0-80" name="__codelineno-0-80"></a><span class="sd">        check_container({1, 1}, length=snapshot(1))</span>
 <a id="__codelineno-0-81" name="__codelineno-0-81"></a><span class="sd">    ```</span>
-<a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="sd">    """</span>
 <a id="__codelineno-0-83" name="__codelineno-0-83"></a>
 <a id="__codelineno-0-84" name="__codelineno-0-84"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span> <span class="o">...</span>  <span class="c1"># pragma: no cover</span>
 </code></pre></div></td></tr></table></div>

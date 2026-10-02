@@ -2201,7 +2201,7 @@ Maybe the failure points to a bug that you should fix, or maybe the code is corr
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_loop</span><span class="p">():</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Mia&quot;</span><span class="p">,</span> <span class="s2">&quot;Eva&quot;</span><span class="p">,</span> <span class="s2">&quot;Leo&quot;</span><span class="p">]:</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"Mia"</span><span class="p">,</span> <span class="s2">"Eva"</span><span class="p">,</span> <span class="s2">"Leo"</span><span class="p">]:</span>
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 </code></pre></div></p>
 </div>
@@ -2216,9 +2216,9 @@ Maybe the failure points to a bug that you should fix, or maybe the code is corr
 <a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
 <a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
 <a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_string_len</span><span class="p">():</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="n">check_string_len</span><span class="p">(</span><span class="s2">&quot;abc&quot;</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="n">check_string_len</span><span class="p">(</span><span class="s2">&quot;1234&quot;</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="n">check_string_len</span><span class="p">(</span><span class="s2">&quot;.......&quot;</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">7</span><span class="p">))</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="n">check_string_len</span><span class="p">(</span><span class="s2">"abc"</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="n">check_string_len</span><span class="p">(</span><span class="s2">"1234"</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="n">check_string_len</span><span class="p">(</span><span class="s2">"......."</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">7</span><span class="p">))</span>
 </code></pre></div></p>
 <p>You can also use <a href="snapshot_arg/"><code>snapshot_arg()</code></a> to convert function arguments into snapshots.</p>
 <p><!-- inline-snapshot: create fix first_block outcome-passed=1 -->
@@ -2230,9 +2230,9 @@ Maybe the failure points to a bug that you should fix, or maybe the code is corr
 <a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
 <a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
 <a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_string_len</span><span class="p">():</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="n">check_string_len</span><span class="p">(</span><span class="s2">&quot;abc&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="n">check_string_len</span><span class="p">(</span><span class="s2">&quot;1234&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="n">check_string_len</span><span class="p">(</span><span class="s2">&quot;.......&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="n">check_string_len</span><span class="p">(</span><span class="s2">"abc"</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="n">check_string_len</span><span class="p">(</span><span class="s2">"1234"</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="n">check_string_len</span><span class="p">(</span><span class="s2">"......."</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
 </code></pre></div></p>
 </div>
 <div class="tabbed-block">
@@ -2243,10 +2243,10 @@ Maybe the failure points to a bug that you should fix, or maybe the code is corr
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="s2">&quot;name,length&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="s2">"name,length"</span><span class="p">,</span>
 <a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="p">[</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        <span class="p">(</span><span class="s2">&quot;Mia&quot;</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">3</span><span class="p">)),</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        <span class="p">(</span><span class="s2">&quot;Noah&quot;</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">4</span><span class="p">)),</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        <span class="p">(</span><span class="s2">"Mia"</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">3</span><span class="p">)),</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        <span class="p">(</span><span class="s2">"Noah"</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">(</span><span class="mi">4</span><span class="p">)),</span>
 <a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="p">],</span>
 <a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="p">)</span>
 <a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_name_length</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
@@ -2263,12 +2263,12 @@ Maybe the failure points to a bug that you should fix, or maybe the code is corr
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
 <a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
 <a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">user_response</span><span class="p">():</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;usr_123&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Mia&quot;</span><span class="p">}</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="s2">"usr_123"</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Mia"</span><span class="p">}</span>
 <a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
 <a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
 <a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_user_response</span><span class="p">():</span>
 <a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    <span class="k">assert</span> <span class="n">user_response</span><span class="p">()</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">IsStr</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;usr_\d+&quot;</span><span class="p">),</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Mia&quot;</span><span class="p">}</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>        <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">IsStr</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="sa">r</span><span class="s2">"usr_\d+"</span><span class="p">),</span> <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Mia"</span><span class="p">}</span>
 <a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    <span class="p">)</span>
 </code></pre></div>
 <p>Here, inline-snapshot can update the <code>"name"</code> field later without replacing the <code>IsStr(...)</code> matcher for <code>"id"</code>.</p>
@@ -2285,7 +2285,7 @@ Maybe the failure points to a bug that you should fix, or maybe the code is corr
 <a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
 <a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    <span class="nd">@staticmethod</span>
 <a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">euro</span><span class="p">(</span><span class="n">amount</span><span class="p">):</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>        <span class="k">return</span> <span class="n">Money</span><span class="p">(</span><span class="n">amount</span><span class="p">,</span> <span class="s2">&quot;EUR&quot;</span><span class="p">)</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>        <span class="k">return</span> <span class="n">Money</span><span class="p">(</span><span class="n">amount</span><span class="p">,</span> <span class="s2">"EUR"</span><span class="p">)</span>
 </code></pre></div>
 <!-- inline-snapshot-lib-set: conftest.py -->
 <div class="highlight"><span class="filename">conftest.py</span><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">Builder</span>
@@ -2295,7 +2295,7 @@ Maybe the failure points to a bug that you should fix, or maybe the code is corr
 <a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
 <a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="nd">@customize</span>
 <a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">money_handler</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">builder</span><span class="p">:</span> <span class="n">Builder</span><span class="p">):</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Money</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">currency</span> <span class="o">==</span> <span class="s2">&quot;EUR&quot;</span><span class="p">:</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Money</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">currency</span> <span class="o">==</span> <span class="s2">"EUR"</span><span class="p">:</span>
 <a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>        <span class="k">return</span> <span class="n">builder</span><span class="o">.</span><span class="n">create_call</span><span class="p">(</span><span class="n">Money</span><span class="o">.</span><span class="n">euro</span><span class="p">,</span> <span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">amount</span><span class="p">])</span>
 </code></pre></div>
 <p>inline-snapshot will then use <code>Money.euro</code> to create the Money type if it has to.
@@ -2306,7 +2306,7 @@ It will also generate the missing imports if needed.</p>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
 <a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
 <a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_total</span><span class="p">():</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="k">assert</span> <span class="n">Money</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;EUR&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="n">Money</span><span class="o">.</span><span class="n">euro</span><span class="p">(</span><span class="mi">12</span><span class="p">))</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="k">assert</span> <span class="n">Money</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="s2">"EUR"</span><span class="p">)</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span><span class="n">Money</span><span class="o">.</span><span class="n">euro</span><span class="p">(</span><span class="mi">12</span><span class="p">))</span>
 </code></pre></div>
 <h2 id="insiders"><img alt="❤" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2764.svg" title=":heart:" /> Insiders<a class="headerlink" href="#insiders" title="Permanent link">&para;</a></h2>
 <p>inline-snapshot also has an <a href="insiders/">insiders</a> version for sponsors.

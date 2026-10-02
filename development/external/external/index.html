@@ -2017,17 +2017,17 @@ It stores a reference to the external data in a special <code>external()</code> 
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="c1"># inline-snapshot can determine the correct file types</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">assert</span> <span class="s2">&quot;string&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">()</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">assert</span> <span class="sa">b</span><span class="s2">&quot;bytes&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">()</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">assert</span> <span class="s2">"string"</span> <span class="o">==</span> <span class="n">external</span><span class="p">()</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">assert</span> <span class="sa">b</span><span class="s2">"bytes"</span> <span class="o">==</span> <span class="n">external</span><span class="p">()</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="c1"># Data structures with lists and dictionaries are stored as JSON</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="k">assert</span> <span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="s2">&quot;like&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">external</span><span class="p">()</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="k">assert</span> <span class="p">[</span><span class="s2">"json"</span><span class="p">,</span> <span class="s2">"like"</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">]</span> <span class="o">==</span> <span class="n">external</span><span class="p">()</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="c1"># You can also explicitly specify the storage protocol</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="k">assert</span> <span class="s2">&quot;other text&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="k">assert</span> <span class="s2">"other text"</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">"uuid:"</span><span class="p">)</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="c1"># And the format (.json instead of the default .txt in this case)</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="k">assert</span> <span class="s2">&quot;other text&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:.json&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="k">assert</span> <span class="s2">"other text"</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">"uuid:.json"</span><span class="p">)</span>
 </code></pre></div>
 <p>inline-snapshot will then fill in the missing parts when you create your snapshots. It will keep your specified protocols and file types and generate names for your snapshots.</p>
 <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
@@ -2036,22 +2036,22 @@ It stores a reference to the external data in a special <code>external()</code> 
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="c1"># inline-snapshot can determine the correct file types</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="hll">    <span class="k">assert</span> <span class="s2">&quot;string&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt&quot;</span><span class="p">)</span>
-</span><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="hll">    <span class="k">assert</span> <span class="sa">b</span><span class="s2">&quot;bytes&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.bin&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="hll">    <span class="k">assert</span> <span class="s2">"string"</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">"uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt"</span><span class="p">)</span>
+</span><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="hll">    <span class="k">assert</span> <span class="sa">b</span><span class="s2">"bytes"</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">"uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.bin"</span><span class="p">)</span>
 </span><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="c1"># Data structures with lists and dictionaries are stored as JSON</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="hll">    <span class="k">assert</span> <span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="s2">&quot;like&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span>
-</span><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="hll">        <span class="s2">&quot;uuid:eb1167b3-67a9-4378-bc65-c1e582e2e662.json&quot;</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="hll">    <span class="k">assert</span> <span class="p">[</span><span class="s2">"json"</span><span class="p">,</span> <span class="s2">"like"</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">]</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span>
+</span><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="hll">        <span class="s2">"uuid:eb1167b3-67a9-4378-bc65-c1e582e2e662.json"</span>
 </span><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="hll">    <span class="p">)</span>
 </span><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
 <a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="c1"># You can also explicitly specify the storage protocol</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="hll">    <span class="k">assert</span> <span class="s2">&quot;other text&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span>
-</span><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="hll">        <span class="s2">&quot;uuid:f7c1bd87-4da5-4709-9471-3d60c8a70639.txt&quot;</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="hll">    <span class="k">assert</span> <span class="s2">"other text"</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span>
+</span><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="hll">        <span class="s2">"uuid:f7c1bd87-4da5-4709-9471-3d60c8a70639.txt"</span>
 </span><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="hll">    <span class="p">)</span>
 </span><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
 <a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="c1"># And the format (.json instead of the default .txt in this case)</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="hll">    <span class="k">assert</span> <span class="s2">&quot;other text&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span>
-</span><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="hll">        <span class="s2">&quot;uuid:e443df78-9558-467f-9ba9-1faf7a024204.json&quot;</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="hll">    <span class="k">assert</span> <span class="s2">"other text"</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span>
+</span><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="hll">        <span class="s2">"uuid:e443df78-9558-467f-9ba9-1faf7a024204.json"</span>
 </span><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="hll">    <span class="p">)</span>
 </span></code></pre></div>
 <p>The <code>external()</code> function can also be used inside other data structures.</p>
@@ -2060,7 +2060,7 @@ It stores a reference to the external data in a special <code>external()</code> 
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">assert</span> <span class="p">[</span><span class="s2">&quot;long text</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="n">times</span> <span class="k">for</span> <span class="n">times</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1000</span><span class="p">]]</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">assert</span> <span class="p">[</span><span class="s2">"long text</span><span class="se">\n</span><span class="s2">"</span> <span class="o">*</span> <span class="n">times</span> <span class="k">for</span> <span class="n">times</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1000</span><span class="p">]]</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">external</span><span class="p">()]</span>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="p">)</span>
 </code></pre></div>
@@ -2069,14 +2069,14 @@ It stores a reference to the external data in a special <code>external()</code> 
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_something</span><span class="p">():</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="k">assert</span> <span class="p">[</span><span class="s2">&quot;long text</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="n">times</span> <span class="k">for</span> <span class="n">times</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1000</span><span class="p">]]</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="k">assert</span> <span class="p">[</span><span class="s2">"long text</span><span class="se">\n</span><span class="s2">"</span> <span class="o">*</span> <span class="n">times</span> <span class="k">for</span> <span class="n">times</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1000</span><span class="p">]]</span> <span class="o">==</span> <span class="n">snapshot</span><span class="p">(</span>
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="hll">        <span class="p">[</span>
-</span><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="hll">            <span class="s2">&quot;long text</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
-</span><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="hll"><span class="w">            </span><span class="sd">&quot;&quot;&quot;\</span>
+</span><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="hll">            <span class="s2">"long text</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+</span><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="hll"><span class="w">            </span><span class="sd">"""\</span>
 </span><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="hll"><span class="sd">long text</span>
 </span><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="hll"><span class="sd">long text</span>
-</span><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="hll"><span class="sd">&quot;&quot;&quot;</span><span class="p">,</span>
-</span><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="hll">            <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt&quot;</span><span class="p">),</span>
+</span><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="hll"><span class="sd">"""</span><span class="p">,</span>
+</span><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="hll">            <span class="n">external</span><span class="p">(</span><span class="s2">"uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt"</span><span class="p">),</span>
 </span><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="hll">        <span class="p">]</span>
 </span><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="p">)</span>
 </code></pre></div>
@@ -2096,26 +2096,26 @@ It stores a reference to the external data in a special <code>external()</code> 
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_a</span><span class="p">():</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">assert</span> <span class="s2">&quot;test&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">assert</span> <span class="s2">"test"</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">"uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt"</span><span class="p">)</span>
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_b</span><span class="p">():</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="k">assert</span> <span class="s2">&quot;test&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="k">assert</span> <span class="s2">"test"</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">"uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt"</span><span class="p">)</span>
 </code></pre></div></p>
-<p>This can happen when you copy tests and change them for another use case. inline-snapshot notifies you in this case, and you should change one external back to <code class="highlight"><span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:&quot;</span><span class="p">)</span></code> and create new external snapshots.</p>
+<p>This can happen when you copy tests and change them for another use case. inline-snapshot notifies you in this case, and you should change one external back to <code class="highlight"><span class="n">external</span><span class="p">(</span><span class="s2">"uuid:"</span><span class="p">)</span></code> and create new external snapshots.</p>
 <p>The correct way to use the same external in different tests is to assign the external to a variable and reuse this variable.</p>
 <p><!-- inline-snapshot: create first_block outcome-failed=2 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">external</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">expected</span> <span class="o">=</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">expected</span> <span class="o">=</span> <span class="n">external</span><span class="p">(</span><span class="s2">"uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt"</span><span class="p">)</span>
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
 <a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
 <a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_a</span><span class="p">():</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="k">assert</span> <span class="s2">&quot;test&quot;</span> <span class="o">==</span> <span class="n">expected</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="k">assert</span> <span class="s2">"test"</span> <span class="o">==</span> <span class="n">expected</span>
 <a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
 <a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
 <a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_b</span><span class="p">():</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="k">assert</span> <span class="s2">&quot;test&quot;</span> <span class="o">==</span> <span class="n">expected</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="k">assert</span> <span class="s2">"test"</span> <span class="o">==</span> <span class="n">expected</span>
 </code></pre></div>
 <!-- inline-snapshot: create first_block outcome-failed=1 --></p>
 </div>
@@ -2174,22 +2174,22 @@ You must specify the suffix in this case.</p>
 <!-- inline-snapshot: first_block outcome-failed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">external</span><span class="p">,</span> <span class="n">register_format_alias</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">register_format_alias</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">register_format_alias</span><span class="p">(</span><span class="s2">".html"</span><span class="p">,</span> <span class="s2">".txt"</span><span class="p">)</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
 <a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test</span><span class="p">():</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="k">assert</span> <span class="s2">&quot;&lt;html&gt;&lt;/html&gt;&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="k">assert</span> <span class="s2">"&lt;html&gt;&lt;/html&gt;"</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span><span class="s2">".html"</span><span class="p">)</span>
 </code></pre></div>
 <p>inline-snapshot uses the given suffix to create an external snapshot.</p>
 <!-- inline-snapshot: create outcome-passed=1 outcome-errors=1 -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">inline_snapshot</span><span class="w"> </span><span class="kn">import</span> <span class="n">external</span><span class="p">,</span> <span class="n">register_format_alias</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">register_format_alias</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">)</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">register_format_alias</span><span class="p">(</span><span class="s2">".html"</span><span class="p">,</span> <span class="s2">".txt"</span><span class="p">)</span>
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
 <a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test</span><span class="p">():</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="hll">    <span class="k">assert</span> <span class="s2">&quot;&lt;html&gt;&lt;/html&gt;&quot;</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span>
-</span><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="hll">        <span class="s2">&quot;uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.html&quot;</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="hll">    <span class="k">assert</span> <span class="s2">"&lt;html&gt;&lt;/html&gt;"</span> <span class="o">==</span> <span class="n">external</span><span class="p">(</span>
+</span><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="hll">        <span class="s2">"uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.html"</span>
 </span><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="hll">    <span class="p">)</span>
 </span></code></pre></div>
 <div class="admonition important">
