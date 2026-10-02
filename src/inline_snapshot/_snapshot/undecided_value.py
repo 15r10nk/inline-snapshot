@@ -3,7 +3,6 @@ from pathlib import PurePath
 from typing import Any
 from typing import Iterator
 
-from inline_snapshot._code_repr import mock_repr
 from inline_snapshot._compare_context import compare_only
 from inline_snapshot._customize._builder import Builder
 from inline_snapshot._customize._custom import Custom
@@ -16,6 +15,7 @@ from inline_snapshot._customize._custom_sequence import CustomSet
 from inline_snapshot._customize._custom_sequence import CustomTuple
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
+from inline_snapshot._customize._uncustomized import Uncustomized
 from inline_snapshot._new_adapter import warn_star_expression
 from inline_snapshot._unmanaged import is_unmanaged
 
@@ -33,13 +33,16 @@ class AstToCustom:
 
     def convert(self, value: Any, node: ast.expr):
         if is_unmanaged(value):
-            return CustomUnmanaged(value)
+            result = CustomUnmanaged(value)
 
-        if warn_star_expression(node, self.context):
-            return self.convert_generic(value, node)
+        elif warn_star_expression(node, self.context):
+            result = self.convert_generic(value, node)
 
-        t = type(node).__name__
-        return getattr(self, "convert_" + t, self.convert_generic)(value, node)
+        else:
+            t = type(node).__name__
+            result = getattr(self, "convert_" + t, self.convert_generic)(value, node)
+
+        return result
 
     def eval_convert(self, node):
         return self.convert(self.eval(node), node)
@@ -58,7 +61,6 @@ class AstToCustom:
         )
 
     def convert_List(self, value: list, node: ast.List):
-
         return CustomList([self.convert(v, n) for v, n in zip(value, node.elts)])
 
     def convert_Tuple(self, value: tuple, node: ast.Tuple):
@@ -91,11 +93,17 @@ class ValueToCustom:
         self.context = context
 
     def convert(self, value: Any):
+        if isinstance(value, Uncustomized):
+            value = value._value
+
         if is_unmanaged(value):
             return CustomUnmanaged(value)
 
         if isinstance(value, CustomDefault):
             return self.convert(value.value)
+
+        if isinstance(value, Custom):
+            return value
 
         t = type(value).__name__
         return getattr(self, "convert_" + t, self.convert_generic)(value)
@@ -104,10 +112,15 @@ class ValueToCustom:
         if value is ...:
             return CustomUndefined()
         else:
-            with mock_repr(self.context):
-                result = Builder(self.context, _recursive=False)._get_handler(value)
+            result = Builder(self.context)._customize(value, CustomUndefined())
+            function_value = (
+                result.function._eval()
+                if isinstance(result, CustomCall)
+                and isinstance(result.function, Custom)
+                else None
+            )
             if isinstance(result, CustomCall) and (
-                result.function == type(value) or isinstance(value, PurePath)
+                function_value == type(value) or isinstance(value, PurePath)
             ):
                 function = self.convert(result.function)
                 posonly_args = [self.convert(arg) for arg in result.args]
@@ -157,6 +170,7 @@ class UndecidedValue(GenericValue):
         return
 
     def __eq__(self, other):
+
         if compare_only():
             return False
 

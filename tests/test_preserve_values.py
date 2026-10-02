@@ -82,6 +82,7 @@ def test_fix_dict_with_non_literal_keys():
     check_update(
         """assert {1+2:"3"}==snapshot({1+2:"5"})""",
         flags="fix",
+        reported_flags={"fix", "update"},
         expected_code='assert {1+2:"3"}==snapshot({1+2:"3"})',
     )
 

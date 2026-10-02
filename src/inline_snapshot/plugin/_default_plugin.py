@@ -11,6 +11,7 @@ from enum import Flag
 from pathlib import Path
 from pathlib import PurePath
 from types import BuiltinFunctionType
+from types import CodeType
 from types import FunctionType
 from typing import Any
 from typing import Dict
@@ -63,6 +64,12 @@ class InlineSnapshotPlugin:
         self, value, builder: Builder, local_vars: Dict[str, Any]
     ):
         if isinstance(value, (FunctionType, type)):
+            if value is CodeType:
+                # delete when customize_repr is removed
+                return builder.create_code(
+                    "CodeType", imports=[ImportFrom("types", "CodeType")]
+                )
+
             for name, local_value in local_vars.items():
                 if local_value is value:
                     return builder.create_code(name)

@@ -38,6 +38,20 @@ class ChangeBase:
 
 
 @dataclass()
+class CategoryChange(ChangeBase):
+    flag: str
+
+    def rich_diff(self):
+        return None  # pragma: no cover
+
+    def apply_external_changes(self):
+        pass  # pragma: no cover
+
+    def apply(self, recorder: ChangeRecorder):
+        pass  # pragma: no cover
+
+
+@dataclass()
 class ExternalChange(ChangeBase):
     flag: str
 

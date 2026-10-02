@@ -181,7 +181,11 @@ def change_file(path: Path, map_function):
 @contextmanager
 def temp_environ(**kwargs):
     original = dict(os.environ)
-    os.environ.update(kwargs)
+    for key, value in kwargs.items():
+        if value is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = value
     try:
         yield
     finally:
@@ -452,7 +456,9 @@ uuid.uuid4 = f
             with ExitStack() as stack:
                 stack.enter_context(deterministic_uuid(self.seed))
                 stack.enter_context(chdir(tmp_path))
-                stack.enter_context(temp_environ(TERM="unknown"))
+                stack.enter_context(
+                    temp_environ(TERM="unknown", INLINE_SNAPSHOT_DEFAULT_FLAGS=None)
+                )
 
                 session = SnapshotSession()
 

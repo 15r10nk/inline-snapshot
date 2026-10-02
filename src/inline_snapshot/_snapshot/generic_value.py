@@ -62,7 +62,7 @@ class GenericValue(SnapshotBase):
 
     def to_custom(self, value, **args):
         with mock_repr(self._context):
-            return self.get_builder(**args)._get_handler(value)
+            return self.get_builder(**args)._customize_all(value)
 
     def value_to_custom(self, value):
         if isinstance(value, Custom):

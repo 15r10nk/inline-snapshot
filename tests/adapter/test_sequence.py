@@ -27,6 +27,27 @@ def test_list():
     )
 
 
+def test_list_alignment_preserves_undecided_snapshot():
+    # The leading mismatch leaves s undecided until alignment compares items.
+    Example("""\
+from inline_snapshot import snapshot
+
+def test_list():
+    s = snapshot(2)
+    assert [1, 2, 3] == snapshot([5, s, 8])
+""").run_inline(
+        ["--inline-snapshot=fix"],
+        reported_categories={"fix"},
+        changed_files=snapshot({"tests/test_something.py": """\
+from inline_snapshot import snapshot
+
+def test_list():
+    s = snapshot(2)
+    assert [1, 2, 3] == snapshot([1, s, 3])
+"""}),
+    ).run_inline(reported_categories=set(), changed_files={})
+
+
 def test_list_adapter_fix_inner_snapshot():
 
     Example("""\
