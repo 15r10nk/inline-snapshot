@@ -1,4 +1,13 @@
 
+<a id='changelog-0.36.0'></a>
+# 0.36.0 — 2026-10-02
+
+## Added
+
+- The `customize` hook now receives a `snapshot_value` argument with the
+  corresponding existing snapshot value, or `...` when there is no
+  corresponding snapshot.
+
 <a id='changelog-0.35.4'></a>
 # 0.35.4 — 2026-08-11
 
