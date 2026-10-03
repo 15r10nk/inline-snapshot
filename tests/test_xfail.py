@@ -17,7 +17,6 @@ def test_value(expected):
 """).run_pytest(
         ["--inline-snapshot=update"],
         report=snapshot(""),
-        changed_files={},
         outcomes={"xpassed": 1},
     )
 
@@ -62,7 +61,6 @@ def test_bounds(lower, upper):
     ).run_pytest(
         ["--inline-snapshot=short-report"],
         report=snapshot(""),
-        changed_files={},
         outcomes={"xpassed": 1},
     )
 
