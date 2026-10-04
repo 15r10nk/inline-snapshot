@@ -107,12 +107,20 @@ def test_a():
 
 
 def test_update():
-    Example("""\
+    Example(
+        {
+            "pyproject.toml": """\
+[tool.inline-snapshot]
+show-updates=true
+""",
+            "tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "5" == snapshot('''5''')
-""").run_pytest(
+""",
+        }
+    ).run_pytest(
         ["--inline-snapshot=short-report"],
         outcomes=snapshot({"passed": 1}),
         report=(snapshot("""\
@@ -405,14 +413,22 @@ def test_selected():
 
 
 def test_multiple():
-    Example("""\
+    Example(
+        {
+            "pyproject.toml": """\
+[tool.inline-snapshot]
+show-updates=true
+""",
+            "tests/test_something.py": """\
 from inline_snapshot import snapshot
 
 def test_a():
     assert "5" == snapshot('''5''')
     assert 5 <= snapshot(8)
     assert 5 == snapshot(4)
-""").run_pytest(
+""",
+        }
+    ).run_pytest(
         ["--inline-snapshot=short-report"],
         outcomes=snapshot({"failed": 1, "errors": 1}),
         report=(
