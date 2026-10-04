@@ -156,11 +156,12 @@ def short_report(snapshot_changes, console):
         "Error: {num} snapshots are missing values ([b]--inline-snapshot=create[/])",
     )
 
-    report(
-        "update",
-        "Info: one snapshot changed its representation ([b]--inline-snapshot=update[/])",
-        "Info: {num} snapshots changed their representation ([b]--inline-snapshot=update[/])",
-    )
+    if state().config.show_updates:
+        report(
+            "update",
+            "Info: one snapshot changed its representation ([b]--inline-snapshot=update[/])",
+            "Info: {num} snapshots changed their representation ([b]--inline-snapshot=update[/])",
+        )
 
     if sum(snapshot_changes.values()) != 0:
         console().print(
