@@ -1,5 +1,48 @@
+import pytest
+
+from inline_snapshot import Is
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
+
+
+@pytest.mark.parametrize(
+    "assertion, fixed_assertion",
+    [
+        ("expected == 2", "expected == 2"),
+        (
+            "[1, 2, 3] == snapshot([5, expected, 8])",
+            "[1, 2, 3] == snapshot([1, expected, 3])",
+        ),
+    ],
+)
+def test_xfail_matching_snapshot_does_not_prevent_later_fix(assertion, fixed_assertion):
+    code = f"""\
+import pytest
+from inline_snapshot import snapshot
+
+@pytest.fixture(scope="module")
+def expected():
+    return snapshot(1)
+
+@pytest.mark.xfail(strict=False)
+def test_first(expected):
+    assert expected == 1
+
+def test_second(expected):
+    assert {assertion}
+"""
+    Example(code).run_pytest(
+        ["--inline-snapshot=fix"],
+        returncode=1,
+        outcomes={"passed": 1, "xpassed": 1, "errors": 1},
+        changed_files={
+            "tests/test_something.py": Is(
+                code.replace("snapshot(1)", "snapshot(2)").replace(
+                    assertion, fixed_assertion
+                )
+            )
+        },
+    )
 
 
 def test_xfail_snapshot_from_module_fixture():

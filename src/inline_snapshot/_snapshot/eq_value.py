@@ -22,35 +22,45 @@ class EqValue(GenericValue):
         if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1
 
-        if not compare_only() and isinstance(self._new_value, CustomUndefined):
-            self._changes = []
+        is_equal = self._old_value._eval() == other
 
-            if not state().active:
-                return self._return(self._old_value._eval() == other)
+        if isinstance(self._new_value, CustomUndefined):
+            if not compare_only():
+                self._changes = []
 
-            if self._ast_node is not None:
-                result = split_gen(
-                    NewAdapter(self._context).compare(
-                        self._old_value, self._ast_node, other
+                if not state().active:
+                    return self._return(self._old_value._eval() == other)
+
+                if not state().config.show_updates and not state().update_flags.update:
+                    if is_equal:
+                        self._new_value = self._old_value
+                        return True
+
+                if self._ast_node is not None:
+                    result = split_gen(
+                        NewAdapter(self._context).compare(
+                            self._old_value, self._ast_node, other
+                        )
                     )
-                )
-                self._changes = result.list
-                self._new_value = result.value
-            else:
-                # No argument node: do not use the adapter (it requires a node)
-                # and do not rewrite source. Report flags only.
-                if isinstance(self._old_value, CustomUndefined):
-                    self._changes.append(CategoryChange("create"))
-                    self._new_value = self.to_custom(other, _build_new_value=True)
-                elif self._old_value._eval() != other:
-                    self._changes.append(CategoryChange("fix"))
-                    if self._context.expr.node is not None:
-                        self._new_value = self.to_custom(other, _build_new_value=True)
+                    self._changes = result.list
+                    self._new_value = result.value
                 else:
-                    self._new_value = self._old_value
+                    # No argument node: do not use the adapter (it requires a node)
+                    # and do not rewrite source. Report flags only.
+                    if isinstance(self._old_value, CustomUndefined):
+                        self._changes.append(CategoryChange("create"))
+                        self._new_value = self.to_custom(other, _build_new_value=True)
+                    elif self._old_value._eval() != other:
+                        self._changes.append(CategoryChange("fix"))
+                        if self._context.expr.node is not None:
+                            self._new_value = self.to_custom(
+                                other, _build_new_value=True
+                            )
+                    else:
+                        self._new_value = self._old_value
 
         return self._return(
-            self._old_value._eval() == other,
+            is_equal,
             self._new_value._eval() == other,
         )
 
