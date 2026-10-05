@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import ast
 import importlib
 from dataclasses import dataclass
+from functools import cached_property
 from typing import Generator
 
 from inline_snapshot._adapter_context import AdapterContext
@@ -46,10 +48,17 @@ class CustomCode(Custom):
         assert not isinstance(value, Custom)
 
         self._imports = list(imports)
-        self.repr_str = repr_str
+        self._repr_str: str | ast.AST = repr_str
         self.value = clone(value)
 
         super().__init__()
+
+    @cached_property
+    def repr_str(self) -> str:
+        # Matching snapshots need their value, but usually not their source text.
+        if isinstance(self._repr_str, ast.AST):
+            return ast.unparse(self._repr_str)
+        return self._repr_str
 
     def _map(self, f):
         return f(self.value)

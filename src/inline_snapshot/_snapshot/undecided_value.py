@@ -51,7 +51,7 @@ class AstToCustom:
         if value is ...:
             return CustomUndefined()
         else:
-            return CustomCode(value, ast.unparse(node))
+            return CustomCode(value, node)
 
     def convert_Call(self, value: Any, node: ast.Call):
         return CustomCall(
