@@ -194,7 +194,7 @@ stuff = [
 
 
 @pytest.mark.parametrize("braces", ["[]", "{}"])
-@pytest.mark.parametrize("value_specs", itertools.product(stuff, repeat=3))
+@pytest.mark.parametrize("value_specs", list(itertools.product(stuff, repeat=3)))
 def test_generic(braces, value_specs):
     flags = set().union(*[e[3] for e in value_specs])
     all_flags = {
