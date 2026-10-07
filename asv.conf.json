@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "project": "inline-snapshot",
+  "project_url": "https://15r10nk.github.io/inline-snapshot/",
+  "repo": ".",
+  "branches": ["HEAD", "main"],
+  "show_commit_url": "https://github.com/15r10nk/inline-snapshot/commit/",
+  "environment_type": "uv",
+  "build_command": [
+    "python -m pip wheel --no-deps --no-build-isolation -w {build_cache_dir} {build_dir}"
+  ],
+  "install_command": [
+    "in-dir={env_dir} python -m pip install --no-deps --force-reinstall {wheel_file}"
+  ],
+  "pythons": ["3.12"],
+  "matrix": {
+    "req": {
+      "annotated-types": ["0.8.0"],
+      "asv-runner": ["0.3.1"],
+      "asttokens": ["3.0.1"],
+      "black": ["25.1.0"],
+      "click": ["8.5.0"],
+      "dirty-equals": ["0.11"],
+      "executing": ["2.2.1"],
+      "hatchling": ["1.32.4"],
+      "iniconfig": ["2.3.1"],
+      "markdown-it-py": ["4.2.0"],
+      "mdurl": ["0.1.2"],
+      "mypy-extensions": ["1.1.0"],
+      "packaging": ["26.3"],
+      "pathspec": ["1.1.1"],
+      "platformdirs": ["4.12.3"],
+      "pluggy": ["1.6.0"],
+      "pydantic": ["2.13.4"],
+      "pydantic-core": ["2.46.4"],
+      "pygments": ["2.21.0"],
+      "pytest": ["9.0.3"],
+      "rich": ["15.0.0"],
+      "trove-classifiers": ["2026.9.21.13"],
+      "typing-extensions": ["4.16.0"],
+      "typing-inspection": ["0.4.4"]
+    },
+    "env": {"PYTHONHASHSEED": ["0"]}
+  },
+  "benchmark_dir": "benchmarks",
+  "env_dir": ".asv/env",
+  "results_dir": ".asv/results",
+  "html_dir": ".asv/html"
+}

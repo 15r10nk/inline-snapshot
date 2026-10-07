@@ -1,0 +1,23 @@
+name: Benchmark smoke test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - uses: ./.github/actions/setup
+      with:
+        python-version: '3.12'
+    - run: uv run --frozen --group benchmark asv machine --yes
+    - run: uv run --frozen --group benchmark asv check --python=same
+    - run: uv run --frozen --group benchmark asv run --python=same --quick --show-stderr --dry-run
