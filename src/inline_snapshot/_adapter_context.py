@@ -68,6 +68,9 @@ class AdapterContext:
             return self.expr.code_qualname()
 
     def eval(self, node):
+        if type(node) is ast.Constant:
+            return node.value
+
         assert self.frame is not None
 
         return eval(
