@@ -2,7 +2,6 @@ import sys
 import textwrap
 from contextlib import contextmanager
 
-import black
 import executing
 import pytest
 from dirty_equals import AnyThing
@@ -14,8 +13,6 @@ pytest_plugins = "pytester"
 
 
 pytest.register_assert_rewrite("tests.example")
-
-black.files.find_project_root = black.files.find_project_root.__wrapped__  # type: ignore
 
 
 @pytest.fixture(autouse=True)
