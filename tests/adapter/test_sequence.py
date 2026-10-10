@@ -45,7 +45,7 @@ def test_list():
     s = snapshot(2)
     assert [1, 2, 3] == snapshot([1, s, 3])
 """}),
-    ).run_inline(reported_categories=set(), changed_files={})
+    ).run_inline(reported_categories=set())
 
 
 def test_list_adapter_fix_inner_snapshot():

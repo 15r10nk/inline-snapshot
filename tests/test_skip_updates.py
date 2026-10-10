@@ -1,5 +1,37 @@
+import pytest
+
+from inline_snapshot import Is
 from inline_snapshot import snapshot
 from inline_snapshot.testing._example import Example
+
+
+@pytest.mark.parametrize("values", [(1, 2), (2, 1)])
+def test_skip_updates_preserves_comparison_consistency(values):
+    code = f"""\
+from inline_snapshot import snapshot
+
+def test_a():
+    for x in {values!r}:
+        assert x == snapshot(1)
+"""
+    Example(
+        {
+            "pyproject.toml": """\
+[tool.inline-snapshot]
+show-updates=false
+""",
+            "tests/test_a.py": code,
+        }
+    ).run_inline(
+        ["--inline-snapshot=fix"],
+        raises="AssertionError",
+        reported_categories=Is({"fix"} if values[0] == 2 else set()),
+        changed_files=Is(
+            {"tests/test_a.py": code.replace("snapshot(1)", "snapshot(2)")}
+            if values[0] == 2
+            else {}
+        ),
+    )
 
 
 def test_use_snapshot_updates():

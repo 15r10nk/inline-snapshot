@@ -152,10 +152,25 @@ class simple_token(namedtuple("simple_token", "type,string")):
 
 
 def clone(obj):
-    if isinstance(obj, (type, FunctionType, BuiltinFunctionType, MethodType)):
+    obj_type = type(obj)
+    # Exact types only: subclasses can carry mutable state or customize copying.
+    if (
+        obj_type is int
+        or obj_type is str
+        or obj_type is float
+        or obj_type is complex
+        or obj_type is bool
+        or obj_type is bytes
+        or obj is None
+        or obj is Ellipsis
+    ):
+        new = obj
+    elif isinstance(obj, (type, FunctionType, BuiltinFunctionType, MethodType)):
         return obj
+    else:
+        new = copy.deepcopy(obj)
 
-    new = copy.deepcopy(obj)
+    # Keep validation for non-reflexive immutable values such as NaN.
     if not obj == new:
         raise UsageError(f"""\
 inline-snapshot uses `copy.deepcopy` to copy objects,

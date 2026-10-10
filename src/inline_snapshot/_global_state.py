@@ -45,6 +45,8 @@ class State:
 
     all_formats: dict[str, Format] = field(default_factory=dict)
 
+    unmanaged_types: list[type] = field(default_factory=list)
+
     all_storages: dict[str, StorageProtocol] = field(default_factory=dict)
 
     default_storage: str = "uuid"
@@ -80,6 +82,7 @@ def enter_snapshot_context():
     _latest_global_states.append(_current)
     _current = State()
     _current.all_formats = dict(latest.all_formats)
+    _current.unmanaged_types = latest.unmanaged_types.copy()
     _current.config = deepcopy(latest.config)
 
     from .plugin._spec import InlineSnapshotPluginSpec
