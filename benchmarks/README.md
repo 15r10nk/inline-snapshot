@@ -153,17 +153,17 @@ commits with the PR's benchmark suite. Both revisions run on the same runner,
 with interleaved rounds and raw samples saved. This comparison has a 60-minute
 timeout; historical implementations can be much slower than the current code.
 
-Results and commit metadata are available in the `benchmark-results` workflow
+Results, comparison text, and commit metadata are available in the `benchmark-results` workflow
 artifact for 30 days, including partial results when a benchmark fails. Benchmark
 errors fail the job; performance regressions do not.
 
-After a successful PR run, `Benchmark PR report` uses
-[asv-perch](https://github.com/HaoZeke/asv-perch) and asv-spyglass to compare the
-results, write a job summary, and update a single PR comment. Both tools are
-pinned to commits. The regression threshold is a ratio of `1.1` (10% slower);
+The benchmark job generates the comparison with asv-spyglass. After a successful
+PR run, `Benchmark PR report` uses
+[asv-perch](https://github.com/HaoZeke/asv-perch) to present that comparison in a
+job summary and update a single PR comment. Both tools are pinned to commits. The regression threshold is a ratio of `1.1` (10% slower);
 reports are informational and never automatically mark PRs as drafts.
 
-The reporting workflow supports fork PRs: it downloads result data from the
+The reporting workflow supports fork PRs: it downloads the prepared report from the
 completed run without checking out PR code. It verifies the PR and measured
 SHAs before reporting, and skips closed PRs or results whose base/head no longer
 match. GitHub must have `.github/workflows/benchmark-report.yml` on the default

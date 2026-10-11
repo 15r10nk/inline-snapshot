@@ -34,80 +34,29 @@ jobs:
           const fs = require('node:fs');
           const metadata = JSON.parse(fs.readFileSync('results/metadata.json', 'utf8'));
           const run = context.payload.workflow_run;
-          const sha = /^[0-9a-f]{40}$/;
-          if (!sha.test(metadata.base_sha) || !sha.test(metadata.pr_sha) ||
-              !Number.isSafeInteger(metadata.pr_number) || metadata.pr_number < 1 ||
-              metadata.pr_sha !== run.head_sha) {
-            throw new Error('Invalid benchmark metadata for this workflow run');
-          }
-          const {data: pr} = await github.rest.pulls.get({
-            ...context.repo, pull_number: metadata.pr_number,
-          });
-          if (pr.state !== 'open' || pr.head.sha !== metadata.pr_sha ||
-              pr.base.sha !== metadata.base_sha ||
-              pr.base.repo.id !== context.payload.repository.id) {
-            core.info('Skipping results for a closed or changed PR');
-            return;
-          }
-          // Perch resolves its comment target by SHA; require the same PR.
+          // Resolve the target exactly as Perch does, using the triggering run's SHA.
           const {data: matches} = await github.rest.search.issuesAndPullRequests({
-            q: `repo:${context.repo.owner}/${context.repo.repo} is:pr sha:${metadata.pr_sha}`,
+            q: `repo:${context.repo.owner}/${context.repo.repo} is:pr sha:${run.head_sha}`,
             per_page: 1,
           });
-          if (matches.items[0]?.number !== pr.number) {
-            core.info('Skipping results: Perch cannot resolve this PR unambiguously');
+          if (!matches.items.length) return;
+          const {data: pr} = await github.rest.pulls.get({
+            ...context.repo, pull_number: matches.items[0].number,
+          });
+          if (pr.state !== 'open' || pr.head.sha !== run.head_sha ||
+              metadata.pr_sha !== pr.head.sha || metadata.base_sha !== pr.base.sha) {
+            core.info('Skipping results for a closed or changed PR');
             return;
           }
           core.setOutput('base-sha', metadata.base_sha);
           core.setOutput('pr-sha', metadata.pr_sha);
           core.setOutput('current', 'true');
-    - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-      if: steps.target.outputs.current == 'true'
-      with:
-        python-version: '3.12'
-        enable-cache: false
-    - name: Compare results without gating on regressions
-      if: steps.target.outputs.current == 'true'
-      env:
-        BASE_SHA: ${{ steps.target.outputs.base-sha }}
-        PR_SHA: ${{ steps.target.outputs.pr-sha }}
-      # The spyglass CLI exits 1 on regressions, which prevents Perch posting.
-      # Use its pinned comparison API so only actual comparison errors fail.
-      run: |
-        uv run --no-project --python 3.12 \
-          --with 'asv-spyglass @ git+https://github.com/airspeed-velocity/asv_spyglass.git@810ba45dbebc293c1a36f442bda4b4a9bc997695' \
-          python - <<'PY'
-        import json
-        import os
-        from pathlib import Path
-
-        from asv_spyglass.compare import do_compare
-
-        def result_file(sha):
-            paths = [
-                path for path in Path("results").rglob(f"{sha[:8]}*.json")
-                if json.loads(path.read_text())["commit_hash"] == sha
-            ]
-            if len(paths) != 1:
-                raise ValueError(f"Expected exactly one result for {sha}")
-            return str(paths[0])
-
-        output, _, _ = do_compare(
-            result_file(os.environ["BASE_SHA"]),
-            result_file(os.environ["PR_SHA"]),
-            "results/benchmarks.json",
-            label_before="base",
-            label_after="pr",
-        )
-        # Generate this file here; never trust a precomputed artifact report.
-        Path("comparison.txt").write_text(output, encoding="utf-8")
-        PY
-    - name: Compare and update PR comment
+    - name: Update PR comment
       if: steps.target.outputs.current == 'true'
       uses: HaoZeke/asv-perch@3910616093eb463672fec90a2011ff71bfdff071
       with:
         github-token: ${{ github.token }}
-        comparison-text-file: comparison.txt
+        comparison-text-file: results/comparison.txt
         base-sha: ${{ steps.target.outputs.base-sha }}
         pr-sha: ${{ steps.target.outputs.pr-sha }}
         label-before: base
