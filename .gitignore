@@ -77,3 +77,4 @@ target/
 .mutmut-cache
 html
 /test-repos/
+/.asv/

@@ -48,6 +48,13 @@ dirty-equals =[
 ]
 
 [dependency-groups]
+benchmark = [
+    "asv==0.6.6",
+    "asv-runner==0.3.1",
+    "black==25.1.0",
+    "dirty-equals==0.11",
+    "pydantic==2.13.4",
+]
 dev = [
     "inline-snapshot[black,dirty-equals]",
     "hypothesis>=6.75.5",
@@ -128,6 +135,10 @@ dependencies = [
   "commitizen",
   "mkdocs-redirects"
 ]
+
+[tool.hatch.envs.docs.env-vars]
+NO_MKDOCS_2_WARNING = "1"
+DISABLE_MKDOCS_2_WARNING = "true"
 
 [tool.hatch.envs.docs.scripts]
 build = "mkdocs build --strict {args}"

@@ -1,0 +1,394 @@
+{
+  "method": "Static imported call sites in tracked Python files, including pydantic-ai's _inline_snapshot wrapper; not runtime frequencies. Aliases are resolved per file, without scope/shadowing analysis. Strings containing Python are not inspected.",
+  "repositories": {
+    "fastapi": {
+      "revision": "bd41128123fd08d693f5541e27c550eebe20f8b0",
+      "tracked_changes": false,
+      "calls": 370,
+      "files": 299,
+      "shapes": {
+        "Dict": 324,
+        "List": 45,
+        "str": 1
+      },
+      "comparisons": {
+        "Eq": 370
+      },
+      "nested_calls": [
+        [
+          "IsInt",
+          10
+        ],
+        [
+          "IsOneOf",
+          8
+        ],
+        [
+          "Is",
+          8
+        ],
+        [
+          "IsList",
+          2
+        ],
+        [
+          "IsUUID",
+          1
+        ]
+      ],
+      "ast_nodes_percentiles": {
+        "50": 134,
+        "90": 260,
+        "99": 608,
+        "100": 10389
+      },
+      "source_lines_percentiles": {
+        "50": 75,
+        "90": 150,
+        "99": 335,
+        "100": 6859
+      },
+      "largest": [
+        {
+          "file": "tests/test_include_router_defaults_overrides.py",
+          "line": 446,
+          "shape": "Dict",
+          "ast_nodes": 10389,
+          "source_lines": 6859,
+          "comparison": "Eq"
+        },
+        {
+          "file": "tests/test_application.py",
+          "line": 58,
+          "shape": "Dict",
+          "ast_nodes": 1887,
+          "source_lines": 1228,
+          "comparison": "Eq"
+        },
+        {
+          "file": "tests/test_schema_extra_examples.py",
+          "line": 265,
+          "shape": "Dict",
+          "ast_nodes": 1005,
+          "source_lines": 593,
+          "comparison": "Eq"
+        }
+      ],
+      "skipped_files": []
+    },
+    "logfire": {
+      "revision": "2273e1713efe9fb56440b2481831d0a846d79994",
+      "tracked_changes": false,
+      "calls": 666,
+      "files": 73,
+      "shapes": {
+        "Call": 1,
+        "Dict": 49,
+        "List": 427,
+        "Set": 4,
+        "Tuple": 12,
+        "float": 6,
+        "int": 12,
+        "str": 155
+      },
+      "comparisons": {
+        "Eq": 642,
+        "Eq,Eq": 3,
+        "indirect": 21
+      },
+      "nested_calls": [
+        [
+          "IsStr",
+          187
+        ],
+        [
+          "IsInt",
+          136
+        ],
+        [
+          "IsNumeric",
+          38
+        ],
+        [
+          "SpanNode",
+          27
+        ],
+        [
+          "IsPartialDict",
+          26
+        ],
+        [
+          "IsJson",
+          22
+        ],
+        [
+          "IsTuple",
+          13
+        ],
+        [
+          "IsFloat",
+          12
+        ],
+        [
+          "IsAnyStr",
+          11
+        ],
+        [
+          "ReadableSpanModel",
+          10
+        ],
+        [
+          "SpanContextModel",
+          10
+        ],
+        [
+          "InstrumentationRecommendation",
+          7
+        ],
+        [
+          "IsPositiveInt",
+          5
+        ],
+        [
+          "Is",
+          4
+        ],
+        [
+          "os.getcwd",
+          2
+        ]
+      ],
+      "ast_nodes_percentiles": {
+        "50": 34,
+        "90": 237,
+        "99": 627,
+        "100": 1464
+      },
+      "source_lines_percentiles": {
+        "50": 20,
+        "90": 108,
+        "99": 305,
+        "100": 695
+      },
+      "largest": [
+        {
+          "file": "tests/otel_integrations/test_openai_agents_mcp.py",
+          "line": 90,
+          "shape": "List",
+          "ast_nodes": 1464,
+          "source_lines": 639,
+          "comparison": "Eq"
+        },
+        {
+          "file": "tests/otel_integrations/test_pydantic_ai_mcp.py",
+          "line": 58,
+          "shape": "List",
+          "ast_nodes": 1330,
+          "source_lines": 695,
+          "comparison": "Eq"
+        },
+        {
+          "file": "tests/test_configure.py",
+          "line": 113,
+          "shape": "List",
+          "ast_nodes": 861,
+          "source_lines": 348,
+          "comparison": "Eq"
+        }
+      ],
+      "skipped_files": []
+    },
+    "pydantic": {
+      "revision": "e87e11b7a74068c2d8107e48ffed6102744abef8",
+      "tracked_changes": false,
+      "calls": 51,
+      "files": 1,
+      "shapes": {
+        "Call": 6,
+        "Dict": 19,
+        "List": 16,
+        "Set": 7,
+        "Tuple": 3
+      },
+      "comparisons": {
+        "Eq": 51
+      },
+      "nested_calls": [
+        [
+          "IsStrictDict",
+          6
+        ]
+      ],
+      "ast_nodes_percentiles": {
+        "50": 8,
+        "90": 13,
+        "99": 17,
+        "100": 17
+      },
+      "source_lines_percentiles": {
+        "50": 1,
+        "90": 3,
+        "99": 11,
+        "100": 11
+      },
+      "largest": [
+        {
+          "file": "pydantic-core/tests/validators/test_allow_partial.py",
+          "line": 146,
+          "shape": "List",
+          "ast_nodes": 17,
+          "source_lines": 11,
+          "comparison": "Eq"
+        },
+        {
+          "file": "pydantic-core/tests/validators/test_allow_partial.py",
+          "line": 164,
+          "shape": "List",
+          "ast_nodes": 17,
+          "source_lines": 11,
+          "comparison": "Eq"
+        },
+        {
+          "file": "pydantic-core/tests/validators/test_allow_partial.py",
+          "line": 232,
+          "shape": "Dict",
+          "ast_nodes": 16,
+          "source_lines": 3,
+          "comparison": "Eq"
+        }
+      ],
+      "skipped_files": []
+    },
+    "pydantic-ai": {
+      "revision": "bcce42198512b1443c64962295de40eb39d95a9b",
+      "tracked_changes": false,
+      "calls": 4983,
+      "files": 175,
+      "shapes": {
+        "BinOp": 2,
+        "Call": 553,
+        "Dict": 917,
+        "IfExp": 1,
+        "JoinedStr": 2,
+        "List": 2314,
+        "Name": 2,
+        "NoneType": 32,
+        "Set": 8,
+        "Tuple": 95,
+        "UnaryOp": 2,
+        "bool": 17,
+        "bytes": 5,
+        "empty": 1,
+        "float": 4,
+        "int": 74,
+        "str": 954
+      },
+      "comparisons": {
+        "Eq": 4433,
+        "indirect": 541,
+        "Eq,Eq": 9
+      },
+      "nested_calls": [
+        [
+          "IsStr",
+          6434
+        ],
+        [
+          "PartDeltaEvent",
+          4059
+        ],
+        [
+          "IsDatetime",
+          3066
+        ],
+        [
+          "TextPartDelta",
+          2031
+        ],
+        [
+          "ThinkingPartDelta",
+          1556
+        ],
+        [
+          "ModelRequest",
+          1296
+        ],
+        [
+          "ModelResponse",
+          1144
+        ],
+        [
+          "IsNow",
+          1068
+        ],
+        [
+          "RequestUsage",
+          1039
+        ],
+        [
+          "TextPart",
+          965
+        ],
+        [
+          "UserPromptPart",
+          874
+        ],
+        [
+          "ToolCallPart",
+          644
+        ],
+        [
+          "Decimal",
+          479
+        ],
+        [
+          "BasicSpan",
+          436
+        ],
+        [
+          "ToolReturnPart",
+          436
+        ]
+      ],
+      "ast_nodes_percentiles": {
+        "50": 12,
+        "90": 126,
+        "99": 327,
+        "100": 16579
+      },
+      "source_lines_percentiles": {
+        "50": 7,
+        "90": 44,
+        "99": 137,
+        "100": 1871
+      },
+      "largest": [
+        {
+          "file": "tests/models/test_groq.py",
+          "line": 3437,
+          "shape": "List",
+          "ast_nodes": 16579,
+          "source_lines": 1811,
+          "comparison": "Eq"
+        },
+        {
+          "file": "tests/models/test_groq.py",
+          "line": 2068,
+          "shape": "List",
+          "ast_nodes": 10872,
+          "source_lines": 1225,
+          "comparison": "Eq"
+        },
+        {
+          "file": "tests/test_capability_spec.py",
+          "line": 651,
+          "shape": "Dict",
+          "ast_nodes": 4323,
+          "source_lines": 1871,
+          "comparison": "Eq"
+        }
+      ],
+      "skipped_files": []
+    }
+  }
+}

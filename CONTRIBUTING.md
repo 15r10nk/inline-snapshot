@@ -33,5 +33,11 @@ else:
 ```
 This serves also as an additional check during runtime.
 
+# Performance
+
+Use the [ASV benchmark suite](https://github.com/15r10nk/inline-snapshot/blob/main/benchmarks/README.md) to compare snapshot performance
+between commits and record performance history. Benchmarks are separate from
+correctness tests and include both individual comparisons and full pytest runs.
+
 # Commits
 Please use [pre-commit](https://pre-commit.com/) for your commits.
