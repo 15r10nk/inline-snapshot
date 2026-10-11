@@ -164,9 +164,9 @@ job summary and update a single PR comment. Both tools are pinned to commits. Th
 reports are informational and never automatically mark PRs as drafts.
 
 The reporting workflow supports fork PRs: it downloads the prepared report from the
-completed run without checking out PR code. It verifies the PR and measured
-SHAs before reporting, and skips closed PRs or results whose base/head no longer
-match. GitHub must have `.github/workflows/benchmark-report.yml` on the default
+completed run without checking out PR code. It resolves the PR from the triggering
+run and skips closed PRs or results whose head has changed. Reports retain the
+measured base commit even if the base branch has since advanced. GitHub must have `.github/workflows/benchmark-report.yml` on the default
 branch before the `workflow_run` reporting trigger becomes active.
 
 See the [ASV user guide](https://asv.readthedocs.io/en/stable/using.html) for

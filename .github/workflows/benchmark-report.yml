@@ -43,13 +43,11 @@ jobs:
           const {data: pr} = await github.rest.pulls.get({
             ...context.repo, pull_number: matches.items[0].number,
           });
-          if (pr.state !== 'open' || pr.head.sha !== run.head_sha ||
-              metadata.pr_sha !== pr.head.sha || metadata.base_sha !== pr.base.sha) {
+          if (pr.state !== 'open' || pr.head.sha !== run.head_sha) {
             core.info('Skipping results for a closed or changed PR');
             return;
           }
           core.setOutput('base-sha', metadata.base_sha);
-          core.setOutput('pr-sha', metadata.pr_sha);
           core.setOutput('current', 'true');
     - name: Update PR comment
       if: steps.target.outputs.current == 'true'
@@ -58,7 +56,7 @@ jobs:
         github-token: ${{ github.token }}
         comparison-text-file: results/comparison.txt
         base-sha: ${{ steps.target.outputs.base-sha }}
-        pr-sha: ${{ steps.target.outputs.pr-sha }}
+        pr-sha: ${{ github.event.workflow_run.head_sha }}
         label-before: base
         label-after: pr
         regression-threshold: '1.1'
