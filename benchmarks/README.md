@@ -97,7 +97,7 @@ rewritten snapshots match. The active/disabled state is checked inside pytest,
 with explicit flags so CI's automatic disabling cannot invalidate measurements.
 Only the inline-snapshot plugin is loaded; user pytest settings are ignored.
 
-## Corpus and reproducibility
+## Workloads and reproducibility
 
 Workloads are defined in `_workloads.py` as readable Python source templates.
 Large data shapes use deterministic builders whose values are rendered as
@@ -106,20 +106,8 @@ inline literals. Create, fix, and update each have their own template.
 functions and loads the resulting source file. Keep expected values inside
 `snapshot(...)`: moving them to a variable changes the work being measured.
 
-`corpus.json` records the local checkout revisions, counts, size distributions,
-and example locations used to choose these synthetic fixtures. It counts
-static call sites, not how often tests execute them. It includes pydantic-ai's
-`_inline_snapshot` wrapper, which selects the real library when snapshot flags
-are enabled. No downstream implementation or full test body is copied.
-
-Regenerate the survey intentionally, without fetching or running downstream code:
-
-```bash
-python scripts/survey_snapshots.py test-repos > benchmarks/corpus.json
-```
-
-Changes to that survey do not automatically change benchmark inputs. Keep
-fixtures fixed for longitudinal comparisons. Increment `SUITE_VERSION` in
+The synthetic workloads cover common snapshot shapes and larger nested values.
+Keep fixtures fixed for longitudinal comparisons. Increment `SUITE_VERSION` in
 `_fixtures.py` whenever fixtures, helpers, or timing boundaries change; ASV
 cannot reliably detect changes to imported helpers by hashing the benchmark
 method alone. Version changes deliberately break comparison with old results.
