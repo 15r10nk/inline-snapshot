@@ -147,27 +147,20 @@ choosing regression thresholds or scheduling a dedicated runner.
 
 ## Pull request reports
 
-The `Benchmark smoke test` workflow checks correctness on pull requests and
-pushes to `main`. On pull requests it also measures the exact PR base and head
-commits with the PR's benchmark suite. Both revisions run on the same runner,
-with interleaved rounds and raw samples saved. This comparison has a 60-minute
-timeout; historical implementations can be much slower than the current code.
+The `Benchmarks` workflow measures each PR's exact base and head commits on the
+same runner with the PR's benchmark suite, interleaved rounds, and raw samples.
+It prepares a comparison with asv-spyglass and uploads the results and report as
+`benchmark-results`. Benchmark and comparison errors fail the job; performance
+regressions do not. The job has a 60-minute timeout.
 
-Results, comparison text, and commit metadata are available in the `benchmark-results` workflow
-artifact for 30 days, including partial results when a benchmark fails. Benchmark
-errors fail the job; performance regressions do not.
+A separate `Benchmark PR report` workflow uses
+[asv-perch](https://github.com/HaoZeke/asv-perch) to publish the comparison as a PR
+comment and job summary. It supports fork PRs without executing PR code with
+write permissions. Reports use a 10% regression threshold and never mark PRs as
+drafts. Both tools are pinned to commits.
 
-The benchmark job generates the comparison with asv-spyglass. After a successful
-PR run, `Benchmark PR report` uses
-[asv-perch](https://github.com/HaoZeke/asv-perch) to present that comparison in a
-job summary and update a single PR comment. Both tools are pinned to commits. The regression threshold is a ratio of `1.1` (10% slower);
-reports are informational and never automatically mark PRs as drafts.
-
-The reporting workflow supports fork PRs: it downloads the prepared report from the
-completed run without checking out PR code. It resolves the PR from the triggering
-run and skips closed PRs or results whose head has changed. Reports retain the
-measured base commit even if the base branch has since advanced. GitHub must have `.github/workflows/benchmark-report.yml` on the default
-branch before the `workflow_run` reporting trigger becomes active.
+GitHub activates the reporting workflow once
+`.github/workflows/benchmark-report.yml` is on the default branch.
 
 See the [ASV user guide](https://asv.readthedocs.io/en/stable/using.html) for
 historical runs and publishing, and

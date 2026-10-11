@@ -2,64 +2,30 @@ name: Benchmark PR report
 
 on:
   workflow_run:
-    workflows: [Benchmark smoke test]
+    workflows: [Benchmarks]
     types: [completed]
 
 permissions:
   actions: read
-  contents: read
   pull-requests: write
   issues: write
 
 jobs:
   report:
-    if: >-
-      github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.conclusion == 'success'
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-    # This privileged workflow never checks out or executes PR code.
     - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
       with:
         name: benchmark-results
         path: results
         github-token: ${{ github.token }}
         run-id: ${{ github.event.workflow_run.id }}
-    - name: Validate report target
-      id: target
-      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
-      with:
-        script: |
-          const fs = require('node:fs');
-          const metadata = JSON.parse(fs.readFileSync('results/metadata.json', 'utf8'));
-          const run = context.payload.workflow_run;
-          // Resolve the target exactly as Perch does, using the triggering run's SHA.
-          const {data: matches} = await github.rest.search.issuesAndPullRequests({
-            q: `repo:${context.repo.owner}/${context.repo.repo} is:pr sha:${run.head_sha}`,
-            per_page: 1,
-          });
-          if (!matches.items.length) return;
-          const {data: pr} = await github.rest.pulls.get({
-            ...context.repo, pull_number: matches.items[0].number,
-          });
-          if (pr.state !== 'open' || pr.head.sha !== run.head_sha) {
-            core.info('Skipping results for a closed or changed PR');
-            return;
-          }
-          core.setOutput('base-sha', metadata.base_sha);
-          core.setOutput('current', 'true');
-    - name: Update PR comment
-      if: steps.target.outputs.current == 'true'
-      uses: HaoZeke/asv-perch@3910616093eb463672fec90a2011ff71bfdff071
+    - uses: HaoZeke/asv-perch@3910616093eb463672fec90a2011ff71bfdff071
       with:
         github-token: ${{ github.token }}
         comparison-text-file: results/comparison.txt
-        base-sha: ${{ steps.target.outputs.base-sha }}
+        metadata-file: results/metadata.txt
         pr-sha: ${{ github.event.workflow_run.head_sha }}
-        label-before: base
-        label-after: pr
         regression-threshold: '1.1'
         auto-draft-on-regression: 'false'
-        comment-marker: <!-- inline-snapshot-asv-results -->
-        runner-info: ubuntu-latest (informational; shared runner)

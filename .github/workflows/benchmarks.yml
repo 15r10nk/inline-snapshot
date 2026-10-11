@@ -1,34 +1,16 @@
-name: Benchmark smoke test
+name: Benchmarks
 
-on:
-  pull_request:
-  push:
-    branches: [main]
-  workflow_dispatch:
+on: pull_request
 
 permissions:
   contents: read
 
 concurrency:
-  group: benchmarks-${{ github.event.pull_request.number || github.ref }}
+  group: benchmarks-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
-  smoke:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-    - uses: ./.github/actions/setup
-      with:
-        python-version: '3.12'
-    - run: uv run --frozen --group benchmark asv machine --yes
-    - run: uv run --frozen --group benchmark asv check --python=same
-    - run: uv run --frozen --group benchmark asv run --python=same --quick --show-stderr --dry-run
-
-  compare:
-    if: github.event_name == 'pull_request'
-    needs: smoke
+  benchmark:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
@@ -43,63 +25,21 @@ jobs:
     - uses: ./.github/actions/setup
       with:
         python-version: '3.12'
-    - name: Record compared revisions
+    - name: Benchmark base and PR
       run: |
         git fetch --no-tags origin "$BASE_SHA"
-        mkdir -p benchmark-results
-        python - <<'PY'
-        import json
-        import os
-        from pathlib import Path
-
-        metadata = {
-            "base_sha": os.environ["BASE_SHA"],
-            "pr_sha": os.environ["PR_SHA"],
-        }
-        Path("benchmark-results/metadata.json").write_text(json.dumps(metadata))
-        Path("benchmark-commits.txt").write_text(
-            metadata["base_sha"] + "\n" + metadata["pr_sha"] + "\n"
-        )
-        PY
-    - run: uv run --frozen --group benchmark asv machine --yes
-    # asv run fails on benchmark errors, but does not gate on performance changes.
-    # Both revisions use the PR's suite and run sequentially on this same runner.
-    - name: Measure base and PR
-      run: >-
-        uv run --frozen --group benchmark asv run HASHFILE:benchmark-commits.txt
-        --record-samples --interleave-rounds --show-stderr --no-pull
-    - name: Prepare comparison report
-      # The spyglass CLI exits 1 on regressions. Its API lets us report them
-      # without failing the job, while still failing on comparison errors.
+        printf '%s\n' "$BASE_SHA" "$PR_SHA" > commits.txt
+        uv run --frozen --group benchmark asv machine --yes
+        uv run --frozen --group benchmark asv run HASHFILE:commits.txt --record-samples --interleave-rounds --show-stderr --no-pull
+    - name: Compare results
+      # Use the API because the CLI exits with an error on regressions.
       run: |
         uv run --no-project --python 3.12 \
           --with 'asv-spyglass @ git+https://github.com/airspeed-velocity/asv_spyglass.git@810ba45dbebc293c1a36f442bda4b4a9bc997695' \
-          python - <<'PYTHON'
-        import os
-        from pathlib import Path
-
-        from asv_spyglass.compare import do_compare
-
-        results = Path(".asv/results")
-        base, = results.rglob(f"{os.environ['BASE_SHA'][:8]}*.json")
-        head, = results.rglob(f"{os.environ['PR_SHA'][:8]}*.json")
-        output, _, _ = do_compare(
-            str(base), str(head), str(results / "benchmarks.json"),
-            label_before="base", label_after="pr",
-        )
-        Path("benchmark-results/comparison.txt").write_text(output, encoding="utf-8")
-        PYTHON
-    - name: Collect results
-      if: always()
-      run: |
-        if [ -d .asv/results ]; then
-          mkdir -p benchmark-results
-          cp -R .asv/results/. benchmark-results/
-        fi
+          python -c 'import sys; from asv_spyglass.compare import do_compare; print(do_compare(*sys.argv[1:], label_before="base", label_after="pr")[0])' \
+          .asv/results/*/"${BASE_SHA:0:8}"*.json .asv/results/*/"${PR_SHA:0:8}"*.json .asv/results/benchmarks.json > .asv/results/comparison.txt
+        echo "base_sha=$BASE_SHA" > .asv/results/metadata.txt
     - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      if: always()
       with:
         name: benchmark-results
-        path: benchmark-results/
-        if-no-files-found: error
-        retention-days: 30
+        path: .asv/results/
