@@ -1,4 +1,23 @@
 
+<a id='changelog-0.36.1'></a>
+# v0.36.1 — 2026-10-12
+
+## Changed
+
+- Defer generating source representations until they are needed, improving performance when comparing matching snapshots with updates disabled.
+
+- Speed up snapshot conversion for literal constants, especially in large lists and dictionaries.
+- Built-in literal values are always managed; attempting to register their types as unmanaged raises `TypeError`.
+- Scope unmanaged type registrations to the current snapshot context, inheriting registrations from the parent context.
+
+- Speed up snapshot comparisons by avoiding unnecessary deep copies of immutable built-in values.
+
+- Speed up snapshot conversion by reading AST constant values directly instead of compiling and evaluating them.
+
+## Fixed
+
+- Respect `show-updates` in the short report, hiding snapshot representation change messages when it is disabled.
+
 <a id='changelog-0.36.0'></a>
 # 0.36.0 — 2026-10-02
 
