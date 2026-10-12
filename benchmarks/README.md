@@ -25,11 +25,16 @@ ignored by Git.
 
 ## What is measured
 
-- **36 comparison cases:** nine shapes (scalar, text, small/large schemas, spans,
-  matchers, dataclasses, errors, Pydantic models), each with four modes: first
-  visit, repeated visit, disabled snapshots, and plain equality. Each timing is
-  **ten assertions**, with warm source caches. Actual values are built outside
-  timing; inline expected values are evaluated inside it.
+- **27 first-use comparison cases:** nine shapes (scalar, text, small/large
+  schemas, spans, matchers, dataclasses, errors, Pydantic models), each with
+  active snapshots, disabled snapshots, and plain equality. ASV `timeraw`
+  starts a fresh Python process for every sample, with no snapshot warmup.
+  Each timing is **ten assertions**, executed once at distinct snapshot call
+  sites in one file. It includes the first source read, AST processing, inline
+  expected-value construction, and final correctness checks. Later assertions
+  in the batch can naturally reuse the file's source cache. Process startup,
+  imports, fixture loading, actual-value construction, and cleanup are outside
+  timing. This is a cold start of snapshot processing, not of the OS file cache.
 - **Five pytest sessions:** active, disabled, create, fix, and update. Each runs
   ten tests in a fresh process, including startup, reporting, and source edits.
 

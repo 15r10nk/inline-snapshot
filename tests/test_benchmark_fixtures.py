@@ -1,4 +1,5 @@
 import subprocess
+import sys
 from contextlib import nullcontext
 
 import pytest
@@ -8,6 +9,7 @@ from benchmarks._fixtures import expand_call_sites
 from benchmarks._fixtures import load_module
 from benchmarks._fixtures import source
 from benchmarks.bench_pytest import PytestSession
+from benchmarks.bench_snapshot import Comparison
 from inline_snapshot._global_state import snapshot_env
 
 
@@ -81,3 +83,44 @@ def test_comparison_baseline(tmp_path, case):
         )
         assert module.ACTUAL == expected
         assert module.ACTUAL is not expected
+
+
+@pytest.mark.parametrize("mode", ["active", "disabled", "plain"])
+def test_cold_comparison(mode):
+    statement, setup = Comparison().timeraw_comparison("schema", mode)
+    # Run the generated program in a fresh interpreter, as ASV timeraw does.
+    # Setup must not execute snapshots, and each selected call runs once.
+    guard = """
+import inline_snapshot
+original_snapshot = inline_snapshot.snapshot
+def unexpected_snapshot(*args, **kwargs):
+    raise AssertionError("Setup must not execute snapshot assertions")
+inline_snapshot.snapshot = unexpected_snapshot
+"""
+    checks = """
+inline_snapshot.snapshot = original_snapshot
+module.snapshot = original_snapshot
+assert not state.snapshots
+assert not state.missing_values and not state.incorrect_values
+calls = []
+original_functions = functions
+def record(function):
+    def wrapped():
+        calls.append(function)
+        return function()
+    return wrapped
+functions = [record(function) for function in functions]
+"""
+    validation = f"""
+assert calls == original_functions
+assert len(calls) == BATCH_SIZE
+assert len(set(calls)) == {1 if mode == "plain" else 10}
+assert state.active is {mode != "disabled"}
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", guard + setup + checks + statement + validation],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr

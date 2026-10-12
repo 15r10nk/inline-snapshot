@@ -32,7 +32,10 @@ class AstToCustom:
         self.context = context
 
     def convert(self, value: Any, node: ast.expr):
-        if is_unmanaged(value):
+        if type(node) is ast.Constant:
+            result = self.convert_generic(value, node)
+
+        elif is_unmanaged(value):
             result = CustomUnmanaged(value)
 
         elif warn_star_expression(node, self.context):
@@ -51,7 +54,7 @@ class AstToCustom:
         if value is ...:
             return CustomUndefined()
         else:
-            return CustomCode(value, ast.unparse(node))
+            return CustomCode(value, node)
 
     def convert_Call(self, value: Any, node: ast.Call):
         return CustomCall(
