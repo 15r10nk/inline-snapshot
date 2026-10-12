@@ -237,6 +237,7 @@ scripts.entry="scriv create --add --edit"
 [tool.scriv]
 format = "md"
 version = "command: cz bump --get-next"
+entry_title_template = "v{{ version }} — {{ date.strftime('%Y-%m-%d') }}"
 
 [tool.pytest.ini_options]
 markers=["no_rewriting: marks tests which need no code rewriting and can be used with pypy"]
