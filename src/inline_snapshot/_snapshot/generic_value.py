@@ -36,6 +36,7 @@ class GenericValue(SnapshotBase):
         call_node=None,
         parent=None,
         parent_key=None,
+        eager_changes=False,
     ):
         self._data = data
         self._ast_node = ast_node
@@ -43,6 +44,7 @@ class GenericValue(SnapshotBase):
         self._call_node = call_node
         self._parent = parent
         self._parent_key = parent_key
+        self._eager_changes = eager_changes
 
     @property
     def _old_value(self):
@@ -152,10 +154,11 @@ class GenericValue(SnapshotBase):
             call_node=self._call_node,
             parent=self._parent,
             parent_key=self._parent_key,
+            eager_changes=self._eager_changes,
         )
 
     def _refresh_changes(self):
-        if not self._data.explicit_dispatch:
+        if not self._eager_changes:
             return
 
         missing_argument = (

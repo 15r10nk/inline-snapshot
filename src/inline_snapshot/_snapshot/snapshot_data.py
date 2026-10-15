@@ -22,7 +22,6 @@ class SnapshotData:
     operation_changes: list[ChangeBase] | None = None
     rendered_new_code: str | None = None
     initialized: bool = False
-    explicit_dispatch: bool = False
     file: SourceFile | None = None
     children: dict[Custom, SnapshotData] = field(default_factory=dict)
     extra: dict[str, Any] = field(default_factory=dict)

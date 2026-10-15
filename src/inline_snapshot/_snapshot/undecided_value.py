@@ -180,7 +180,7 @@ class UndecidedValue(GenericValue):
 
     def _dispatch(self, operation, value_type):
         __tracebackhide__ = True
-        if self._data.explicit_dispatch:
+        if self._eager_changes:
             return self._select(operation, value_type)
         self._data.operation = operation
         self.__class__ = value_type

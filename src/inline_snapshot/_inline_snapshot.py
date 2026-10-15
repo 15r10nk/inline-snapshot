@@ -81,7 +81,7 @@ def create_inline_snapshot(obj):
 
     data = state().snapshots.get(key)
     if not isinstance(data, SnapshotData):
-        data = SnapshotData(explicit_dispatch=True)
+        data = SnapshotData()
         state().snapshots[key] = data
 
     return UndecidedValue(
@@ -90,6 +90,7 @@ def create_inline_snapshot(obj):
         context,
         data,
         call_node=call_node,
+        eager_changes=True,
     )
 
 

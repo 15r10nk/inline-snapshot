@@ -42,9 +42,7 @@ class DictValue(GenericValue):
                     pos = old_keys.index(index)
                     child_node = self._ast_node.values[pos]
 
-            self._data.children[index] = SnapshotData(
-                explicit_dispatch=self._data.explicit_dispatch
-            )
+            self._data.children[index] = SnapshotData()
         else:
             if isinstance(self._old_value, CustomUndefined):
                 old_value = {}
@@ -64,6 +62,7 @@ class DictValue(GenericValue):
             self._data.children[index],
             parent=self,
             parent_key=index,
+            eager_changes=self._eager_changes,
         )
 
     def _child_changed(self, key, child: SnapshotData, context):
