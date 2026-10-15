@@ -1,4 +1,5 @@
 import ast
+from collections.abc import Callable
 from typing import Generator
 from typing import Iterator
 
@@ -36,15 +37,17 @@ class GenericValue(SnapshotBase):
         ast_node: ast.expr | None,
         context: AdapterContext,
         *,
-        call_node=None,
-        on_change=None,
-        eager_changes=False,
+        call_node: ast.Call | None = None,
+        on_change: Callable[[SnapshotData, AdapterContext], None] | None = None,
+        eager_changes: bool = False,
     ):
         self._data = data
         self._ast_node = ast_node
         self._context = context
         self._call_node = call_node
         self._on_change = on_change
+        # snapshot() materializes report changes while this context is alive.
+        # snapshot_arg() still uses its legacy session-end materialization.
         self._eager_changes = eager_changes
 
     @property

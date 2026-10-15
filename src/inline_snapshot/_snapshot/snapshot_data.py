@@ -25,7 +25,11 @@ class SnapshotOperation(Enum):
 
 @dataclass(eq=False)
 class SnapshotData:
-    """Frame-free state shared by evaluations of one snapshot call site."""
+    """Frame-free state shared by evaluations of one snapshot call site.
+
+    Context-bearing GenericValue facades are intentionally short-lived. Only
+    converted values and already-materialized source changes reach this object.
+    """
 
     _old_value: Custom = field(default_factory=CustomUndefined)
     _new_value: Custom = field(default_factory=CustomUndefined)
