@@ -60,8 +60,7 @@ class DictValue(GenericValue):
             child_node,
             self._context,
             self._data.children[index],
-            parent=self,
-            parent_key=index,
+            on_change=lambda child, context: self._child_changed(index, child, context),
             eager_changes=self._eager_changes,
         )
 

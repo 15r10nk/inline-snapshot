@@ -8,8 +8,10 @@ from inline_snapshot._customize._builder import Builder
 from inline_snapshot._customize._custom import Custom
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._exceptions import ValueNotFound
+from inline_snapshot._generator_utils import split_gen
 from inline_snapshot._new_adapter import reeval
 
+from .._change import CallArg
 from .._change import ChangeBase
 from .._global_state import state
 from .._types import SnapshotBase
@@ -35,16 +37,14 @@ class GenericValue(SnapshotBase):
         context: AdapterContext,
         *,
         call_node=None,
-        parent=None,
-        parent_key=None,
+        on_change=None,
         eager_changes=False,
     ):
         self._data = data
         self._ast_node = ast_node
         self._context = context
         self._call_node = call_node
-        self._parent = parent
-        self._parent_key = parent_key
+        self._on_change = on_change
         self._eager_changes = eager_changes
 
     @property
@@ -139,8 +139,7 @@ class GenericValue(SnapshotBase):
             self._ast_node,
             self._context,
             call_node=self._call_node,
-            parent=self._parent,
-            parent_key=self._parent_key,
+            on_change=self._on_change,
             eager_changes=self._eager_changes,
         )
 
@@ -148,48 +147,46 @@ class GenericValue(SnapshotBase):
         if not self._eager_changes:
             return
 
-        missing_argument = (
-            isinstance(self._old_value, CustomUndefined)
-            if self._call_node is None
-            else not self._call_node.args
-        )
-
-        if self._parent is not None:
-            if isinstance(self._old_value, CustomUndefined):
-                from inline_snapshot._generator_utils import split_gen
-
-                self._data.rendered_new_code = split_gen(self._new_code()).value
-                self._data.changes = []
-            else:
-                self._data.changes = list(self._get_changes())
+        if self._on_change is not None:
+            self._refresh_child_changes()
+            self._on_change(self._data, self._context)
+        elif self._missing_argument():
+            self._refresh_create_changes()
         else:
-            if missing_argument:
-                if isinstance(self._new_value, CustomUndefined):
-                    self._data.changes = []
-                else:
-                    from inline_snapshot._change import CallArg
-                    from inline_snapshot._generator_utils import split_gen
+            self._data.changes = list(self._get_changes())
 
-                    rendered = split_gen(self._new_code())
-                    self._data.rendered_new_code = rendered.value
-                    for change in rendered.list:
-                        change.flag = "create"
-                    self._data.changes = [
-                        *rendered.list,
-                        CallArg(
-                            flag="create",
-                            file=self._file,
-                            node=self._call_node,
-                            arg_pos=0,
-                            arg_name=None,
-                            new_code=rendered.value,
-                        ),
-                    ]
-            else:
-                self._data.changes = list(self._get_changes())
+    def _missing_argument(self):
+        if self._call_node is None:
+            return isinstance(self._old_value, CustomUndefined)
+        return not self._call_node.args
 
-        if self._parent is not None:
-            self._parent._child_changed(self._parent_key, self._data, self._context)
+    def _refresh_child_changes(self):
+        if isinstance(self._old_value, CustomUndefined):
+            self._data.rendered_new_code = split_gen(self._new_code()).value
+            self._data.changes = []
+        else:
+            self._data.changes = list(self._get_changes())
+
+    def _refresh_create_changes(self):
+        if isinstance(self._new_value, CustomUndefined):
+            self._data.changes = []
+            return
+
+        rendered = split_gen(self._new_code())
+        self._data.rendered_new_code = rendered.value
+        for change in rendered.list:
+            change.flag = "create"
+        self._data.changes = [
+            *rendered.list,
+            CallArg(
+                flag="create",
+                file=self._file,
+                node=self._call_node,
+                arg_pos=0,
+                arg_name=None,
+                new_code=rendered.value,
+            ),
+        ]
 
     def _ignore_old(self):
         return (
