@@ -22,6 +22,7 @@ from inline_snapshot._unmanaged import is_unmanaged
 from .._adapter_context import AdapterContext
 from .._change import ChangeBase
 from .generic_value import GenericValue
+from .snapshot_data import SnapshotData
 
 
 class AstToCustom:
@@ -152,56 +153,73 @@ class ValueToCustom:
 
 
 class UndecidedValue(GenericValue):
-    def __init__(self, old_value, ast_node, context: AdapterContext):
-        self._context = context
-        self._ast_node = ast_node
+    def __init__(
+        self,
+        old_value,
+        ast_node,
+        context: AdapterContext,
+        data: SnapshotData | None = None,
+        **kwargs,
+    ):
+        if data is None:
+            data = SnapshotData()
+        super().__init__(data, ast_node, context, **kwargs)
 
-        old_value = self.value_to_custom(old_value)
-
-        assert isinstance(old_value, Custom)
-        self._old_value = old_value
-        self._new_value = CustomUndefined()
-
-    def _change(self, cls):
-        self.__class__ = cls
+        if data.initialized:
+            self._re_eval(old_value, context)
+        else:
+            old_value = self.value_to_custom(old_value)
+            assert isinstance(old_value, Custom)
+            self._old_value = old_value
+            self._new_value = CustomUndefined()
+            data.initialized = True
+            data.file = context.file
 
     def _new_code(self):
         assert False
+
+    def _dispatch(self, operation, value_type):
+        __tracebackhide__ = True
+        if self._data.explicit_dispatch:
+            return self._select(operation, value_type)
+        self._data.operation = operation
+        self.__class__ = value_type
+        return self
 
     def _get_changes(self) -> Iterator[ChangeBase]:
         yield from ()
         return
 
     def __eq__(self, other):
+        __tracebackhide__ = True
 
         if compare_only():
             return False
 
         from .._snapshot.eq_value import EqValue
 
-        self._change(EqValue)
-        return self == other
+        return self._dispatch("eq", EqValue) == other
 
     def __le__(self, other):
+        __tracebackhide__ = True
         from .._snapshot.min_max_value import MinValue
 
-        self._change(MinValue)
-        return self <= other
+        return self._dispatch("min", MinValue) <= other
 
     def __ge__(self, other):
+        __tracebackhide__ = True
         from .._snapshot.min_max_value import MaxValue
 
-        self._change(MaxValue)
-        return self >= other
+        return self._dispatch("max", MaxValue) >= other
 
     def __contains__(self, item):
+        __tracebackhide__ = True
         from .._snapshot.collection_value import CollectionValue
 
-        self._change(CollectionValue)
-        return item in self
+        return item in self._dispatch("collection", CollectionValue)
 
     def __getitem__(self, item):
+        __tracebackhide__ = True
         from .._snapshot.dict_value import DictValue
 
-        self._change(DictValue)
-        return self[item]
+        return self._dispatch("dict", DictValue)[item]

@@ -53,8 +53,9 @@ class CollectionValue(GenericValue):
         return self.to_custom(item, _build_new_value=True)
 
     def __contains__(self, item):
-        if not hasattr(self, "_element_changes"):
-            self._element_changes = []
+        if "element_changes" not in self._data.extra:
+            self._data.extra["element_changes"] = []
+        self._element_changes = self._data.extra["element_changes"]
 
         if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1
@@ -66,9 +67,11 @@ class CollectionValue(GenericValue):
                 self._new_value.value.append(self._observe_item(item))
 
         if ignore_old_value() or isinstance(self._old_value, CustomUndefined):
-            return True
+            result = True
         else:
-            return self._return(item in self._old_value._eval())
+            result = self._return(item in self._old_value._eval())
+        self._refresh_changes()
+        return result
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
         code = yield from self._new_value._code_repr(self._context)
@@ -84,7 +87,7 @@ class CollectionValue(GenericValue):
             assert isinstance(self._ast_node, ast.List)
             elements = self._ast_node.elts
 
-        yield from getattr(self, "_element_changes", [])
+        yield from self._data.extra.get("element_changes", [])
 
         for old_value, old_node in zip(self._old_value.value, elements):
             if old_value not in self._new_value.value:

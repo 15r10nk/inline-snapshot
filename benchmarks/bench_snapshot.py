@@ -49,8 +49,8 @@ class Comparison:
             assert not state.missing_values and not state.incorrect_values
             assert len(state.snapshots) == {'BATCH_SIZE' if mode == 'active' else '0'}
             assert all(
-                ref._context.expr.node is not None
-                for ref in state.snapshots.values()
+                data.file is not None and data.operation == "eq"
+                for data in state.snapshots.values()
             )
             """)
         return statement, setup

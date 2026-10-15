@@ -5,12 +5,12 @@ from typing import Iterator
 from inline_snapshot._customize._custom_dict import CustomDict
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 
-from .._adapter_context import AdapterContext
 from .._change import ChangeBase
 from .._change import Delete
 from .._change import DictInsert
 from .._global_state import state
 from .generic_value import GenericValue
+from .snapshot_data import SnapshotData
 from .undecided_value import UndecidedValue
 
 
@@ -27,7 +27,7 @@ class DictValue(GenericValue):
 
         index = self.to_custom(index)
 
-        if index not in self._new_value.value:
+        if index not in self._data.children:
             if isinstance(self._old_value, CustomUndefined):
                 state().missing_values += 1
                 old_value = {}
@@ -42,29 +42,42 @@ class DictValue(GenericValue):
                     pos = old_keys.index(index)
                     child_node = self._ast_node.values[pos]
 
-            self._new_value.value[index] = UndecidedValue(
-                old_value.get(index, CustomUndefined()), child_node, self._context
+            self._data.children[index] = SnapshotData(
+                explicit_dispatch=self._data.explicit_dispatch
             )
+        else:
+            if isinstance(self._old_value, CustomUndefined):
+                old_value = {}
+            else:
+                old_value = self._old_value.value
 
-        return self._new_value.value[index]
+            child_node = None
+            if self._ast_node is not None and index in old_value:
+                assert isinstance(self._ast_node, ast.Dict)
+                old_keys = list(old_value)
+                child_node = self._ast_node.values[old_keys.index(index)]
 
-    def _re_eval(self, value, context: AdapterContext):
-        super()._re_eval(value, context)
+        return UndecidedValue(
+            old_value.get(index, CustomUndefined()),
+            child_node,
+            self._context,
+            self._data.children[index],
+            parent=self,
+            parent_key=index,
+        )
 
-        if not isinstance(self._new_value, CustomUndefined) and not isinstance(
-            self._old_value, CustomUndefined
-        ):
-            for key, s in self._new_value.value.items():
-                if key in self._old_value.value:
-                    s._re_eval(self._old_value.value[key], context)  # type: ignore
+    def _child_changed(self, key, child: SnapshotData, context):
+        self._context = context
+        if not isinstance(child._new_value, CustomUndefined):
+            self._new_value.value[key] = child._new_value
+        self._refresh_changes()
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
         values = []
-        for k, v in self._new_value.value.items():
-            if not isinstance(v, UndecidedValue):
-                new_code = yield from v._new_code()  # type: ignore
+        for k, child in self._data.children.items():
+            if child.rendered_new_code is not None:
                 new_key = yield from k._code_repr(self._context)
-                values.append(f"{new_key}: {new_code}")
+                values.append(f"{new_key}: {child.rendered_new_code}")
 
         return "{" + ", ".join(values) + "}"
 
@@ -79,23 +92,20 @@ class DictValue(GenericValue):
             values = self._ast_node.values
 
         for key, node in zip(self._old_value.value.keys(), values):
-            if key in self._new_value.value:
+            if key in self._data.children:
                 # check values with same keys
-                yield from self._new_value.value[key]._get_changes()  # type: ignore
+                yield from self._data.children[key].changes
             else:
                 # delete entries
                 yield Delete("trim", self._file, node)
 
         to_insert = []
-        for key, new_value_element in self._new_value.value.items():
-            if key not in self._old_value.value and not isinstance(
-                new_value_element, UndecidedValue
-            ):
+        for key, child in self._data.children.items():
+            if key not in self._old_value.value and child.rendered_new_code is not None:
                 # add new values
-                new_code = yield from new_value_element._new_code()  # type: ignore
                 new_key = yield from key._code_repr(self._context)
 
-                to_insert.append((new_key, new_code))
+                to_insert.append((new_key, child.rendered_new_code))
 
         if to_insert:
             yield DictInsert(

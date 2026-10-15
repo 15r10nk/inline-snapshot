@@ -19,6 +19,7 @@ class EqValue(GenericValue):
     _changes: List[Change]
 
     def __eq__(self, other):
+        changed = False
         if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1
 
@@ -26,7 +27,8 @@ class EqValue(GenericValue):
 
         if isinstance(self._new_value, CustomUndefined):
             if not compare_only():
-                self._changes = []
+                changed = True
+                self._operation_changes = []
 
                 if not state().active:
                     return self._return(self._old_value._eval() == other)
@@ -34,6 +36,7 @@ class EqValue(GenericValue):
                 if not state().config.show_updates and not state().update_flags.update:
                     if is_equal:
                         self._new_value = self._old_value
+                        self._refresh_changes()
                         return True
 
                 if self._ast_node is not None:
@@ -42,16 +45,16 @@ class EqValue(GenericValue):
                             self._old_value, self._ast_node, other
                         )
                     )
-                    self._changes = result.list
+                    self._operation_changes = result.list
                     self._new_value = result.value
                 else:
                     # No argument node: do not use the adapter (it requires a node)
                     # and do not rewrite source. Report flags only.
                     if isinstance(self._old_value, CustomUndefined):
-                        self._changes.append(CategoryChange("create"))
+                        self._operation_changes.append(CategoryChange("create"))
                         self._new_value = self.to_custom(other, _build_new_value=True)
                     elif self._old_value._eval() != other:
-                        self._changes.append(CategoryChange("fix"))
+                        self._operation_changes.append(CategoryChange("fix"))
                         if self._context.expr.node is not None:
                             self._new_value = self.to_custom(
                                 other, _build_new_value=True
@@ -59,14 +62,17 @@ class EqValue(GenericValue):
                     else:
                         self._new_value = self._old_value
 
-        return self._return(
+        result = self._return(
             is_equal,
             self._new_value._eval() == other,
         )
+        if changed:
+            self._refresh_changes()
+        return result
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
         code = yield from self._new_value._code_repr(self._context)
         return code
 
     def _get_changes(self) -> Iterator[Change]:
-        return iter(getattr(self, "_changes", []))
+        return iter(self._operation_changes or [])

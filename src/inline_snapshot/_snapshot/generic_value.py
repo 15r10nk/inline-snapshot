@@ -14,6 +14,7 @@ from .._change import ChangeBase
 from .._global_state import state
 from .._types import SnapshotBase
 from .._unmanaged import declare_unmanaged
+from .snapshot_data import SnapshotData
 
 
 def ignore_old_value():
@@ -22,11 +23,50 @@ def ignore_old_value():
 
 @declare_unmanaged
 class GenericValue(SnapshotBase):
-    _new_value: Custom
-    _old_value: Custom
     _current_op = "undefined"
-    _ast_node: ast.expr
+    _ast_node: ast.expr | None
     _context: AdapterContext
+
+    def __init__(
+        self,
+        data: SnapshotData,
+        ast_node: ast.expr | None,
+        context: AdapterContext,
+        *,
+        call_node=None,
+        parent=None,
+        parent_key=None,
+    ):
+        self._data = data
+        self._ast_node = ast_node
+        self._context = context
+        self._call_node = call_node
+        self._parent = parent
+        self._parent_key = parent_key
+
+    @property
+    def _old_value(self):
+        return self._data._old_value
+
+    @_old_value.setter
+    def _old_value(self, value):
+        self._data._old_value = value
+
+    @property
+    def _new_value(self):
+        return self._data._new_value
+
+    @_new_value.setter
+    def _new_value(self, value):
+        self._data._new_value = value
+
+    @property
+    def _operation_changes(self):
+        return self._data.operation_changes
+
+    @_operation_changes.setter
+    def _operation_changes(self, value):
+        self._data.operation_changes = value
 
     def get_builder(self, **args):
         return Builder(_snapshot_context=self._context, **args)
@@ -81,6 +121,85 @@ class GenericValue(SnapshotBase):
         self._context = context
 
         self._old_value = reeval(self._old_value, self.value_to_custom(value))
+
+    def _select(self, operation: str, value_type):
+        __tracebackhide__ = True
+        if self._data.operation is None:
+            self._data.operation = operation
+        elif self._data.operation != operation:
+            current_op = {
+                "eq": "x == snapshot",
+                "min": "x >= snapshot",
+                "max": "x <= snapshot",
+                "collection": "x in snapshot",
+                "dict": "snapshot[key]",
+            }[self._data.operation]
+            requested_op = {
+                "eq": "==",
+                "min": "<=",
+                "max": ">=",
+                "collection": "in",
+                "dict": "snapshot[key]",
+            }[operation]
+            raise TypeError(
+                f"This snapshot cannot be use with `{requested_op}`, "
+                f"because it was previously used with `{current_op}`"
+            )
+        return value_type(
+            self._data,
+            self._ast_node,
+            self._context,
+            call_node=self._call_node,
+            parent=self._parent,
+            parent_key=self._parent_key,
+        )
+
+    def _refresh_changes(self):
+        if not self._data.explicit_dispatch:
+            return
+
+        missing_argument = (
+            isinstance(self._old_value, CustomUndefined)
+            if self._call_node is None
+            else not self._call_node.args
+        )
+
+        if self._parent is not None:
+            if isinstance(self._old_value, CustomUndefined):
+                from inline_snapshot._generator_utils import split_gen
+
+                self._data.rendered_new_code = split_gen(self._new_code()).value
+                self._data.changes = []
+            else:
+                self._data.changes = list(self._get_changes())
+        else:
+            if missing_argument:
+                if isinstance(self._new_value, CustomUndefined):
+                    self._data.changes = []
+                else:
+                    from inline_snapshot._change import CallArg
+                    from inline_snapshot._generator_utils import split_gen
+
+                    rendered = split_gen(self._new_code())
+                    self._data.rendered_new_code = rendered.value
+                    for change in rendered.list:
+                        change.flag = "create"
+                    self._data.changes = [
+                        *rendered.list,
+                        CallArg(
+                            flag="create",
+                            file=self._file,
+                            node=self._call_node,
+                            arg_pos=0,
+                            arg_name=None,
+                            new_code=rendered.value,
+                        ),
+                    ]
+            else:
+                self._data.changes = list(self._get_changes())
+
+        if self._parent is not None:
+            self._parent._child_changed(self._parent_key, self._data, self._context)
 
     def _ignore_old(self):
         return (

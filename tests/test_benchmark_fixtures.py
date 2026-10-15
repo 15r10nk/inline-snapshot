@@ -11,6 +11,7 @@ from benchmarks._fixtures import source
 from benchmarks.bench_pytest import PytestSession
 from benchmarks.bench_snapshot import Comparison
 from inline_snapshot._global_state import snapshot_env
+from inline_snapshot._snapshot.snapshot_data import SnapshotData
 
 
 @pytest.mark.parametrize("rewritten_count", [0, 1, 10])
@@ -57,9 +58,9 @@ def plain():
                 getattr(module, f"test_snapshot_{i}")()
             # First visits initialize distinct sites; repeated visits reuse them.
             assert len(state.snapshots) == 3
-        nodes = [ref._context.expr.node for ref in state.snapshots.values()]
-        assert all(node is not None for node in nodes)
-        assert len({node.lineno for node in nodes}) == 3
+        assert all(isinstance(data, SnapshotData) for data in state.snapshots.values())
+        assert {data.operation for data in state.snapshots.values()} == {"eq"}
+        assert all(data.file.filename == str(path) for data in state.snapshots.values())
         assert not state.missing_values and not state.incorrect_values
     module.plain()
     assert path.read_text().count("# Keep literal syntax and comments intact.") == 3

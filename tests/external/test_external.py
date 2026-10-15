@@ -829,8 +829,8 @@ tests/test_something.py
 from inline_snapshot import external, snapshot,outsource
 
 def test_something():
-    assert outsource("foo") == snapshot(external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"))
-    assert "foo" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+    assert outsource("foo") == snapshot(external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt"))
+    assert "foo" == external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt")
 """,
             }
         ),

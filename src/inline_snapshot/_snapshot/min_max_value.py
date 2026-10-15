@@ -35,10 +35,10 @@ class MinMaxValue(GenericValue):
                 )
             )
             self._new_value = result.value
-            self._changes = result.list
+            self._operation_changes = result.list
         else:
             self._new_value = self.to_custom(other, _build_new_value=True)
-            self._changes = None
+            self._operation_changes = None
 
     def _generic_cmp(self, other):
         if isinstance(self._old_value, CustomUndefined):
@@ -47,20 +47,23 @@ class MinMaxValue(GenericValue):
         if isinstance(self._new_value, CustomUndefined):
             self._set_new_value(other)
             if isinstance(self._old_value, CustomUndefined) or ignore_old_value():
+                self._refresh_changes()
                 return True
-            return self._return(self.cmp(self._old_value._eval(), other))
+            result = self._return(self.cmp(self._old_value._eval(), other))
         else:
             if not self.cmp(self._new_value._eval(), other):
                 self._set_new_value(other)
+            result = self._return(self.cmp(self._visible_value()._eval(), other))
 
-        return self._return(self.cmp(self._visible_value()._eval(), other))
+        self._refresh_changes()
+        return result
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
         code = yield from self._new_value._code_repr(self._context)
         return code
 
     def _get_changes(self) -> Iterator[ChangeBase]:
-        changes = getattr(self, "_changes", None)
+        changes = self._operation_changes
         if changes is not None:
             old_eval = self._old_value._eval()
             new_eval = self._new_value._eval()
@@ -86,7 +89,7 @@ class MinMaxValue(GenericValue):
             return
 
         yield Replace(
-            node=self._ast_node,
+            node=self._ast_node,  # type: ignore[arg-type]
             file=self._file,
             new_code=new_code,
             flag=flag,

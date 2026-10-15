@@ -1,8 +1,10 @@
 import contextlib
+import gc
 import itertools
 import re
 import textwrap
 import warnings
+import weakref
 from collections import namedtuple
 from dataclasses import dataclass
 from typing import Union
@@ -15,6 +17,7 @@ from inline_snapshot._flags import Flags
 from inline_snapshot._format import format_code
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot._is import Is
+from inline_snapshot._snapshot.snapshot_data import SnapshotData
 from inline_snapshot.extra import Transformed
 from inline_snapshot.testing import Example
 from tests.conftest import check_update
@@ -25,6 +28,27 @@ def test_snapshot_eq():
     with snapshot_env():
         assert 1 == snapshot(1)
         assert snapshot(1) == 1
+
+
+@pytest.mark.no_rewriting
+def test_snapshot_registry_does_not_retain_context():
+    class Payload:
+        pass
+
+    def run_snapshot():
+        payload = Payload()
+        payload_ref = weakref.ref(payload)
+        assert snapshot(1) == 1
+        return payload_ref
+
+    with snapshot_env() as snapshot_state:
+        payload_ref = run_snapshot()
+        gc.collect()
+
+        assert payload_ref() is None
+        snapshot_data = next(iter(snapshot_state.snapshots.values()))
+        assert isinstance(snapshot_data, SnapshotData)
+        assert not hasattr(snapshot_data, "_context")
 
 
 @pytest.mark.no_rewriting
