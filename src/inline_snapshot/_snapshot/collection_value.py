@@ -1,7 +1,6 @@
 import ast
 from typing import Generator
 from typing import Iterator
-from typing import List
 from typing import Union
 
 from inline_snapshot._customize._custom import Custom
@@ -22,7 +21,6 @@ class CollectionValue(GenericValue):
     _current_op = "x in snapshot"
     _ast_node: Union[ast.List, ast.Tuple]
     _new_value: CustomList
-    _element_changes: List[ChangeBase]
 
     def _observe_item(self, item):
         old_value: Custom = CustomUndefined()
@@ -47,16 +45,12 @@ class CollectionValue(GenericValue):
             result = split_gen(
                 NewAdapter(self._context).compare(old_value, old_node, item)
             )
-            self._element_changes.extend(result.list)
+            self._data.element_changes.extend(result.list)
             return result.value
 
         return self.to_custom(item, _build_new_value=True)
 
     def __contains__(self, item):
-        if "element_changes" not in self._data.extra:
-            self._data.extra["element_changes"] = []
-        self._element_changes = self._data.extra["element_changes"]
-
         if isinstance(self._old_value, CustomUndefined):
             state().missing_values += 1
 
@@ -87,7 +81,7 @@ class CollectionValue(GenericValue):
             assert isinstance(self._ast_node, ast.List)
             elements = self._ast_node.elts
 
-        yield from self._data.extra.get("element_changes", [])
+        yield from self._data.element_changes
 
         for old_value, old_node in zip(self._old_value.value, elements):
             if old_value not in self._new_value.value:

@@ -23,6 +23,7 @@ from .._adapter_context import AdapterContext
 from .._change import ChangeBase
 from .generic_value import GenericValue
 from .snapshot_data import SnapshotData
+from .snapshot_data import SnapshotOperation
 
 
 class AstToCustom:
@@ -198,28 +199,28 @@ class UndecidedValue(GenericValue):
 
         from .._snapshot.eq_value import EqValue
 
-        return self._dispatch("eq", EqValue) == other
+        return self._dispatch(SnapshotOperation.EQ, EqValue) == other
 
     def __le__(self, other):
         __tracebackhide__ = True
         from .._snapshot.min_max_value import MinValue
 
-        return self._dispatch("min", MinValue) <= other
+        return self._dispatch(SnapshotOperation.MIN, MinValue) <= other
 
     def __ge__(self, other):
         __tracebackhide__ = True
         from .._snapshot.min_max_value import MaxValue
 
-        return self._dispatch("max", MaxValue) >= other
+        return self._dispatch(SnapshotOperation.MAX, MaxValue) >= other
 
     def __contains__(self, item):
         __tracebackhide__ = True
         from .._snapshot.collection_value import CollectionValue
 
-        return item in self._dispatch("collection", CollectionValue)
+        return item in self._dispatch(SnapshotOperation.COLLECTION, CollectionValue)
 
     def __getitem__(self, item):
         __tracebackhide__ = True
         from .._snapshot.dict_value import DictValue
 
-        return self._dispatch("dict", DictValue)[item]
+        return self._dispatch(SnapshotOperation.DICT, DictValue)[item]

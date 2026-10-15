@@ -15,6 +15,7 @@ from .._global_state import state
 from .._types import SnapshotBase
 from .._unmanaged import declare_unmanaged
 from .snapshot_data import SnapshotData
+from .snapshot_data import SnapshotOperation
 
 
 def ignore_old_value():
@@ -124,28 +125,14 @@ class GenericValue(SnapshotBase):
 
         self._old_value = reeval(self._old_value, self.value_to_custom(value))
 
-    def _select(self, operation: str, value_type):
+    def _select(self, operation: SnapshotOperation, value_type):
         __tracebackhide__ = True
         if self._data.operation is None:
             self._data.operation = operation
         elif self._data.operation != operation:
-            current_op = {
-                "eq": "x == snapshot",
-                "min": "x >= snapshot",
-                "max": "x <= snapshot",
-                "collection": "x in snapshot",
-                "dict": "snapshot[key]",
-            }[self._data.operation]
-            requested_op = {
-                "eq": "==",
-                "min": "<=",
-                "max": ">=",
-                "collection": "in",
-                "dict": "snapshot[key]",
-            }[operation]
             raise TypeError(
-                f"This snapshot cannot be use with `{requested_op}`, "
-                f"because it was previously used with `{current_op}`"
+                f"This snapshot cannot be use with `{operation.requested}`, "
+                f"because it was previously used with `{self._data.operation.current}`"
             )
         return value_type(
             self._data,
