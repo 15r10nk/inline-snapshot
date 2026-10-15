@@ -1,6 +1,4 @@
-import ast
 import inspect
-from types import FrameType
 from typing import Any
 from typing import TypeVar
 
@@ -50,17 +48,6 @@ def create_snapshot(Type, obj, extra_frames=0):
 
     key = Type.key_for(frame)
 
-    if Type is SnapshotReference:
-        data = state().snapshots.get(key)
-        new = Type(
-            obj,
-            frame,
-            data=data if isinstance(data, SnapshotData) else None,
-        )
-        if data is None:
-            state().snapshots[key] = new._data
-        return new.result()
-
     if key not in state().snapshots:
         new = Type(obj, frame)
         state().snapshots[key] = new
@@ -69,6 +56,41 @@ def create_snapshot(Type, obj, extra_frames=0):
         new._re_eval(obj, frame)
 
     return new.result()
+
+
+def create_inline_snapshot(obj):
+    frame = inspect.currentframe()
+    assert frame is not None
+
+    # create_inline_snapshot -> snapshot -> ReprWrapper.__call__ -> caller
+    for _ in range(3):
+        frame = frame.f_back
+        assert frame is not None
+
+    if not state().active:
+        if obj is undefined:
+            raise AssertionError(
+                "your snapshot is missing a value run pytest with --inline-snapshot=create"
+            )
+        return obj
+
+    key = SnapshotRefBase.key_for(frame)
+    context = AdapterContext(frame)
+    call_node = context.expr.node
+    node = call_node.args[0] if call_node is not None and call_node.args else None
+
+    data = state().snapshots.get(key)
+    if not isinstance(data, SnapshotData):
+        data = SnapshotData(explicit_dispatch=True)
+        state().snapshots[key] = data
+
+    return UndecidedValue(
+        obj,
+        node,
+        context,
+        data,
+        call_node=call_node,
+    )
 
 
 @repr_wrapper
@@ -91,36 +113,4 @@ def snapshot(obj: Any = undefined) -> Any:
     `snapshot(value)` has general the semantic of an noop which returns `value`.
     """
 
-    return create_snapshot(SnapshotReference, obj, 1)
-
-
-class SnapshotReference(SnapshotRefBase):
-    def __init__(
-        self, value, frame: FrameType, data: SnapshotData | None = None
-    ) -> None:
-        self._context = AdapterContext(frame)
-        call_node = self._context.expr.node
-        node = call_node.args[0] if call_node is not None and call_node.args else None
-        if data is None:
-            data = SnapshotData(explicit_dispatch=True)
-        self._value = UndecidedValue(
-            value,
-            node,
-            self._context,
-            data,
-            call_node=call_node,
-        )
-        self._data = self._value._data
-
-    def result(self):
-        return self._value
-
-    @staticmethod
-    def create_raw(obj, frame: FrameType):
-        return obj
-
-    def __repr__(self):
-        if self._context.expr.node:
-            return ast.unparse(self._context.expr.node)
-        else:
-            return "snapshot(...)"
+    return create_inline_snapshot(obj)
