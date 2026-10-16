@@ -88,6 +88,22 @@ def test_snapshot_registry_does_not_retain_context():
 
 
 @pytest.mark.no_rewriting
+def test_repeated_snapshot_uses_fresh_facades_with_shared_data():
+    with snapshot_env() as snapshot_state:
+        values = [snapshot({"answer": 1}) for _ in range(2)]
+        children = [value["answer"] for value in values]
+
+        assert values[0] is not values[1]
+        assert values[0]._context is not values[1]._context
+        assert values[0]._data is values[1]._data
+
+        assert children[0] is not children[1]
+        assert children[0]._context is not children[1]._context
+        assert children[0]._data is children[1]._data
+        assert list(snapshot_state.snapshots.values()) == [values[0]._data]
+
+
+@pytest.mark.no_rewriting
 def test_disabled():
     with snapshot_env() as state:
         state.active = False
