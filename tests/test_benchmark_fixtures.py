@@ -10,6 +10,7 @@ from benchmarks._fixtures import load_module
 from benchmarks._fixtures import source
 from benchmarks.bench_pytest import PytestSession
 from benchmarks.bench_snapshot import Comparison
+from benchmarks.bench_snapshot import RetainedSnapshotState
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot._snapshot.snapshot_data import SnapshotData
 
@@ -127,3 +128,16 @@ assert state.active is {mode != "disabled"}
         timeout=60,
     )
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_retained_snapshot_state_benchmark():
+    benchmark = RetainedSnapshotState()
+    benchmark.call_site_count = 3
+    benchmark.setup("schema")
+    try:
+        snapshots = benchmark.state.snapshots
+        assert len(snapshots) == 3
+        assert all(isinstance(data, SnapshotData) for data in snapshots.values())
+        assert benchmark.track_retained_snapshots("schema") > 0
+    finally:
+        benchmark.teardown("schema")
