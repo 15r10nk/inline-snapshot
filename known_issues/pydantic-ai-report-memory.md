@@ -59,12 +59,15 @@ pre-report hook.
 file. Each source contains its parsed AST. `executing` also adds parent links to
 AST nodes, making a file's tree a connected object graph.
 
-The snapshot state retains this graph through two mechanisms:
+The snapshot state can retain this graph through two mechanisms:
 
-1. `SnapshotData.file` contains a `SourceFile`, which wraps an
-   `executing.Source`.
+1. Eagerly materialized `ChangeBase` objects contain a `SourceFile` and AST
+   nodes needed to render and apply the final report.
 2. `CustomCode._repr_str` can contain an AST node. That node's parent links
    connect it to the rest of the file tree.
+
+`SnapshotData` itself stores only the source filename as a `Path`; it does not
+retain a `SourceFile` merely to identify the call site at session end.
 
 The local `executing` changes avoid eagerly constructing some secondary indexes,
 but do not change the lifetime of the source cache or base AST.
