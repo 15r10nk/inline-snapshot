@@ -3,6 +3,7 @@ import gc
 import itertools
 import re
 import textwrap
+import types
 import warnings
 import weakref
 from collections import namedtuple
@@ -13,6 +14,7 @@ import pytest
 from dirty_equals import AnyThing
 
 from inline_snapshot import snapshot
+from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._flags import Flags
 from inline_snapshot._format import format_code
 from inline_snapshot._global_state import snapshot_env
@@ -21,6 +23,38 @@ from inline_snapshot._snapshot.snapshot_data import SnapshotData
 from inline_snapshot.extra import Transformed
 from inline_snapshot.testing import Example
 from tests.conftest import check_update
+
+
+def _owned_objects(root):
+    """Walk state owned by an object without following classes or functions."""
+    pending = [root]
+    seen = set()
+    while pending:
+        value = pending.pop()
+        if id(value) in seen:
+            continue
+        seen.add(id(value))
+        yield value
+
+        if isinstance(value, dict):
+            pending.extend(value.keys())
+            pending.extend(value.values())
+        elif isinstance(value, (list, tuple, set, frozenset)):
+            pending.extend(value)
+        elif not isinstance(
+            value,
+            (
+                str,
+                bytes,
+                int,
+                float,
+                complex,
+                type,
+                types.FunctionType,
+                types.ModuleType,
+            ),
+        ):
+            pending.extend(vars(value).values() if hasattr(value, "__dict__") else ())
 
 
 @pytest.mark.no_rewriting
@@ -38,7 +72,7 @@ def test_snapshot_registry_does_not_retain_context():
     def run_snapshot():
         payload = Payload()
         payload_ref = weakref.ref(payload)
-        assert snapshot(1) == 1
+        assert snapshot({"answer": 1})["answer"] == 1
         return payload_ref
 
     with snapshot_env() as snapshot_state:
@@ -48,7 +82,9 @@ def test_snapshot_registry_does_not_retain_context():
         assert payload_ref() is None
         snapshot_data = next(iter(snapshot_state.snapshots.values()))
         assert isinstance(snapshot_data, SnapshotData)
-        assert not hasattr(snapshot_data, "_context")
+        retained_objects = list(_owned_objects(snapshot_data))
+        assert not any(isinstance(value, AdapterContext) for value in retained_objects)
+        assert not any(isinstance(value, types.FrameType) for value in retained_objects)
 
 
 @pytest.mark.no_rewriting
