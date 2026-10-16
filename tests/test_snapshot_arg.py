@@ -291,6 +291,25 @@ def test_a():
 """).run_inline(["--inline-snapshot=disable"], reported_categories=set())
 
 
+def test_snapshot_arg_disable_missing_value():
+    Example("""\
+from inline_snapshot._snapshot_arg import snapshot_arg
+
+
+def my_func(expected=...):
+    snapshot_arg(expected)
+
+def test_a():
+    my_func()
+""").run_inline(
+        ["--inline-snapshot=disable"],
+        raises=snapshot(
+            "AssertionError: your snapshot is missing a value run pytest with --inline-snapshot=create"
+        ),
+        reported_categories=set(),
+    )
+
+
 def test_snapshot_arg_module_level():
     """snapshot_arg called at module level: raises UsageError (line 116)."""
     Example("""\

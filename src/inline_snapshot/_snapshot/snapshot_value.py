@@ -157,10 +157,6 @@ class SnapshotValue(SnapshotBase):
             self._data.changes = list(self._get_changes())
 
     def _refresh_create_changes(self):
-        if isinstance(self._new_value, CustomUndefined):
-            self._data.changes = []
-            return
-
         rendered = split_gen(self._new_code())
         self._data.rendered_new_code = rendered.value
         for change in rendered.list:
@@ -192,8 +188,7 @@ class SnapshotValue(SnapshotBase):
             return self._old_value
 
     def _get_changes(self) -> Iterator[ChangeBase]:
-        if self._data.operation is None:
-            return iter(())
+        assert self._data.operation is not None
         return self._data.operation.get_changes(self)
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
