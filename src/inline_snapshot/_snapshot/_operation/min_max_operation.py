@@ -7,11 +7,11 @@ from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._generator_utils import split_gen
 from inline_snapshot._new_adapter import NewAdapter
 
-from .._change import ChangeBase
-from .._change import Replace
-from .._global_state import state
-from .generic_value import ignore_old_value
-from .snapshot_data import SnapshotOperation
+from ..._change import ChangeBase
+from ..._change import Replace
+from ..._global_state import state
+from ..generic_value import ignore_old_value
+from ..snapshot_data import SnapshotOperation
 
 
 class MinMaxOperation(SnapshotOperation):

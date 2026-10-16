@@ -6,13 +6,13 @@ from typing import cast
 from inline_snapshot._customize._custom_dict import CustomDict
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 
-from .._change import ChangeBase
-from .._change import Delete
-from .._change import DictInsert
-from .._global_state import state
-from .snapshot_data import SnapshotData
-from .snapshot_data import SnapshotOperation
-from .undecided_value import UndecidedValue
+from ..._change import ChangeBase
+from ..._change import Delete
+from ..._change import DictInsert
+from ..._global_state import state
+from ..snapshot_data import SnapshotData
+from ..snapshot_data import SnapshotOperation
+from ..undecided_value import UndecidedValue
 
 
 class DictOperation(SnapshotOperation):

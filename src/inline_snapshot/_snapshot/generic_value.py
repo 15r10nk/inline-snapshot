@@ -192,7 +192,7 @@ class GenericValue(SnapshotBase):
     def __eq__(self, other):
         __tracebackhide__ = True
         from .._compare_context import compare_only
-        from .eq_value import EqOperation
+        from ._operation.eq_operation import EqOperation
 
         if compare_only():
             return False
@@ -200,24 +200,24 @@ class GenericValue(SnapshotBase):
 
     def __le__(self, other):
         __tracebackhide__ = True
-        from .min_max_value import MinOperation
+        from ._operation.min_max_operation import MinOperation
 
         return self._data.use(MinOperation).compare(self, other)
 
     def __ge__(self, other):
         __tracebackhide__ = True
-        from .min_max_value import MaxOperation
+        from ._operation.min_max_operation import MaxOperation
 
         return self._data.use(MaxOperation).compare(self, other)
 
     def __contains__(self, item):
         __tracebackhide__ = True
-        from .collection_value import CollectionOperation
+        from ._operation.collection_operation import CollectionOperation
 
         return self._data.use(CollectionOperation).contains(self, item)
 
     def __getitem__(self, item):
         __tracebackhide__ = True
-        from .dict_value import DictOperation
+        from ._operation.dict_operation import DictOperation
 
         return self._data.use(DictOperation).getitem(self, item)

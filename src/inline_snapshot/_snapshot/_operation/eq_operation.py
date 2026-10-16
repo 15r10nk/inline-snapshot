@@ -6,12 +6,12 @@ from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._generator_utils import split_gen
 from inline_snapshot._new_adapter import NewAdapter
 
-from .._change import CategoryChange
-from .._change import Change
-from .._change import ChangeBase
-from .._compare_context import compare_only
-from .._global_state import state
-from .snapshot_data import SnapshotOperation
+from ..._change import CategoryChange
+from ..._change import Change
+from ..._change import ChangeBase
+from ..._compare_context import compare_only
+from ..._global_state import state
+from ..snapshot_data import SnapshotOperation
 
 
 class EqOperation(SnapshotOperation):
