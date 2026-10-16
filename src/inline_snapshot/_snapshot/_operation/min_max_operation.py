@@ -61,11 +61,11 @@ class MinMaxOperation(SnapshotOperation):
         value._refresh_changes()
         return result
 
-    def _new_code(self, value) -> Generator[ChangeBase, None, str]:
+    def new_code(self, value) -> Generator[ChangeBase, None, str]:
         code = yield from value._new_value._code_repr(value._context)
         return code
 
-    def _get_changes(self, value) -> Iterator[ChangeBase]:
+    def get_changes(self, value) -> Iterator[ChangeBase]:
         changes = self.changes
         if changes is not None:
             old_eval = value._old_value._eval()
@@ -80,7 +80,7 @@ class MinMaxOperation(SnapshotOperation):
                 yield change
             return
 
-        new_code = yield from self._new_code(value)
+        new_code = yield from self.new_code(value)
 
         if not self.cmp(value._old_value._eval(), value._new_value._eval()):
             flag = "fix"

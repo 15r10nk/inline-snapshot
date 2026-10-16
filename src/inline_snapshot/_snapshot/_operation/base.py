@@ -16,8 +16,8 @@ class SnapshotOperation:
     requested: str
     current: str
 
-    def _new_code(self, value: SnapshotValue) -> Generator[ChangeBase, None, str]:
+    def new_code(self, value: SnapshotValue) -> Generator[ChangeBase, None, str]:
         raise NotImplementedError
 
-    def _get_changes(self, value: SnapshotValue) -> Iterator[ChangeBase]:
+    def get_changes(self, value: SnapshotValue) -> Iterator[ChangeBase]:
         raise NotImplementedError

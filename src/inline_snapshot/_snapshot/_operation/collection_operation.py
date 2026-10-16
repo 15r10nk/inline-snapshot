@@ -70,11 +70,11 @@ class CollectionOperation(SnapshotOperation):
         value._refresh_changes()
         return result
 
-    def _new_code(self, value) -> Generator[ChangeBase, None, str]:
+    def new_code(self, value) -> Generator[ChangeBase, None, str]:
         code = yield from value._new_value._code_repr(value._context)
         return code
 
-    def _get_changes(self, value) -> Iterator[ChangeBase]:
+    def get_changes(self, value) -> Iterator[ChangeBase]:
         assert isinstance(value._old_value, CustomList), value._old_value
         assert isinstance(value._new_value, CustomList), value._new_value
 

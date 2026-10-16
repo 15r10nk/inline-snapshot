@@ -73,7 +73,7 @@ class DictOperation(SnapshotOperation):
             value._new_value.value[key] = child._new_value
         value._refresh_changes()
 
-    def _new_code(self, value) -> Generator[ChangeBase, None, str]:
+    def new_code(self, value) -> Generator[ChangeBase, None, str]:
         values = []
         for k, child in self.children.items():
             if child.rendered_new_code is not None:
@@ -82,7 +82,7 @@ class DictOperation(SnapshotOperation):
 
         return "{" + ", ".join(values) + "}"
 
-    def _get_changes(self, value) -> Iterator[ChangeBase]:
+    def get_changes(self, value) -> Iterator[ChangeBase]:
 
         assert not isinstance(value._old_value, CustomUndefined)
 

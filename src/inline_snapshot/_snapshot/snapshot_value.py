@@ -193,11 +193,11 @@ class SnapshotValue(SnapshotBase):
     def _get_changes(self) -> Iterator[ChangeBase]:
         if self._data.operation is None:
             return iter(())
-        return self._data.operation._get_changes(self)
+        return self._data.operation.get_changes(self)
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
         assert self._data.operation is not None
-        return self._data.operation._new_code(self)
+        return self._data.operation.new_code(self)
 
     def __repr__(self):
         return repr(self._visible_value()._eval())
