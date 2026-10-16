@@ -1,8 +1,13 @@
+from __future__ import annotations
+
 import ast
+from typing import Any
 from typing import Generator
 from typing import Iterator
 from typing import cast
 
+from inline_snapshot._adapter_context import AdapterContext
+from inline_snapshot._customize._custom import Custom
 from inline_snapshot._customize._custom_dict import CustomDict
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 
@@ -19,10 +24,10 @@ class DictOperation(SnapshotOperation):
     requested = "snapshot[key]"
     current = "snapshot[key]"
 
-    def __init__(self):
-        self.children: dict = {}
+    def __init__(self) -> None:
+        self.children: dict[Custom, SnapshotData] = {}
 
-    def getitem(self, value, index):
+    def getitem(self, value: SnapshotValue, index: Any) -> SnapshotValue:
         if isinstance(value._new_value, CustomUndefined):
             value._new_value = CustomDict({})
 
@@ -67,13 +72,19 @@ class DictOperation(SnapshotOperation):
             eager_changes=value._eager_changes,
         )
 
-    def _child_changed(self, value, key, child: SnapshotData, context):
+    def _child_changed(
+        self,
+        value: SnapshotValue,
+        key: Custom,
+        child: SnapshotData,
+        context: AdapterContext,
+    ) -> None:
         value._context = context
         if not isinstance(child._new_value, CustomUndefined):
             value._new_value.value[key] = child._new_value
         value._refresh_changes()
 
-    def new_code(self, value) -> Generator[ChangeBase, None, str]:
+    def new_code(self, value: SnapshotValue) -> Generator[ChangeBase, None, str]:
         values = []
         for k, child in self.children.items():
             if child.rendered_new_code is not None:
@@ -82,7 +93,7 @@ class DictOperation(SnapshotOperation):
 
         return "{" + ", ".join(values) + "}"
 
-    def get_changes(self, value) -> Iterator[ChangeBase]:
+    def get_changes(self, value: SnapshotValue) -> Iterator[ChangeBase]:
 
         assert not isinstance(value._old_value, CustomUndefined)
 

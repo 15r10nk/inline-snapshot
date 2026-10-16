@@ -1,7 +1,9 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+from typing import Any
 from typing import Generator
 from typing import Iterator
-from typing import List
-from typing import Optional
 
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._generator_utils import split_gen
@@ -13,20 +15,23 @@ from ..._global_state import state
 from ..snapshot_value import ignore_old_value
 from .base import SnapshotOperation
 
+if TYPE_CHECKING:
+    from ..snapshot_value import SnapshotValue
+
 
 class MinMaxOperation(SnapshotOperation):
     """Generic implementation for <=, >="""
 
-    _changes: Optional[List[ChangeBase]]
+    _changes: list[ChangeBase] | None
 
     @staticmethod
-    def cmp(a, b):
+    def cmp(a: Any, b: Any) -> bool:
         raise NotImplementedError
 
-    def __init__(self):
-        self.changes: Optional[List[ChangeBase]] = None
+    def __init__(self) -> None:
+        self.changes: list[ChangeBase] | None = None
 
-    def _set_new_value(self, value, other):
+    def _set_new_value(self, value: SnapshotValue, other: Any) -> None:
         if (
             state().active
             and value._ast_node is not None
@@ -43,7 +48,7 @@ class MinMaxOperation(SnapshotOperation):
             value._new_value = value.to_custom(other, _build_new_value=True)
             self.changes = None
 
-    def compare(self, value, other):
+    def compare(self, value: SnapshotValue, other: Any) -> bool:
         if isinstance(value._old_value, CustomUndefined):
             state().missing_values += 1
 
@@ -61,11 +66,11 @@ class MinMaxOperation(SnapshotOperation):
         value._refresh_changes()
         return result
 
-    def new_code(self, value) -> Generator[ChangeBase, None, str]:
+    def new_code(self, value: SnapshotValue) -> Generator[ChangeBase, None, str]:
         code = yield from value._new_value._code_repr(value._context)
         return code
 
-    def get_changes(self, value) -> Iterator[ChangeBase]:
+    def get_changes(self, value: SnapshotValue) -> Iterator[ChangeBase]:
         changes = self.changes
         if changes is not None:
             old_eval = value._old_value._eval()
@@ -115,7 +120,7 @@ class MinOperation(MinMaxOperation):
     current = "x >= snapshot"
 
     @staticmethod
-    def cmp(a, b):
+    def cmp(a: Any, b: Any) -> bool:
         return a <= b
 
 
@@ -135,5 +140,5 @@ class MaxOperation(MinMaxOperation):
     current = "x <= snapshot"
 
     @staticmethod
-    def cmp(a, b):
+    def cmp(a: Any, b: Any) -> bool:
         return a >= b

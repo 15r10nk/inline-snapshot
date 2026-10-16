@@ -1,4 +1,8 @@
+from __future__ import annotations
+
 import ast
+from typing import TYPE_CHECKING
+from typing import Any
 from typing import Generator
 from typing import Iterator
 from typing import Union
@@ -17,23 +21,26 @@ from ..._global_state import state
 from ..snapshot_value import ignore_old_value
 from .base import SnapshotOperation
 
+if TYPE_CHECKING:
+    from ..snapshot_value import SnapshotValue
+
 
 class CollectionOperation(SnapshotOperation):
     requested = "in"
     current = "x in snapshot"
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.element_changes: list[ChangeBase] = []
 
-    def _observe_item(self, value, item):
+    def _observe_item(self, value: SnapshotValue, item: Any) -> Custom:
         old_value: Custom = CustomUndefined()
         old_node = None
         if not isinstance(value._old_value, CustomUndefined):
             if value._ast_node is None:
-                elements = [None] * len(value._old_value.value)
+                elements: list[ast.expr | None] = [None] * len(value._old_value.value)
             else:
                 assert isinstance(value._ast_node, ast.List)
-                elements = value._ast_node.elts
+                elements = cast(list[ast.expr | None], value._ast_node.elts)
             for candidate, node in zip(value._old_value.value, elements):
                 if candidate._eval() == item:
                     old_value = candidate
@@ -53,7 +60,7 @@ class CollectionOperation(SnapshotOperation):
 
         return value.to_custom(item, _build_new_value=True)
 
-    def contains(self, value, item):
+    def contains(self, value: SnapshotValue, item: Any) -> bool:
         if isinstance(value._old_value, CustomUndefined):
             state().missing_values += 1
 
@@ -70,11 +77,11 @@ class CollectionOperation(SnapshotOperation):
         value._refresh_changes()
         return result
 
-    def new_code(self, value) -> Generator[ChangeBase, None, str]:
+    def new_code(self, value: SnapshotValue) -> Generator[ChangeBase, None, str]:
         code = yield from value._new_value._code_repr(value._context)
         return code
 
-    def get_changes(self, value) -> Iterator[ChangeBase]:
+    def get_changes(self, value: SnapshotValue) -> Iterator[ChangeBase]:
         assert isinstance(value._old_value, CustomList), value._old_value
         assert isinstance(value._new_value, CustomList), value._new_value
 
