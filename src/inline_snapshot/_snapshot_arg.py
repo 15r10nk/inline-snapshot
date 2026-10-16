@@ -18,8 +18,7 @@ from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._generator_utils import with_flag
 from inline_snapshot._inline_snapshot import create_snapshot
-from inline_snapshot._snapshot.generic_value import GenericValue
-from inline_snapshot._snapshot.undecided_value import UndecidedValue
+from inline_snapshot._snapshot.snapshot_value import SnapshotValue
 from inline_snapshot._types import Snapshot
 from inline_snapshot._types import SnapshotRefBase
 
@@ -81,7 +80,7 @@ def snapshot_arg(obj) -> Snapshot:
 
     """
 
-    if isinstance(obj, GenericValue):
+    if isinstance(obj, SnapshotValue):
         return obj
 
     return create_snapshot(SnapshotArgReference, obj)
@@ -107,7 +106,7 @@ def _get_call_frame(frame):
 class SnapshotArgReference(SnapshotRefBase):
     _node: Optional[ast.expr]
     _name: str
-    _value: GenericValue
+    _value: SnapshotValue
     _default_value: Any
     _arg_pos: Optional[int]
 
@@ -129,7 +128,7 @@ class SnapshotArgReference(SnapshotRefBase):
 
             self._node = None
 
-            self._value = UndecidedValue(value, None, self._context)
+            self._value = SnapshotValue(value, None, self._context, defer_changes=True)
             self._default_value = ...
             self._name = "<unknown>"
             self._arg_pos = None
@@ -236,7 +235,9 @@ class SnapshotArgReference(SnapshotRefBase):
                     self._node = kw.value
                     break
 
-        self._value = UndecidedValue(value, self._node, self._context)
+        self._value = SnapshotValue(
+            value, self._node, self._context, defer_changes=True
+        )
 
     @staticmethod
     def key_for(frame: FrameType):

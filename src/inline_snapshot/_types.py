@@ -14,6 +14,10 @@ from inline_snapshot._change import ChangeBase
 T = TypeVar("T", covariant=True)
 
 
+class SnapshotState(Protocol):
+    def _changes(self) -> Iterator[ChangeBase]: ...
+
+
 class SnapshotRefBase:
     _expr: Optional[Executing]
 

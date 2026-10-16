@@ -1,20 +1,14 @@
-import ast
 import inspect
-from types import FrameType
 from typing import Any
-from typing import Iterator
 from typing import TypeVar
 
 from inline_snapshot._adapter_context import AdapterContext
-from inline_snapshot._customize._custom_undefined import CustomUndefined
-from inline_snapshot._generator_utils import with_flag
 from inline_snapshot._types import SnapshotRefBase
 
-from ._change import CallArg
-from ._change import ChangeBase
 from ._global_state import state
 from ._sentinels import undefined
-from ._snapshot.undecided_value import UndecidedValue
+from ._snapshot.snapshot_data import SnapshotData
+from ._snapshot.snapshot_value import SnapshotValue
 
 
 class ReprWrapper:
@@ -64,6 +58,41 @@ def create_snapshot(Type, obj, extra_frames=0):
     return new.result()
 
 
+def create_inline_snapshot(obj):
+    frame = inspect.currentframe()
+    assert frame is not None
+
+    # create_inline_snapshot -> snapshot -> ReprWrapper.__call__ -> caller
+    for _ in range(3):
+        frame = frame.f_back
+        assert frame is not None
+
+    if not state().active:
+        if obj is undefined:
+            raise AssertionError(
+                "your snapshot is missing a value run pytest with --inline-snapshot=create"
+            )
+        return obj
+
+    key = SnapshotRefBase.key_for(frame)
+    context = AdapterContext(frame)
+    call_node = context.expr.node
+    node = call_node.args[0] if call_node is not None and call_node.args else None
+
+    data = state().snapshots.get(key)
+    if not isinstance(data, SnapshotData):
+        data = SnapshotData()
+        state().snapshots[key] = data
+
+    return SnapshotValue(
+        obj,
+        node,
+        context,
+        data,
+        call_node=call_node,
+    )
+
+
 @repr_wrapper
 def snapshot(obj: Any = undefined) -> Any:
     """`snapshot()` is a placeholder for some value.
@@ -84,54 +113,4 @@ def snapshot(obj: Any = undefined) -> Any:
     `snapshot(value)` has general the semantic of an noop which returns `value`.
     """
 
-    return create_snapshot(SnapshotReference, obj, 1)
-
-
-class SnapshotReference(SnapshotRefBase):
-    def __init__(self, value, frame: FrameType):
-        self._context = AdapterContext(frame)
-        call_node = self._context.expr.node
-        node = call_node.args[0] if call_node is not None and call_node.args else None
-        self._value = UndecidedValue(value, node, self._context)
-
-    def result(self):
-        return self._value
-
-    @staticmethod
-    def create_raw(obj, frame: FrameType):
-        return obj
-
-    def __repr__(self):
-        if self._context.expr.node:
-            return ast.unparse(self._context.expr.node)
-        else:
-            return "snapshot(...)"
-
-    def _changes(self) -> Iterator[ChangeBase]:
-
-        if (
-            isinstance(self._value._old_value, CustomUndefined)
-            if self._context.expr.node is None
-            else not self._context.expr.node.args
-        ):
-
-            if isinstance(self._value._new_value, CustomUndefined):
-                return
-
-            new_code = yield from with_flag(self._value._new_code(), "create")
-
-            yield CallArg(
-                flag="create",
-                file=self._value._file,
-                node=self._context.expr.node,
-                arg_pos=0,
-                arg_name=None,
-                new_code=new_code,
-            )
-
-        else:
-
-            yield from self._value._get_changes()
-
-    def _re_eval(self, obj, frame: FrameType):
-        self._value._re_eval(obj, AdapterContext(frame))
+    return create_inline_snapshot(obj)

@@ -9,7 +9,7 @@ from inline_snapshot._external._outsource import Outsourced
 from inline_snapshot._external._storage._protocol import StorageLookupError
 from inline_snapshot._global_state import state
 
-from .._snapshot.generic_value import GenericValue
+from .._snapshot.snapshot_value import SnapshotValue
 from ._external_location import ExternalLocation
 from ._external_location import Location
 
@@ -60,7 +60,7 @@ class ExternalBase:
                 f"you cannot compare {external_type}(...) with {external_type}(...)"
             )
 
-        elif isinstance(other, GenericValue):
+        elif isinstance(other, SnapshotValue):
             raise UsageError(
                 f"you cannot compare {external_type}(...) with snapshot(...)"
             )
