@@ -8,7 +8,7 @@ from inline_snapshot._types import SnapshotRefBase
 from ._global_state import state
 from ._sentinels import undefined
 from ._snapshot.snapshot_data import SnapshotData
-from ._snapshot.undecided_value import UndecidedValue
+from ._snapshot.snapshot_value import SnapshotValue
 
 
 class ReprWrapper:
@@ -84,7 +84,7 @@ def create_inline_snapshot(obj):
         data = SnapshotData()
         state().snapshots[key] = data
 
-    return UndecidedValue(
+    return SnapshotValue(
         obj,
         node,
         context,

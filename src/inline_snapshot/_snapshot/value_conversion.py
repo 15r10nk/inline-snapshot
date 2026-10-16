@@ -18,8 +18,6 @@ from inline_snapshot._new_adapter import warn_star_expression
 from inline_snapshot._unmanaged import is_unmanaged
 
 from .._adapter_context import AdapterContext
-from .snapshot_data import SnapshotData
-from .snapshot_value import SnapshotValue
 
 
 class AstToCustom:
@@ -147,27 +145,3 @@ class ValueToCustom:
         return CustomDict(
             {self.convert(k): self.convert(v) for (k, v) in value.items()}
         )
-
-
-class UndecidedValue(SnapshotValue):
-    def __init__(
-        self,
-        old_value,
-        ast_node,
-        context: AdapterContext,
-        data: SnapshotData | None = None,
-        **kwargs,
-    ):
-        if data is None:
-            data = SnapshotData()
-        super().__init__(data, ast_node, context, **kwargs)
-
-        if data.initialized:
-            self._re_eval(old_value, context)
-        else:
-            old_value = self.value_to_custom(old_value)
-            assert isinstance(old_value, Custom)
-            self._old_value = old_value
-            self._new_value = CustomUndefined()
-            data.initialized = True
-            data.file = context.file

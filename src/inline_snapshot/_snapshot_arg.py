@@ -19,7 +19,6 @@ from inline_snapshot._exceptions import UsageError
 from inline_snapshot._generator_utils import with_flag
 from inline_snapshot._inline_snapshot import create_snapshot
 from inline_snapshot._snapshot.snapshot_value import SnapshotValue
-from inline_snapshot._snapshot.undecided_value import UndecidedValue
 from inline_snapshot._types import Snapshot
 from inline_snapshot._types import SnapshotRefBase
 
@@ -129,7 +128,7 @@ class SnapshotArgReference(SnapshotRefBase):
 
             self._node = None
 
-            self._value = UndecidedValue(value, None, self._context)
+            self._value = SnapshotValue(value, None, self._context)
             self._default_value = ...
             self._name = "<unknown>"
             self._arg_pos = None
@@ -236,7 +235,7 @@ class SnapshotArgReference(SnapshotRefBase):
                     self._node = kw.value
                     break
 
-        self._value = UndecidedValue(value, self._node, self._context)
+        self._value = SnapshotValue(value, self._node, self._context)
 
     @staticmethod
     def key_for(frame: FrameType):

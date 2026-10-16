@@ -12,7 +12,7 @@ from ..._change import DictInsert
 from ..._global_state import state
 from ..snapshot_data import SnapshotData
 from ..snapshot_data import SnapshotOperation
-from ..undecided_value import UndecidedValue
+from ..snapshot_value import SnapshotValue
 
 
 class DictOperation(SnapshotOperation):
@@ -56,7 +56,7 @@ class DictOperation(SnapshotOperation):
                 old_keys = list(old_value)
                 child_node = value._ast_node.values[old_keys.index(index)]
 
-        return UndecidedValue(
+        return SnapshotValue(
             old_value.get(index, CustomUndefined()),
             child_node,
             value._context,

@@ -31,14 +31,17 @@ class SnapshotValue(SnapshotBase):
 
     def __init__(
         self,
-        data: SnapshotData,
+        old_value,
         ast_node: ast.expr | None,
         context: AdapterContext,
+        data: SnapshotData | None = None,
         *,
         call_node: ast.Call | None = None,
         on_change: Callable[[SnapshotData, AdapterContext], None] | None = None,
         eager_changes: bool = False,
     ):
+        if data is None:
+            data = SnapshotData()
         self._data = data
         self._ast_node = ast_node
         self._context = context
@@ -47,6 +50,16 @@ class SnapshotValue(SnapshotBase):
         # snapshot() materializes report changes while this context is alive.
         # snapshot_arg() still uses its legacy session-end materialization.
         self._eager_changes = eager_changes
+
+        if data.initialized:
+            self._re_eval(old_value, context)
+        else:
+            old_value = self.value_to_custom(old_value)
+            assert isinstance(old_value, Custom)
+            self._old_value = old_value
+            self._new_value = CustomUndefined()
+            data.initialized = True
+            data.file = context.file
 
     @property
     def _old_value(self):
@@ -105,11 +118,11 @@ class SnapshotValue(SnapshotBase):
             return value
 
         if self._ast_node is None:
-            from inline_snapshot._snapshot.undecided_value import ValueToCustom
+            from inline_snapshot._snapshot.value_conversion import ValueToCustom
 
             return ValueToCustom(self._context).convert(value)
         else:
-            from inline_snapshot._snapshot.undecided_value import AstToCustom
+            from inline_snapshot._snapshot.value_conversion import AstToCustom
 
             return AstToCustom(self._context).convert(value, self._ast_node)
 
