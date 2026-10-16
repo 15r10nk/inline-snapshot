@@ -63,7 +63,6 @@ def plain():
         assert {type(data.operation).__name__ for data in state.snapshots.values()} == {
             "EqOperation"
         }
-        assert all(data.file.filename == str(path) for data in state.snapshots.values())
         assert not state.missing_values and not state.incorrect_values
     module.plain()
     assert path.read_text().count("# Keep literal syntax and comments intact.") == 3

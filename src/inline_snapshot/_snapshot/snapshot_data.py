@@ -8,7 +8,6 @@ from typing import TypeVar
 from inline_snapshot._change import ChangeBase
 from inline_snapshot._customize._custom import Custom
 from inline_snapshot._customize._custom_undefined import CustomUndefined
-from inline_snapshot._source_file import SourceFile
 
 from ._operation.base import SnapshotOperation
 
@@ -29,7 +28,6 @@ class SnapshotData:
     changes: list[ChangeBase] = field(default_factory=list)
     rendered_new_code: str | None = None
     initialized: bool = False
-    file: SourceFile | None = None
 
     def use(self, operation_type: type[_Operation]) -> _Operation:
         __tracebackhide__ = True

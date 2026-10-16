@@ -58,7 +58,6 @@ class SnapshotValue(SnapshotBase):
             self._old_value = old_value
             self._new_value = CustomUndefined()
             data.initialized = True
-            data.file = context.file
 
     @property
     def _old_value(self):
