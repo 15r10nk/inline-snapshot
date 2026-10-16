@@ -18,7 +18,6 @@ from .._global_state import state
 from .._types import SnapshotBase
 from .._unmanaged import declare_unmanaged
 from .snapshot_data import SnapshotData
-from .snapshot_data import SnapshotOperation
 
 
 def ignore_old_value():
@@ -119,17 +118,6 @@ class GenericValue(SnapshotBase):
 
         self._old_value = reeval(self._old_value, self.value_to_custom(value))
 
-    def _select(self, operation_type: type[SnapshotOperation]):
-        __tracebackhide__ = True
-        if self._data.operation is None:
-            self._data.operation = operation_type()
-        elif not isinstance(self._data.operation, operation_type):
-            raise TypeError(
-                f"This snapshot cannot be use with `{operation_type.requested}`, "
-                f"because it was previously used with `{self._data.operation.current}`"
-            )
-        return self._data.operation
-
     def _refresh_changes(self):
         if not self._eager_changes:
             return
@@ -208,28 +196,28 @@ class GenericValue(SnapshotBase):
 
         if compare_only():
             return False
-        return self._select(EqOperation).compare(self, other)
+        return self._data.use(EqOperation).compare(self, other)
 
     def __le__(self, other):
         __tracebackhide__ = True
         from .min_max_value import MinOperation
 
-        return self._select(MinOperation).compare(self, other)
+        return self._data.use(MinOperation).compare(self, other)
 
     def __ge__(self, other):
         __tracebackhide__ = True
         from .min_max_value import MaxOperation
 
-        return self._select(MaxOperation).compare(self, other)
+        return self._data.use(MaxOperation).compare(self, other)
 
     def __contains__(self, item):
         __tracebackhide__ = True
         from .collection_value import CollectionOperation
 
-        return self._select(CollectionOperation).contains(self, item)
+        return self._data.use(CollectionOperation).contains(self, item)
 
     def __getitem__(self, item):
         __tracebackhide__ = True
         from .dict_value import DictOperation
 
-        return self._select(DictOperation).getitem(self, item)
+        return self._data.use(DictOperation).getitem(self, item)

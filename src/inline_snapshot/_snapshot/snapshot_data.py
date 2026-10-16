@@ -5,6 +5,7 @@ from dataclasses import field
 from typing import TYPE_CHECKING
 from typing import Generator
 from typing import Iterator
+from typing import TypeVar
 
 from inline_snapshot._change import ChangeBase
 from inline_snapshot._customize._custom import Custom
@@ -28,6 +29,9 @@ class SnapshotOperation:
         raise NotImplementedError
 
 
+_Operation = TypeVar("_Operation", bound=SnapshotOperation)
+
+
 @dataclass(eq=False)
 class SnapshotData:
     """Frame-free state shared by evaluations of one snapshot call site.
@@ -43,6 +47,17 @@ class SnapshotData:
     rendered_new_code: str | None = None
     initialized: bool = False
     file: SourceFile | None = None
+
+    def use(self, operation_type: type[_Operation]) -> _Operation:
+        __tracebackhide__ = True
+        if self.operation is None:
+            self.operation = operation_type()
+        elif not isinstance(self.operation, operation_type):
+            raise TypeError(
+                f"This snapshot cannot be use with `{operation_type.requested}`, "
+                f"because it was previously used with `{self.operation.current}`"
+            )
+        return self.operation
 
     def _changes(self) -> Iterator[ChangeBase]:
         return iter(self.changes)

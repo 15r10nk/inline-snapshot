@@ -59,7 +59,9 @@ def plain():
             # First visits initialize distinct sites; repeated visits reuse them.
             assert len(state.snapshots) == 3
         assert all(isinstance(data, SnapshotData) for data in state.snapshots.values())
-        assert {data.operation.name for data in state.snapshots.values()} == {"EQ"}
+        assert {type(data.operation).__name__ for data in state.snapshots.values()} == {
+            "EqOperation"
+        }
         assert all(data.file.filename == str(path) for data in state.snapshots.values())
         assert not state.missing_values and not state.incorrect_values
     module.plain()
