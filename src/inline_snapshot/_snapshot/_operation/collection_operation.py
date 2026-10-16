@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import Generator
 from typing import Iterator
+from typing import List
+from typing import Optional
 from typing import Union
 from typing import cast
 
@@ -40,7 +42,7 @@ class CollectionOperation(SnapshotOperation):
                 elements: list[ast.expr | None] = [None] * len(value._old_value.value)
             else:
                 assert isinstance(value._ast_node, ast.List)
-                elements = cast(list[ast.expr | None], value._ast_node.elts)
+                elements = cast(List[Optional[ast.expr]], value._ast_node.elts)
             for candidate, node in zip(value._old_value.value, elements):
                 if candidate._eval() == item:
                     old_value = candidate
@@ -89,7 +91,7 @@ class CollectionOperation(SnapshotOperation):
             elements: list[ast.expr | None] = [None] * len(value._old_value.value)
         else:
             assert isinstance(value._ast_node, ast.List)
-            elements = cast(list[ast.expr | None], value._ast_node.elts)
+            elements = cast(List[Optional[ast.expr]], value._ast_node.elts)
 
         yield from self.element_changes
 

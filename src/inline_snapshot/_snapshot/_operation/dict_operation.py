@@ -4,6 +4,8 @@ import ast
 from typing import Any
 from typing import Generator
 from typing import Iterator
+from typing import List
+from typing import Optional
 from typing import cast
 
 from inline_snapshot._adapter_context import AdapterContext
@@ -101,7 +103,7 @@ class DictOperation(SnapshotOperation):
             values: list[ast.expr | None] = [None] * len(value._old_value.value)
         else:
             assert isinstance(value._ast_node, ast.Dict)
-            values = cast(list[ast.expr | None], value._ast_node.values)
+            values = cast(List[Optional[ast.expr]], value._ast_node.values)
 
         for key, node in zip(value._old_value.value.keys(), values):
             if key in self.children:

@@ -3,6 +3,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Generator
 from typing import Iterator
+from typing import Optional
 
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._code_repr import mock_repr
@@ -27,18 +28,18 @@ def ignore_old_value():
 
 @declare_unmanaged
 class SnapshotValue(SnapshotBase):
-    _ast_node: ast.expr | None
+    _ast_node: Optional[ast.expr]
     _context: AdapterContext
 
     def __init__(
         self,
         old_value,
-        ast_node: ast.expr | None,
+        ast_node: Optional[ast.expr],
         context: AdapterContext,
-        data: SnapshotData | None = None,
+        data: Optional[SnapshotData] = None,
         *,
-        call_node: ast.Call | None = None,
-        on_change: Callable[[SnapshotData, AdapterContext], None] | None = None,
+        call_node: Optional[ast.Call] = None,
+        on_change: Optional[Callable[[SnapshotData, AdapterContext], None]] = None,
         defer_changes: bool = False,
     ):
         if data is None:
