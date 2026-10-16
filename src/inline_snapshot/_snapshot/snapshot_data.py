@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from dataclasses import field
-from typing import TYPE_CHECKING
-from typing import Generator
 from typing import Iterator
 from typing import TypeVar
 
@@ -12,22 +10,7 @@ from inline_snapshot._customize._custom import Custom
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._source_file import SourceFile
 
-if TYPE_CHECKING:
-    from .snapshot_value import SnapshotValue
-
-
-class SnapshotOperation:
-    """Frame-free behavior and state selected for a snapshot call site."""
-
-    requested: str
-    current: str
-
-    def _new_code(self, value: SnapshotValue) -> Generator[ChangeBase, None, str]:
-        raise NotImplementedError
-
-    def _get_changes(self, value: SnapshotValue) -> Iterator[ChangeBase]:
-        raise NotImplementedError
-
+from ._operation.base import SnapshotOperation
 
 _Operation = TypeVar("_Operation", bound=SnapshotOperation)
 

@@ -11,8 +11,8 @@ from ..._change import Delete
 from ..._change import DictInsert
 from ..._global_state import state
 from ..snapshot_data import SnapshotData
-from ..snapshot_data import SnapshotOperation
 from ..snapshot_value import SnapshotValue
+from .base import SnapshotOperation
 
 
 class DictOperation(SnapshotOperation):

@@ -10,8 +10,8 @@ from inline_snapshot._new_adapter import NewAdapter
 from ..._change import ChangeBase
 from ..._change import Replace
 from ..._global_state import state
-from ..snapshot_data import SnapshotOperation
 from ..snapshot_value import ignore_old_value
+from .base import SnapshotOperation
 
 
 class MinMaxOperation(SnapshotOperation):

@@ -11,7 +11,7 @@ from ..._change import Change
 from ..._change import ChangeBase
 from ..._compare_context import compare_only
 from ..._global_state import state
-from ..snapshot_data import SnapshotOperation
+from .base import SnapshotOperation
 
 
 class EqOperation(SnapshotOperation):
