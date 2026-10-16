@@ -18,8 +18,8 @@ from inline_snapshot._new_adapter import warn_star_expression
 from inline_snapshot._unmanaged import is_unmanaged
 
 from .._adapter_context import AdapterContext
-from .generic_value import GenericValue
 from .snapshot_data import SnapshotData
+from .snapshot_value import SnapshotValue
 
 
 class AstToCustom:
@@ -149,7 +149,7 @@ class ValueToCustom:
         )
 
 
-class UndecidedValue(GenericValue):
+class UndecidedValue(SnapshotValue):
     def __init__(
         self,
         old_value,

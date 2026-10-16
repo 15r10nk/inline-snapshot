@@ -14,8 +14,8 @@ from ..._change import ChangeBase
 from ..._change import Delete
 from ..._change import ListInsert
 from ..._global_state import state
-from ..generic_value import ignore_old_value
 from ..snapshot_data import SnapshotOperation
+from ..snapshot_value import ignore_old_value
 
 
 class CollectionOperation(SnapshotOperation):

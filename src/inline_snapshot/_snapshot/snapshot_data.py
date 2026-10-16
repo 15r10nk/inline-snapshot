@@ -13,7 +13,7 @@ from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._source_file import SourceFile
 
 if TYPE_CHECKING:
-    from .generic_value import GenericValue
+    from .snapshot_value import SnapshotValue
 
 
 class SnapshotOperation:
@@ -22,10 +22,10 @@ class SnapshotOperation:
     requested: str
     current: str
 
-    def _new_code(self, value: GenericValue) -> Generator[ChangeBase, None, str]:
+    def _new_code(self, value: SnapshotValue) -> Generator[ChangeBase, None, str]:
         raise NotImplementedError
 
-    def _get_changes(self, value: GenericValue) -> Iterator[ChangeBase]:
+    def _get_changes(self, value: SnapshotValue) -> Iterator[ChangeBase]:
         raise NotImplementedError
 
 
@@ -36,7 +36,7 @@ _Operation = TypeVar("_Operation", bound=SnapshotOperation)
 class SnapshotData:
     """Frame-free state shared by evaluations of one snapshot call site.
 
-    Context-bearing GenericValue facades are intentionally short-lived. Only
+    Context-bearing SnapshotValue facades are intentionally short-lived. Only
     converted values and already-materialized source changes reach this object.
     """
 

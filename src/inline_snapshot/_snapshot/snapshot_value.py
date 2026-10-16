@@ -25,7 +25,7 @@ def ignore_old_value():
 
 
 @declare_unmanaged
-class GenericValue(SnapshotBase):
+class SnapshotValue(SnapshotBase):
     _ast_node: ast.expr | None
     _context: AdapterContext
 
