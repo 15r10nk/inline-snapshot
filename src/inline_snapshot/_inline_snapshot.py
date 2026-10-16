@@ -90,7 +90,6 @@ def create_inline_snapshot(obj):
         context,
         data,
         call_node=call_node,
-        eager_changes=True,
     )
 
 

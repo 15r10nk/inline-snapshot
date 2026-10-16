@@ -38,7 +38,7 @@ class SnapshotValue(SnapshotBase):
         *,
         call_node: ast.Call | None = None,
         on_change: Callable[[SnapshotData, AdapterContext], None] | None = None,
-        eager_changes: bool = False,
+        defer_changes: bool = False,
     ):
         if data is None:
             data = SnapshotData()
@@ -47,9 +47,8 @@ class SnapshotValue(SnapshotBase):
         self._context = context
         self._call_node = call_node
         self._on_change = on_change
-        # snapshot() materializes report changes while this context is alive.
         # snapshot_arg() still uses its legacy session-end materialization.
-        self._eager_changes = eager_changes
+        self._defer_changes = defer_changes
 
         if data.initialized:
             self._re_eval(old_value, context)
@@ -132,7 +131,7 @@ class SnapshotValue(SnapshotBase):
         self._old_value = reeval(self._old_value, self.value_to_custom(value))
 
     def _refresh_changes(self):
-        if not self._eager_changes:
+        if self._defer_changes:
             return
 
         if self._on_change is not None:

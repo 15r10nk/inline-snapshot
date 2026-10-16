@@ -69,7 +69,7 @@ class DictOperation(SnapshotOperation):
             on_change=lambda child, context: self._child_changed(
                 value, index, child, context
             ),
-            eager_changes=value._eager_changes,
+            defer_changes=value._defer_changes,
         )
 
     def _child_changed(

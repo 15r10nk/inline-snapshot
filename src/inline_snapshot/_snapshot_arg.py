@@ -128,7 +128,7 @@ class SnapshotArgReference(SnapshotRefBase):
 
             self._node = None
 
-            self._value = SnapshotValue(value, None, self._context)
+            self._value = SnapshotValue(value, None, self._context, defer_changes=True)
             self._default_value = ...
             self._name = "<unknown>"
             self._arg_pos = None
@@ -235,7 +235,9 @@ class SnapshotArgReference(SnapshotRefBase):
                     self._node = kw.value
                     break
 
-        self._value = SnapshotValue(value, self._node, self._context)
+        self._value = SnapshotValue(
+            value, self._node, self._context, defer_changes=True
+        )
 
     @staticmethod
     def key_for(frame: FrameType):
