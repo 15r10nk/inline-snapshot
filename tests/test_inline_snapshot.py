@@ -19,6 +19,7 @@ from inline_snapshot._flags import Flags
 from inline_snapshot._format import format_code
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot._is import Is
+from inline_snapshot._snapshot._operation.eq_operation import EqOperation
 from inline_snapshot._snapshot.snapshot_data import SnapshotData
 from inline_snapshot.extra import Transformed
 from inline_snapshot.testing import Example
@@ -101,6 +102,20 @@ def test_repeated_snapshot_uses_fresh_facades_with_shared_data():
         assert children[0]._context is not children[1]._context
         assert children[0]._data is children[1]._data
         assert list(snapshot_state.snapshots.values()) == [values[0]._data]
+
+
+@pytest.mark.no_rewriting
+def test_snapshot_change_errors_are_raised_during_comparison(monkeypatch):
+    def fail_while_materializing_changes(self, value):
+        raise RuntimeError("could not materialize changes")
+
+    monkeypatch.setattr(EqOperation, "get_changes", fail_while_materializing_changes)
+
+    with (
+        snapshot_env(),
+        pytest.raises(RuntimeError, match="could not materialize changes"),
+    ):
+        snapshot(1) == 2
 
 
 @pytest.mark.no_rewriting
