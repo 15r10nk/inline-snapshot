@@ -10,11 +10,11 @@ from inline_snapshot._new_adapter import NewAdapter
 from .._change import ChangeBase
 from .._change import Replace
 from .._global_state import state
-from .generic_value import GenericValue
 from .generic_value import ignore_old_value
+from .snapshot_data import SnapshotOperation
 
 
-class MinMaxValue(GenericValue):
+class MinMaxOperation(SnapshotOperation):
     """Generic implementation for <=, >="""
 
     _changes: Optional[List[ChangeBase]]
@@ -23,50 +23,53 @@ class MinMaxValue(GenericValue):
     def cmp(a, b):
         raise NotImplementedError
 
-    def _set_new_value(self, other):
+    def __init__(self):
+        self.changes: Optional[List[ChangeBase]] = None
+
+    def _set_new_value(self, value, other):
         if (
             state().active
-            and self._ast_node is not None
-            and self._context.expr.node is not None
+            and value._ast_node is not None
+            and value._context.expr.node is not None
         ):
             result = split_gen(
-                NewAdapter(self._context).compare(
-                    self._old_value, self._ast_node, other
+                NewAdapter(value._context).compare(
+                    value._old_value, value._ast_node, other
                 )
             )
-            self._new_value = result.value
-            self._operation_changes = result.list
+            value._new_value = result.value
+            self.changes = result.list
         else:
-            self._new_value = self.to_custom(other, _build_new_value=True)
-            self._operation_changes = None
+            value._new_value = value.to_custom(other, _build_new_value=True)
+            self.changes = None
 
-    def _generic_cmp(self, other):
-        if isinstance(self._old_value, CustomUndefined):
+    def compare(self, value, other):
+        if isinstance(value._old_value, CustomUndefined):
             state().missing_values += 1
 
-        if isinstance(self._new_value, CustomUndefined):
-            self._set_new_value(other)
-            if isinstance(self._old_value, CustomUndefined) or ignore_old_value():
-                self._refresh_changes()
+        if isinstance(value._new_value, CustomUndefined):
+            self._set_new_value(value, other)
+            if isinstance(value._old_value, CustomUndefined) or ignore_old_value():
+                value._refresh_changes()
                 return True
-            result = self._return(self.cmp(self._old_value._eval(), other))
+            result = value._return(self.cmp(value._old_value._eval(), other))
         else:
-            if not self.cmp(self._new_value._eval(), other):
-                self._set_new_value(other)
-            result = self._return(self.cmp(self._visible_value()._eval(), other))
+            if not self.cmp(value._new_value._eval(), other):
+                self._set_new_value(value, other)
+            result = value._return(self.cmp(value._visible_value()._eval(), other))
 
-        self._refresh_changes()
+        value._refresh_changes()
         return result
 
-    def _new_code(self) -> Generator[ChangeBase, None, str]:
-        code = yield from self._new_value._code_repr(self._context)
+    def _new_code(self, value) -> Generator[ChangeBase, None, str]:
+        code = yield from value._new_value._code_repr(value._context)
         return code
 
-    def _get_changes(self) -> Iterator[ChangeBase]:
-        changes = self._operation_changes
+    def _get_changes(self, value) -> Iterator[ChangeBase]:
+        changes = self.changes
         if changes is not None:
-            old_eval = self._old_value._eval()
-            new_eval = self._new_value._eval()
+            old_eval = value._old_value._eval()
+            new_eval = value._new_value._eval()
             for change in changes:
                 if (
                     change.flag == "fix"
@@ -77,26 +80,26 @@ class MinMaxValue(GenericValue):
                 yield change
             return
 
-        new_code = yield from self._new_code()
+        new_code = yield from self._new_code(value)
 
-        if not self.cmp(self._old_value._eval(), self._new_value._eval()):
+        if not self.cmp(value._old_value._eval(), value._new_value._eval()):
             flag = "fix"
-        elif not self.cmp(self._new_value._eval(), self._old_value._eval()):
+        elif not self.cmp(value._new_value._eval(), value._old_value._eval()):
             flag = "trim"
-        elif self._file.code_changed(self._ast_node, new_code):
+        elif value._file.code_changed(value._ast_node, new_code):
             flag = "update"
         else:
             return
 
         yield Replace(
-            node=self._ast_node,  # type: ignore[arg-type]
-            file=self._file,
+            node=value._ast_node,  # type: ignore[arg-type]
+            file=value._file,
             new_code=new_code,
             flag=flag,
         )
 
 
-class MinValue(MinMaxValue):
+class MinOperation(MinMaxOperation):
     """
     handles:
 
@@ -108,16 +111,15 @@ class MinValue(MinMaxValue):
 
     """
 
-    _current_op = "x >= snapshot"
+    requested = "<="
+    current = "x >= snapshot"
 
     @staticmethod
     def cmp(a, b):
         return a <= b
 
-    __le__ = MinMaxValue._generic_cmp
 
-
-class MaxValue(MinMaxValue):
+class MaxOperation(MinMaxOperation):
     """
     handles:
 
@@ -129,10 +131,9 @@ class MaxValue(MinMaxValue):
 
     """
 
-    _current_op = "x <= snapshot"
+    requested = ">="
+    current = "x <= snapshot"
 
     @staticmethod
     def cmp(a, b):
         return a >= b
-
-    __ge__ = MinMaxValue._generic_cmp

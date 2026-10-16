@@ -27,7 +27,6 @@ def ignore_old_value():
 
 @declare_unmanaged
 class GenericValue(SnapshotBase):
-    _current_op = "undefined"
     _ast_node: ast.expr | None
     _context: AdapterContext
 
@@ -65,14 +64,6 @@ class GenericValue(SnapshotBase):
     @_new_value.setter
     def _new_value(self, value):
         self._data._new_value = value
-
-    @property
-    def _operation_changes(self):
-        return self._data.operation_changes
-
-    @_operation_changes.setter
-    def _operation_changes(self, value):
-        self._data.operation_changes = value
 
     def get_builder(self, **args):
         return Builder(_snapshot_context=self._context, **args)
@@ -128,23 +119,16 @@ class GenericValue(SnapshotBase):
 
         self._old_value = reeval(self._old_value, self.value_to_custom(value))
 
-    def _select(self, operation: SnapshotOperation, value_type):
+    def _select(self, operation_type: type[SnapshotOperation]):
         __tracebackhide__ = True
         if self._data.operation is None:
-            self._data.operation = operation
-        elif self._data.operation != operation:
+            self._data.operation = operation_type()
+        elif not isinstance(self._data.operation, operation_type):
             raise TypeError(
-                f"This snapshot cannot be use with `{operation.requested}`, "
+                f"This snapshot cannot be use with `{operation_type.requested}`, "
                 f"because it was previously used with `{self._data.operation.current}`"
             )
-        return value_type(
-            self._data,
-            self._ast_node,
-            self._context,
-            call_node=self._call_node,
-            on_change=self._on_change,
-            eager_changes=self._eager_changes,
-        )
+        return self._data.operation
 
     def _refresh_changes(self):
         if not self._eager_changes:
@@ -206,36 +190,46 @@ class GenericValue(SnapshotBase):
             return self._old_value
 
     def _get_changes(self) -> Iterator[ChangeBase]:
-        raise NotImplementedError()
+        if self._data.operation is None:
+            return iter(())
+        return self._data.operation._get_changes(self)
 
     def _new_code(self) -> Generator[ChangeBase, None, str]:
-        raise NotImplementedError()
+        assert self._data.operation is not None
+        return self._data.operation._new_code(self)
 
     def __repr__(self):
         return repr(self._visible_value()._eval())
 
-    def _type_error(self, op):
-        __tracebackhide__ = True
-        raise TypeError(
-            f"This snapshot cannot be use with `{op}`, because it was previously used with `{self._current_op}`"
-        )
-
     def __eq__(self, other):
         __tracebackhide__ = True
-        self._type_error("==")
+        from .._compare_context import compare_only
+        from .eq_value import EqOperation
+
+        if compare_only():
+            return False
+        return self._select(EqOperation).compare(self, other)
 
     def __le__(self, other):
         __tracebackhide__ = True
-        self._type_error("<=")
+        from .min_max_value import MinOperation
+
+        return self._select(MinOperation).compare(self, other)
 
     def __ge__(self, other):
         __tracebackhide__ = True
-        self._type_error(">=")
+        from .min_max_value import MaxOperation
+
+        return self._select(MaxOperation).compare(self, other)
 
     def __contains__(self, item):
         __tracebackhide__ = True
-        self._type_error("in")
+        from .collection_value import CollectionOperation
+
+        return self._select(CollectionOperation).contains(self, item)
 
     def __getitem__(self, item):
         __tracebackhide__ = True
-        self._type_error("snapshot[key]")
+        from .dict_value import DictOperation
+
+        return self._select(DictOperation).getitem(self, item)

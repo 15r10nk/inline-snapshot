@@ -2,6 +2,7 @@ import ast
 from typing import Generator
 from typing import Iterator
 from typing import Union
+from typing import cast
 
 from inline_snapshot._customize._custom import Custom
 from inline_snapshot._customize._custom_sequence import CustomList
@@ -13,25 +14,27 @@ from .._change import ChangeBase
 from .._change import Delete
 from .._change import ListInsert
 from .._global_state import state
-from .generic_value import GenericValue
 from .generic_value import ignore_old_value
+from .snapshot_data import SnapshotOperation
 
 
-class CollectionValue(GenericValue):
-    _current_op = "x in snapshot"
-    _ast_node: Union[ast.List, ast.Tuple]
-    _new_value: CustomList
+class CollectionOperation(SnapshotOperation):
+    requested = "in"
+    current = "x in snapshot"
 
-    def _observe_item(self, item):
+    def __init__(self):
+        self.element_changes: list[ChangeBase] = []
+
+    def _observe_item(self, value, item):
         old_value: Custom = CustomUndefined()
         old_node = None
-        if not isinstance(self._old_value, CustomUndefined):
-            if self._ast_node is None:
-                elements = [None] * len(self._old_value.value)
+        if not isinstance(value._old_value, CustomUndefined):
+            if value._ast_node is None:
+                elements = [None] * len(value._old_value.value)
             else:
-                assert isinstance(self._ast_node, ast.List)
-                elements = self._ast_node.elts
-            for candidate, node in zip(self._old_value.value, elements):
+                assert isinstance(value._ast_node, ast.List)
+                elements = value._ast_node.elts
+            for candidate, node in zip(value._old_value.value, elements):
                 if candidate._eval() == item:
                     old_value = candidate
                     old_node = node
@@ -40,68 +43,68 @@ class CollectionValue(GenericValue):
         if (
             state().active
             and old_node is not None
-            and self._context.expr.node is not None
+            and value._context.expr.node is not None
         ):
             result = split_gen(
-                NewAdapter(self._context).compare(old_value, old_node, item)
+                NewAdapter(value._context).compare(old_value, old_node, item)
             )
-            self._data.element_changes.extend(result.list)
+            self.element_changes.extend(result.list)
             return result.value
 
-        return self.to_custom(item, _build_new_value=True)
+        return value.to_custom(item, _build_new_value=True)
 
-    def __contains__(self, item):
-        if isinstance(self._old_value, CustomUndefined):
+    def contains(self, value, item):
+        if isinstance(value._old_value, CustomUndefined):
             state().missing_values += 1
 
-        if isinstance(self._new_value, CustomUndefined):
-            self._new_value = CustomList([self._observe_item(item)])
+        if isinstance(value._new_value, CustomUndefined):
+            value._new_value = CustomList([self._observe_item(value, item)])
         else:
-            if item not in self._new_value._eval():
-                self._new_value.value.append(self._observe_item(item))
+            if item not in value._new_value._eval():
+                value._new_value.value.append(self._observe_item(value, item))
 
-        if ignore_old_value() or isinstance(self._old_value, CustomUndefined):
+        if ignore_old_value() or isinstance(value._old_value, CustomUndefined):
             result = True
         else:
-            result = self._return(item in self._old_value._eval())
-        self._refresh_changes()
+            result = value._return(item in value._old_value._eval())
+        value._refresh_changes()
         return result
 
-    def _new_code(self) -> Generator[ChangeBase, None, str]:
-        code = yield from self._new_value._code_repr(self._context)
+    def _new_code(self, value) -> Generator[ChangeBase, None, str]:
+        code = yield from value._new_value._code_repr(value._context)
         return code
 
-    def _get_changes(self) -> Iterator[ChangeBase]:
-        assert isinstance(self._old_value, CustomList), self._old_value
-        assert isinstance(self._new_value, CustomList), self._new_value
+    def _get_changes(self, value) -> Iterator[ChangeBase]:
+        assert isinstance(value._old_value, CustomList), value._old_value
+        assert isinstance(value._new_value, CustomList), value._new_value
 
-        if self._ast_node is None:
-            elements = [None] * len(self._old_value.value)
+        if value._ast_node is None:
+            elements: list[ast.expr | None] = [None] * len(value._old_value.value)
         else:
-            assert isinstance(self._ast_node, ast.List)
-            elements = self._ast_node.elts
+            assert isinstance(value._ast_node, ast.List)
+            elements = cast(list[ast.expr | None], value._ast_node.elts)
 
-        yield from self._data.element_changes
+        yield from self.element_changes
 
-        for old_value, old_node in zip(self._old_value.value, elements):
-            if old_value not in self._new_value.value:
+        for old_value, old_node in zip(value._old_value.value, elements):
+            if old_value not in value._new_value.value:
                 yield Delete(
                     flag="trim",
-                    file=self._file,
+                    file=value._file,
                     node=old_node,
                 )
 
         new_codes = []
-        for v in self._new_value.value:
-            if v not in self._old_value.value:
-                new_code = yield from v._code_repr(self._context)
+        for v in value._new_value.value:
+            if v not in value._old_value.value:
+                new_code = yield from v._code_repr(value._context)
                 new_codes.append(new_code)
 
         if new_codes:
             yield ListInsert(
                 flag="fix",
-                file=self._file,
-                node=self._ast_node,
-                position=len(self._old_value.value),
+                file=value._file,
+                node=cast(Union[ast.List, ast.Tuple], value._ast_node),
+                position=len(value._old_value.value),
                 new_code=new_codes,
             )

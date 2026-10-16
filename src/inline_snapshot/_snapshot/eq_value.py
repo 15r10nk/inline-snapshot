@@ -11,68 +11,71 @@ from .._change import Change
 from .._change import ChangeBase
 from .._compare_context import compare_only
 from .._global_state import state
-from .generic_value import GenericValue
+from .snapshot_data import SnapshotOperation
 
 
-class EqValue(GenericValue):
-    _current_op = "x == snapshot"
-    _changes: List[Change]
+class EqOperation(SnapshotOperation):
+    requested = "=="
+    current = "x == snapshot"
 
-    def __eq__(self, other):
+    def __init__(self):
+        self.changes: List[Change] = []
+
+    def compare(self, value, other):
         changed = False
-        if isinstance(self._old_value, CustomUndefined):
+        if isinstance(value._old_value, CustomUndefined):
             state().missing_values += 1
 
-        is_equal = self._old_value._eval() == other
+        is_equal = value._old_value._eval() == other
 
-        if isinstance(self._new_value, CustomUndefined):
+        if isinstance(value._new_value, CustomUndefined):
             if not compare_only():
                 changed = True
-                self._operation_changes = []
+                self.changes = []
 
                 if not state().active:
-                    return self._return(self._old_value._eval() == other)
+                    return value._return(value._old_value._eval() == other)
 
                 if not state().config.show_updates and not state().update_flags.update:
                     if is_equal:
-                        self._new_value = self._old_value
-                        self._refresh_changes()
+                        value._new_value = value._old_value
+                        value._refresh_changes()
                         return True
 
-                if self._ast_node is not None:
+                if value._ast_node is not None:
                     result = split_gen(
-                        NewAdapter(self._context).compare(
-                            self._old_value, self._ast_node, other
+                        NewAdapter(value._context).compare(
+                            value._old_value, value._ast_node, other
                         )
                     )
-                    self._operation_changes = result.list
-                    self._new_value = result.value
+                    self.changes = result.list
+                    value._new_value = result.value
                 else:
                     # No argument node: do not use the adapter (it requires a node)
                     # and do not rewrite source. Report flags only.
-                    if isinstance(self._old_value, CustomUndefined):
-                        self._operation_changes.append(CategoryChange("create"))
-                        self._new_value = self.to_custom(other, _build_new_value=True)
-                    elif self._old_value._eval() != other:
-                        self._operation_changes.append(CategoryChange("fix"))
-                        if self._context.expr.node is not None:
-                            self._new_value = self.to_custom(
+                    if isinstance(value._old_value, CustomUndefined):
+                        self.changes.append(CategoryChange("create"))
+                        value._new_value = value.to_custom(other, _build_new_value=True)
+                    elif value._old_value._eval() != other:
+                        self.changes.append(CategoryChange("fix"))
+                        if value._context.expr.node is not None:
+                            value._new_value = value.to_custom(
                                 other, _build_new_value=True
                             )
                     else:
-                        self._new_value = self._old_value
+                        value._new_value = value._old_value
 
-        result = self._return(
+        result = value._return(
             is_equal,
-            self._new_value._eval() == other,
+            value._new_value._eval() == other,
         )
         if changed:
-            self._refresh_changes()
+            value._refresh_changes()
         return result
 
-    def _new_code(self) -> Generator[ChangeBase, None, str]:
-        code = yield from self._new_value._code_repr(self._context)
+    def _new_code(self, value) -> Generator[ChangeBase, None, str]:
+        code = yield from value._new_value._code_repr(value._context)
         return code
 
-    def _get_changes(self) -> Iterator[Change]:
-        return iter(self._operation_changes or [])
+    def _get_changes(self, value) -> Iterator[Change]:
+        return iter(self.changes)

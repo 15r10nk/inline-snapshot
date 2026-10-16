@@ -1,9 +1,7 @@
 import ast
 from pathlib import PurePath
 from typing import Any
-from typing import Iterator
 
-from inline_snapshot._compare_context import compare_only
 from inline_snapshot._customize._builder import Builder
 from inline_snapshot._customize._custom import Custom
 from inline_snapshot._customize._custom_call import CustomCall
@@ -20,10 +18,8 @@ from inline_snapshot._new_adapter import warn_star_expression
 from inline_snapshot._unmanaged import is_unmanaged
 
 from .._adapter_context import AdapterContext
-from .._change import ChangeBase
 from .generic_value import GenericValue
 from .snapshot_data import SnapshotData
-from .snapshot_data import SnapshotOperation
 
 
 class AstToCustom:
@@ -175,52 +171,3 @@ class UndecidedValue(GenericValue):
             self._new_value = CustomUndefined()
             data.initialized = True
             data.file = context.file
-
-    def _new_code(self):
-        assert False
-
-    def _dispatch(self, operation, value_type):
-        __tracebackhide__ = True
-        if self._eager_changes:
-            return self._select(operation, value_type)
-        self._data.operation = operation
-        self.__class__ = value_type
-        return self
-
-    def _get_changes(self) -> Iterator[ChangeBase]:
-        yield from ()
-        return
-
-    def __eq__(self, other):
-        __tracebackhide__ = True
-
-        if compare_only():
-            return False
-
-        from .._snapshot.eq_value import EqValue
-
-        return self._dispatch(SnapshotOperation.EQ, EqValue) == other
-
-    def __le__(self, other):
-        __tracebackhide__ = True
-        from .._snapshot.min_max_value import MinValue
-
-        return self._dispatch(SnapshotOperation.MIN, MinValue) <= other
-
-    def __ge__(self, other):
-        __tracebackhide__ = True
-        from .._snapshot.min_max_value import MaxValue
-
-        return self._dispatch(SnapshotOperation.MAX, MaxValue) >= other
-
-    def __contains__(self, item):
-        __tracebackhide__ = True
-        from .._snapshot.collection_value import CollectionValue
-
-        return item in self._dispatch(SnapshotOperation.COLLECTION, CollectionValue)
-
-    def __getitem__(self, item):
-        __tracebackhide__ = True
-        from .._snapshot.dict_value import DictValue
-
-        return self._dispatch(SnapshotOperation.DICT, DictValue)[item]
