@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from dataclasses import field
+from pathlib import Path
 from typing import Iterator
 from typing import TypeVar
 
@@ -28,6 +29,7 @@ class SnapshotData:
     changes: list[ChangeBase] = field(default_factory=list)
     rendered_new_code: str | None = None
     initialized: bool = False
+    filename: Path | None = None
 
     def use(self, operation_type: type[_Operation]) -> _Operation:
         __tracebackhide__ = True

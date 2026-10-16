@@ -512,8 +512,8 @@ snapshot.\
             context = getattr(snapshot, "_context", None)
             if context is not None:
                 source_files.add(Path(context.file.filename).resolve())
-            elif snapshot_file := getattr(snapshot, "file", None):
-                source_files.add(Path(snapshot_file.filename).resolve())
+            elif snapshot_filename := getattr(snapshot, "filename", None):
+                source_files.add(snapshot_filename.resolve())
 
         used = []
         files_with_external = set()

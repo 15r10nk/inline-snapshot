@@ -1,5 +1,6 @@
 import ast
 from collections.abc import Callable
+from pathlib import Path
 from typing import Generator
 from typing import Iterator
 
@@ -58,6 +59,7 @@ class SnapshotValue(SnapshotBase):
             self._old_value = old_value
             self._new_value = CustomUndefined()
             data.initialized = True
+            data.filename = Path(context.file.filename)
 
     @property
     def _old_value(self):
