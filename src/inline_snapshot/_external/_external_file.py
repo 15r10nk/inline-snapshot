@@ -8,7 +8,6 @@ from inline_snapshot._external._format._protocol import Format
 from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
 from inline_snapshot._external._storage._protocol import StorageLookupError
 from inline_snapshot._global_state import state
-from inline_snapshot._types import SnapshotRefBase
 
 from ._external_base import ExternalBase
 from ._external_base import ExternalBaseData
@@ -29,7 +28,7 @@ class ExternalFileData(ExternalBaseData):
         return f"external_file({str(path)!r})"
 
 
-class ExternalFile(ExternalBase, SnapshotRefBase):
+class ExternalFile(ExternalBase):
 
     def __init__(self, data: ExternalFileData):
         self._data = data

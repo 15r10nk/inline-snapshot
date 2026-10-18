@@ -16,7 +16,7 @@ from inline_snapshot._external._format._protocol import get_format_handler
 from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
 from inline_snapshot._external._storage._protocol import StorageLookupError
 from inline_snapshot._global_state import state
-from inline_snapshot._types import SnapshotRefBase
+from inline_snapshot._types import snapshot_key
 from inline_snapshot._unmanaged import declare_unmanaged
 
 from ._external_location import ExternalLocation
@@ -31,7 +31,7 @@ def external(name: str | None = None):
     if not state().active:
         return External.create_raw(name, frame)
 
-    key = External.key_for(frame)
+    key = snapshot_key(frame)
     context = AdapterContext(frame)
     data = state().snapshots.get(key)
     if not isinstance(data, ExternalData):
@@ -65,7 +65,7 @@ class ExternalData(ExternalBaseData):
 
 
 @declare_unmanaged
-class External(ExternalBase, SnapshotRefBase):
+class External(ExternalBase):
     _context: AdapterContext
 
     def __init__(self, context: AdapterContext, data: ExternalData):

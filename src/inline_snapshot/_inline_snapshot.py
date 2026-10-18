@@ -3,7 +3,7 @@ from typing import Any
 from typing import TypeVar
 
 from inline_snapshot._adapter_context import AdapterContext
-from inline_snapshot._types import SnapshotRefBase
+from inline_snapshot._types import snapshot_key
 
 from ._global_state import state
 from ._sentinels import undefined
@@ -45,7 +45,7 @@ def create_inline_snapshot(obj):
             )
         return obj
 
-    key = SnapshotRefBase.key_for(frame)
+    key = snapshot_key(frame)
     context = AdapterContext(frame)
     call_node = context.expr.node
     node = call_node.args[0] if call_node is not None and call_node.args else None
