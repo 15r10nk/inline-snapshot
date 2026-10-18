@@ -49,7 +49,6 @@ class SnapshotValue(SnapshotBase):
         self._context = context
         self._call_node = call_node
         self._on_change = on_change
-        # snapshot_arg() still uses its legacy session-end materialization.
         self._defer_changes = defer_changes
 
         if data.initialized:

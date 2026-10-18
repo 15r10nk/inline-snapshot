@@ -88,6 +88,9 @@ def warn_star_expression(node, context):
 
 
 def reeval(old_value: Custom, value: Custom) -> Custom:
+    if type(old_value) is not type(value) and old_value._eval() == value._eval():
+        return old_value
+
     function_name = f"reeval_{type(old_value).__name__}"
     result = globals()[function_name](old_value, value)
     assert isinstance(result, Custom)

@@ -1,10 +1,37 @@
 """Tests for snapshot_arg() covering previously uncovered code paths."""
 
+import gc
 import sys
+import weakref
 
 from inline_snapshot import snapshot
+from inline_snapshot._global_state import snapshot_env
+from inline_snapshot._snapshot.snapshot_data import SnapshotData
+from inline_snapshot._snapshot_arg import snapshot_arg
 from inline_snapshot.testing import Example
 from tests.conftest import no_executing_context
+
+
+def test_snapshot_arg_registry_does_not_retain_context():
+    class Payload:
+        pass
+
+    def check(actual, expected=...):
+        payload = Payload()
+        payload_ref = weakref.ref(payload)
+        value = snapshot_arg(expected)
+        context_ref = weakref.ref(value._context)
+        assert actual == value
+        return payload_ref, context_ref
+
+    with snapshot_env() as snapshot_state:
+        payload_ref, context_ref = check(1, 1)
+        gc.collect()
+
+        assert payload_ref() is None
+        assert context_ref() is None
+        snapshot_data = next(iter(snapshot_state.snapshots.values()))
+        assert isinstance(snapshot_data, SnapshotData)
 
 
 def test_snapshot_arg_no_comparison():

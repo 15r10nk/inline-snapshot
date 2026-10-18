@@ -70,7 +70,7 @@ class EqOperation(SnapshotOperation):
             is_equal,
             value._new_value._eval() == other,
         )
-        if changed:
+        if changed or value._on_change is not None:
             value._refresh_changes()
         return result
 
