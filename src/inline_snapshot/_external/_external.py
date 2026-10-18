@@ -3,17 +3,15 @@ from __future__ import annotations
 import ast
 import inspect
 from dataclasses import dataclass
-from dataclasses import field
 from pathlib import Path
 from types import FrameType
-from typing import Iterator
 
 from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._change import CallArg
-from inline_snapshot._change import ChangeBase
 from inline_snapshot._change import Replace
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._external._external_base import ExternalBase
+from inline_snapshot._external._external_base import ExternalBaseData
 from inline_snapshot._external._format._protocol import get_format_handler
 from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
 from inline_snapshot._external._storage._protocol import StorageLookupError
@@ -43,30 +41,24 @@ def external(name: str | None = None):
     return External(context, data)
 
 
-@dataclass(eq=False)
-class ExternalData:
+@dataclass(eq=False, kw_only=True)
+class ExternalData(ExternalBaseData):
     """Frame-free state shared by evaluations of one external call site."""
 
     original_name: str | None
     original_location: ExternalLocation
     location: ExternalLocation
     filename: Path
-    tmp_file: Path | None = None
-    was_compared: bool = False
-    changes: list[ChangeBase] = field(default_factory=list)
 
     @classmethod
     def from_name(cls, name: str | None, context: AdapterContext) -> ExternalData:
         location = ExternalLocation.from_name(name, context=context)
         return cls(
-            name,
-            ExternalLocation.from_name(name, context=context),
-            location,
-            Path(context.file.filename),
+            original_name=name,
+            original_location=ExternalLocation.from_name(name, context=context),
+            location=location,
+            filename=Path(context.file.filename),
         )
-
-    def _changes(self) -> Iterator[ChangeBase]:
-        return iter(self.changes)
 
     def __repr__(self) -> str:
         return f'external("{self.original_location.to_str()}")'
@@ -90,44 +82,6 @@ class External(ExternalBase, SnapshotRefBase):
     @property
     def _original_name(self):
         return self._data.original_name
-
-    @property
-    def _original_location(self):
-        return self._data.original_location
-
-    @_original_location.setter
-    def _original_location(self, value):
-        self._data.original_location = value
-
-    @property
-    def _location(self):
-        return self._data.location
-
-    @_location.setter
-    def _location(self, value):
-        self._data.location = value
-
-    @property
-    def _tmp_file(self):
-        return self._data.tmp_file
-
-    @_tmp_file.setter
-    def _tmp_file(self, value):
-        self._data.tmp_file = value
-
-    @property
-    def _was_compared(self):
-        return self._data.was_compared
-
-    @_was_compared.setter
-    def _was_compared(self, value):
-        self._data.was_compared = value
-
-    def __eq__(self, other):
-        __tracebackhide__ = True
-        result = super().__eq__(other)
-        self._data.changes = list(self._changes())
-        return result
 
     def result(self):
         return self
