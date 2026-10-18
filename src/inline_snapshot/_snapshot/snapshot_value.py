@@ -52,7 +52,7 @@ class SnapshotValue(SnapshotBase):
         self._defer_changes = defer_changes
 
         if data.initialized:
-            self._re_eval(old_value, context)
+            self._old_value = reeval(self._old_value, self.value_to_custom(old_value))
         else:
             old_value = self.value_to_custom(old_value)
             assert isinstance(old_value, Custom)
@@ -125,11 +125,6 @@ class SnapshotValue(SnapshotBase):
             from inline_snapshot._snapshot.value_conversion import AstToCustom
 
             return AstToCustom(self._context).convert(value, self._ast_node)
-
-    def _re_eval(self, value, context: AdapterContext):
-        self._context = context
-
-        self._old_value = reeval(self._old_value, self.value_to_custom(value))
 
     def _refresh_changes(self):
         if self._defer_changes:
