@@ -5,6 +5,7 @@ import inspect
 import weakref
 from ast import Call
 from ast import Name
+from dataclasses import dataclass
 from pathlib import Path
 from types import FrameType
 from typing import Any
@@ -36,6 +37,7 @@ class _NoDefault:
 NoDefault = _NoDefault()
 
 
+@dataclass(eq=False)
 class SnapshotArgData(SnapshotData):
     """Snapshot state with a link to its current result facade."""
 
