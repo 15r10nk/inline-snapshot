@@ -29,35 +29,6 @@ def repr_wrapper(func: _T) -> _T:
     return ReprWrapper(func)  # type: ignore
 
 
-def create_snapshot(Type, obj, extra_frames=0):
-
-    frame = inspect.currentframe()
-    assert frame is not None
-
-    for _ in range(extra_frames + 2):
-        frame = frame.f_back
-        assert frame is not None
-
-    if not state().active:
-        if obj is undefined:
-            raise AssertionError(
-                "your snapshot is missing a value run pytest with --inline-snapshot=create"
-            )
-        else:
-            return Type.create_raw(obj, frame)
-
-    key = Type.key_for(frame)
-
-    if key not in state().snapshots:
-        new = Type(obj, frame)
-        state().snapshots[key] = new
-    else:
-        new = state().snapshots[key]
-        new._re_eval(obj, frame)
-
-    return new.result()
-
-
 def create_inline_snapshot(obj):
     frame = inspect.currentframe()
     assert frame is not None
