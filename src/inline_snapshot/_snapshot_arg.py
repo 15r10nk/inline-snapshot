@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import ast
 import inspect
-import weakref
 from ast import Call
 from ast import Name
 from dataclasses import dataclass
@@ -39,20 +38,13 @@ NoDefault = _NoDefault()
 
 @dataclass(eq=False)
 class SnapshotArgData(SnapshotData):
-    """Snapshot state with a link to its current result facade."""
+    """Snapshot state with an optional deferred unmanaged facade."""
 
-    reference: (
-        SnapshotArgReference | weakref.ReferenceType[SnapshotArgReference] | None
-    ) = None
+    deferred_reference: SnapshotArgReference | None = None
 
     def _changes(self) -> Iterator[ChangeBase]:
-        if isinstance(self.reference, weakref.ReferenceType):
-            reference = self.reference()
-        else:
-            reference = self.reference
-
-        if reference is not None and reference._value._defer_changes:
-            reference._materialize_changes(self)
+        if self.deferred_reference is not None:
+            self.deferred_reference._materialize_changes(self)
         return iter(self.changes)
 
 
@@ -127,18 +119,8 @@ def snapshot_arg(obj) -> Snapshot:
         data = SnapshotArgData()
         state().snapshots[key] = data
 
-    if isinstance(data.reference, weakref.ReferenceType):
-        reference = data.reference()
-    else:
-        reference = data.reference
-    if reference is None:
-        reference = SnapshotArgReference(obj, frame, data)
-        if reference._value._defer_changes:
-            data.reference = reference
-        else:
-            data.reference = weakref.ref(reference)
-    else:
-        reference._re_eval(obj, frame)
+    reference = SnapshotArgReference(obj, frame, data)
+    data.deferred_reference = reference if reference._value._defer_changes else None
     return reference.result()
 
 
@@ -322,10 +304,6 @@ class SnapshotArgReference:
 
     def result(self):
         return self._value
-
-    def _re_eval(self, obj, frame: FrameType) -> None:
-        call_frame = _get_call_frame(frame)
-        self._value._re_eval(obj, AdapterContext(call_frame))
 
     def _refresh_changes(self, data: SnapshotData, _context: AdapterContext) -> None:
         with compare_context():

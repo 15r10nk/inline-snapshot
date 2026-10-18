@@ -267,8 +267,20 @@ def test_a():
     )
 
 
-def test_snapshot_arg_re_eval():
-    """Same call site hit twice in a loop: triggers _re_eval (lines 187-189)."""
+def test_repeated_snapshot_arg_uses_fresh_facades_with_shared_data():
+    def check(expected=...):
+        return snapshot_arg(expected)
+
+    with snapshot_env() as snapshot_state:
+        values = [check() for _ in range(2)]
+
+        assert values[0] is not values[1]
+        assert values[0]._context is not values[1]._context
+        assert values[0]._data is values[1]._data
+        assert list(snapshot_state.snapshots.values()) == [values[0]._data]
+
+
+def test_snapshot_arg_repeated_without_comparison():
     Example("""\
 from inline_snapshot._snapshot_arg import snapshot_arg
 
