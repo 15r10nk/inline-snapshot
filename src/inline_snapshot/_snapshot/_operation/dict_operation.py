@@ -82,8 +82,8 @@ class DictOperation(SnapshotOperation):
         context: AdapterContext,
     ) -> None:
         value._context = context
-        if not isinstance(child._new_value, CustomUndefined):
-            value._new_value.value[key] = child._new_value
+        if not isinstance(child.new_value, CustomUndefined):
+            value._new_value.value[key] = child.new_value
         value._refresh_changes()
 
     def new_code(self, value: SnapshotValue) -> Generator[ChangeBase, None, str]:

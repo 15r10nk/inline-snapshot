@@ -62,19 +62,19 @@ class SnapshotValue:
 
     @property
     def _old_value(self):
-        return self._data._old_value
+        return self._data.old_value
 
     @_old_value.setter
     def _old_value(self, value):
-        self._data._old_value = value
+        self._data.old_value = value
 
     @property
     def _new_value(self):
-        return self._data._new_value
+        return self._data.new_value
 
     @_new_value.setter
     def _new_value(self, value):
-        self._data._new_value = value
+        self._data.new_value = value
 
     def get_builder(self, **args):
         return Builder(_snapshot_context=self._context, **args)
