@@ -1,4 +1,4 @@
-from ._types import SnapshotBase
+from ._snapshot.snapshot_value import SnapshotValue
 
 is_fixed = False
 
@@ -22,7 +22,7 @@ def pydantic_fix():
     origin_eq = BaseModel.__eq__
 
     def new_eq(self, other):
-        if isinstance(other, SnapshotBase):  # type: ignore
+        if isinstance(other, SnapshotValue):
             return other == self
         else:
             return origin_eq(self, other)

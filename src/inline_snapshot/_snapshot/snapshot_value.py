@@ -17,7 +17,6 @@ from inline_snapshot._new_adapter import reeval
 from .._change import CallArg
 from .._change import ChangeBase
 from .._global_state import state
-from .._types import SnapshotBase
 from .._unmanaged import declare_unmanaged
 from .snapshot_data import SnapshotData
 
@@ -27,7 +26,7 @@ def ignore_old_value():
 
 
 @declare_unmanaged
-class SnapshotValue(SnapshotBase):
+class SnapshotValue:
     _ast_node: Optional[ast.expr]
     _context: AdapterContext
 

@@ -19,10 +19,6 @@ def snapshot_key(frame: FrameType):
     return id(frame.f_code), frame.f_lasti
 
 
-class SnapshotBase:
-    pass
-
-
 class Snapshot(Protocol[T]):
     """Can be used to annotate function arguments which accept snapshot
     values.
