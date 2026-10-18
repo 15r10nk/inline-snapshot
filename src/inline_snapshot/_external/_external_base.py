@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+from dataclasses import field
 from pathlib import Path
+from typing import Iterator
 
+from inline_snapshot._change import ChangeBase
 from inline_snapshot._change import ExternalChange
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._external._format._protocol import get_format_handler
@@ -9,20 +13,57 @@ from inline_snapshot._external._outsource import Outsourced
 from inline_snapshot._external._storage._protocol import StorageLookupError
 from inline_snapshot._global_state import state
 
-from .._snapshot.generic_value import GenericValue
+from .._snapshot.snapshot_value import SnapshotValue
 from ._external_location import ExternalLocation
 from ._external_location import Location
 
 
+@dataclass(eq=False, kw_only=True)
+class ExternalBaseData:
+    original_location: Location
+    location: Location
+    tmp_file: Path | None = None
+    was_compared: bool = False
+    changes: list[ChangeBase] = field(default_factory=list)
+
+    def _changes(self) -> Iterator[ChangeBase]:
+        return iter(self.changes)
+
+
 class ExternalBase:
+    _data: ExternalBaseData
 
-    _original_location: Location
-    _location: Location
-    _tmp_file: Path | None
+    @property
+    def _original_location(self):
+        return self._data.original_location
 
-    def __init__(self):
-        self._tmp_file = None
-        self._was_compared = False
+    @_original_location.setter
+    def _original_location(self, value):
+        self._data.original_location = value
+
+    @property
+    def _location(self):
+        return self._data.location
+
+    @_location.setter
+    def _location(self, value):
+        self._data.location = value
+
+    @property
+    def _tmp_file(self):
+        return self._data.tmp_file
+
+    @_tmp_file.setter
+    def _tmp_file(self, value):
+        self._data.tmp_file = value
+
+    @property
+    def _was_compared(self):
+        return self._data.was_compared
+
+    @_was_compared.setter
+    def _was_compared(self, value):
+        self._data.was_compared = value
 
     def _changes(self):
         if self._tmp_file is not None:
@@ -43,11 +84,17 @@ class ExternalBase:
     def __eq__(self, other):
         """Two external objects are equal if they have the same value"""
 
+        __tracebackhide__ = True
+        result = self._compare(other)
+        self._data.changes = list(self._changes())
+        return result
+
+    def _compare(self, other):
+        __tracebackhide__ = True
+
         external_type = (
             "external" if type(self).__name__ == "External" else "external_file"
         )
-        __tracebackhide__ = True
-
         if isinstance(other, Outsourced):
 
             format = get_format_handler(other.data, other.suffix or "")
@@ -60,7 +107,7 @@ class ExternalBase:
                 f"you cannot compare {external_type}(...) with {external_type}(...)"
             )
 
-        elif isinstance(other, GenericValue):
+        elif isinstance(other, SnapshotValue):
             raise UsageError(
                 f"you cannot compare {external_type}(...) with snapshot(...)"
             )

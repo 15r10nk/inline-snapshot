@@ -1,9 +1,7 @@
 import ast
 from pathlib import PurePath
 from typing import Any
-from typing import Iterator
 
-from inline_snapshot._compare_context import compare_only
 from inline_snapshot._customize._builder import Builder
 from inline_snapshot._customize._custom import Custom
 from inline_snapshot._customize._custom_call import CustomCall
@@ -20,8 +18,6 @@ from inline_snapshot._new_adapter import warn_star_expression
 from inline_snapshot._unmanaged import is_unmanaged
 
 from .._adapter_context import AdapterContext
-from .._change import ChangeBase
-from .generic_value import GenericValue
 
 
 class AstToCustom:
@@ -149,59 +145,3 @@ class ValueToCustom:
         return CustomDict(
             {self.convert(k): self.convert(v) for (k, v) in value.items()}
         )
-
-
-class UndecidedValue(GenericValue):
-    def __init__(self, old_value, ast_node, context: AdapterContext):
-        self._context = context
-        self._ast_node = ast_node
-
-        old_value = self.value_to_custom(old_value)
-
-        assert isinstance(old_value, Custom)
-        self._old_value = old_value
-        self._new_value = CustomUndefined()
-
-    def _change(self, cls):
-        self.__class__ = cls
-
-    def _new_code(self):
-        assert False
-
-    def _get_changes(self) -> Iterator[ChangeBase]:
-        yield from ()
-        return
-
-    def __eq__(self, other):
-
-        if compare_only():
-            return False
-
-        from .._snapshot.eq_value import EqValue
-
-        self._change(EqValue)
-        return self == other
-
-    def __le__(self, other):
-        from .._snapshot.min_max_value import MinValue
-
-        self._change(MinValue)
-        return self <= other
-
-    def __ge__(self, other):
-        from .._snapshot.min_max_value import MaxValue
-
-        self._change(MaxValue)
-        return self >= other
-
-    def __contains__(self, item):
-        from .._snapshot.collection_value import CollectionValue
-
-        self._change(CollectionValue)
-        return item in self
-
-    def __getitem__(self, item):
-        from .._snapshot.dict_value import DictValue
-
-        self._change(DictValue)
-        return self[item]

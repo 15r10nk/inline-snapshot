@@ -11,7 +11,7 @@ import sys
 from ._workloads import comparison_template
 from ._workloads import session_template
 
-SUITE_VERSION = "3"
+SUITE_VERSION = "4"
 BATCH_SIZE = 10
 CASES = [
     "scalar",

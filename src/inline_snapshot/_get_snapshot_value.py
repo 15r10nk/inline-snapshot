@@ -13,7 +13,7 @@ from ._external._external_file import ExternalFile
 from ._external._outsource import Outsourced
 from ._global_state import state
 from ._is import Is
-from ._snapshot.generic_value import GenericValue
+from ._snapshot.snapshot_value import SnapshotValue
 from ._types import Snapshot
 
 options = {
@@ -23,7 +23,7 @@ options = {
 
 
 def unwrap(value, which) -> Tuple[Any, bool]:
-    if isinstance(value, (External, ExternalFile, GenericValue)):
+    if isinstance(value, (External, ExternalFile, SnapshotValue)):
         for w in options[which]:
             try:
                 v = value._load_value(w)

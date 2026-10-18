@@ -1,8 +1,11 @@
 import contextlib
+import gc
 import itertools
 import re
 import textwrap
+import types
 import warnings
+import weakref
 from collections import namedtuple
 from dataclasses import dataclass
 from typing import Union
@@ -11,13 +14,48 @@ import pytest
 from dirty_equals import AnyThing
 
 from inline_snapshot import snapshot
+from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._flags import Flags
 from inline_snapshot._format import format_code
 from inline_snapshot._global_state import snapshot_env
 from inline_snapshot._is import Is
+from inline_snapshot._snapshot._operation.eq_operation import EqOperation
+from inline_snapshot._snapshot.snapshot_data import SnapshotData
 from inline_snapshot.extra import Transformed
 from inline_snapshot.testing import Example
 from tests.conftest import check_update
+
+
+def _owned_objects(root):
+    """Walk state owned by an object without following classes or functions."""
+    pending = [root]
+    seen = set()
+    while pending:
+        value = pending.pop()
+        if id(value) in seen:
+            continue
+        seen.add(id(value))
+        yield value
+
+        if isinstance(value, dict):
+            pending.extend(value.keys())
+            pending.extend(value.values())
+        elif isinstance(value, (list, tuple, set, frozenset)):
+            pending.extend(value)
+        elif not isinstance(
+            value,
+            (
+                str,
+                bytes,
+                int,
+                float,
+                complex,
+                type,
+                types.FunctionType,
+                types.ModuleType,
+            ),
+        ):
+            pending.extend(vars(value).values() if hasattr(value, "__dict__") else ())
 
 
 @pytest.mark.no_rewriting
@@ -25,6 +63,59 @@ def test_snapshot_eq():
     with snapshot_env():
         assert 1 == snapshot(1)
         assert snapshot(1) == 1
+
+
+@pytest.mark.no_rewriting
+def test_snapshot_registry_does_not_retain_context():
+    class Payload:
+        pass
+
+    def run_snapshot():
+        payload = Payload()
+        payload_ref = weakref.ref(payload)
+        assert snapshot({"answer": 1})["answer"] == 1
+        return payload_ref
+
+    with snapshot_env() as snapshot_state:
+        payload_ref = run_snapshot()
+        gc.collect()
+
+        assert payload_ref() is None
+        snapshot_data = next(iter(snapshot_state.snapshots.values()))
+        assert isinstance(snapshot_data, SnapshotData)
+        retained_objects = list(_owned_objects(snapshot_data))
+        assert not any(isinstance(value, AdapterContext) for value in retained_objects)
+        assert not any(isinstance(value, types.FrameType) for value in retained_objects)
+
+
+@pytest.mark.no_rewriting
+def test_repeated_snapshot_uses_fresh_facades_with_shared_data():
+    with snapshot_env() as snapshot_state:
+        values = [snapshot({"answer": 1}) for _ in range(2)]
+        children = [value["answer"] for value in values]
+
+        assert values[0] is not values[1]
+        assert values[0]._context is not values[1]._context
+        assert values[0]._data is values[1]._data
+
+        assert children[0] is not children[1]
+        assert children[0]._context is not children[1]._context
+        assert children[0]._data is children[1]._data
+        assert list(snapshot_state.snapshots.values()) == [values[0]._data]
+
+
+@pytest.mark.no_rewriting
+def test_snapshot_change_errors_are_raised_during_comparison(monkeypatch):
+    def fail_while_materializing_changes(self, value):
+        raise RuntimeError("could not materialize changes")
+
+    monkeypatch.setattr(EqOperation, "get_changes", fail_while_materializing_changes)
+
+    with (
+        snapshot_env(),
+        pytest.raises(RuntimeError, match="could not materialize changes"),
+    ):
+        snapshot(1) == 2
 
 
 @pytest.mark.no_rewriting

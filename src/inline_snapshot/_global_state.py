@@ -20,7 +20,7 @@ from inline_snapshot.plugin._spec import inline_snapshot_plugin_name
 if TYPE_CHECKING:
     from inline_snapshot._external._format._protocol import Format
     from inline_snapshot._external._storage._protocol import StorageProtocol
-    from inline_snapshot._types import SnapshotRefBase
+    from inline_snapshot._types import SnapshotState
 
 from ._flags import Flags
 
@@ -33,7 +33,7 @@ class State:
     missing_values: int = 0
     incorrect_values: int = 0
 
-    snapshots: dict[Any, SnapshotRefBase] = field(default_factory=dict)
+    snapshots: dict[Any, SnapshotState] = field(default_factory=dict)
     update_flags: Flags = field(default_factory=Flags)
     active: bool = True
 

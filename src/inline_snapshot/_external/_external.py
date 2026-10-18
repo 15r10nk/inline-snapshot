@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import ast
+import inspect
+from dataclasses import dataclass
+from pathlib import Path
 from types import FrameType
 
 from inline_snapshot._adapter_context import AdapterContext
@@ -8,47 +11,77 @@ from inline_snapshot._change import CallArg
 from inline_snapshot._change import Replace
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._external._external_base import ExternalBase
+from inline_snapshot._external._external_base import ExternalBaseData
 from inline_snapshot._external._format._protocol import get_format_handler
 from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
 from inline_snapshot._external._storage._protocol import StorageLookupError
 from inline_snapshot._global_state import state
-from inline_snapshot._inline_snapshot import create_snapshot
-from inline_snapshot._types import SnapshotRefBase
+from inline_snapshot._types import snapshot_key
 from inline_snapshot._unmanaged import declare_unmanaged
 
 from ._external_location import ExternalLocation
 
 
 def external(name: str | None = None):
-    return create_snapshot(External, name)
+    frame = inspect.currentframe()
+    assert frame is not None
+    frame = frame.f_back
+    assert frame is not None
+
+    if not state().active:
+        return External.create_raw(name, frame)
+
+    key = snapshot_key(frame)
+    context = AdapterContext(frame)
+    data = state().snapshots.get(key)
+    if not isinstance(data, ExternalData):
+        data = ExternalData.from_name(name, context)
+        state().snapshots[key] = data
+
+    return External(context, data)
+
+
+@dataclass(eq=False, kw_only=True)
+class ExternalData(ExternalBaseData):
+    """Frame-free state shared by evaluations of one external call site."""
+
+    original_name: str | None
+    original_location: ExternalLocation
+    location: ExternalLocation
+    filename: Path
+
+    @classmethod
+    def from_name(cls, name: str | None, context: AdapterContext) -> ExternalData:
+        location = ExternalLocation.from_name(name, context=context)
+        return cls(
+            original_name=name,
+            original_location=ExternalLocation.from_name(name, context=context),
+            location=location,
+            filename=Path(context.file.filename),
+        )
+
+    def __repr__(self) -> str:
+        return f'external("{self.original_location.to_str()}")'
 
 
 @declare_unmanaged
-class External(ExternalBase, SnapshotRefBase):
-    _original_location: ExternalLocation
-    _location: ExternalLocation
+class External(ExternalBase):
     _context: AdapterContext
 
-    def __init__(self, name: str, frame: FrameType):
+    def __init__(self, context: AdapterContext, data: ExternalData):
         """External objects are used to move some data outside the source code.
         You should not instantiate this class directly, but by using `external()` instead.
 
         The location where the external data is stored can be defined by the storage protocol.
         The format is defined by the suffix.
-
-        Parameters:
-            name: the name of the external stored object which has the form "<hash>:<name>.<suffix>".
         """
 
-        self._context = AdapterContext(frame)
-        self._original_name = name
+        self._context = context
+        self._data = data
 
-        self._location = ExternalLocation.from_name(name, context=self._context)
-        self._original_location = ExternalLocation.from_name(
-            name, context=self._context
-        )
-
-        super().__init__()
+    @property
+    def _original_name(self):
+        return self._data.original_name
 
     def result(self):
         return self

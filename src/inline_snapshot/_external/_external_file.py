@@ -1,32 +1,44 @@
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 from typing import Union
-from typing import cast
 
 from inline_snapshot._external._external_location import FileLocation
 from inline_snapshot._external._format._protocol import Format
 from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
 from inline_snapshot._external._storage._protocol import StorageLookupError
 from inline_snapshot._global_state import state
-from inline_snapshot._types import SnapshotRefBase
 
 from ._external_base import ExternalBase
+from ._external_base import ExternalBaseData
 
 
-class ExternalFile(ExternalBase, SnapshotRefBase):
+@dataclass(eq=False, kw_only=True)
+class ExternalFileData(ExternalBaseData):
+    path: Path
+    base_path: Path
+    format: Format
 
-    def __init__(self, filename: Path, format: Format, base_path: Path):
-        self._filename = filename
-        self._base_path = base_path
-        self._format = format
-        self._tmp_file = None
+    def __repr__(self) -> str:
+        filename = self.path.resolve()
+        try:
+            path = filename.relative_to(self.base_path.resolve())
+        except ValueError:  # pragma: no cover
+            path = filename
+        return f"external_file({str(path)!r})"
 
-        self._location = FileLocation(self._filename)
-        self._original_location = self._location
-        super().__init__()
+
+class ExternalFile(ExternalBase):
+
+    def __init__(self, data: ExternalFileData):
+        self._data = data
+
+    @property
+    def _format(self):
+        return self._data.format
 
     def _is_empty(self):
-        return not self._filename.exists()
+        return not self._data.path.exists()
 
     def _assign(self, other):
 
@@ -34,12 +46,7 @@ class ExternalFile(ExternalBase, SnapshotRefBase):
         self._format.encode(other, self._tmp_file)
 
     def __repr__(self):
-        filename = self._filename.resolve()
-        try:
-            path = filename.relative_to(self._base_path.resolve())
-        except ValueError:  # pragma: no cover
-            path = filename
-        return f"external_file({str(path)!r})"
+        return repr(self._data)
 
     def _load_value(self, which):
         if which == "new":
@@ -50,7 +57,7 @@ class ExternalFile(ExternalBase, SnapshotRefBase):
                 raise StorageLookupError("no new value", files=[])
         if which == "old":
             try:
-                return self._format.decode(self._filename)
+                return self._format.decode(self._data.path)
             except FileNotFoundError:
                 raise StorageLookupError("old value not found", files=[])
 
@@ -88,12 +95,18 @@ def external_file(path: Union[Path, str], *, format: Optional[str] = None):
         return format_handler.decode(path)
 
     key = ("file", path)
-    if key not in state().snapshots:
-        new = ExternalFile(path, format_handler, base_path)
-        state().snapshots[key] = new
-    else:
-        new = cast(ExternalFile, state().snapshots[key])
+    data = state().snapshots.get(key)
+    if not isinstance(data, ExternalFileData):
+        location = FileLocation(path)
+        data = ExternalFileData(
+            original_location=location,
+            location=location,
+            path=path,
+            base_path=base_path,
+            format=format_handler,
+        )
+        state().snapshots[key] = data
 
-    assert new._format.suffix == format_handler.suffix
+    assert data.format.suffix == format_handler.suffix
 
-    return new
+    return ExternalFile(data)
