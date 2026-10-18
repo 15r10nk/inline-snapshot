@@ -6,7 +6,7 @@ from unittest.mock import patch
 import pytest
 
 from inline_snapshot import snapshot
-from inline_snapshot._external._external import External
+from inline_snapshot._external._external import ExternalData
 from inline_snapshot._external._external_file import ExternalFile
 from inline_snapshot._snapshot.snapshot_data import SnapshotData
 from inline_snapshot.testing import Example
@@ -21,7 +21,7 @@ from tests.utils import path_transform
     "snapshot_type,expr",
     [
         (SnapshotData, "snapshot()"),
-        (External, "external()"),
+        (ExternalData, "external()"),
         (ExternalFile, "external_file('test.txt')"),
     ],
 )
@@ -50,14 +50,12 @@ RuntimeError:
 error during change collection for snapshot (snapshot(...))
 snapshot.
 """,
-                    "External": """\
+                    "ExternalData": """\
 AssertionError
 RuntimeError:
 
 error during change collection for snapshot (external("uuid:"))
 snapshot.
-file: <tmp>/tests/test_something.py
-line: 4
 """,
                     "ExternalFile": """\
 AssertionError
