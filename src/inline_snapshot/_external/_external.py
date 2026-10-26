@@ -94,9 +94,6 @@ class External(ExternalBase):
     def _original_name(self):
         return self._data.original_name
 
-    def result(self):
-        return self
-
     @classmethod
     def create_raw(cls, obj, frame: FrameType):
         context = AdapterContext(frame)

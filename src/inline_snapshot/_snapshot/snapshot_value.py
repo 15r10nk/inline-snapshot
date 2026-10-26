@@ -35,14 +35,12 @@ class SnapshotValue:
         old_value,
         ast_node: Optional[ast.expr],
         context: AdapterContext,
-        data: Optional[SnapshotData] = None,
+        data: SnapshotData,
         *,
         call_node: Optional[ast.Call] = None,
         on_change: Optional[Callable[[SnapshotData, AdapterContext], None]] = None,
         defer_changes: bool = False,
     ):
-        if data is None:
-            data = SnapshotData()
         self._data = data
         self._ast_node = ast_node
         self._context = context

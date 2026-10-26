@@ -446,17 +446,9 @@ class SnapshotSession:
             try:
                 change_list = list(snapshot._changes())
             except Exception as exception:
-                error_context = ""
-                if _context := getattr(snapshot, "_context", None):
-                    frame = _context._frame
-                    error_context = f"""
-file: {frame.f_code.co_filename}
-line: {frame.f_lineno}\
-"""
                 raise RuntimeError(f"""
 error during change collection for snapshot ({snapshot})
-snapshot.\
-{error_context}
+snapshot.
 """) from exception
 
             for change in change_list:
@@ -509,10 +501,7 @@ snapshot.\
         source_files |= {file for file in changed_files if file.suffix == ".py"}
 
         for snapshot in state().snapshots.values():
-            context = getattr(snapshot, "_context", None)
-            if context is not None:
-                source_files.add(Path(context.file.filename).resolve())
-            elif snapshot_filename := getattr(snapshot, "filename", None):
+            if snapshot_filename := getattr(snapshot, "filename", None):
                 source_files.add(snapshot_filename.resolve())
 
         used = []
