@@ -15,7 +15,7 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
 
-from inline_snapshot._external._external import External
+from inline_snapshot._external._external import ExternalData
 from inline_snapshot._external._storage import default_storages
 from inline_snapshot._external._tracked_files import read_external_source_files
 from inline_snapshot._external._tracked_files import write_external_source_files
@@ -446,17 +446,9 @@ class SnapshotSession:
             try:
                 change_list = list(snapshot._changes())
             except Exception as exception:
-                error_context = ""
-                if _context := getattr(snapshot, "_context", None):
-                    frame = _context._frame
-                    error_context = f"""
-file: {frame.f_code.co_filename}
-line: {frame.f_lineno}\
-"""
                 raise RuntimeError(f"""
 error during change collection for snapshot ({snapshot})
-snapshot.\
-{error_context}
+snapshot.
 """) from exception
 
             for change in change_list:
@@ -480,8 +472,8 @@ snapshot.\
             source_files = read_external_source_files()
 
             for snapshot in state().snapshots.values():
-                if isinstance(snapshot, External):
-                    source_files.add(Path(snapshot._context.file.filename).resolve())
+                if isinstance(snapshot, ExternalData):
+                    source_files.add(snapshot.filename.resolve())
 
             files_with_external = set()
 
@@ -509,9 +501,8 @@ snapshot.\
         source_files |= {file for file in changed_files if file.suffix == ".py"}
 
         for snapshot in state().snapshots.values():
-            context = getattr(snapshot, "_context", None)
-            if context is not None:
-                source_files.add(Path(context.file.filename).resolve())
+            if snapshot_filename := getattr(snapshot, "filename", None):
+                source_files.add(snapshot_filename.resolve())
 
         used = []
         files_with_external = set()

@@ -5,7 +5,7 @@ from typing import Any
 
 from inline_snapshot._external._format._protocol import get_format_handler
 from inline_snapshot._global_state import state
-from inline_snapshot._snapshot.generic_value import GenericValue
+from inline_snapshot._snapshot.snapshot_value import SnapshotValue
 
 
 @dataclass
@@ -15,7 +15,7 @@ class Outsourced:
     storage: str | None
 
     def __eq__(self, other):
-        if isinstance(other, GenericValue):
+        if isinstance(other, SnapshotValue):
             return NotImplemented
 
         if isinstance(other, Outsourced):

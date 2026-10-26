@@ -6,9 +6,9 @@ from unittest.mock import patch
 import pytest
 
 from inline_snapshot import snapshot
-from inline_snapshot._external._external import External
-from inline_snapshot._external._external_file import ExternalFile
-from inline_snapshot._inline_snapshot import SnapshotReference
+from inline_snapshot._external._external import ExternalData
+from inline_snapshot._external._external_file import ExternalFileData
+from inline_snapshot._snapshot.snapshot_data import SnapshotData
 from inline_snapshot.testing import Example
 from tests.utils import path_transform
 
@@ -20,9 +20,9 @@ from tests.utils import path_transform
 @pytest.mark.parametrize(
     "snapshot_type,expr",
     [
-        (SnapshotReference, "snapshot()"),
-        (External, "external()"),
-        (ExternalFile, "external_file('test.txt')"),
+        (SnapshotData, "snapshot()"),
+        (ExternalData, "external()"),
+        (ExternalFileData, "external_file('test.txt')"),
     ],
 )
 def test_change_collection_error(expr, snapshot_type):
@@ -44,24 +44,20 @@ def test_a():
         raises=path_transform(
             snapshot(
                 {
-                    "SnapshotReference": """\
+                    "SnapshotData": """\
 RuntimeError:
 
-error during change collection for snapshot (snapshot())
+error during change collection for snapshot (snapshot(...))
 snapshot.
-file: <tmp>/tests/test_something.py
-line: 4
 """,
-                    "External": """\
+                    "ExternalData": """\
 AssertionError
 RuntimeError:
 
 error during change collection for snapshot (external("uuid:"))
 snapshot.
-file: <tmp>/tests/test_something.py
-line: 4
 """,
-                    "ExternalFile": """\
+                    "ExternalFileData": """\
 AssertionError
 RuntimeError:
 

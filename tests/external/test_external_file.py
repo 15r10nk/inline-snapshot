@@ -1,5 +1,31 @@
+import gc
+import weakref
+
+from inline_snapshot import external_file
 from inline_snapshot import snapshot
+from inline_snapshot._external._external_file import ExternalFileData
+from inline_snapshot._global_state import snapshot_env
 from inline_snapshot.testing._example import Example
+
+
+def test_repeated_external_file_uses_fresh_facades_with_shared_data(tmp_path):
+    path = tmp_path / "value.txt"
+
+    def make_external_file():
+        return external_file(path)
+
+    with snapshot_env() as snapshot_state:
+        values = [make_external_file() for _ in range(2)]
+        first_ref = weakref.ref(values[0])
+
+        assert values[0] is not values[1]
+        assert values[0]._data is values[1]._data
+        assert isinstance(values[0]._data, ExternalFileData)
+        assert list(snapshot_state.snapshots.values()) == [values[0]._data]
+
+        del values
+        gc.collect()
+        assert first_ref() is None
 
 
 def test_external_file():
@@ -56,7 +82,6 @@ def test_a():
 """).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot({"tests/test.txt": "test1"}),
-        reported_categories={"fix"},
     ).run_inline()
 
 
@@ -108,7 +133,6 @@ def test_bar():
     """).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot({"tests/a.html": "text"}),
-        reported_categories={"fix"},
     )
 
 
@@ -154,7 +178,6 @@ E        +  and   external_file('stored.json') = external_file('stored.json')
   5
 ]\
 """}),
-        reported_categories={"fix"},
     ).replace(
         "n=5", "n=8"
     ).run_pytest(

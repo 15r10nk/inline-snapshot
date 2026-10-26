@@ -3,30 +3,20 @@
 from types import FrameType
 from typing import Iterator
 from typing import Literal
-from typing import Optional
 from typing import Protocol
 from typing import TypeVar
-
-from executing import Executing
 
 from inline_snapshot._change import ChangeBase
 
 T = TypeVar("T", covariant=True)
 
 
-class SnapshotRefBase:
-    _expr: Optional[Executing]
-
-    def _changes(self) -> Iterator[ChangeBase]:
-        raise NotImplementedError
-
-    @staticmethod
-    def key_for(frame: FrameType):
-        return id(frame.f_code), frame.f_lasti
+class SnapshotState(Protocol):
+    def _changes(self) -> Iterator[ChangeBase]: ...
 
 
-class SnapshotBase:
-    pass
+def snapshot_key(frame: FrameType):
+    return id(frame.f_code), frame.f_lasti
 
 
 class Snapshot(Protocol[T]):

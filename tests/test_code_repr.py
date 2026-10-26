@@ -16,6 +16,7 @@ from inline_snapshot import snapshot
 from inline_snapshot._code_repr import code_repr
 from inline_snapshot._customize._custom_code import CustomCode
 from inline_snapshot._customize._custom_sequence import CustomSet
+from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._new_adapter import reeval
 from inline_snapshot._sentinels import undefined
 from inline_snapshot.extra import raises
@@ -461,6 +462,11 @@ def test_set_custom_helpers():
         )
     ):
         reeval(old, changed)
+
+
+def test_reeval_preserves_equivalent_old_custom_type():
+    old = CustomUnmanaged(1)
+    assert reeval(old, CustomCode(1, "1")) is old
 
 
 def test_datatypes_explicit():
