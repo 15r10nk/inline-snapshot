@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import ast
 import inspect
-from dataclasses import dataclass
 from pathlib import Path
 from types import FrameType
 
@@ -41,14 +40,26 @@ def external(name: str | None = None):
     return External(context, data)
 
 
-@dataclass(eq=False, kw_only=True)
 class ExternalData(ExternalBaseData):
     """Frame-free state shared by evaluations of one external call site."""
 
-    original_name: str | None
     original_location: ExternalLocation
     location: ExternalLocation
-    filename: Path
+
+    def __init__(
+        self,
+        *,
+        original_name: str | None,
+        original_location: ExternalLocation,
+        location: ExternalLocation,
+        filename: Path,
+    ) -> None:
+        super().__init__(
+            original_location=original_location,
+            location=location,
+        )
+        self.original_name = original_name
+        self.filename = filename
 
     @classmethod
     def from_name(cls, name: str | None, context: AdapterContext) -> ExternalData:

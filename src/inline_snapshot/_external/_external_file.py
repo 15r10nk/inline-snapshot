@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 from typing import Union
@@ -13,11 +12,23 @@ from ._external_base import ExternalBase
 from ._external_base import ExternalBaseData
 
 
-@dataclass(eq=False, kw_only=True)
 class ExternalFileData(ExternalBaseData):
-    path: Path
-    base_path: Path
-    format: Format
+    def __init__(
+        self,
+        *,
+        original_location: FileLocation,
+        location: FileLocation,
+        path: Path,
+        base_path: Path,
+        format: Format,
+    ) -> None:
+        super().__init__(
+            original_location=original_location,
+            location=location,
+        )
+        self.path = path
+        self.base_path = base_path
+        self.format = format
 
     def __repr__(self) -> str:
         filename = self.path.resolve()

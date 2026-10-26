@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from dataclasses import field
 from pathlib import Path
 from typing import Iterator
 
@@ -18,13 +16,21 @@ from ._external_location import ExternalLocation
 from ._external_location import Location
 
 
-@dataclass(eq=False, kw_only=True)
 class ExternalBaseData:
-    original_location: Location
-    location: Location
-    tmp_file: Path | None = None
-    was_compared: bool = False
-    changes: list[ChangeBase] = field(default_factory=list)
+    def __init__(
+        self,
+        *,
+        original_location: Location,
+        location: Location,
+        tmp_file: Path | None = None,
+        was_compared: bool = False,
+        changes: list[ChangeBase] | None = None,
+    ) -> None:
+        self.original_location = original_location
+        self.location = location
+        self.tmp_file = tmp_file
+        self.was_compared = was_compared
+        self.changes = [] if changes is None else changes
 
     def _changes(self) -> Iterator[ChangeBase]:
         return iter(self.changes)
