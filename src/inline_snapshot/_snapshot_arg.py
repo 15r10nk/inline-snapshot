@@ -170,7 +170,7 @@ class SnapshotArgReference:
                 value, None, self._context, data, on_change=self._refresh_changes
             )
             self._value._defer_changes = isinstance(
-                self._value._old_value, CustomUnmanaged
+                self._value._data.old_value, CustomUnmanaged
             )
             self._default_value = ...
             self._name = "<unknown>"
@@ -285,7 +285,9 @@ class SnapshotArgReference:
             data,
             on_change=self._refresh_changes,
         )
-        self._value._defer_changes = isinstance(self._value._old_value, CustomUnmanaged)
+        self._value._defer_changes = isinstance(
+            self._value._data.old_value, CustomUnmanaged
+        )
 
     @staticmethod
     def key_for(frame: FrameType):
@@ -312,7 +314,7 @@ class SnapshotArgReference:
     def _materialize_changes(self, data: SnapshotData) -> None:
         changes: list[ChangeBase] = []
 
-        new_value = self._value._new_value
+        new_value = self._value._data.new_value
         is_default = (
             not isinstance(new_value, CustomUndefined)
             and self._default_value is not NoDefault
@@ -366,7 +368,9 @@ class SnapshotArgReference:
                 )
         else:
             changes = list(self._value._get_changes())
-            if is_default and not isinstance(self._value._old_value, CustomUnmanaged):
+            if is_default and not isinstance(
+                self._value._data.old_value, CustomUnmanaged
+            ):
                 changes = [
                     Delete("fix" if changes else "trim", self._value._file, self._node)
                 ]

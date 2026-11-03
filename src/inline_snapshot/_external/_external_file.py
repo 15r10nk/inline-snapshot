@@ -53,17 +53,17 @@ class ExternalFile(ExternalBase):
 
     def _assign(self, other):
 
-        self._tmp_file = state().new_tmp_path(self._location.suffix)
-        self._format.encode(other, self._tmp_file)
+        self._data.tmp_file = state().new_tmp_path(self._data.location.suffix)
+        self._format.encode(other, self._data.tmp_file)
 
     def __repr__(self):
         return repr(self._data)
 
     def _load_value(self, which):
         if which == "new":
-            if self._tmp_file:
-                format = get_format_handler_from_suffix(self._location.suffix)
-                return format.decode(self._tmp_file)
+            if self._data.tmp_file:
+                format = get_format_handler_from_suffix(self._data.location.suffix)
+                return format.decode(self._data.tmp_file)
             else:
                 raise StorageLookupError("no new value", files=[])
         if which == "old":

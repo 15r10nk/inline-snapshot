@@ -39,27 +39,27 @@ class MinMaxOperation(SnapshotOperation):
         ):
             result = split_gen(
                 NewAdapter(value._context).compare(
-                    value._old_value, value._ast_node, other
+                    value._data.old_value, value._ast_node, other
                 )
             )
-            value._new_value = result.value
+            value._data.new_value = result.value
             self.changes = result.list
         else:
-            value._new_value = value.to_custom(other, _build_new_value=True)
+            value._data.new_value = value.to_custom(other, _build_new_value=True)
             self.changes = None
 
     def compare(self, value: SnapshotValue, other: Any) -> bool:
-        if isinstance(value._old_value, CustomUndefined):
+        if isinstance(value._data.old_value, CustomUndefined):
             state().missing_values += 1
 
-        if isinstance(value._new_value, CustomUndefined):
+        if isinstance(value._data.new_value, CustomUndefined):
             self._set_new_value(value, other)
-            if isinstance(value._old_value, CustomUndefined) or ignore_old_value():
+            if isinstance(value._data.old_value, CustomUndefined) or ignore_old_value():
                 value._refresh_changes()
                 return True
-            result = value._return(self.cmp(value._old_value._eval(), other))
+            result = value._return(self.cmp(value._data.old_value._eval(), other))
         else:
-            if not self.cmp(value._new_value._eval(), other):
+            if not self.cmp(value._data.new_value._eval(), other):
                 self._set_new_value(value, other)
             result = value._return(self.cmp(value._visible_value()._eval(), other))
 
@@ -67,14 +67,14 @@ class MinMaxOperation(SnapshotOperation):
         return result
 
     def new_code(self, value: SnapshotValue) -> Generator[ChangeBase, None, str]:
-        code = yield from value._new_value._code_repr(value._context)
+        code = yield from value._data.new_value._code_repr(value._context)
         return code
 
     def get_changes(self, value: SnapshotValue) -> Iterator[ChangeBase]:
         changes = self.changes
         if changes is not None:
-            old_eval = value._old_value._eval()
-            new_eval = value._new_value._eval()
+            old_eval = value._data.old_value._eval()
+            new_eval = value._data.new_value._eval()
             for change in changes:
                 if (
                     change.flag == "fix"
@@ -87,9 +87,9 @@ class MinMaxOperation(SnapshotOperation):
 
         new_code = yield from self.new_code(value)
 
-        if not self.cmp(value._old_value._eval(), value._new_value._eval()):
+        if not self.cmp(value._data.old_value._eval(), value._data.new_value._eval()):
             flag = "fix"
-        elif not self.cmp(value._new_value._eval(), value._old_value._eval()):
+        elif not self.cmp(value._data.new_value._eval(), value._data.old_value._eval()):
             flag = "trim"
         elif value._file.code_changed(value._ast_node, new_code):
             flag = "update"

@@ -18,7 +18,7 @@ def fix_pytest_diff():
         context: Set[int],
         level: int,
     ) -> None:
-        self._format(object._old_value, stream, indent, allowance, context, level)
+        self._format(object._data.old_value, stream, indent, allowance, context, level)
 
     PrettyPrinter._dispatch[SnapshotValue.__repr__] = _pprint_snapshot
 

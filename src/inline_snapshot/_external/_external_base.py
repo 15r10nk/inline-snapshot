@@ -39,45 +39,13 @@ class ExternalBaseData:
 class ExternalBase:
     _data: ExternalBaseData
 
-    @property
-    def _original_location(self):
-        return self._data.original_location
-
-    @_original_location.setter
-    def _original_location(self, value):
-        self._data.original_location = value
-
-    @property
-    def _location(self):
-        return self._data.location
-
-    @_location.setter
-    def _location(self, value):
-        self._data.location = value
-
-    @property
-    def _tmp_file(self):
-        return self._data.tmp_file
-
-    @_tmp_file.setter
-    def _tmp_file(self, value):
-        self._data.tmp_file = value
-
-    @property
-    def _was_compared(self):
-        return self._data.was_compared
-
-    @_was_compared.setter
-    def _was_compared(self, value):
-        self._data.was_compared = value
-
     def _changes(self):
-        if self._tmp_file is not None:
+        if self._data.tmp_file is not None:
             yield ExternalChange(
                 "create" if self._is_empty() else "fix",
-                self._tmp_file,
-                self._original_location,
-                self._location,
+                self._data.tmp_file,
+                self._data.original_location,
+                self._data.location,
                 self._format,
             )
 
@@ -105,7 +73,7 @@ class ExternalBase:
 
             format = get_format_handler(other.data, other.suffix or "")
 
-            self._location.suffix = other.suffix or format.suffix
+            self._data.location.suffix = other.suffix or format.suffix
             other = other.data
 
         elif isinstance(other, ExternalBase):
@@ -118,9 +86,9 @@ class ExternalBase:
                 f"you cannot compare {external_type}(...) with snapshot(...)"
             )
 
-        first_comparison = not self._was_compared
+        first_comparison = not self._data.was_compared
 
-        self._was_compared = True
+        self._data.was_compared = True
 
         if self._is_empty():
             self._assign(other)
@@ -133,7 +101,7 @@ class ExternalBase:
             value = self._load_value("old")
         except StorageLookupError as error:
             if not error.files and state().update_flags.fix:
-                self._original_location = ExternalLocation.from_name("")
+                self._data.original_location = ExternalLocation.from_name("")
                 self._assign(other)
                 state().incorrect_values += 1
                 return True

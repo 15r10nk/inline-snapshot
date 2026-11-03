@@ -49,30 +49,16 @@ class SnapshotValue:
         self._defer_changes = defer_changes
 
         if data.initialized:
-            self._old_value = reeval(self._old_value, self.value_to_custom(old_value))
+            self._data.old_value = reeval(
+                self._data.old_value, self.value_to_custom(old_value)
+            )
         else:
             old_value = self.value_to_custom(old_value)
             assert isinstance(old_value, Custom)
-            self._old_value = old_value
-            self._new_value = CustomUndefined()
+            self._data.old_value = old_value
+            self._data.new_value = CustomUndefined()
             data.initialized = True
             data.filename = Path(context.file.filename)
-
-    @property
-    def _old_value(self):
-        return self._data.old_value
-
-    @_old_value.setter
-    def _old_value(self, value):
-        self._data.old_value = value
-
-    @property
-    def _new_value(self):
-        return self._data.new_value
-
-    @_new_value.setter
-    def _new_value(self, value):
-        self._data.new_value = value
 
     def get_builder(self, **args):
         return Builder(_snapshot_context=self._context, **args)
@@ -88,17 +74,17 @@ class SnapshotValue:
             or flags.create
             #            or flags.trim
             or flags.update
-            or isinstance(self._old_value, CustomUndefined)
+            or isinstance(self._data.old_value, CustomUndefined)
         ):
             return new_result
         return result
 
     def _load_value(self, which) -> Custom:
 
-        if which == "new" and not isinstance(self._new_value, CustomUndefined):
-            return self._new_value
-        elif which == "old" and not isinstance(self._old_value, CustomUndefined):
-            return self._old_value
+        if which == "new" and not isinstance(self._data.new_value, CustomUndefined):
+            return self._data.new_value
+        elif which == "old" and not isinstance(self._data.old_value, CustomUndefined):
+            return self._data.old_value
 
         raise ValueNotFound
 
@@ -137,11 +123,11 @@ class SnapshotValue:
 
     def _missing_argument(self):
         if self._call_node is None:
-            return isinstance(self._old_value, CustomUndefined)
+            return isinstance(self._data.old_value, CustomUndefined)
         return not self._call_node.args
 
     def _refresh_child_changes(self):
-        if isinstance(self._old_value, CustomUndefined):
+        if isinstance(self._data.old_value, CustomUndefined):
             self._data.rendered_new_code = split_gen(self._new_code()).value
             self._data.changes = []
         else:
@@ -169,14 +155,14 @@ class SnapshotValue:
             state().update_flags.fix
             or state().update_flags.update
             or state().update_flags.create
-            or isinstance(self._old_value, CustomUndefined)
+            or isinstance(self._data.old_value, CustomUndefined)
         )
 
     def _visible_value(self):
         if self._ignore_old():
-            return self._new_value
+            return self._data.new_value
         else:
-            return self._old_value
+            return self._data.old_value
 
     def _get_changes(self) -> Iterator[ChangeBase]:
         assert self._data.operation is not None

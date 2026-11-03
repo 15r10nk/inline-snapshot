@@ -90,10 +90,6 @@ class External(ExternalBase):
         self._context = context
         self._data = data
 
-    @property
-    def _original_name(self):
-        return self._data.original_name
-
     @classmethod
     def create_raw(cls, obj, frame: FrameType):
         context = AdapterContext(frame)
@@ -103,7 +99,7 @@ class External(ExternalBase):
 
     @property
     def _format(self):
-        return get_format_handler_from_suffix(self._location.suffix or "")
+        return get_format_handler_from_suffix(self._data.location.suffix or "")
 
     def _changes(self):
 
@@ -112,9 +108,9 @@ class External(ExternalBase):
         if node is not None:
             assert isinstance(node, ast.Call)
 
-        new_name = self._location.to_str()
-        if new_name != self._original_name:
-            if self._original_name is None:
+        new_name = self._data.location.to_str()
+        if new_name != self._data.original_name:
+            if self._data.original_name is None:
                 yield CallArg(
                     "create",
                     self._context.file,
@@ -127,8 +123,8 @@ class External(ExternalBase):
             else:
                 yield Replace(
                     (
-                        ("fix" if self._original_location.stem else "create")
-                        if self._tmp_file is not None
+                        ("fix" if self._data.original_location.stem else "create")
+                        if self._data.tmp_file is not None
                         else "update"
                     ),
                     self._context.file,
@@ -139,7 +135,7 @@ class External(ExternalBase):
         yield from super()._changes()
 
     def _is_empty(self):
-        return not self._original_location.stem
+        return not self._data.original_location.stem
 
     def __repr__(self):
         """Returns the representation of the external object.
@@ -148,34 +144,36 @@ class External(ExternalBase):
         [config](configuration.md).
         """
 
-        return f'external("{self._original_location.to_str()}")'
+        return f'external("{self._data.original_location.to_str()}")'
 
     @property
     def storage(self):
-        storage_name = self._location.storage or state().default_storage
+        storage_name = self._data.location.storage or state().default_storage
 
         return state().all_storages[storage_name]
 
     def _assign(self, other):
-        format = get_format_handler(other, self._location.suffix)
+        format = get_format_handler(other, self._data.location.suffix)
 
-        if not self._location.suffix:
-            self._location.suffix = format.suffix
+        if not self._data.location.suffix:
+            self._data.location.suffix = format.suffix
 
-        self._tmp_file = state().new_tmp_path(self._location.suffix)
+        self._data.tmp_file = state().new_tmp_path(self._data.location.suffix)
 
-        format.encode(other, self._tmp_file)
-        self._location = self.storage.new_location(self._location, self._tmp_file)
+        format.encode(other, self._data.tmp_file)
+        self._data.location = self.storage.new_location(
+            self._data.location, self._data.tmp_file
+        )
 
     def _load_value(self, which):
         if which == "new":
-            if self._tmp_file:
-                format = get_format_handler_from_suffix(self._location.suffix)
-                return format.decode(self._tmp_file)
+            if self._data.tmp_file:
+                format = get_format_handler_from_suffix(self._data.location.suffix)
+                return format.decode(self._data.tmp_file)
             else:
                 raise StorageLookupError("no new value", files=[])
         if which == "old":
-            location = self._original_location
+            location = self._data.original_location
             if not location.exists():
                 raise StorageLookupError("no old value", files=[])
 
