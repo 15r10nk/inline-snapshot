@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import ast
+import inspect
+from pathlib import Path
+from types import CodeType
 from types import FrameType
 
 from inline_snapshot._adapter_context import AdapterContext
@@ -8,50 +11,91 @@ from inline_snapshot._change import CallArg
 from inline_snapshot._change import Replace
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._external._external_base import ExternalBase
+from inline_snapshot._external._external_base import ExternalBaseData
 from inline_snapshot._external._format._protocol import get_format_handler
 from inline_snapshot._external._format._protocol import get_format_handler_from_suffix
 from inline_snapshot._external._storage._protocol import StorageLookupError
 from inline_snapshot._global_state import state
-from inline_snapshot._inline_snapshot import create_snapshot
-from inline_snapshot._types import SnapshotRefBase
+from inline_snapshot._types import snapshot_key
 from inline_snapshot._unmanaged import declare_unmanaged
 
 from ._external_location import ExternalLocation
 
 
 def external(name: str | None = None):
-    return create_snapshot(External, name)
+    frame = inspect.currentframe()
+    assert frame is not None
+    frame = frame.f_back
+    assert frame is not None
+
+    if not state().active:
+        return External.create_raw(name, frame)
+
+    key = snapshot_key(frame)
+    context = AdapterContext(frame)
+    data = state().snapshots.get(key)
+    if not isinstance(data, ExternalData):
+        data = ExternalData.from_name(name, context, frame.f_code)
+        state().snapshots[key] = data
+
+    return External(context, data)
+
+
+class ExternalData(ExternalBaseData):
+    """Frame-free state shared by evaluations of one external call site."""
+
+    original_location: ExternalLocation
+    location: ExternalLocation
+
+    def __init__(
+        self,
+        *,
+        original_name: str | None,
+        original_location: ExternalLocation,
+        location: ExternalLocation,
+        filename: Path,
+        code: CodeType,
+    ) -> None:
+        super().__init__(
+            original_location=original_location,
+            location=location,
+        )
+        self.original_name = original_name
+        self.filename = filename
+        # Prevent reuse of the id(frame.f_code) component in snapshot_key().
+        self.code = code
+
+    @classmethod
+    def from_name(
+        cls, name: str | None, context: AdapterContext, code: CodeType
+    ) -> ExternalData:
+        location = ExternalLocation.from_name(name, context=context)
+        return cls(
+            original_name=name,
+            original_location=ExternalLocation.from_name(name, context=context),
+            location=location,
+            filename=Path(context.file.filename),
+            code=code,
+        )
+
+    def __repr__(self) -> str:
+        return f'external("{self.original_location.to_str()}")'
 
 
 @declare_unmanaged
-class External(ExternalBase, SnapshotRefBase):
-    _original_location: ExternalLocation
-    _location: ExternalLocation
+class External(ExternalBase):
     _context: AdapterContext
 
-    def __init__(self, name: str, frame: FrameType):
+    def __init__(self, context: AdapterContext, data: ExternalData):
         """External objects are used to move some data outside the source code.
         You should not instantiate this class directly, but by using `external()` instead.
 
         The location where the external data is stored can be defined by the storage protocol.
         The format is defined by the suffix.
-
-        Parameters:
-            name: the name of the external stored object which has the form "<hash>:<name>.<suffix>".
         """
 
-        self._context = AdapterContext(frame)
-        self._original_name = name
-
-        self._location = ExternalLocation.from_name(name, context=self._context)
-        self._original_location = ExternalLocation.from_name(
-            name, context=self._context
-        )
-
-        super().__init__()
-
-    def result(self):
-        return self
+        self._context = context
+        self._data = data
 
     @classmethod
     def create_raw(cls, obj, frame: FrameType):
@@ -62,7 +106,7 @@ class External(ExternalBase, SnapshotRefBase):
 
     @property
     def _format(self):
-        return get_format_handler_from_suffix(self._location.suffix or "")
+        return get_format_handler_from_suffix(self._data.location.suffix or "")
 
     def _changes(self):
 
@@ -71,9 +115,9 @@ class External(ExternalBase, SnapshotRefBase):
         if node is not None:
             assert isinstance(node, ast.Call)
 
-        new_name = self._location.to_str()
-        if new_name != self._original_name:
-            if self._original_name is None:
+        new_name = self._data.location.to_str()
+        if new_name != self._data.original_name:
+            if self._data.original_name is None:
                 yield CallArg(
                     "create",
                     self._context.file,
@@ -86,8 +130,8 @@ class External(ExternalBase, SnapshotRefBase):
             else:
                 yield Replace(
                     (
-                        ("fix" if self._original_location.stem else "create")
-                        if self._tmp_file is not None
+                        ("fix" if self._data.original_location.stem else "create")
+                        if self._data.tmp_file is not None
                         else "update"
                     ),
                     self._context.file,
@@ -98,7 +142,7 @@ class External(ExternalBase, SnapshotRefBase):
         yield from super()._changes()
 
     def _is_empty(self):
-        return not self._original_location.stem
+        return not self._data.original_location.stem
 
     def __repr__(self):
         """Returns the representation of the external object.
@@ -107,34 +151,36 @@ class External(ExternalBase, SnapshotRefBase):
         [config](configuration.md).
         """
 
-        return f'external("{self._original_location.to_str()}")'
+        return f'external("{self._data.original_location.to_str()}")'
 
     @property
     def storage(self):
-        storage_name = self._location.storage or state().default_storage
+        storage_name = self._data.location.storage or state().default_storage
 
         return state().all_storages[storage_name]
 
     def _assign(self, other):
-        format = get_format_handler(other, self._location.suffix)
+        format = get_format_handler(other, self._data.location.suffix)
 
-        if not self._location.suffix:
-            self._location.suffix = format.suffix
+        if not self._data.location.suffix:
+            self._data.location.suffix = format.suffix
 
-        self._tmp_file = state().new_tmp_path(self._location.suffix)
+        self._data.tmp_file = state().new_tmp_path(self._data.location.suffix)
 
-        format.encode(other, self._tmp_file)
-        self._location = self.storage.new_location(self._location, self._tmp_file)
+        format.encode(other, self._data.tmp_file)
+        self._data.location = self.storage.new_location(
+            self._data.location, self._data.tmp_file
+        )
 
     def _load_value(self, which):
         if which == "new":
-            if self._tmp_file:
-                format = get_format_handler_from_suffix(self._location.suffix)
-                return format.decode(self._tmp_file)
+            if self._data.tmp_file:
+                format = get_format_handler_from_suffix(self._data.location.suffix)
+                return format.decode(self._data.tmp_file)
             else:
                 raise StorageLookupError("no new value", files=[])
         if which == "old":
-            location = self._original_location
+            location = self._data.original_location
             if not location.exists():
                 raise StorageLookupError("no old value", files=[])
 

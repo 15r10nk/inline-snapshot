@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Iterator
 
+from inline_snapshot._change import ChangeBase
 from inline_snapshot._change import ExternalChange
 from inline_snapshot._exceptions import UsageError
 from inline_snapshot._external._format._protocol import get_format_handler
@@ -9,28 +11,41 @@ from inline_snapshot._external._outsource import Outsourced
 from inline_snapshot._external._storage._protocol import StorageLookupError
 from inline_snapshot._global_state import state
 
-from .._snapshot.generic_value import GenericValue
+from .._snapshot.snapshot_value import SnapshotValue
 from ._external_location import ExternalLocation
 from ._external_location import Location
 
 
+class ExternalBaseData:
+    def __init__(
+        self,
+        *,
+        original_location: Location,
+        location: Location,
+        tmp_file: Path | None = None,
+        was_compared: bool = False,
+        changes: list[ChangeBase] | None = None,
+    ) -> None:
+        self.original_location = original_location
+        self.location = location
+        self.tmp_file = tmp_file
+        self.was_compared = was_compared
+        self.changes = [] if changes is None else changes
+
+    def _changes(self) -> Iterator[ChangeBase]:
+        return iter(self.changes)
+
+
 class ExternalBase:
-
-    _original_location: Location
-    _location: Location
-    _tmp_file: Path | None
-
-    def __init__(self):
-        self._tmp_file = None
-        self._was_compared = False
+    _data: ExternalBaseData
 
     def _changes(self):
-        if self._tmp_file is not None:
+        if self._data.tmp_file is not None:
             yield ExternalChange(
                 "create" if self._is_empty() else "fix",
-                self._tmp_file,
-                self._original_location,
-                self._location,
+                self._data.tmp_file,
+                self._data.original_location,
+                self._data.location,
                 self._format,
             )
 
@@ -43,16 +58,22 @@ class ExternalBase:
     def __eq__(self, other):
         """Two external objects are equal if they have the same value"""
 
+        __tracebackhide__ = True
+        result = self._compare(other)
+        self._data.changes = list(self._changes())
+        return result
+
+    def _compare(self, other):
+        __tracebackhide__ = True
+
         external_type = (
             "external" if type(self).__name__ == "External" else "external_file"
         )
-        __tracebackhide__ = True
-
         if isinstance(other, Outsourced):
 
             format = get_format_handler(other.data, other.suffix or "")
 
-            self._location.suffix = other.suffix or format.suffix
+            self._data.location.suffix = other.suffix or format.suffix
             other = other.data
 
         elif isinstance(other, ExternalBase):
@@ -60,14 +81,14 @@ class ExternalBase:
                 f"you cannot compare {external_type}(...) with {external_type}(...)"
             )
 
-        elif isinstance(other, GenericValue):
+        elif isinstance(other, SnapshotValue):
             raise UsageError(
                 f"you cannot compare {external_type}(...) with snapshot(...)"
             )
 
-        first_comparison = not self._was_compared
+        first_comparison = not self._data.was_compared
 
-        self._was_compared = True
+        self._data.was_compared = True
 
         if self._is_empty():
             self._assign(other)
@@ -80,7 +101,7 @@ class ExternalBase:
             value = self._load_value("old")
         except StorageLookupError as error:
             if not error.files and state().update_flags.fix:
-                self._original_location = ExternalLocation.from_name("")
+                self._data.original_location = ExternalLocation.from_name("")
                 self._assign(other)
                 state().incorrect_values += 1
                 return True

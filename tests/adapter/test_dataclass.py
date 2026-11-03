@@ -321,6 +321,7 @@ class A:
 def test_something():
     assert A(a=3) == snapshot(A(a=5)),"not equal"
 """).run_inline(
+        context_managers=[executing_used],
         changed_files=snapshot({}),
         raises=snapshot("AssertionError: not equal"),
         reported_categories={"fix"},

@@ -160,7 +160,6 @@ def test_external():
     assert inspect(get_snapshot_value(s,"old")) == snapshot("ellipsis: Ellipsis")
 """,
         },
-        reported_categories={"create", "fix"},
     ).run_inline(
         ["--inline-snapshot=fix"],
         changed_files={"tests/test_something.py": """\

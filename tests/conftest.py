@@ -33,6 +33,7 @@ def check_update(
     reported_flags=None,
     expected_code=...,
     raises="<no exception>",
+    context_managers=(),
 ):
     e = Example(
         {
@@ -52,6 +53,7 @@ def test_a():
 
     result = e.run_inline(
         [f"--inline-snapshot={flags}"],
+        context_managers=context_managers,
         reported_categories=snapshot_arg(reported_flags),
         changed_files=AnyThing(),
         raises=snapshot_arg(raises),
@@ -82,17 +84,27 @@ def no_executing_context():
 
 
 @pytest.fixture(params=[True, False], ids=["executing", "without-executing"])
-def executing_used(request, monkeypatch):
-    used = request.param
-    if used:
-        yield used
-    else:
-        real_executing = executing.Source.executing
+def executing_used(request):
+    return ExecutingContext(request.param)
 
-        def fake_executing(frame):
-            result = real_executing(frame)
-            result.node = None
-            return result
 
-        monkeypatch.setattr(executing.Source, "executing", fake_executing)
-        yield used
+class ExecutingContext:
+    def __init__(self, used):
+        self.used = used
+        self.context = None
+
+    def __bool__(self):
+        return self.used
+
+    def __enter__(self):
+        if not self.used:
+            self.context = no_executing_context()
+            self.context.__enter__()
+        return self
+
+    def __exit__(self, *args):
+        if self.context is not None:
+            context = self.context
+            self.context = None
+            return context.__exit__(*args)
+        return None

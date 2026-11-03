@@ -44,6 +44,7 @@ class A:
 def test_something():
     assert A(a=3) == snapshot(A(a=5)),"not equal"
 """).run_inline(
+        context_managers=[executing_used],
         changed_files=snapshot({}),
         raises=snapshot("AssertionError: not equal"),
         reported_categories={"fix"},
@@ -62,6 +63,7 @@ class A:
 def test_something():
     assert (1,2) == snapshot((1,2)),"not equal"
 """).run_inline(
+        context_managers=[executing_used],
         changed_files=snapshot({}),
         raises=snapshot("<no exception>"),
     )
@@ -80,7 +82,7 @@ class A:
 def test_something():
     for _ in range(2):
         assert snapshot(A(value={value})) == A(value={value})
-""").run_inline(reported_categories=set())
+""").run_inline(context_managers=[executing_used], reported_categories=set())
 
 
 @pytest.mark.parametrize("executing_used", [False], indirect=True)
@@ -111,4 +113,4 @@ def test_it():
         assert snapshot(1 + 2j) == 1 + 2j
 """,
         }
-    ).run_inline(reported_categories=set(), changed_files={})
+    ).run_inline(context_managers=[executing_used], reported_categories=set())
