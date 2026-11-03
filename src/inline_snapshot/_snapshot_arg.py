@@ -4,7 +4,6 @@ import ast
 import inspect
 from ast import Call
 from ast import Name
-from dataclasses import dataclass
 from pathlib import Path
 from types import FrameType
 from typing import Any
@@ -33,11 +32,6 @@ class _NoDefault:
 
 
 NoDefault = _NoDefault()
-
-
-@dataclass(eq=False)
-class SnapshotArgData(SnapshotData):
-    """Frame-free state shared by evaluations of one snapshot_arg call site."""
 
 
 def snapshot_arg(obj) -> Snapshot:
@@ -107,12 +101,12 @@ def snapshot_arg(obj) -> Snapshot:
 
     key = SnapshotArgReference.key_for(frame)
     data = state().snapshots.get(key)
-    if not isinstance(data, SnapshotArgData):
-        data = SnapshotArgData()
+    if not isinstance(data, SnapshotData):
+        data = SnapshotData()
         state().snapshots[key] = data
 
     reference = SnapshotArgReference(obj, frame, data)
-    return reference.result()
+    return reference._value
 
 
 def _get_call_frame(frame):
@@ -289,14 +283,8 @@ class SnapshotArgReference:
             frame.f_lasti,
         )
 
-    def result(self):
-        return self._value
-
+    @compare_context()
     def _refresh_changes(self, data: SnapshotData, _context: AdapterContext) -> None:
-        with compare_context():
-            self._materialize_changes(data)
-
-    def _materialize_changes(self, data: SnapshotData) -> None:
         changes: list[ChangeBase] = []
 
         new_value = self._value._data.new_value
