@@ -1,6 +1,8 @@
 import ast
+import gc
 import re
 import sys
+import weakref
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -10,6 +12,7 @@ from dirty_equals import IsStr
 from inline_snapshot import external
 from inline_snapshot import outsource
 from inline_snapshot import snapshot
+from inline_snapshot._external._external import ExternalData
 from inline_snapshot._external._external_location import ExternalLocation
 from inline_snapshot._external._find_external import ensure_import
 from inline_snapshot._external._find_external import used_externals_in
@@ -19,6 +22,41 @@ from inline_snapshot.testing import Example
 
 from ..conftest import check_update
 from ..utils import apply_changes
+
+
+def test_external_registry_does_not_retain_context():
+    class Payload:
+        pass
+
+    def run_external():
+        payload = Payload()
+        payload_ref = weakref.ref(payload)
+        value = external("hash:.txt")
+        context_ref = weakref.ref(value._context)
+        assert (value == "hello") is False
+        return payload_ref, context_ref
+
+    with snapshot_env() as snapshot_state:
+        payload_ref, context_ref = run_external()
+        gc.collect()
+
+        assert payload_ref() is None
+        assert context_ref() is None
+        external_data = next(iter(snapshot_state.snapshots.values()))
+        assert isinstance(external_data, ExternalData)
+
+
+def test_repeated_external_uses_fresh_facades_with_shared_data():
+    def make_external():
+        return external("hash:.txt")
+
+    with snapshot_env() as snapshot_state:
+        values = [make_external() for _ in range(2)]
+
+        assert values[0] is not values[1]
+        assert values[0]._context is not values[1]._context
+        assert values[0]._data is values[1]._data
+        assert list(snapshot_state.snapshots.values()) == [values[0]._data]
 
 
 def test_basic():
@@ -829,8 +867,8 @@ tests/test_something.py
 from inline_snapshot import external, snapshot,outsource
 
 def test_something():
-    assert outsource("foo") == snapshot(external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt"))
-    assert "foo" == external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt")
+    assert outsource("foo") == snapshot(external("uuid:e3e70682-c209-4cac-a29f-6fbed82c07cd.txt"))
+    assert "foo" == external("uuid:f728b4fa-4248-4e3a-8a5d-2f346baa9455.txt")
 """,
             }
         ),

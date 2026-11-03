@@ -37,6 +37,9 @@ ignored by Git.
   timing. This is a cold start of snapshot processing, not of the OS file cache.
 - **Five pytest sessions:** active, disabled, create, fix, and update. Each runs
   ten tests in a fresh process, including startup, reporting, and source edits.
+- **Retained snapshot state:** the recursive size of the session snapshot registry
+  after evaluating 100 distinct active scalar call sites. Each call frame has an
+  unrelated 100 kB local payload, exposing accidental frame retention.
 
 Workloads live in `_workloads.py`; `_fixtures.py` creates distinct call sites.
 Keep expected values inline and increment `SUITE_VERSION` in `_fixtures.py`

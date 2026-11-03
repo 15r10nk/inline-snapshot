@@ -3,7 +3,7 @@ from typing import Any
 from typing import Set
 
 from inline_snapshot._is import Is
-from inline_snapshot._snapshot.generic_value import GenericValue
+from inline_snapshot._snapshot.snapshot_value import SnapshotValue
 
 
 def fix_pytest_diff():
@@ -18,9 +18,9 @@ def fix_pytest_diff():
         context: Set[int],
         level: int,
     ) -> None:
-        self._format(object._old_value, stream, indent, allowance, context, level)
+        self._format(object._data.old_value, stream, indent, allowance, context, level)
 
-    PrettyPrinter._dispatch[GenericValue.__repr__] = _pprint_snapshot
+    PrettyPrinter._dispatch[SnapshotValue.__repr__] = _pprint_snapshot
 
     def _pprint_is(
         self,

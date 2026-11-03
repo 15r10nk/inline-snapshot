@@ -1,11 +1,12 @@
+from __future__ import annotations
+
 import ast
+import inspect
 from ast import Call
 from ast import Name
 from pathlib import Path
 from types import FrameType
 from typing import Any
-from typing import Iterator
-from typing import Optional
 
 from executing import Source
 
@@ -13,15 +14,17 @@ from inline_snapshot._adapter_context import AdapterContext
 from inline_snapshot._change import CallArg
 from inline_snapshot._change import ChangeBase
 from inline_snapshot._change import Delete
+from inline_snapshot._compare_context import compare_context
 from inline_snapshot._customize._custom_undefined import CustomUndefined
 from inline_snapshot._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._exceptions import UsageError
+from inline_snapshot._generator_utils import split_gen
 from inline_snapshot._generator_utils import with_flag
-from inline_snapshot._inline_snapshot import create_snapshot
-from inline_snapshot._snapshot.generic_value import GenericValue
-from inline_snapshot._snapshot.undecided_value import UndecidedValue
+from inline_snapshot._global_state import state
+from inline_snapshot._sentinels import undefined
+from inline_snapshot._snapshot.snapshot_data import SnapshotData
+from inline_snapshot._snapshot.snapshot_value import SnapshotValue
 from inline_snapshot._types import Snapshot
-from inline_snapshot._types import SnapshotRefBase
 
 
 class _NoDefault:
@@ -81,10 +84,32 @@ def snapshot_arg(obj) -> Snapshot:
 
     """
 
-    if isinstance(obj, GenericValue):
+    if isinstance(obj, SnapshotValue):
         return obj
 
-    return create_snapshot(SnapshotArgReference, obj)
+    frame = inspect.currentframe()
+    assert frame is not None
+    frame = frame.f_back
+    assert frame is not None
+
+    if not state().active:
+        if obj is undefined:
+            raise AssertionError(
+                "your snapshot is missing a value run pytest with --inline-snapshot=create"
+            )
+        return obj
+
+    key = SnapshotArgReference.key_for(frame)
+    data = state().snapshots.get(key)
+    if not isinstance(data, SnapshotData):
+        data = SnapshotData(
+            code=frame.f_code,
+            call_code=_get_call_frame(frame).f_code,
+        )
+        state().snapshots[key] = data
+
+    reference = SnapshotArgReference(obj, frame, data)
+    return reference._value
 
 
 def _get_call_frame(frame):
@@ -104,14 +129,14 @@ def _get_call_frame(frame):
     return call_frame
 
 
-class SnapshotArgReference(SnapshotRefBase):
-    _node: Optional[ast.expr]
+class SnapshotArgReference:
+    _node: ast.expr | None
     _name: str
-    _value: GenericValue
+    _value: SnapshotValue
     _default_value: Any
-    _arg_pos: Optional[int]
+    _arg_pos: int | None
 
-    def __init__(self, value, frame: FrameType):
+    def __init__(self, value, frame: FrameType, data: SnapshotData):
 
         def check(cnd):
             if not cnd:
@@ -129,7 +154,9 @@ class SnapshotArgReference(SnapshotRefBase):
 
             self._node = None
 
-            self._value = UndecidedValue(value, None, self._context)
+            self._value = SnapshotValue(
+                value, None, self._context, data, on_change=self._refresh_changes
+            )
             self._default_value = ...
             self._name = "<unknown>"
             self._arg_pos = None
@@ -158,7 +185,7 @@ class SnapshotArgReference(SnapshotRefBase):
 
         arg_pos = None
         pos_args = [*function.args.posonlyargs, *function.args.args]
-        default: Optional[ast.expr] = None
+        default: ast.expr | None = None
 
         for i, (func_arg, arg_default) in enumerate(
             zip(
@@ -236,7 +263,13 @@ class SnapshotArgReference(SnapshotRefBase):
                     self._node = kw.value
                     break
 
-        self._value = UndecidedValue(value, self._node, self._context)
+        self._value = SnapshotValue(
+            value,
+            self._node,
+            self._context,
+            data,
+            on_change=self._refresh_changes,
+        )
 
     @staticmethod
     def key_for(frame: FrameType):
@@ -249,16 +282,11 @@ class SnapshotArgReference(SnapshotRefBase):
             frame.f_lasti,
         )
 
-    def result(self):
-        return self._value
+    @compare_context()
+    def _refresh_changes(self, data: SnapshotData, _context: AdapterContext) -> None:
+        changes: list[ChangeBase] = []
 
-    @staticmethod
-    def create_raw(obj, frame: FrameType):
-        return obj
-
-    def _changes(self) -> Iterator[ChangeBase]:
-
-        new_value = self._value._new_value
+        new_value = self._value._data.new_value
         is_default = (
             not isinstance(new_value, CustomUndefined)
             and self._default_value is not NoDefault
@@ -272,48 +300,51 @@ class SnapshotArgReference(SnapshotRefBase):
                 # executing could not locate the call site (e.g. Python ≤ 3.10
                 # inside run_inline); we have no AST node and no arg name, so
                 # we cannot generate a meaningful change.
-                return
-
-            if isinstance(self._value._new_value, CustomUndefined):
+                data.changes = []
                 return
 
             if is_default:
+                data.changes = []
                 return
 
             flag = "create" if self._default_value is ... else "fix"
 
-            new_code = yield from with_flag(self._value._new_code(), flag)
+            rendered = split_gen(with_flag(self._value._new_code(), flag))
+            changes.extend(rendered.list)
+            new_code = rendered.value
 
             # The first positional argument can be inserted positionally;
             # any later position requires keyword form to avoid leaving gaps.
             if self._arg_pos == 0:
-                yield CallArg(
-                    flag=flag,
-                    file=self._value._file,
-                    node=self._context.expr.node,
-                    arg_pos=0,
-                    arg_name=None,
-                    new_code=new_code,
+                changes.append(
+                    CallArg(
+                        flag=flag,
+                        file=self._value._file,
+                        node=self._context.expr.node,
+                        arg_pos=0,
+                        arg_name=None,
+                        new_code=new_code,
+                    )
                 )
             else:
 
-                yield CallArg(
-                    flag=flag,
-                    file=self._value._file,
-                    node=self._context.expr.node,
-                    arg_pos=None,
-                    arg_name=self._name,
-                    new_code=new_code,
+                changes.append(
+                    CallArg(
+                        flag=flag,
+                        file=self._value._file,
+                        node=self._context.expr.node,
+                        arg_pos=None,
+                        arg_name=self._name,
+                        new_code=new_code,
+                    )
                 )
         else:
             changes = list(self._value._get_changes())
-            if is_default and not isinstance(self._value._old_value, CustomUnmanaged):
-                yield Delete(
-                    "fix" if changes else "trim", self._value._file, self._node
-                )
-            else:
-                yield from changes
+            if is_default and not isinstance(
+                self._value._data.old_value, CustomUnmanaged
+            ):
+                changes = [
+                    Delete("fix" if changes else "trim", self._value._file, self._node)
+                ]
 
-    def _re_eval(self, obj, frame: FrameType):
-        call_frame = _get_call_frame(frame)
-        self._value._re_eval(obj, AdapterContext(call_frame))
+        data.changes = changes
