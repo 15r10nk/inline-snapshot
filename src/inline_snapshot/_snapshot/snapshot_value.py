@@ -39,14 +39,12 @@ class SnapshotValue:
         *,
         call_node: Optional[ast.Call] = None,
         on_change: Optional[Callable[[SnapshotData, AdapterContext], None]] = None,
-        defer_changes: bool = False,
     ):
         self._data = data
         self._ast_node = ast_node
         self._context = context
         self._call_node = call_node
         self._on_change = on_change
-        self._defer_changes = defer_changes
 
         if data.initialized:
             self._data.old_value = reeval(
@@ -110,9 +108,6 @@ class SnapshotValue:
             return AstToCustom(self._context).convert(value, self._ast_node)
 
     def _refresh_changes(self):
-        if self._defer_changes:
-            return
-
         if self._on_change is not None:
             self._refresh_child_changes()
             self._on_change(self._data, self._context)

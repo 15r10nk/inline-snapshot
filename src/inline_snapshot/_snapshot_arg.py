@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from types import FrameType
 from typing import Any
-from typing import Iterator
 
 from executing import Source
 
@@ -38,14 +37,7 @@ NoDefault = _NoDefault()
 
 @dataclass(eq=False)
 class SnapshotArgData(SnapshotData):
-    """Snapshot state with an optional deferred unmanaged facade."""
-
-    deferred_reference: SnapshotArgReference | None = None
-
-    def _changes(self) -> Iterator[ChangeBase]:
-        if self.deferred_reference is not None:
-            self.deferred_reference._materialize_changes(self)
-        return iter(self.changes)
+    """Frame-free state shared by evaluations of one snapshot_arg call site."""
 
 
 def snapshot_arg(obj) -> Snapshot:
@@ -120,7 +112,6 @@ def snapshot_arg(obj) -> Snapshot:
         state().snapshots[key] = data
 
     reference = SnapshotArgReference(obj, frame, data)
-    data.deferred_reference = reference if reference._value._defer_changes else None
     return reference.result()
 
 
@@ -168,9 +159,6 @@ class SnapshotArgReference:
 
             self._value = SnapshotValue(
                 value, None, self._context, data, on_change=self._refresh_changes
-            )
-            self._value._defer_changes = isinstance(
-                self._value._data.old_value, CustomUnmanaged
             )
             self._default_value = ...
             self._name = "<unknown>"
@@ -284,9 +272,6 @@ class SnapshotArgReference:
             self._context,
             data,
             on_change=self._refresh_changes,
-        )
-        self._value._defer_changes = isinstance(
-            self._value._data.old_value, CustomUnmanaged
         )
 
     @staticmethod
