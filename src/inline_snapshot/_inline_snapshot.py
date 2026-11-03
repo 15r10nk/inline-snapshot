@@ -52,7 +52,7 @@ def create_inline_snapshot(obj):
 
     data = state().snapshots.get(key)
     if not isinstance(data, SnapshotData):
-        data = SnapshotData()
+        data = SnapshotData(code=frame.f_code)
         state().snapshots[key] = data
 
     return SnapshotValue(

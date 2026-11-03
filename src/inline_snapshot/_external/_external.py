@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import inspect
 from pathlib import Path
+from types import CodeType
 from types import FrameType
 
 from inline_snapshot._adapter_context import AdapterContext
@@ -34,7 +35,7 @@ def external(name: str | None = None):
     context = AdapterContext(frame)
     data = state().snapshots.get(key)
     if not isinstance(data, ExternalData):
-        data = ExternalData.from_name(name, context)
+        data = ExternalData.from_name(name, context, frame.f_code)
         state().snapshots[key] = data
 
     return External(context, data)
@@ -53,6 +54,7 @@ class ExternalData(ExternalBaseData):
         original_location: ExternalLocation,
         location: ExternalLocation,
         filename: Path,
+        code: CodeType,
     ) -> None:
         super().__init__(
             original_location=original_location,
@@ -60,15 +62,20 @@ class ExternalData(ExternalBaseData):
         )
         self.original_name = original_name
         self.filename = filename
+        # Prevent reuse of the id(frame.f_code) component in snapshot_key().
+        self.code = code
 
     @classmethod
-    def from_name(cls, name: str | None, context: AdapterContext) -> ExternalData:
+    def from_name(
+        cls, name: str | None, context: AdapterContext, code: CodeType
+    ) -> ExternalData:
         location = ExternalLocation.from_name(name, context=context)
         return cls(
             original_name=name,
             original_location=ExternalLocation.from_name(name, context=context),
             location=location,
             filename=Path(context.file.filename),
+            code=code,
         )
 
     def __repr__(self) -> str:
