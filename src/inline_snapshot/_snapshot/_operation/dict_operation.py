@@ -40,6 +40,7 @@ class DictOperation(SnapshotOperation):
                 state().missing_values += 1
                 old_value = {}
             else:
+                assert isinstance(value._data.old_value, CustomDict)
                 old_value = value._data.old_value.value
 
             child_node = None
@@ -55,6 +56,7 @@ class DictOperation(SnapshotOperation):
             if isinstance(value._data.old_value, CustomUndefined):
                 old_value = {}
             else:
+                assert isinstance(value._data.old_value, CustomDict)
                 old_value = value._data.old_value.value
 
             child_node = None
@@ -81,6 +83,7 @@ class DictOperation(SnapshotOperation):
         context: AdapterContext,
     ) -> None:
         value._context = context
+        assert isinstance(value._data.new_value, CustomDict)
         if not isinstance(child.new_value, CustomUndefined):
             value._data.new_value.value[key] = child.new_value
         value._refresh_changes()
@@ -96,15 +99,16 @@ class DictOperation(SnapshotOperation):
 
     def get_changes(self, value: SnapshotValue) -> Iterator[ChangeBase]:
 
-        assert not isinstance(value._data.old_value, CustomUndefined)
+        old_value = value._data.old_value
+        assert isinstance(old_value, CustomDict)
 
         if value._ast_node is None:
-            values: list[ast.expr | None] = [None] * len(value._data.old_value.value)
+            values: list[ast.expr | None] = [None] * len(old_value.value)
         else:
             assert isinstance(value._ast_node, ast.Dict)
             values = cast(List[Optional[ast.expr]], value._ast_node.values)
 
-        for key, node in zip(value._data.old_value.value.keys(), values):
+        for key, node in zip(old_value.value.keys(), values):
             if key in self.children:
                 # check values with same keys
                 yield from self.children[key].changes
@@ -114,10 +118,7 @@ class DictOperation(SnapshotOperation):
 
         to_insert = []
         for key, child in self.children.items():
-            if (
-                key not in value._data.old_value.value
-                and child.rendered_new_code is not None
-            ):
+            if key not in old_value.value and child.rendered_new_code is not None:
                 # add new values
                 new_key = yield from key._code_repr(value._context)
 
@@ -128,6 +129,6 @@ class DictOperation(SnapshotOperation):
                 "create",
                 value._file,
                 cast(ast.Dict, value._ast_node),
-                len(value._data.old_value.value),
+                len(old_value.value),
                 to_insert,
             )

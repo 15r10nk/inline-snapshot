@@ -37,15 +37,15 @@ class CollectionOperation(SnapshotOperation):
     def _observe_item(self, value: SnapshotValue, item: Any) -> Custom:
         old_value: Custom = CustomUndefined()
         old_node = None
-        if not isinstance(value._data.old_value, CustomUndefined):
+        snapshot_value = value._data.old_value
+        if not isinstance(snapshot_value, CustomUndefined):
+            assert isinstance(snapshot_value, CustomList)
             if value._ast_node is None:
-                elements: list[ast.expr | None] = [None] * len(
-                    value._data.old_value.value
-                )
+                elements: list[ast.expr | None] = [None] * len(snapshot_value.value)
             else:
                 assert isinstance(value._ast_node, ast.List)
                 elements = cast(List[Optional[ast.expr]], value._ast_node.elts)
-            for candidate, node in zip(value._data.old_value.value, elements):
+            for candidate, node in zip(snapshot_value.value, elements):
                 if candidate._eval() == item:
                     old_value = candidate
                     old_node = node
@@ -71,6 +71,7 @@ class CollectionOperation(SnapshotOperation):
         if isinstance(value._data.new_value, CustomUndefined):
             value._data.new_value = CustomList([self._observe_item(value, item)])
         else:
+            assert isinstance(value._data.new_value, CustomList)
             if item not in value._data.new_value._eval():
                 value._data.new_value.value.append(self._observe_item(value, item))
 
