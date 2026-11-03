@@ -83,6 +83,7 @@ def test_list():
         assert [1,i] == snapshot([1,Is(i)]),"not equal"
         assert (1,i) == snapshot((1,Is(i))),"not equal"
 """).run_inline(
+        context_managers=[executing_used],
         changed_files=snapshot({}),
         raises=snapshot("<no exception>"),
     )

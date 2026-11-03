@@ -186,6 +186,7 @@ def test_a():
 """)
 
     e.run_inline(
+        context_managers=[executing_used],
         reported_categories=Is(
             None
             if not executing_used and reported_flag == "update"
@@ -202,6 +203,7 @@ def test_a():
         # no changes
         e.run_inline(
             [f"--inline-snapshot={flag}"],
+            context_managers=[executing_used],
             raises=AnyThing(),
             reported_categories=AnyThing(),
         )
@@ -211,8 +213,9 @@ def test_a():
 
     e.run_inline(
         [f"--inline-snapshot={reported_flag}"],
+        context_managers=[executing_used],
         changed_files=AnyThing(),
-    ).run_inline()
+    ).run_inline(context_managers=[executing_used])
 
 
 @pytest.mark.parametrize(
@@ -256,6 +259,7 @@ def test_a():
 
     e = Example(code)
     e.run_inline(
+        context_managers=[executing_used],
         reported_categories=Is(
             all_flags - ({"update"} if not executing_used else set())
         ),
@@ -271,16 +275,21 @@ def test_a():
                 code, keys = gen_code(ops, fixed_flags, keys)
                 e2 = e2.run_inline(
                     [f"--inline-snapshot={flag}"],
+                    context_managers=[executing_used],
                     changed_files=snapshot({"tests/test_something.py": Is(code)}),
                     reported_categories=Is(all_flags - fixed_flags | {flag}),
                 )
 
-                e2 = e2.run_inline(reported_categories=Is(all_flags - fixed_flags))
+                e2 = e2.run_inline(
+                    context_managers=[executing_used],
+                    reported_categories=Is(all_flags - fixed_flags),
+                )
 
     for flag in {"update", "fix", "trim", "create"} - all_flags:
         # no changes
         e.run_inline(
             [f"--inline-snapshot={flag}"],
+            context_managers=[executing_used],
             # TODO fix later: trim prevents update for some unknown reason
             # , reported_categories=Is(all_flags)
             reported_categories=AnyThing,
@@ -672,9 +681,19 @@ def test_assert():
 
 
 def test_plain(executing_used):
-    check_update("s = snapshot(5)", flags="", expected_code="s = snapshot(5)")
+    check_update(
+        "s = snapshot(5)",
+        flags="",
+        expected_code="s = snapshot(5)",
+        context_managers=[executing_used],
+    )
 
-    check_update("s = snapshot()", flags="", expected_code="s = snapshot()")
+    check_update(
+        "s = snapshot()",
+        flags="",
+        expected_code="s = snapshot()",
+        context_managers=[executing_used],
+    )
 
 
 def test_flags_repr():

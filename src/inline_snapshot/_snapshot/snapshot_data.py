@@ -31,8 +31,9 @@ class SnapshotData:
     rendered_new_code: str | None = None
     initialized: bool = False
     filename: Path | None = None
-    # Prevent reuse of the id(frame.f_code) component in snapshot_key().
+    # Prevent reuse of code-object IDs used by snapshot registry keys.
     code: CodeType | None = None
+    call_code: CodeType | None = None
 
     def use(self, operation_type: type[_Operation]) -> _Operation:
         __tracebackhide__ = True

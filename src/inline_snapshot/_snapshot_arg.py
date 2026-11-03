@@ -102,7 +102,10 @@ def snapshot_arg(obj) -> Snapshot:
     key = SnapshotArgReference.key_for(frame)
     data = state().snapshots.get(key)
     if not isinstance(data, SnapshotData):
-        data = SnapshotData()
+        data = SnapshotData(
+            code=frame.f_code,
+            call_code=_get_call_frame(frame).f_code,
+        )
         state().snapshots[key] = data
 
     reference = SnapshotArgReference(obj, frame, data)
@@ -273,13 +276,9 @@ class SnapshotArgReference:
         call_frame = _get_call_frame(frame)
 
         return (
-            call_frame.f_code.co_filename,
-            call_frame.f_code.co_firstlineno,
-            call_frame.f_code.co_name,
+            id(call_frame.f_code),
             call_frame.f_lasti,
-            frame.f_code.co_filename,
-            frame.f_code.co_firstlineno,
-            frame.f_code.co_name,
+            id(frame.f_code),
             frame.f_lasti,
         )
 
