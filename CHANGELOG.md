@@ -1,4 +1,11 @@
 
+<a id='changelog-0.36.2'></a>
+# v0.36.2 — 2026-11-09
+
+## Fixed
+
+- Reduce memory use in active snapshot modes by eagerly recording snapshot changes without retaining completed test frames until the final report.
+
 <a id='changelog-0.36.1'></a>
 # v0.36.1 — 2026-10-12
 
