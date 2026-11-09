@@ -25,7 +25,7 @@ repos:
     - --ignore-init-module-imports
     id: autoflake
   repo: https://github.com/myint/autoflake
-  rev: v2.3.3
+  rev: v2.4.0
 
 - repo: local
   hooks:
@@ -41,12 +41,12 @@ repos:
     files: ^changelog\.d/.*\.md$
 
 - repo: https://github.com/asottile/setup-cfg-fmt
-  rev: v3.2.0
+  rev: v3.3.0
   hooks:
   - id: setup-cfg-fmt
 
 - repo: https://github.com/pycqa/isort
-  rev: 9.0.0a3
+  rev: 10.0.0b2
   hooks:
   - id: isort
     name: isort (python)
@@ -56,11 +56,11 @@ repos:
     - --py38-plus
     id: pyupgrade
   repo: https://github.com/asottile/pyupgrade
-  rev: v3.21.2
+  rev: v3.22.0
 - hooks:
   - id: black
   repo: https://github.com/psf/black
-  rev: 26.5.1
+  rev: 26.10.1
 - hooks:
   - id: blacken-docs
     args: [-l80]
@@ -81,7 +81,7 @@ repos:
     stages:
     - commit-msg
   repo: https://github.com/commitizen-tools/commitizen
-  rev: v4.16.4
+  rev: v4.19.3
 
 
 # - repo: https://github.com/PyCQA/docformatter
@@ -90,7 +90,7 @@ repos:
 #   - id: docformatter
 
 - repo: https://github.com/abravalheri/validate-pyproject
-  rev: v0.25
+  rev: v0.27
   hooks:
   - id: validate-pyproject
 
@@ -100,6 +100,6 @@ repos:
   - id: actionlint
 
 - repo: https://github.com/crate-ci/typos
-  rev: v1
+  rev: v1.52.0
   hooks:
   - id: typos
