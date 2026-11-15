@@ -2131,7 +2131,7 @@ To store data in a different location, set the <code>storage-dir</code> option i
 <h2 id="formats">Formats<a class="headerlink" href="#formats" title="Permanent link">&para;</a></h2>
 <p>inline-snapshot supports several built-in formats for external snapshots. The format used is determined by the given data type: bytes are stored in a <code>.bin</code> file, and strings are stored in a <code>.txt</code> file by default. More complex data types are stored in a <code>.json</code> file.</p>
 <!--[[[cog
-from inline_snapshot._global_state import state
+from inline_snapshot._core._global_state import state
 import cog
 
 cog.out("|Suffix|Priority|Description|\n")

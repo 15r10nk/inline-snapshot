@@ -53,7 +53,7 @@ def test_container():
     check_container({1, 1}, length=snapshot(1))
 ```
 
-Source code in `src/inline_snapshot/_types.py`
+Source code in `src/inline_snapshot/_core/_types.py`
 
 ````
 class Snapshot(Protocol[T]):
