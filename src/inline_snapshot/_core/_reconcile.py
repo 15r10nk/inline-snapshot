@@ -35,56 +35,6 @@ from inline_snapshot._core._generator_utils import only_value
 from inline_snapshot._core._generator_utils import split_gen
 from inline_snapshot._core._snapshot_context import SnapshotContext
 from inline_snapshot.syntax_warnings import InlineSnapshotInfo
-from inline_snapshot.syntax_warnings import InlineSnapshotSyntaxWarning
-
-
-def warn_star_expression(node, context):
-    if isinstance(node, ast.Call):
-        for pos_arg in node.args:
-            if isinstance(pos_arg, ast.Starred):
-                warnings.warn_explicit(
-                    "star-expressions are not supported inside snapshots",
-                    filename=context.file._source.filename,
-                    lineno=pos_arg.lineno,
-                    category=InlineSnapshotSyntaxWarning,
-                )
-                return True
-
-        # keyword arguments
-        for kw in node.keywords:
-            if kw.arg is None:
-                warnings.warn_explicit(
-                    "star-expressions are not supported inside snapshots",
-                    filename=context.file._source.filename,
-                    lineno=kw.value.lineno,
-                    category=InlineSnapshotSyntaxWarning,
-                )
-                return True
-
-    if isinstance(node, (ast.Tuple, ast.List)):
-
-        for e in node.elts:
-            if isinstance(e, ast.Starred):
-                warnings.warn_explicit(
-                    "star-expressions are not supported inside snapshots",
-                    filename=context.file.filename,
-                    lineno=e.lineno,
-                    category=InlineSnapshotSyntaxWarning,
-                )
-                return True
-    if isinstance(node, ast.Dict):
-
-        for key1, value in zip(node.keys, node.values):
-            if key1 is None:
-                warnings.warn_explicit(
-                    "star-expressions are not supported inside snapshots",
-                    filename=context.file._source.filename,
-                    lineno=value.lineno,
-                    category=InlineSnapshotSyntaxWarning,
-                )
-                return True
-
-    return False
 
 
 def reeval(old_value: Custom, value: Custom) -> Custom:
