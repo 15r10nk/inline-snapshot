@@ -12,11 +12,11 @@ from dirty_equals import IsStr
 from inline_snapshot import external
 from inline_snapshot import outsource
 from inline_snapshot import snapshot
-from inline_snapshot._external._external import ExternalData
-from inline_snapshot._external._external_location import ExternalLocation
-from inline_snapshot._external._find_external import ensure_import
-from inline_snapshot._external._find_external import used_externals_in
-from inline_snapshot._global_state import snapshot_env
+from inline_snapshot._core._external._external import ExternalData
+from inline_snapshot._core._external._external_location import ExternalLocation
+from inline_snapshot._core._external._find_external import ensure_import
+from inline_snapshot._core._external._find_external import used_externals_in
+from inline_snapshot._core._global_state import snapshot_env
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
 
@@ -617,7 +617,7 @@ def test_x():
         ["--inline-snapshot=create"],
         context_managers=[
             patch(
-                "inline_snapshot._external._tracked_files.os",
+                "inline_snapshot._core._external._tracked_files.os",
                 SimpleNamespace(path=SimpleNamespace(relpath=relpath_raises)),
             )
         ],
@@ -886,7 +886,7 @@ def test_something():
         error=snapshot("""\
 >       assert "foo" == external("hash:aaaaaaaaaaaa*.txt")
 >           raise StorageLookupError(
-E           inline_snapshot._external._storage._protocol.StorageLookupError: hash 'aaaaaaaaaaaa*.txt' is not found in the HashStorage
+E           inline_snapshot._core._external._storage._protocol.StorageLookupError: hash 'aaaaaaaaaaaa*.txt' is not found in the HashStorage
 """),
         returncode=1,
         outcomes={"failed": 1},
@@ -981,7 +981,7 @@ def test_a():
         ["--inline-snapshot=create"],
         error=snapshot("""\
 >       assert "hi" == external(".json") == external(".txt")
-E       inline_snapshot._exceptions.UsageError: you cannot compare external(...) with external(...)
+E       inline_snapshot._core._exceptions.UsageError: you cannot compare external(...) with external(...)
 """),
         returncode=1,
         changed_files={
@@ -1013,7 +1013,7 @@ def test_a():
         ["--inline-snapshot=create"],
         error=snapshot("""\
 >       assert "hi" == external(".json") == snapshot(".txt")
-E       inline_snapshot._exceptions.UsageError: you cannot compare external(...) with snapshot(...)
+E       inline_snapshot._core._exceptions.UsageError: you cannot compare external(...) with snapshot(...)
 """),
         returncode=1,
         changed_files={
@@ -1046,7 +1046,7 @@ def test_a():
         error=snapshot("""\
 >       assert "hi" == external("uuid:.blub")
 >           raise UsageError(
-E           inline_snapshot._exceptions.UsageError: No format handler found for the given type 'str' and suffix '.blub'.
+E           inline_snapshot._core._exceptions.UsageError: No format handler found for the given type 'str' and suffix '.blub'.
 """),
         returncode=1,
         outcomes={"failed": 1},
@@ -1070,7 +1070,7 @@ def test_a():
         error=snapshot("""\
 >       assert C() == external("uuid:")
 >           raise UsageError(
-E           inline_snapshot._exceptions.UsageError: No format handler found for the given type 'C'.
+E           inline_snapshot._core._exceptions.UsageError: No format handler found for the given type 'C'.
 """),
         returncode=1,
         outcomes={"failed": 1},
@@ -1107,7 +1107,7 @@ You can also use --inline-snapshot=review to approve the changes interactively\
         error=snapshot("""\
 >       assert "hi" == external()
 >           raise UsageError(
-E           inline_snapshot._exceptions.UsageError: cannot load external object from a non-existing location 'uuid:'
+E           inline_snapshot._core._exceptions.UsageError: cannot load external object from a non-existing location 'uuid:'
 """),
         report=snapshot(""),
         returncode=1,

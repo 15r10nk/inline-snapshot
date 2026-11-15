@@ -13,11 +13,11 @@ import pytest
 
 from inline_snapshot import HasRepr
 from inline_snapshot import snapshot
-from inline_snapshot._code_repr import code_repr
-from inline_snapshot._customize._custom_code import CustomCode
-from inline_snapshot._customize._custom_sequence import CustomSet
-from inline_snapshot._new_adapter import reeval
-from inline_snapshot._sentinels import undefined
+from inline_snapshot._core._code_repr import code_repr
+from inline_snapshot._core._customize._custom_code import CustomCode
+from inline_snapshot._core._customize._custom_sequence import CustomSet
+from inline_snapshot._core._new_adapter import reeval
+from inline_snapshot._core._sentinels import undefined
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
 from tests.conftest import check_update
@@ -354,7 +354,7 @@ def test_set_partial_order_is_deterministic():
 from itertools import permutations
 
 from inline_snapshot import snapshot
-from inline_snapshot._code_repr import code_repr
+from inline_snapshot._core._code_repr import code_repr
 
 
 def test_set_partial_order_is_deterministic():
@@ -370,7 +370,7 @@ def test_set_partial_order_is_deterministic():
 from itertools import permutations
 
 from inline_snapshot import snapshot
-from inline_snapshot._code_repr import code_repr
+from inline_snapshot._core._code_repr import code_repr
 
 
 def test_set_partial_order_is_deterministic():

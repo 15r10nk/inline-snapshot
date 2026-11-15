@@ -11,8 +11,8 @@ from benchmarks._fixtures import source
 from benchmarks.bench_pytest import PytestSession
 from benchmarks.bench_snapshot import Comparison
 from benchmarks.bench_snapshot import RetainedSnapshotState
-from inline_snapshot._global_state import snapshot_env
-from inline_snapshot._snapshot.snapshot_data import SnapshotData
+from inline_snapshot._core._global_state import snapshot_env
+from inline_snapshot._core._snapshot.snapshot_data import SnapshotData
 
 
 @pytest.mark.parametrize("rewritten_count", [0, 1, 10])

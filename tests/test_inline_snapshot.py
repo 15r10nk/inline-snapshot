@@ -14,13 +14,13 @@ import pytest
 from dirty_equals import AnyThing
 
 from inline_snapshot import snapshot
-from inline_snapshot._adapter_context import AdapterContext
-from inline_snapshot._flags import Flags
-from inline_snapshot._format import format_code
-from inline_snapshot._global_state import snapshot_env
-from inline_snapshot._is import Is
-from inline_snapshot._snapshot._operation.eq_operation import EqOperation
-from inline_snapshot._snapshot.snapshot_data import SnapshotData
+from inline_snapshot._core._adapter_context import AdapterContext
+from inline_snapshot._core._flags import Flags
+from inline_snapshot._core._format import format_code
+from inline_snapshot._core._global_state import snapshot_env
+from inline_snapshot._core._is import Is
+from inline_snapshot._core._snapshot._operation.eq_operation import EqOperation
+from inline_snapshot._core._snapshot.snapshot_data import SnapshotData
 from inline_snapshot.extra import Transformed
 from inline_snapshot.testing import Example
 from tests.conftest import check_update

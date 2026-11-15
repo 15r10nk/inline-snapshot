@@ -32,7 +32,7 @@ class PytestSession:
         self.original = pytest_source(mode)
         self.path.write_text(self.original, encoding="utf-8")
         (self.root / "conftest.py").write_text(
-            "from inline_snapshot._global_state import state\n"
+            "from inline_snapshot._core._global_state import state\n"
             "def pytest_sessionfinish(session):\n"
             f"    assert state().active is {mode != 'disabled'}\n",
             encoding="utf-8",
@@ -106,7 +106,7 @@ class PytestSession:
                 ), output
             if changed:
                 # A fast no-rewriting check validates the resulting expected values.
-                from inline_snapshot._global_state import snapshot_env
+                from inline_snapshot._core._global_state import snapshot_env
 
                 from ._fixtures import load_module
 

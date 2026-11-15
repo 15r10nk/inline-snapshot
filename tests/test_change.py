@@ -3,16 +3,16 @@ import ast
 import pytest
 from executing import Source
 
-from inline_snapshot._change import CallArg
-from inline_snapshot._change import CategoryChange
-from inline_snapshot._change import Delete
-from inline_snapshot._change import Replace
-from inline_snapshot._change import apply_all
-from inline_snapshot._generator_utils import split_gen
-from inline_snapshot._generator_utils import with_flag
-from inline_snapshot._inline_snapshot import snapshot
-from inline_snapshot._rewrite_code import ChangeRecorder
-from inline_snapshot._source_file import SourceFile
+from inline_snapshot._core._change import CallArg
+from inline_snapshot._core._change import CategoryChange
+from inline_snapshot._core._change import Delete
+from inline_snapshot._core._change import Replace
+from inline_snapshot._core._change import apply_all
+from inline_snapshot._core._generator_utils import split_gen
+from inline_snapshot._core._generator_utils import with_flag
+from inline_snapshot._core._inline_snapshot import snapshot
+from inline_snapshot._core._rewrite_code import ChangeRecorder
+from inline_snapshot._core._source_file import SourceFile
 
 
 def test_with_flag():

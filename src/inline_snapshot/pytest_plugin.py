@@ -6,18 +6,18 @@ import pytest
 from executing import is_pytest_compatible
 from rich.console import Console
 
-from inline_snapshot._utils import is_relative_to
+from inline_snapshot._core import _config
+from inline_snapshot._core._exceptions import UsageError
+from inline_snapshot._core._flags import Flags
+from inline_snapshot._core._get_snapshot_value import unwrap
+from inline_snapshot._core._global_state import enter_snapshot_context
+from inline_snapshot._core._global_state import leave_snapshot_context
+from inline_snapshot._core._global_state import snapshot_env
+from inline_snapshot._core._global_state import state
+from inline_snapshot._core._utils import is_relative_to
 
-from . import _config
-from ._exceptions import UsageError
+from ._core._snapshot_session import SnapshotSession
 from ._fix_assert import fix_assert
-from ._flags import Flags
-from ._get_snapshot_value import unwrap
-from ._global_state import enter_snapshot_context
-from ._global_state import leave_snapshot_context
-from ._global_state import snapshot_env
-from ._global_state import state
-from ._snapshot_session import SnapshotSession
 from .version import is_insider
 
 pytest.register_assert_rewrite("inline_snapshot.extra")

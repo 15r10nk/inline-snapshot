@@ -22,12 +22,12 @@ from executing import is_pytest_compatible
 from rich.markup import escape
 
 from inline_snapshot import snapshot
-from inline_snapshot._align import align
-from inline_snapshot._external._external_file import external_file
-from inline_snapshot._flags import Flags
-from inline_snapshot._global_state import snapshot_env
-from inline_snapshot._snapshot_arg import snapshot_arg
-from inline_snapshot._unmanaged import declare_unmanaged
+from inline_snapshot._core._align import align
+from inline_snapshot._core._external._external_file import external_file
+from inline_snapshot._core._flags import Flags
+from inline_snapshot._core._global_state import snapshot_env
+from inline_snapshot._core._snapshot_arg import snapshot_arg
+from inline_snapshot._core._unmanaged import declare_unmanaged
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example
 from inline_snapshot.testing._terminal_svg import render_ansi_to_svg

@@ -4,8 +4,8 @@ from hypothesis import given
 from hypothesis.strategies import text
 
 from inline_snapshot import snapshot
-from inline_snapshot._snapshot_arg import snapshot_arg
-from inline_snapshot._utils import triple_quote
+from inline_snapshot._core._snapshot_arg import snapshot_arg
+from inline_snapshot._core._utils import triple_quote
 from inline_snapshot.extra import Transformed
 from inline_snapshot.testing import Example
 from tests.conftest import check_update

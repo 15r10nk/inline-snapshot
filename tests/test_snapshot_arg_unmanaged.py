@@ -3,7 +3,7 @@ import weakref
 
 from inline_snapshot import Is
 from inline_snapshot import snapshot_arg
-from inline_snapshot._global_state import snapshot_env
+from inline_snapshot._core._global_state import snapshot_env
 from inline_snapshot.testing import Example
 
 

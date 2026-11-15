@@ -3,7 +3,7 @@ import sys
 import pytest
 
 from inline_snapshot import snapshot
-from inline_snapshot._is import Is
+from inline_snapshot._core._is import Is
 from inline_snapshot.testing import Example
 
 

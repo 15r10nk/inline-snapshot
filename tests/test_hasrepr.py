@@ -1,4 +1,4 @@
-from inline_snapshot._code_repr import HasRepr
+from inline_snapshot._core._code_repr import HasRepr
 
 
 def test_hasrepr_eq():

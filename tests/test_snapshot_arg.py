@@ -5,9 +5,9 @@ import sys
 import weakref
 
 from inline_snapshot import snapshot
-from inline_snapshot._global_state import snapshot_env
-from inline_snapshot._snapshot.snapshot_data import SnapshotData
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._global_state import snapshot_env
+from inline_snapshot._core._snapshot.snapshot_data import SnapshotData
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 from inline_snapshot.testing import Example
 from tests.conftest import no_executing_context
 
@@ -37,7 +37,7 @@ def test_snapshot_arg_registry_does_not_retain_context():
 def test_snapshot_arg_no_comparison():
     """_node is None and _new_value is CustomUndefined: _changes() returns early (line 168)."""
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x, expected=...):
     snapshot_arg(expected)  # called but never compared
@@ -50,7 +50,7 @@ def test_a():
 def test_snapshot_arg_create_positional():
     """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x, expected=...):
     assert x == snapshot_arg(expected)
@@ -60,7 +60,7 @@ def test_a():
 """).run_inline(
         ["--inline-snapshot=create"],
         changed_files=snapshot({"tests/test_something.py": """\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x, expected=...):
     assert x == snapshot_arg(expected)
@@ -74,7 +74,7 @@ def test_a():
 def test_snapshot_arg_default_value():
     """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x, expected=8):
     assert x == snapshot_arg(expected)
@@ -86,7 +86,7 @@ def test_a():
 """).run_inline(
         ["--inline-snapshot=fix,trim"],
         changed_files=snapshot({"tests/test_something.py": """\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x, expected=8):
     assert x == snapshot_arg(expected)
@@ -101,7 +101,7 @@ def test_a():
 
 def test_snapshot_kw_only_arg_default_value():
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x,*, other=5, expected=8):
     assert x == snapshot_arg(expected)
@@ -113,7 +113,7 @@ def test_a():
 """).run_inline(
         ["--inline-snapshot=fix,trim"],
         changed_files=snapshot({"tests/test_something.py": """\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x,*, other=5, expected=8):
     assert x == snapshot_arg(expected)
@@ -129,7 +129,7 @@ def test_a():
 def test_snapshot_no_argument():
     """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x):
     expected=8
@@ -150,7 +150,7 @@ def test_a():
 def test_snapshot_no_default():
     """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x,expected):
     assert x == snapshot_arg(expected)
@@ -160,7 +160,7 @@ def test_a():
 """).run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({"tests/test_something.py": """\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x,expected):
     assert x == snapshot_arg(expected)
@@ -174,7 +174,7 @@ def test_a():
 def test_snapshot_invalid_default():
     """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x,expected=1+1):
     assert x == snapshot_arg(expected)
@@ -194,7 +194,7 @@ def test_a():
 def test_snapshot_as_argument():
     """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 from inline_snapshot import snapshot
 
 def check_value(x,expected):
@@ -205,7 +205,7 @@ def test_a():
 """).run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({"tests/test_something.py": """\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 from inline_snapshot import snapshot
 
 def check_value(x,expected):
@@ -220,7 +220,7 @@ def test_a():
 def test_snapshot_arg_fix_positional():
     """Fix a snapshot passed positionally: line 133 + line 184."""
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x, expected=5):
     assert x == snapshot_arg(expected)
@@ -230,7 +230,7 @@ def test_a():
 """).run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({"tests/test_something.py": """\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x, expected=5):
     assert x == snapshot_arg(expected)
@@ -244,7 +244,7 @@ def test_a():
 def test_snapshot_arg_fix_keyword():
     """Arg passed as keyword: lines 136-137 + line 184."""
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x, expected=...,as_str=...):
     assert x == snapshot_arg(expected)
@@ -255,7 +255,7 @@ def test_a():
 """).run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({"tests/test_something.py": """\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x, expected=...,as_str=...):
     assert x == snapshot_arg(expected)
@@ -282,7 +282,7 @@ def test_repeated_snapshot_arg_uses_fresh_facades_with_shared_data():
 
 def test_snapshot_arg_repeated_without_comparison():
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x, expected=...):
     snapshot_arg(expected)  # no comparison, just trigger the re-eval path
@@ -296,7 +296,7 @@ def test_a():
 def test_snapshot_arg_wrong_arg_type():
     """Non-Name argument (attribute access): raises UsageError (line 91)."""
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 class Obj:
     val = 5
@@ -317,7 +317,7 @@ def test_a():
 
 def test_snapshot_arg_disable():
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 
 def my_func(x):
@@ -332,7 +332,7 @@ def test_a():
 
 def test_snapshot_arg_disable_missing_value():
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 
 def my_func(expected=...):
@@ -352,7 +352,7 @@ def test_a():
 def test_snapshot_arg_module_level():
     """snapshot_arg called at module level: raises UsageError (line 116)."""
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 x = 5
 y = snapshot_arg(x)
@@ -368,7 +368,7 @@ def test_a():
 
 def test_without_executing():
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 def check_value(x, expected=...):
     assert x == snapshot_arg(expected)
@@ -391,7 +391,7 @@ created and you can ignore this message.
 def test_context_manager():
     """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
     e = Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 from contextlib import contextmanager
 
 @contextmanager
@@ -415,7 +415,7 @@ def test_a():
         e.run_inline(
             ["--inline-snapshot=create"],
             changed_files=snapshot({"tests/test_something.py": """\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 from contextlib import contextmanager
 
 @contextmanager
@@ -436,7 +436,7 @@ def test_snapshot_arg_method_fix_positional():
     Regression: without self-offset correction, call_node.args[arg_pos] would
     pick the wrong element and the wrong node would be updated."""
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 class Checker:
     def check(self, input, expected=...):
@@ -447,7 +447,7 @@ def test_a():
 """).run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({"tests/test_something.py": """\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 class Checker:
     def check(self, input, expected=...):
@@ -462,7 +462,7 @@ def test_a():
 def test_snapshot_arg_constructor_fix_positional():
     """Constructor: fix a snapshot that was already inserted positionally."""
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 class Checker:
     def __init__(self, input, expected=...):
@@ -473,7 +473,7 @@ def test_a():
 """).run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({"tests/test_something.py": """\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 class Checker:
     def __init__(self, input, expected=...):
@@ -489,7 +489,7 @@ def test_snapshot_arg_staticmethod_fix_positional():
     """@staticmethod: no self, so arg_pos must NOT be decremented.
     Regression guard: the self-offset correction must not apply to @staticmethod."""
     Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 class Checker:
     @staticmethod
@@ -501,7 +501,7 @@ def test_a():
 """).run_inline(
         ["--inline-snapshot=fix"],
         changed_files=snapshot({"tests/test_something.py": """\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 
 class Checker:
     @staticmethod
@@ -517,7 +517,7 @@ def test_a():
 def test_multiple_context_managers():
     """Arg passed positionally: node = call_node.args[arg_pos] (line 133)."""
     e = Example("""\
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 from contextlib import contextmanager
 
 @contextmanager
