@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Generator
 
-from inline_snapshot._core._adapter_context import AdapterContext
 from inline_snapshot._core._change import ChangeBase
+from inline_snapshot._core._snapshot_context import SnapshotContext
 
 from ._custom import Custom
 
@@ -19,7 +19,7 @@ class CustomDict(Custom):
     def _map(self, f):
         return f({k._map(f): v._map(f) for k, v in self.value.items()})
 
-    def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+    def _code_repr(self, context: SnapshotContext) -> Generator[ChangeBase, None, str]:
         values = []
         for k, v in self.value.items():
             key = yield from k._code_repr(context)

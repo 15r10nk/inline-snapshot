@@ -16,7 +16,7 @@ class FrameContext:
     locals: dict
 
 
-class AdapterContext:
+class SnapshotContext:
 
     _frame: FrameType
 

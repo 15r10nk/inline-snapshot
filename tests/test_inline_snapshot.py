@@ -14,13 +14,13 @@ import pytest
 from dirty_equals import AnyThing
 
 from inline_snapshot import snapshot
-from inline_snapshot._core._adapter_context import AdapterContext
 from inline_snapshot._core._flags import Flags
 from inline_snapshot._core._format import format_code
 from inline_snapshot._core._global_state import snapshot_env
 from inline_snapshot._core._is import Is
 from inline_snapshot._core._snapshot._operation.eq_operation import EqOperation
 from inline_snapshot._core._snapshot.snapshot_data import SnapshotData
+from inline_snapshot._core._snapshot_context import SnapshotContext
 from inline_snapshot.extra import Transformed
 from inline_snapshot.testing import Example
 from tests.conftest import check_update
@@ -84,7 +84,7 @@ def test_snapshot_registry_does_not_retain_context():
         snapshot_data = next(iter(snapshot_state.snapshots.values()))
         assert isinstance(snapshot_data, SnapshotData)
         retained_objects = list(_owned_objects(snapshot_data))
-        assert not any(isinstance(value, AdapterContext) for value in retained_objects)
+        assert not any(isinstance(value, SnapshotContext) for value in retained_objects)
         assert not any(isinstance(value, types.FrameType) for value in retained_objects)
 
 

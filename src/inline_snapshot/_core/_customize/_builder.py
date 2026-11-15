@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import Any
 from typing import Callable
 
-from inline_snapshot._core._adapter_context import AdapterContext
 from inline_snapshot._core._code_repr import HasRepr
 from inline_snapshot._core._code_repr import mock_repr
 from inline_snapshot._core._code_repr import value_code_repr
@@ -14,6 +13,7 @@ from inline_snapshot._core._customize._custom_sequence import CustomSequence
 from inline_snapshot._core._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._core._customize._uncustomized import Uncustomized
 from inline_snapshot._core._exceptions import UsageError
+from inline_snapshot._core._snapshot_context import SnapshotContext
 
 from ._custom import Custom
 from ._custom_call import CustomCall
@@ -31,7 +31,7 @@ from ._custom_undefined import CustomUndefined
 
 @dataclass
 class Builder:
-    _snapshot_context: AdapterContext
+    _snapshot_context: SnapshotContext
     _build_new_value: bool = False
 
     def _convert_child(self, v) -> Custom:

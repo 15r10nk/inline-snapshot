@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Generator
 
-from inline_snapshot._core._adapter_context import AdapterContext
+from inline_snapshot._core._snapshot_context import SnapshotContext
 
 
 class Location:
@@ -46,7 +46,7 @@ class ExternalLocation(Location):
         cls,
         name: str | None,
         *,
-        context: AdapterContext | None = None,
+        context: SnapshotContext | None = None,
         filename: Path | None = None,
     ):
         from inline_snapshot._core._global_state import state

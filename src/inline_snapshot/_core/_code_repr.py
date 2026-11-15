@@ -12,14 +12,14 @@ from typing_extensions import deprecated
 from inline_snapshot._core._generator_utils import only_value
 
 if TYPE_CHECKING:
-    from inline_snapshot._core._adapter_context import AdapterContext
+    from inline_snapshot._core._snapshot_context import SnapshotContext
 
 
 real_repr = repr
 
 
-def adapter_context_for_parent_frame():
-    from inline_snapshot._core._adapter_context import AdapterContext
+def snapshot_context_for_parent_frame():
+    from inline_snapshot._core._snapshot_context import SnapshotContext
 
     frame = inspect.currentframe()
     assert frame
@@ -28,7 +28,7 @@ def adapter_context_for_parent_frame():
     frame = frame.f_back
     assert frame
 
-    return AdapterContext(frame)
+    return SnapshotContext(frame)
 
 
 class HasRepr:
@@ -58,7 +58,7 @@ class HasRepr:
             if type(other) is not self._type:
                 return False
 
-        with mock_repr(adapter_context_for_parent_frame()):
+        with mock_repr(snapshot_context_for_parent_frame()):
             other_repr = value_code_repr(other)
         return other_repr == self._str_repr or other_repr == real_repr(self)
 
@@ -93,12 +93,12 @@ def customize_repr(f):
 
 
 def code_repr(obj):
-    with mock_repr(adapter_context_for_parent_frame()):
+    with mock_repr(snapshot_context_for_parent_frame()):
         return repr(obj)
 
 
 @contextmanager
-def mock_repr(context: AdapterContext):
+def mock_repr(context: SnapshotContext):
     assert context is not None
 
     def new_repr(obj):

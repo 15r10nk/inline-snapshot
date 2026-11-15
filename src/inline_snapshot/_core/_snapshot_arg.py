@@ -10,7 +10,6 @@ from typing import Any
 
 from executing import Source
 
-from inline_snapshot._core._adapter_context import AdapterContext
 from inline_snapshot._core._change import CallArg
 from inline_snapshot._core._change import ChangeBase
 from inline_snapshot._core._change import Delete
@@ -24,6 +23,7 @@ from inline_snapshot._core._global_state import state
 from inline_snapshot._core._sentinels import undefined
 from inline_snapshot._core._snapshot.snapshot_data import SnapshotData
 from inline_snapshot._core._snapshot.snapshot_value import SnapshotValue
+from inline_snapshot._core._snapshot_context import SnapshotContext
 from inline_snapshot._core._types import Snapshot
 
 
@@ -146,7 +146,7 @@ class SnapshotArgReference:
 
         call_frame = _get_call_frame(frame)
 
-        self._context = AdapterContext(call_frame)
+        self._context = SnapshotContext(call_frame)
 
         expr = Source.executing(frame)
 
@@ -283,7 +283,7 @@ class SnapshotArgReference:
         )
 
     @compare_context()
-    def _refresh_changes(self, data: SnapshotData, _context: AdapterContext) -> None:
+    def _refresh_changes(self, data: SnapshotData, _context: SnapshotContext) -> None:
         changes: list[ChangeBase] = []
 
         new_value = self._value._data.new_value

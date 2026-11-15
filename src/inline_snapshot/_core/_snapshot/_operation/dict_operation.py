@@ -8,10 +8,10 @@ from typing import List
 from typing import Optional
 from typing import cast
 
-from inline_snapshot._core._adapter_context import AdapterContext
 from inline_snapshot._core._customize._custom import Custom
 from inline_snapshot._core._customize._custom_dict import CustomDict
 from inline_snapshot._core._customize._custom_undefined import CustomUndefined
+from inline_snapshot._core._snapshot_context import SnapshotContext
 
 from ..._change import ChangeBase
 from ..._change import Delete
@@ -80,7 +80,7 @@ class DictOperation(SnapshotOperation):
         value: SnapshotValue,
         key: Custom,
         child: SnapshotData,
-        context: AdapterContext,
+        context: SnapshotContext,
     ) -> None:
         value._context = context
         assert isinstance(value._data.new_value, CustomDict)

@@ -17,11 +17,11 @@ from inline_snapshot._core._customize._uncustomized import Uncustomized
 from inline_snapshot._core._reconcile import warn_star_expression
 from inline_snapshot._core._unmanaged import is_unmanaged
 
-from .._adapter_context import AdapterContext
+from .._snapshot_context import SnapshotContext
 
 
 class AstToCustom:
-    context: AdapterContext
+    context: SnapshotContext
 
     def __init__(self, context):
         self.eval = context.eval
@@ -86,7 +86,7 @@ class ValueToCustom:
     It works similar to AstToCustom but cannot handle calls
     """
 
-    context: AdapterContext
+    context: SnapshotContext
 
     def __init__(self, context):
         self.context = context

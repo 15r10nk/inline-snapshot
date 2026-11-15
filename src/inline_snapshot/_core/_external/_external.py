@@ -6,7 +6,6 @@ from pathlib import Path
 from types import CodeType
 from types import FrameType
 
-from inline_snapshot._core._adapter_context import AdapterContext
 from inline_snapshot._core._change import CallArg
 from inline_snapshot._core._change import Replace
 from inline_snapshot._core._exceptions import UsageError
@@ -18,6 +17,7 @@ from inline_snapshot._core._external._format._protocol import (
 )
 from inline_snapshot._core._external._storage._protocol import StorageLookupError
 from inline_snapshot._core._global_state import state
+from inline_snapshot._core._snapshot_context import SnapshotContext
 from inline_snapshot._core._types import snapshot_key
 from inline_snapshot._core._unmanaged import declare_unmanaged
 
@@ -34,7 +34,7 @@ def external(name: str | None = None):
         return External.create_raw(name, frame)
 
     key = snapshot_key(frame)
-    context = AdapterContext(frame)
+    context = SnapshotContext(frame)
     data = state().snapshots.get(key)
     if not isinstance(data, ExternalData):
         data = ExternalData.from_name(name, context, frame.f_code)
@@ -69,7 +69,7 @@ class ExternalData(ExternalBaseData):
 
     @classmethod
     def from_name(
-        cls, name: str | None, context: AdapterContext, code: CodeType
+        cls, name: str | None, context: SnapshotContext, code: CodeType
     ) -> ExternalData:
         location = ExternalLocation.from_name(name, context=context)
         return cls(
@@ -86,9 +86,9 @@ class ExternalData(ExternalBaseData):
 
 @declare_unmanaged
 class External(ExternalBase):
-    _context: AdapterContext
+    _context: SnapshotContext
 
-    def __init__(self, context: AdapterContext, data: ExternalData):
+    def __init__(self, context: SnapshotContext, data: ExternalData):
         """External objects are used to move some data outside the source code.
         You should not instantiate this class directly, but by using `external()` instead.
 
@@ -101,7 +101,7 @@ class External(ExternalBase):
 
     @classmethod
     def create_raw(cls, obj, frame: FrameType):
-        context = AdapterContext(frame)
+        context = SnapshotContext(frame)
         return cls._load_value_from_location(
             ExternalLocation.from_name(obj, context=context)
         )

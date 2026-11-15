@@ -8,7 +8,6 @@ from typing import Any
 from typing import Generator
 from typing import Sequence
 
-from inline_snapshot._core._adapter_context import AdapterContext
 from inline_snapshot._core._align import add_x
 from inline_snapshot._core._align import align
 from inline_snapshot._core._change import CallArg
@@ -34,6 +33,7 @@ from inline_snapshot._core._exceptions import UsageError
 from inline_snapshot._core._generator_utils import make_gen_map
 from inline_snapshot._core._generator_utils import only_value
 from inline_snapshot._core._generator_utils import split_gen
+from inline_snapshot._core._snapshot_context import SnapshotContext
 from inline_snapshot.syntax_warnings import InlineSnapshotInfo
 from inline_snapshot.syntax_warnings import InlineSnapshotSyntaxWarning
 
@@ -174,7 +174,7 @@ class Comparison:
 class SnapshotReconciler:
 
     def __init__(
-        self, context: AdapterContext, *, comparison: Comparison = Comparison()
+        self, context: SnapshotContext, *, comparison: Comparison = Comparison()
     ):
         assert context.expr.node is not None
         self.context = context

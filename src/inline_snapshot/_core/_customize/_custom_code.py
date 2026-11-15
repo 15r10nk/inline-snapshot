@@ -6,9 +6,9 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Generator
 
-from inline_snapshot._core._adapter_context import AdapterContext
 from inline_snapshot._core._change import ChangeBase
 from inline_snapshot._core._change import RequiredImport
+from inline_snapshot._core._snapshot_context import SnapshotContext
 from inline_snapshot._core._utils import clone
 
 from ._custom import Custom
@@ -63,7 +63,7 @@ class CustomCode(Custom):
     def _map(self, f):
         return f(self.value)
 
-    def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+    def _code_repr(self, context: SnapshotContext) -> Generator[ChangeBase, None, str]:
         for imp in self._imports:
             if isinstance(imp, Import):
                 yield RequiredImport(flag="fix", file=context.file, module=imp.module)

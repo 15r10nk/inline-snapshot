@@ -5,7 +5,6 @@ from typing import Generator
 from typing import Iterator
 from typing import Optional
 
-from inline_snapshot._core._adapter_context import AdapterContext
 from inline_snapshot._core._code_repr import mock_repr
 from inline_snapshot._core._customize._builder import Builder
 from inline_snapshot._core._customize._custom import Custom
@@ -13,6 +12,7 @@ from inline_snapshot._core._customize._custom_undefined import CustomUndefined
 from inline_snapshot._core._exceptions import ValueNotFound
 from inline_snapshot._core._generator_utils import split_gen
 from inline_snapshot._core._reconcile import reeval
+from inline_snapshot._core._snapshot_context import SnapshotContext
 
 from .._change import CallArg
 from .._change import ChangeBase
@@ -28,17 +28,17 @@ def ignore_old_value():
 @declare_unmanaged
 class SnapshotValue:
     _ast_node: Optional[ast.expr]
-    _context: AdapterContext
+    _context: SnapshotContext
 
     def __init__(
         self,
         old_value,
         ast_node: Optional[ast.expr],
-        context: AdapterContext,
+        context: SnapshotContext,
         data: SnapshotData,
         *,
         call_node: Optional[ast.Call] = None,
-        on_change: Optional[Callable[[SnapshotData, AdapterContext], None]] = None,
+        on_change: Optional[Callable[[SnapshotData, SnapshotContext], None]] = None,
     ):
         self._data = data
         self._ast_node = ast_node

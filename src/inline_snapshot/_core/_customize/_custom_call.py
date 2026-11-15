@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Generator
 
-from inline_snapshot._core._adapter_context import AdapterContext
 from inline_snapshot._core._change import ChangeBase
+from inline_snapshot._core._snapshot_context import SnapshotContext
 
 from ._custom import Custom
 
@@ -15,7 +15,7 @@ from ._custom import Custom
 class CustomDefault(Custom):
     value: Custom = field(compare=False)
 
-    def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+    def _code_repr(self, context: SnapshotContext) -> Generator[ChangeBase, None, str]:
         yield from ()  # pragma: no cover
         # this should never be called because default values are never converted into code
         assert False
@@ -37,7 +37,7 @@ class CustomCall(Custom):
     args: list[Custom] = field(compare=False)
     kwargs: dict[str, Custom] = field(compare=False)
 
-    def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+    def _code_repr(self, context: SnapshotContext) -> Generator[ChangeBase, None, str]:
         args = []
         for a in self.args:
             code = yield from a._code_repr(context)

@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from typing import Any
 from typing import Generator
 
-from inline_snapshot._core._adapter_context import AdapterContext
 from inline_snapshot._core._change import ChangeBase
+from inline_snapshot._core._snapshot_context import SnapshotContext
 
 from ._custom import Custom
 
@@ -15,7 +15,7 @@ class CustomUnmanaged(Custom):
     value: Any
 
     def _code_repr(
-        self, context: AdapterContext
+        self, context: SnapshotContext
     ) -> Generator[ChangeBase, None, str]:  # pragma: no cover
         yield from ()
         return "'unmanaged'"

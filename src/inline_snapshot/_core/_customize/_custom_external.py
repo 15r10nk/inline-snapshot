@@ -5,12 +5,12 @@ from pathlib import Path
 from typing import Any
 from typing import Generator
 
-from inline_snapshot._core._adapter_context import AdapterContext
 from inline_snapshot._core._change import ChangeBase
 from inline_snapshot._core._change import ExternalChange
 from inline_snapshot._core._change import RequiredImport
 from inline_snapshot._core._external._external_location import ExternalLocation
 from inline_snapshot._core._external._format._protocol import get_format_handler
+from inline_snapshot._core._snapshot_context import SnapshotContext
 
 from ._custom import Custom
 
@@ -24,7 +24,7 @@ class CustomExternal(Custom):
     def _map(self, f):
         return f(self.value)
 
-    def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+    def _code_repr(self, context: SnapshotContext) -> Generator[ChangeBase, None, str]:
         from inline_snapshot._core._global_state import state
 
         storage_name = self.storage or state().config.default_storage

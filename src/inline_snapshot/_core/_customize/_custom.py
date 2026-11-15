@@ -6,8 +6,8 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING
 from typing import Generator
 
-from inline_snapshot._core._adapter_context import AdapterContext
 from inline_snapshot._core._change import ChangeBase
+from inline_snapshot._core._snapshot_context import SnapshotContext
 
 if TYPE_CHECKING:
     pass
@@ -33,7 +33,7 @@ class Custom(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def _code_repr(self, context: AdapterContext) -> Generator[ChangeBase, None, str]:
+    def _code_repr(self, context: SnapshotContext) -> Generator[ChangeBase, None, str]:
         raise NotImplementedError()
 
     def _eval(self):
