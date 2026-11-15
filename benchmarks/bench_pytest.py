@@ -7,6 +7,8 @@ import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from ._compat import global_state_module
+from ._compat import snapshot_env
 from ._fixtures import BATCH_SIZE
 from ._fixtures import SUITE_VERSION
 from ._fixtures import pytest_source
@@ -32,7 +34,7 @@ class PytestSession:
         self.original = pytest_source(mode)
         self.path.write_text(self.original, encoding="utf-8")
         (self.root / "conftest.py").write_text(
-            "from inline_snapshot._core._global_state import state\n"
+            f"from {global_state_module()} import state\n"
             "def pytest_sessionfinish(session):\n"
             f"    assert state().active is {mode != 'disabled'}\n",
             encoding="utf-8",
@@ -106,8 +108,6 @@ class PytestSession:
                 ), output
             if changed:
                 # A fast no-rewriting check validates the resulting expected values.
-                from inline_snapshot._core._global_state import snapshot_env
-
                 from ._fixtures import load_module
 
                 with snapshot_env() as state:
