@@ -1,10 +1,16 @@
+from __future__ import annotations
+
 from functools import partial
+from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
-from typing import Dict
 
 import pluggy
 
 from inline_snapshot._core._customize._builder import Builder
+
+if TYPE_CHECKING:
+    from inline_snapshot._core._external._storage._protocol import Storage
 
 inline_snapshot_plugin_name = "inline_snapshot"
 
@@ -25,13 +31,26 @@ Decorator to mark a function as an implementation of the `customize` hook which 
 
 
 class InlineSnapshotPluginSpec:
+    @hookspec(historic=True)
+    def register_storages(self, storage_dir: Path) -> dict[str, Storage] | None:
+        """Register storage backends for external snapshots.
+
+        Return a mapping from storage names to backend instances. Names must
+        contain only ASCII letters (a-z, A-Z), be nonempty, be unique across plugins and must not replace the built-in ``hash`` and
+        ``uuid`` backends. Use the names in ``external("name:value.txt")``.
+
+        ``storage_dir`` is the configured storage directory, or the project's
+        ``.inline-snapshot`` directory by default. The hook is called once for
+        each implementation, including plugins loaded after configuration.
+        """
+
     @hookspec(firstresult=True)
     def customize(
         self,
         value: Any,
         builder: Builder,
-        local_vars: Dict[str, Any],
-        global_vars: Dict[str, Any],
+        local_vars: dict[str, Any],
+        global_vars: dict[str, Any],
         snapshot_value: Any,
     ) -> Any:
         """

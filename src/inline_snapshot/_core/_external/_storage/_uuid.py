@@ -13,8 +13,8 @@ from inline_snapshot._core._utils import link
 
 from .._external_location import ExternalLocation
 from .._tracked_files import read_external_source_items
+from ._protocol import Storage
 from ._protocol import StorageLookupError
-from ._protocol import StorageProtocol
 
 
 @state_cached
@@ -32,7 +32,7 @@ def external_files() -> dict[str, Path]:
     }
 
 
-class UuidStorage(StorageProtocol):
+class UuidStorage(Storage):
     @contextmanager
     def load(self, location: ExternalLocation) -> Generator[Path]:
         snapshot_path = self._lookup_path(location)
