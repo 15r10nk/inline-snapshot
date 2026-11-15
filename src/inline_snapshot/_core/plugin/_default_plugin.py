@@ -22,14 +22,22 @@ from inline_snapshot._core._customize._custom_code import ImportFrom
 from inline_snapshot._core._customize._custom_undefined import CustomUndefined
 from inline_snapshot._core._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._core._external._outsource import Outsourced
+from inline_snapshot._core._external._storage._hash import HashStorage
+from inline_snapshot._core._external._storage._protocol import Storage
+from inline_snapshot._core._external._storage._uuid import UuidStorage
 from inline_snapshot._core._sentinels import undefined
 from inline_snapshot._core._unmanaged import is_unmanaged
 from inline_snapshot._core._utils import triple_quote
 
 from ._spec import customize
+from ._spec import hookimpl
 
 
 class InlineSnapshotPlugin:
+    @hookimpl
+    def register_storages(self, storage_dir: Path) -> Dict[str, Storage]:
+        return {"hash": HashStorage(storage_dir / "external"), "uuid": UuidStorage()}
+
     @customize
     def standard_handler(self, value, builder: Builder):
         if isinstance(value, list):

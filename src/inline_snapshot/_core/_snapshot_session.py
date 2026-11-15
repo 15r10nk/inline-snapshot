@@ -19,9 +19,9 @@ from inline_snapshot._core import _config
 from inline_snapshot._core._change import ChangeBase
 from inline_snapshot._core._change import ExternalRemove
 from inline_snapshot._core._change import apply_all
+from inline_snapshot._core._exceptions import UsageError
 from inline_snapshot._core._external._external import ExternalData
 from inline_snapshot._core._external._find_external import used_externals_in
-from inline_snapshot._core._external._storage import default_storages
 from inline_snapshot._core._external._tracked_files import read_external_source_files
 from inline_snapshot._core._external._tracked_files import write_external_source_files
 from inline_snapshot._core._flags import Flags
@@ -373,7 +373,26 @@ class SnapshotSession:
             storage_dir = project_root / ".inline-snapshot"
             state().config.storage_dir = storage_dir
 
-        state().all_storages = default_storages(storage_dir)
+        state().all_storages = {}
+        storages = state().all_storages
+
+        def register_storages(new_storages):
+            for name in new_storages:
+                if (
+                    not isinstance(name, str)
+                    or not name.isascii()
+                    or not name.isalpha()
+                ):
+                    raise UsageError(
+                        f"storage names must contain only ASCII letters (a-z, A-Z), got {name!r}"
+                    )
+                if name in storages:
+                    raise UsageError(f"storage {name!r} is already registered")
+            storages.update(new_storages)
+
+        state().pm.hook.register_storages.call_historic(
+            kwargs={"storage_dir": storage_dir}, result_callback=register_storages
+        )
 
         if flags - {"short-report", "disable"} and not is_pytest_compatible():
 
@@ -525,8 +544,8 @@ snapshot.
 
         for name, storage in state().all_storages.items():
             externals_for_storage = [e for e in used if e.storage == name]
-            for location in storage.find_unused_externals(externals_for_storage):
-                if trim_allowed and state().update_flags.trim:
+            if trim_allowed and state().update_flags.trim:
+                for location in storage.find_unused_externals(externals_for_storage):
                     changes["trim"].append(ExternalRemove("trim", location))
 
             storage.check_externals(externals_for_storage)

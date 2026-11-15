@@ -55,6 +55,12 @@ class ExternalBase:
     def _load_value(self, which):
         raise NotImplementedError()
 
+    def _prepare_value(self, other):
+        return other
+
+    def _compare_value(self, other):
+        return self._load_value("old") == other
+
     def __eq__(self, other):
         """Two external objects are equal if they have the same value"""
 
@@ -64,6 +70,8 @@ class ExternalBase:
         return result
 
     def _compare(self, other):
+        from ._external_comparison import ExternalComparison
+
         __tracebackhide__ = True
 
         external_type = (
@@ -76,7 +84,7 @@ class ExternalBase:
             self._data.location.suffix = other.suffix or format.suffix
             other = other.data
 
-        elif isinstance(other, ExternalBase):
+        elif isinstance(other, (ExternalBase, ExternalComparison)):
             raise UsageError(
                 f"you cannot compare {external_type}(...) with {external_type}(...)"
             )
@@ -86,19 +94,21 @@ class ExternalBase:
                 f"you cannot compare {external_type}(...) with snapshot(...)"
             )
 
+        other = self._prepare_value(other)
+
         first_comparison = not self._data.was_compared
 
         self._data.was_compared = True
 
         if self._is_empty():
             self._assign(other)
+            state().missing_values += 1
             if state().update_flags.create:
                 return True
-            state().missing_values += 1
             return False
 
         try:
-            value = self._load_value("old")
+            result = self._compare_value(other)
         except StorageLookupError as error:
             if not error.files and state().update_flags.fix:
                 self._data.original_location = ExternalLocation.from_name("")
@@ -107,13 +117,6 @@ class ExternalBase:
                 return True
             else:
                 raise
-
-            # Use storage's compare method if available, otherwise fall back to default
-            if hasattr(self.storage, "compare"):
-                result = self.storage.compare(self._location, other)
-            else:
-                # Fallback for storage implementations that don't have compare yet
-                result = value == other
 
         if not result and first_comparison:
             self._assign(other)
