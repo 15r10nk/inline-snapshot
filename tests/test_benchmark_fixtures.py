@@ -4,6 +4,7 @@ from contextlib import nullcontext
 
 import pytest
 
+from benchmarks._compat import snapshot_env as benchmark_snapshot_env
 from benchmarks._fixtures import CASES
 from benchmarks._fixtures import expand_call_sites
 from benchmarks._fixtures import load_module
@@ -11,8 +12,23 @@ from benchmarks._fixtures import source
 from benchmarks.bench_pytest import PytestSession
 from benchmarks.bench_snapshot import Comparison
 from benchmarks.bench_snapshot import RetainedSnapshotState
-from inline_snapshot._global_state import snapshot_env
-from inline_snapshot._snapshot.snapshot_data import SnapshotData
+from inline_snapshot._core._global_state import snapshot_env
+from inline_snapshot._core._snapshot.snapshot_data import SnapshotData
+
+
+@pytest.mark.parametrize("legacy_layout", [False, True])
+def test_benchmark_snapshot_env(monkeypatch, legacy_layout):
+    if legacy_layout:
+        monkeypatch.setitem(
+            sys.modules,
+            "inline_snapshot._global_state",
+            sys.modules["inline_snapshot._core._global_state"],
+        )
+        monkeypatch.setitem(sys.modules, "inline_snapshot._core", None)
+
+    with benchmark_snapshot_env() as state:
+        assert state.active
+        assert state.snapshots == {}
 
 
 @pytest.mark.parametrize("rewritten_count", [0, 1, 10])

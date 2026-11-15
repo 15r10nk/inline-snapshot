@@ -10,11 +10,14 @@ The project supports Python 3.9 through 3.14 and PyPy where possible. CI runs ac
 
 - `src/inline_snapshot/`: package source.
 - `src/inline_snapshot/pytest_plugin.py`: pytest entry point and CLI flag handling.
-- `src/inline_snapshot/_inline_snapshot.py`, `_snapshot_arg.py`, `_get_snapshot_value.py`: main public snapshot behavior.
-- `src/inline_snapshot/_snapshot/`: snapshot value implementations such as equality, dict, min/max, collection, and undecided values.
-- `src/inline_snapshot/_customize/`: code-generation customization support.
-- `src/inline_snapshot/_external/`: external snapshot files, formats, storage, diffing, and outsourcing.
-- `src/inline_snapshot/plugin/`: first-party plugin hook specification and default plugin.
+- `src/inline_snapshot/_core/_snapshot_session.py`: snapshot sessions, reporting, and applying changes.
+- `src/inline_snapshot/_core/_inline_snapshot.py`, `_snapshot_arg.py`, `_get_snapshot_value.py`: main public snapshot behavior.
+- `src/inline_snapshot/_core/_snapshot/`: snapshot value implementations such as equality, dict, min/max, collection, and undecided values.
+- `src/inline_snapshot/_core/_customize/`: code-generation customization support.
+- `src/inline_snapshot/_core/_external/`: external snapshot files, formats, storage, diffing, and outsourcing.
+- `src/inline_snapshot/_core/plugin/`: plugin hook specification and default plugin.
+- `src/inline_snapshot/plugin.py`: public customization API.
+- `src/inline_snapshot/_extensions/`: optional attrs, Pydantic, and dirty-equals plugins.
 - `src/inline_snapshot/testing/_example.py`: preferred test harness for new behavior tests.
 - `tests/`: pytest suite. Adapter tests live in `tests/adapter/`; external snapshot tests live in `tests/external/`.
 - `docs/`: MkDocs Material documentation.

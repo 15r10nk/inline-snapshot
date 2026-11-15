@@ -1,6 +1,6 @@
 from inline_snapshot import snapshot
-from inline_snapshot._align import add_x
-from inline_snapshot._align import align
+from inline_snapshot._core._align import add_x
+from inline_snapshot._core._align import align
 
 
 def test_align():

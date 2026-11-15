@@ -1,4 +1,4 @@
-from inline_snapshot._inline_snapshot import snapshot
+from inline_snapshot._core._inline_snapshot import snapshot
 from inline_snapshot.testing._example import Example
 
 

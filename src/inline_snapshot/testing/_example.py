@@ -24,17 +24,17 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
-from inline_snapshot._exceptions import UsageError
-from inline_snapshot._get_snapshot_value import get_snapshot_value
-from inline_snapshot._snapshot_arg import snapshot_arg
-from inline_snapshot._snapshot_session import SnapshotSession
+from inline_snapshot._core._exceptions import UsageError
+from inline_snapshot._core._get_snapshot_value import get_snapshot_value
+from inline_snapshot._core._global_state import enter_snapshot_context
+from inline_snapshot._core._global_state import leave_snapshot_context
+from inline_snapshot._core._global_state import state
+from inline_snapshot._core._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_session import SnapshotSession
+from inline_snapshot._core._types import Category
+from inline_snapshot._core._types import Snapshot
+from inline_snapshot._core._types import SnapshotArg
 
-from .._global_state import enter_snapshot_context
-from .._global_state import leave_snapshot_context
-from .._global_state import state
-from .._types import Category
-from .._types import Snapshot
-from .._types import SnapshotArg
 from ..extra import _format_exception
 
 ansi_escape = re.compile(
@@ -362,7 +362,7 @@ uuid.uuid4 = f
         Arguments:
             filename: the file to format (default: "tests/test_something.py").
         """
-        from inline_snapshot._format import format_code
+        from inline_snapshot._core._format import format_code
 
         content = self.files[filename]
         assert isinstance(content, str)
@@ -383,7 +383,7 @@ uuid.uuid4 = f
         Arguments:
             filename: the file to check (default: "tests/test_something.py").
         """
-        from inline_snapshot._format import format_code
+        from inline_snapshot._core._format import format_code
 
         content = self.files[filename]
         assert isinstance(content, str)

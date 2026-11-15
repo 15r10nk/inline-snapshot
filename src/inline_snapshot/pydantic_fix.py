@@ -1,4 +1,4 @@
-from ._snapshot.snapshot_value import SnapshotValue
+from inline_snapshot._core._snapshot.snapshot_value import SnapshotValue
 
 is_fixed = False
 

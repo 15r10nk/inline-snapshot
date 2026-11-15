@@ -4,7 +4,7 @@ import sys
 import pytest
 from dirty_equals import AnyThing
 
-from inline_snapshot._inline_snapshot import snapshot
+from inline_snapshot._core._inline_snapshot import snapshot
 from inline_snapshot.testing._example import Example
 from tests.conftest import check_update
 

@@ -1,7 +1,7 @@
 from inline_snapshot import snapshot
-from inline_snapshot._config import Config
-from inline_snapshot._config import read_config
-from inline_snapshot._exceptions import UsageError
+from inline_snapshot._core._config import Config
+from inline_snapshot._core._config import read_config
+from inline_snapshot._core._exceptions import UsageError
 from inline_snapshot.testing import Example
 
 file_to_trim = {

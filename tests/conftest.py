@@ -6,7 +6,7 @@ import executing
 import pytest
 from dirty_equals import AnyThing
 
-from inline_snapshot._snapshot_arg import snapshot_arg
+from inline_snapshot._core._snapshot_arg import snapshot_arg
 from inline_snapshot.testing._example import Example
 
 pytest_plugins = "pytester"

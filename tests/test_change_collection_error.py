@@ -6,9 +6,9 @@ from unittest.mock import patch
 import pytest
 
 from inline_snapshot import snapshot
-from inline_snapshot._external._external import ExternalData
-from inline_snapshot._external._external_file import ExternalFileData
-from inline_snapshot._snapshot.snapshot_data import SnapshotData
+from inline_snapshot._core._external._external import ExternalData
+from inline_snapshot._core._external._external_file import ExternalFileData
+from inline_snapshot._core._snapshot.snapshot_data import SnapshotData
 from inline_snapshot.testing import Example
 from tests.utils import path_transform
 

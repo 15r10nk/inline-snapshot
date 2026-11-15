@@ -17,11 +17,10 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
-from inline_snapshot._code_repr import code_repr
-
-from ._snapshot_arg import snapshot_arg
-from ._types import SnapshotArg
-from ._unmanaged import declare_unmanaged
+from inline_snapshot._core._code_repr import code_repr
+from inline_snapshot._core._snapshot_arg import snapshot_arg
+from inline_snapshot._core._types import SnapshotArg
+from inline_snapshot._core._unmanaged import declare_unmanaged
 
 
 def _format_exception(ex):

@@ -1,6 +1,6 @@
 import contextlib
 
-from inline_snapshot._rewrite_code import ChangeRecorder
+from inline_snapshot._core._rewrite_code import ChangeRecorder
 from inline_snapshot.extra import transformation
 
 

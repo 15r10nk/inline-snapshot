@@ -2,8 +2,8 @@ from typing import IO
 from typing import Any
 from typing import Set
 
-from inline_snapshot._is import Is
-from inline_snapshot._snapshot.snapshot_value import SnapshotValue
+from inline_snapshot._core._is import Is
+from inline_snapshot._core._snapshot.snapshot_value import SnapshotValue
 
 
 def fix_pytest_diff():

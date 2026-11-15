@@ -153,7 +153,7 @@ To store data in a different location, set the `storage-dir` option in pyproject
 inline-snapshot supports several built-in formats for external snapshots. The format used is determined by the given data type: bytes are stored in a `.bin` file, and strings are stored in a `.txt` file by default. More complex data types are stored in a `.json` file.
 
 <!--[[[cog
-from inline_snapshot._global_state import state
+from inline_snapshot._core._global_state import state
 import cog
 
 cog.out("|Suffix|Priority|Description|\n")

@@ -6,6 +6,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from textwrap import dedent
 
+from ._compat import snapshot_env
 from ._fixtures import CASES
 from ._fixtures import SUITE_VERSION
 
@@ -72,7 +73,7 @@ class Comparison:
 
             sys.path.insert(0, {str(Path(__file__).resolve().parent.parent)!r})
             from benchmarks._fixtures import BATCH_SIZE, load_module, snapshot_functions, source
-            from inline_snapshot._global_state import snapshot_env
+            from benchmarks._compat import snapshot_env
 
             directory = TemporaryDirectory()
             atexit.register(directory.cleanup)
@@ -117,8 +118,6 @@ class RetainedSnapshotState:
     frame_payload_size = 100_000
 
     def setup(self, case):
-        from inline_snapshot._global_state import snapshot_env
-
         from ._fixtures import load_module
         from ._fixtures import source
 

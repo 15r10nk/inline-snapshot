@@ -5,7 +5,7 @@ import io
 from rich.console import Console
 from rich.text import Text
 
-from inline_snapshot._external._format._rich_svg import RichSnapshot
+from inline_snapshot._core._external._format._rich_svg import RichSnapshot
 
 
 def render_ansi_to_svg(

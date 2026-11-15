@@ -2,8 +2,8 @@ import pytest
 from dirty_equals import AnyThing
 
 from inline_snapshot import snapshot
-from inline_snapshot._external._format._rich_svg import RichSnapshot
-from inline_snapshot._external._format._rich_svg import RichSvgFormat
+from inline_snapshot._core._external._format._rich_svg import RichSnapshot
+from inline_snapshot._core._external._format._rich_svg import RichSvgFormat
 from inline_snapshot.testing._example import Example
 
 RICH_SVG_WITH_DIFFERENT_MARKUP = """\
@@ -370,7 +370,7 @@ def test_a():
         error=snapshot("""\
 >       assert "hi" == external_file("test.blub")
 >           raise UsageError(f"Format '{suffix}' is unknown.")
-E           inline_snapshot._exceptions.UsageError: Format '.blub' is unknown.
+E           inline_snapshot._core._exceptions.UsageError: Format '.blub' is unknown.
 """),
         returncode=snapshot(1),
         outcomes={"failed": 1},
@@ -422,7 +422,7 @@ class BytesFormat(TextDiff, Format[bytes]):
 """,
     ).run_pytest(
         error=snapshot(
-            "E   inline_snapshot._exceptions.UsageError: A format handler is already registered for the suffix '.bin'.\n"
+            "E   inline_snapshot._core._exceptions.UsageError: A format handler is already registered for the suffix '.bin'.\n"
         ),
         returncode=snapshot(2),
         outcomes={"errors": 1},
@@ -452,7 +452,7 @@ def test_a():
         error=snapshot("""\
 >       assert b"bytes" == external()
 >           raise UsageError(
-E           inline_snapshot._exceptions.UsageError: Multiple format handlers found for the given type 'bytes'. The following handlers have the same priority: ['.bin', '.bin2']. You can explicitly choose one with external('.suffix') or adjust the priorities of the handlers if you implemented them.
+E           inline_snapshot._core._exceptions.UsageError: Multiple format handlers found for the given type 'bytes'. The following handlers have the same priority: ['.bin', '.bin2']. You can explicitly choose one with external('.suffix') or adjust the priorities of the handlers if you implemented them.
 """),
         returncode=snapshot(1),
         outcomes={"failed": 1},

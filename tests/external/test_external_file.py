@@ -3,8 +3,8 @@ import weakref
 
 from inline_snapshot import external_file
 from inline_snapshot import snapshot
-from inline_snapshot._external._external_file import ExternalFileData
-from inline_snapshot._global_state import snapshot_env
+from inline_snapshot._core._external._external_file import ExternalFileData
+from inline_snapshot._core._global_state import snapshot_env
 from inline_snapshot.testing._example import Example
 
 

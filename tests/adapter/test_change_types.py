@@ -1,7 +1,7 @@
 import pytest
 from dirty_equals import AnyThing
 
-from inline_snapshot._is import Is
+from inline_snapshot._core._is import Is
 from inline_snapshot.testing._example import Example
 
 values = ["1", '"2\'"', "[5]", "{1: 2}", "F(i=5)", "F.make1('2')", "f(7)"]
