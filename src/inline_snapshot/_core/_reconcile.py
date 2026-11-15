@@ -171,7 +171,7 @@ class Comparison:
     flag: str = "fix"
 
 
-class NewAdapter:
+class SnapshotReconciler:
 
     def __init__(
         self, context: AdapterContext, *, comparison: Comparison = Comparison()
@@ -201,7 +201,7 @@ class NewAdapter:
             return self._comparison.flag
         return "update" if old_value._eval() == original.value else "fix"
 
-    def compare(
+    def reconcile(
         self, old_value: Custom, old_node, new_value: Any
     ) -> Generator[ChangeBase, None, Custom]:
 
@@ -226,14 +226,18 @@ class NewAdapter:
         if isinstance(new_value, CustomUnmanaged):
             raise UsageError("unmanaged values cannot be compared with snapshots")
 
-        adapter = NewAdapter(self.context, comparison=Comparison(original, flag))
+        reconciler = SnapshotReconciler(
+            self.context, comparison=Comparison(original, flag)
+        )
         if type(old_value) is type(new_value) and isinstance(
             old_node, new_value.node_type
         ):
-            function_name = f"compare_{type(old_value).__name__}"
-            result_gen = getattr(adapter, function_name)(old_value, old_node, new_value)
+            function_name = f"reconcile_{type(old_value).__name__}"
+            result_gen = getattr(reconciler, function_name)(
+                old_value, old_node, new_value
+            )
         else:
-            result_gen = adapter.compare_CustomCode(old_value, old_node, new_value)
+            result_gen = reconciler.reconcile_CustomCode(old_value, old_node, new_value)
 
         if flag == "update":
 
@@ -248,7 +252,7 @@ class NewAdapter:
         result = yield from result_gen
         return result
 
-    def compare_CustomCode(
+    def reconcile_CustomCode(
         self, old_value: Custom, old_node: ast.expr, new_value: Custom
     ) -> Generator[ChangeBase, None, Custom]:
 
@@ -293,7 +297,7 @@ class NewAdapter:
 
         return new_value
 
-    def compare_CustomList(
+    def reconcile_CustomList(
         self, old_value: CustomList, old_node: ast.AST, new_value: CustomList
     ) -> Generator[ChangeBase, None, CustomList]:
 
@@ -316,7 +320,7 @@ class NewAdapter:
             if c in "mx":
                 old_value_element, old_node_element = next(old)
                 new_value_element = next(new)
-                v = yield from self.compare(
+                v = yield from self.reconcile(
                     old_value_element,
                     old_node_element,
                     new_value_element,
@@ -351,7 +355,7 @@ class NewAdapter:
 
         return type(new_value)(result)
 
-    def compare_CustomTuple(
+    def reconcile_CustomTuple(
         self, old_value: CustomTuple, old_node: ast.AST, new_value: CustomTuple
     ) -> Generator[ChangeBase, None, CustomTuple]:
         """Compare tuples positionally: match elements at the same index,
@@ -368,7 +372,7 @@ class NewAdapter:
 
         # compare paired elements
         for old_elem, old_node_elem, new_elem in zip(old_elts, old_nodes, new_elts):
-            v = yield from self.compare(
+            v = yield from self.reconcile(
                 old_elem,
                 old_node_elem,
                 new_elem,
@@ -398,7 +402,7 @@ class NewAdapter:
 
         return CustomTuple(result)
 
-    def compare_CustomSet(
+    def reconcile_CustomSet(
         self, old_value: CustomSet, old_node: ast.Set, new_value: CustomSet
     ) -> Generator[ChangeBase, None, Custom]:
         assert isinstance(old_node, ast.Set)
@@ -410,11 +414,11 @@ class NewAdapter:
             return old_value
 
         # Sets are replaced atomically, so their elements do not pass through
-        # compare() individually.  Resolve the lazy nodes before rendering the
+        # reconcile() individually.  Resolve the lazy nodes before rendering the
         # replacement.
-        return (yield from self.compare_CustomCode(old_value, old_node, new_value))
+        return (yield from self.reconcile_CustomCode(old_value, old_node, new_value))
 
-    def compare_CustomDict(
+    def reconcile_CustomDict(
         self, old_value: CustomDict, old_node: ast.Dict, new_value: CustomDict
     ) -> Generator[ChangeBase, None, Custom]:
         assert isinstance(old_value, CustomDict)
@@ -455,8 +459,8 @@ class NewAdapter:
             else:
                 old_key, key_node, value_node = old_entries[key]
                 assert key_node is not None
-                result_key = yield from self.compare(old_key, key_node, key)
-                result[result_key] = yield from self.compare(
+                result_key = yield from self.reconcile(old_key, key_node, key)
+                result[result_key] = yield from self.reconcile(
                     old_value.value[key], value_node, new_value_element
                 )
 
@@ -500,7 +504,7 @@ class NewAdapter:
 
         return CustomDict(value=result)
 
-    def compare_CustomCall(
+    def reconcile_CustomCall(
         self, old_value: CustomCall, old_node: ast.Call, new_value: CustomCall
     ) -> Generator[ChangeBase, None, Custom]:
 
@@ -522,7 +526,7 @@ class NewAdapter:
         )[:old_args_len]:
             old_value_element = old_value.argument(i)
             result = yield from (
-                self.compare(old_value_element, node, new_value_element)
+                self.reconcile(old_value_element, node, new_value_element)
             )
             result_args.append(result)
 
@@ -587,7 +591,7 @@ class NewAdapter:
                 # check values with same keys
                 old_value_element = old_value.argument(key)
                 result_kwargs[key] = yield from (
-                    self.compare(old_value_element, node, new_value_element)
+                    self.reconcile(old_value_element, node, new_value_element)
                 )
 
                 if to_insert:
@@ -622,7 +626,7 @@ class NewAdapter:
         return CustomCall(
             (
                 yield from (
-                    self.compare(
+                    self.reconcile(
                         old_value.function,
                         old_node.func,
                         new_value.function,

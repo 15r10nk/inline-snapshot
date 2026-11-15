@@ -12,7 +12,7 @@ from inline_snapshot._core._customize._custom import Custom
 from inline_snapshot._core._customize._custom_undefined import CustomUndefined
 from inline_snapshot._core._exceptions import ValueNotFound
 from inline_snapshot._core._generator_utils import split_gen
-from inline_snapshot._core._new_adapter import reeval
+from inline_snapshot._core._reconcile import reeval
 
 from .._change import CallArg
 from .._change import ChangeBase

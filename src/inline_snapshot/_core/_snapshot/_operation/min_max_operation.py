@@ -7,7 +7,7 @@ from typing import Iterator
 
 from inline_snapshot._core._customize._custom_undefined import CustomUndefined
 from inline_snapshot._core._generator_utils import split_gen
-from inline_snapshot._core._new_adapter import NewAdapter
+from inline_snapshot._core._reconcile import SnapshotReconciler
 
 from ..._change import ChangeBase
 from ..._change import Replace
@@ -38,7 +38,7 @@ class MinMaxOperation(SnapshotOperation):
             and value._context.expr.node is not None
         ):
             result = split_gen(
-                NewAdapter(value._context).compare(
+                SnapshotReconciler(value._context).reconcile(
                     value._data.old_value, value._ast_node, other
                 )
             )

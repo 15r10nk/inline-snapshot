@@ -14,7 +14,7 @@ from inline_snapshot._core._customize._custom_sequence import CustomTuple
 from inline_snapshot._core._customize._custom_undefined import CustomUndefined
 from inline_snapshot._core._customize._custom_unmanaged import CustomUnmanaged
 from inline_snapshot._core._customize._uncustomized import Uncustomized
-from inline_snapshot._core._new_adapter import warn_star_expression
+from inline_snapshot._core._reconcile import warn_star_expression
 from inline_snapshot._core._unmanaged import is_unmanaged
 
 from .._adapter_context import AdapterContext

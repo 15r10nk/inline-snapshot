@@ -7,7 +7,7 @@ from typing import Iterator
 
 from inline_snapshot._core._customize._custom_undefined import CustomUndefined
 from inline_snapshot._core._generator_utils import split_gen
-from inline_snapshot._core._new_adapter import NewAdapter
+from inline_snapshot._core._reconcile import SnapshotReconciler
 
 from ..._change import CategoryChange
 from ..._change import ChangeBase
@@ -47,14 +47,14 @@ class EqOperation(SnapshotOperation):
 
             if value._ast_node is not None:
                 result = split_gen(
-                    NewAdapter(value._context).compare(
+                    SnapshotReconciler(value._context).reconcile(
                         value._data.old_value, value._ast_node, other
                     )
                 )
                 self.changes = result.list
                 value._data.new_value = result.value
             else:
-                # No argument node: do not use the adapter (it requires a node)
+                # No argument node: do not use the reconciler (it requires a node)
                 # and do not rewrite source. Report flags only.
                 if isinstance(value._data.old_value, CustomUndefined):
                     self.changes.append(CategoryChange("create"))

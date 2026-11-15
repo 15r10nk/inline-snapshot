@@ -16,7 +16,7 @@ from inline_snapshot import snapshot
 from inline_snapshot._core._code_repr import code_repr
 from inline_snapshot._core._customize._custom_code import CustomCode
 from inline_snapshot._core._customize._custom_sequence import CustomSet
-from inline_snapshot._core._new_adapter import reeval
+from inline_snapshot._core._reconcile import reeval
 from inline_snapshot._core._sentinels import undefined
 from inline_snapshot.extra import raises
 from inline_snapshot.testing import Example

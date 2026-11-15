@@ -14,7 +14,7 @@ from inline_snapshot._core._customize._custom import Custom
 from inline_snapshot._core._customize._custom_sequence import CustomList
 from inline_snapshot._core._customize._custom_undefined import CustomUndefined
 from inline_snapshot._core._generator_utils import split_gen
-from inline_snapshot._core._new_adapter import NewAdapter
+from inline_snapshot._core._reconcile import SnapshotReconciler
 
 from ..._change import ChangeBase
 from ..._change import Delete
@@ -57,7 +57,7 @@ class CollectionOperation(SnapshotOperation):
             and value._context.expr.node is not None
         ):
             result = split_gen(
-                NewAdapter(value._context).compare(old_value, old_node, item)
+                SnapshotReconciler(value._context).reconcile(old_value, old_node, item)
             )
             self.element_changes.extend(result.list)
             return result.value
