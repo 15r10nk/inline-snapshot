@@ -1,145 +1,143 @@
 import pytest
+from dirty_equals import IsStr
 
-from inline_snapshot._core._exceptions import UsageError
-from inline_snapshot._core._global_state import snapshot_env
-from inline_snapshot._core._snapshot_session import SnapshotSession
-from inline_snapshot.plugin import Storage
+from inline_snapshot import Is
+
+
+@pytest.mark.parametrize("discovery", ["conftest", "nested", "package"])
+@pytest.mark.parametrize("name", ["custom", "Custom"])
+def test_register_backend_and_load_snapshot(storage_example, discovery, name):
+    plugin = f"""\
 from inline_snapshot.plugin import hookimpl
-from inline_snapshot.testing import Example
-
-
-@pytest.mark.parametrize("conftest_dir", ["", "tests/"])
-def test_register_storages(conftest_dir):
-    Example(
-        {
-            "pyproject.toml": '[tool.inline-snapshot]\nstorage-dir="custom-storage"',
-            f"{conftest_dir}conftest.py": """\
-from pathlib import Path
-
-from inline_snapshot.plugin import Storage, hookimpl
-
-class CustomStorage(Storage):
-    def find_unused_externals(self, used_externals):
-        return []
-
-    def check_externals(self, used_externals):
-        pass
+from storage_backend import FileStorage
 
 @hookimpl
 def register_storages(storage_dir):
-    assert storage_dir == Path("custom-storage").resolve()
-    return {"custom": CustomStorage()}
+    return {{"{name}": FileStorage(storage_dir / "{name}", "{name}")}}
+"""
+    files = {
+        "pyproject.toml": '[tool.inline-snapshot]\nstorage-dir="snapshots"',
+        f"snapshots/{name}/value.txt": "stored",
+        "tests/test_something.py": f"""\
+from inline_snapshot import external
+
+def test_document():
+    assert "stored" == external("{name}:value.txt")
 """,
-            "tests/test_something.py": """\
-from pathlib import Path
-from inline_snapshot.plugin import ExternalLocation, Storage
-from inline_snapshot._core._global_state import state
-
-def test_registered():
-    assert set(state().all_storages) == {"hash", "uuid", "custom"}
-    assert isinstance(state().all_storages["custom"], Storage)
-    assert state().all_storages["hash"].directory == Path("custom-storage").resolve() / "external"
-    assert ExternalLocation.from_name("custom:value.txt").storage == "custom"
-""",
-        }
-    ).run_inline(changed_files={}).run_pytest(outcomes={"passed": 1}, changed_files={})
-
-
-@pytest.mark.parametrize("name", ["hash", "uuid", "custom"])
-def test_duplicate_storage_name(name):
-    example = duplicate_example(name)
-    with pytest.raises(UsageError, match=f"storage '{name}' is already registered"):
-        example.run_inline()
-
-
-def duplicate_example(name):
-    return Example(
-        {
-            "conftest.py": f"""\
-from inline_snapshot.plugin import Storage, hookimpl
-
-class CustomStorage(Storage):
-    def find_unused_externals(self, used_externals):
-        return []
-
-    def check_externals(self, used_externals):
-        pass
-
-class InlineSnapshotFirstPlugin:
-    @hookimpl
-    def register_storages(self):
-        return {{"{name}": CustomStorage()}}
-
-class InlineSnapshotSecondPlugin:
-    @hookimpl
-    def register_storages(self):
-        return {{"{name}": CustomStorage()}}
-""",
-            "tests/test_something.py": "def test_something(): pass",
-        }
+    }
+    if discovery == "nested":
+        files["tests/conftest.py"] = plugin
+        plugin = ""
+    elif discovery == "package":
+        files["storage_plugin.py"] = plugin
+        files["custom_storage-0.1.dist-info/METADATA"] = (
+            "Metadata-Version: 2.1\nName: custom-storage\nVersion: 0.1\n"
+        )
+        files["custom_storage-0.1.dist-info/entry_points.txt"] = (
+            "[inline_snapshot]\ncustom = storage_plugin\n"
+        )
+        plugin = ""
+    storage_example(files, plugin=plugin, storage_dir="snapshots").run_pytest(
+        outcomes={"passed": 1}, changed_files={}
     )
 
 
-@pytest.mark.parametrize("name", ["hash", "uuid"])
-@pytest.mark.parametrize("tryfirst", [False, True])
-def test_builtin_storage_name_is_reserved(tmp_path, name, tryfirst):
-    class CustomPlugin:
-        @hookimpl(tryfirst=tryfirst, trylast=not tryfirst)
-        def register_storages(self):
-            return {name: Storage()}
+def test_create_and_update_snapshot(storage_example):
+    source = """\
+from inline_snapshot import external
 
-    with snapshot_env() as state:
-        state.config.storage_dir = tmp_path
-        state.pm.register(CustomPlugin())
-        with pytest.raises(UsageError, match=f"storage '{name}' is already registered"):
-            SnapshotSession().load_config(
-                pyproject=None,
-                cli_flags=set(),
-                parallel_run=False,
-                error=pytest.fail,
-                project_root=tmp_path,
-            )
+def test_document():
+    assert "draft" == external("custom:.txt")
+"""
+    created_source = source.replace("custom:.txt", "custom:value.txt")
+    storage_example({"tests/test_something.py": source}).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files={
+            ".inline-snapshot/custom/value.txt": "draft",
+            "tests/test_something.py": created_source,
+        },
+    ).replace('"draft"', '"final"').run_inline(
+        ["--inline-snapshot=fix"],
+        changed_files={".inline-snapshot/custom/value.txt": "final"},
+    ).run_pytest(
+        ["--inline-snapshot=disable"], outcomes={"passed": 1}, changed_files={}
+    )
+
+
+@pytest.mark.parametrize("name", ["hash", "uuid", "custom"])
+@pytest.mark.parametrize("tryfirst", [False, True])
+def test_reject_duplicate_storage_names(storage_example, name, tryfirst):
+    plugin = f"""\
+from inline_snapshot.plugin import hookimpl
+from storage_backend import FileStorage
+
+@hookimpl(tryfirst={tryfirst!r}, trylast={not tryfirst!r})
+def register_storages(storage_dir):
+    return {{"{name}": FileStorage(storage_dir / "{name}", "{name}")}}
+"""
+    files = {"tests/test_something.py": "def test_document(): pass\n"}
+    if name == "custom":
+        files["tests/conftest.py"] = plugin
+    storage_example(files, plugin=plugin).run_pytest(
+        returncode=3,
+        outcomes={},
+        stderr=IsStr(
+            regex=rf"(?s).*UsageError: storage '{name}' is already registered.*"
+        ),
+        changed_files={},
+    )
 
 
 @pytest.mark.parametrize(
     "name",
     ["", "bad:name", "with space", "with-hyphen", "with_underscore", "abc1", "ä", 1],
 )
-def test_invalid_storage_name(tmp_path, name):
-    class CustomPlugin:
-        @hookimpl
-        def register_storages(self):
-            return {name: Storage()}
+def test_reject_invalid_storage_names(storage_example, name):
+    storage_example(
+        {"tests/test_something.py": "def test_document(): pass\n"},
+        plugin=f"""\
+from inline_snapshot.plugin import hookimpl
+from storage_backend import FileStorage
 
-    with snapshot_env() as state:
-        state.config.storage_dir = tmp_path
-        state.pm.register(CustomPlugin())
-        with pytest.raises(
-            UsageError, match="storage names must contain only ASCII letters"
-        ):
-            SnapshotSession().load_config(
-                pyproject=None,
-                cli_flags=set(),
-                parallel_run=False,
-                error=pytest.fail,
-                project_root=tmp_path,
-            )
+@hookimpl
+def register_storages(storage_dir):
+    return {{{name!r}: FileStorage(storage_dir / "documents", {name!r})}}
+""",
+    ).run_pytest(
+        returncode=3,
+        outcomes={},
+        env={"PYTHONIOENCODING": "utf-8"},
+        stderr=IsStr(
+            regex=r"(?s).*UsageError: storage names must contain only ASCII letters.*"
+        ),
+        changed_files={},
+    )
 
 
-def test_storage_name_with_uppercase_letters(tmp_path):
-    class CustomPlugin:
-        @hookimpl
-        def register_storages(self):
-            return {"Custom": Storage()}
+@pytest.mark.parametrize(
+    "reference, restored_file",
+    [
+        ("custom:value.txt", ".inline-snapshot/custom/value.txt"),
+        (
+            "uuid:00000000-0000-4000-8000-000000000000.txt",
+            "tests/__inline_snapshot__/test_something/test_document/00000000-0000-4000-8000-000000000000.txt",
+        ),
+    ],
+)
+def test_recreate_deleted_snapshot(storage_example, reference, restored_file):
+    storage_example(
+        {
+            "tests/test_something.py": f"""\
+from inline_snapshot import external
 
-    with snapshot_env() as state:
-        state.config.storage_dir = tmp_path
-        state.pm.register(CustomPlugin())
-        SnapshotSession().load_config(
-            pyproject=None,
-            cli_flags=set(),
-            parallel_run=False,
-            error=pytest.fail,
-            project_root=tmp_path,
-        )
-        assert isinstance(state.all_storages["Custom"], Storage)
+def test_document():
+    assert "stored" == external("{reference}")
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create,fix"],
+        reported_categories={"create"},
+        changed_files=Is({restored_file: "stored"}),
+    ).run_pytest(
+        ["--inline-snapshot=disable"], outcomes={"passed": 1}, changed_files={}
+    )

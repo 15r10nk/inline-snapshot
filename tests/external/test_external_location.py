@@ -1,6 +1,6 @@
-from inline_snapshot._core._external._external_location import ExternalLocation
-from inline_snapshot._core._inline_snapshot import snapshot
-from inline_snapshot.testing._example import Example
+from inline_snapshot import snapshot
+from inline_snapshot.plugin import ExternalLocation
+from inline_snapshot.testing import Example
 
 
 def test_external_location():
