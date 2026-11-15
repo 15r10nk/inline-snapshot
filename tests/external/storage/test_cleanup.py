@@ -1,45 +1,61 @@
-from io import StringIO
-
 import pytest
-from rich.console import Console
-
-from inline_snapshot._core._global_state import snapshot_env
-from inline_snapshot._core._snapshot_session import SnapshotSession
-from inline_snapshot.plugin import Storage
-from inline_snapshot.plugin import hookimpl
 
 
-@pytest.mark.parametrize("trim_requested", [False, True])
-@pytest.mark.parametrize("trim_allowed", [False, True])
-def test_enumerate_only_when_trimming(tmp_path, trim_requested, trim_allowed):
-    calls = []
+@pytest.mark.parametrize("flags", ["report", "fix"])
+def test_normal_run_does_not_need_snapshot_catalog(storage_example, flags):
+    storage_example(
+        {
+            ".inline-snapshot/custom/value.txt": "stored",
+            "tests/test_something.py": """\
+from inline_snapshot import external
 
-    class CustomStorage(Storage):
-        def find_unused_externals(self, used_externals):
-            calls.append("enumerate")
-            return []
+def test_document():
+    assert "stored" == external("custom:value.txt")
+""",
+        },
+        backend="OfflineCatalogStorage",
+    ).run_pytest(
+        [f"--inline-snapshot={flags}"], outcomes={"passed": 1}, changed_files={}
+    )
 
-        def check_externals(self, used_externals):
-            calls.append("check")
 
-    class CustomPlugin:
-        @hookimpl
-        def register_storages(self):
-            return {"custom": CustomStorage()}
+def test_trim_deletes_only_unreferenced_snapshots(storage_example):
+    storage_example(
+        {
+            ".inline-snapshot/custom/value.txt": "stored",
+            ".inline-snapshot/custom/unused.txt": "unused",
+            "tests/test_something.py": """\
+from inline_snapshot import external
 
-    with snapshot_env() as state:
-        state.config.storage_dir = tmp_path
-        state.pm.register(CustomPlugin())
-        session = SnapshotSession()
-        session.load_config(
-            pyproject=None,
-            cli_flags={"trim"} if trim_requested else set(),
-            parallel_run=False,
-            error=pytest.fail,
-            project_root=tmp_path,
-        )
-        session.show_report(Console(file=StringIO()), trim_allowed=trim_allowed)
+def test_document():
+    assert "stored" == external("custom:value.txt")
+""",
+        },
+    ).run_pytest(
+        ["--inline-snapshot=trim"],
+        outcomes={"passed": 1},
+        changed_files={".inline-snapshot/custom/unused.txt": None},
+    )
 
-    assert calls == (
-        ["enumerate", "check"] if trim_requested and trim_allowed else ["check"]
+
+def test_selected_tests_do_not_need_snapshot_catalog(storage_example):
+    storage_example(
+        {
+            ".inline-snapshot/custom/value.txt": "stored",
+            "tests/test_something.py": """\
+from inline_snapshot import external
+
+def test_selected():
+    assert "stored" == external("custom:value.txt")
+
+def test_other():
+    assert "stored" == external("custom:value.txt")
+""",
+        },
+        backend="OfflineCatalogStorage",
+    ).run_pytest(
+        ["-k", "test_selected"],
+        env={"INLINE_SNAPSHOT_DEFAULT_FLAGS": "trim"},
+        outcomes={"passed": 1, "deselected": 1},
+        changed_files={},
     )
