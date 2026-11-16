@@ -1,7 +1,9 @@
 from functools import cached_property
 from pathlib import Path
 from typing import Any
-from typing import Callable
+
+from .._external_location import ExternalLocation
+from .._external_value import serialize_external_value
 
 
 class StorageValue:
@@ -13,11 +15,11 @@ class StorageValue:
     Backends must not modify or delete it.
     """
 
-    def __init__(self, value: Any, serialize: Callable[[], Path]) -> None:
+    def __init__(self, value: Any, location: ExternalLocation) -> None:
         self.value = value
-        self._serialize = serialize
+        self._location = location
 
     @cached_property
     def data(self) -> Path:
         """The temporary file containing the serialized value."""
-        return self._serialize()
+        return serialize_external_value(self.value, self._location)
