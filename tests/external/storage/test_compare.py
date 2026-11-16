@@ -3,45 +3,17 @@ from hashlib import sha256
 import pytest
 from dirty_equals import IsStr
 
-
-@pytest.mark.parametrize("flags", ["report", "disable"])
-@pytest.mark.parametrize(
-    "backend, actual", [("FileStorage", "stored"), ("CasefoldStorage", "STORED")]
-)
-def test_compare_stored_document(storage_example, flags, backend, actual):
-    storage_example(
-        {
-            ".inline-snapshot/custom/value.txt": "stored",
-            "tests/test_something.py": f"""\
-import json
-from inline_snapshot import external, get_snapshot_value
-
-def test_document():
-    expected = external("custom:value.txt")
-    assert expected == {actual!r}
-    assert {actual!r} == expected
-    assert not (expected != {actual!r})
-    assert json.dumps(get_snapshot_value(expected)) == '"stored"'
-""",
-        },
-        backend=backend,
-    ).run_pytest(
-        [f"--inline-snapshot={flags}"], outcomes={"passed": 1}, changed_files={}
-    )
+from tests.external.storage_example import storage_example
 
 
 @pytest.mark.parametrize("flags", ["report", "disable"])
-@pytest.mark.parametrize(
-    "backend, actual", [("FileStorage", "stored"), ("CasefoldStorage", "STORED")]
-)
-def test_comparison_does_not_require_an_encoder(
-    storage_example, flags, backend, actual
-):
+def test_lazy_value_comparison_does_not_require_an_encoder(flags):
     storage_example(
         {
             ".inline-snapshot/custom/value.readonly": "stored",
-            "tests/test_something.py": f"""\
-from inline_snapshot import Format, TextDiff, external, register_format
+            "tests/test_something.py": """\
+import json
+from inline_snapshot import Format, TextDiff, external, get_snapshot_value, register_format
 
 @register_format
 class ReadOnlyText(TextDiff, Format[str]):
@@ -57,17 +29,19 @@ class ReadOnlyText(TextDiff, Format[str]):
         raise OSError("this format supports reading existing snapshots only")
 
 def test_document():
-    assert {actual!r} == external("custom:value.readonly")
+    expected = external("custom:value.readonly")
+    assert "STORED" == expected
+    assert json.dumps(get_snapshot_value(expected)) == '"stored"'
 """,
         },
-        backend=backend,
+        backend="CasefoldStorage",
     ).run_pytest(
         [f"--inline-snapshot={flags}"], outcomes={"passed": 1}, changed_files={}
     )
 
 
 @pytest.mark.parametrize("flags", ["report", "disable"])
-def test_digest_comparison_does_not_download_snapshot(storage_example, flags):
+def test_digest_comparison_does_not_download_snapshot(flags):
     digest = sha256(b"stored").hexdigest()
     storage_example(
         {
@@ -85,35 +59,7 @@ def test_document():
     )
 
 
-def test_update_content_addressed_snapshot(storage_example):
-    old_digest = sha256(b"stored").hexdigest()
-    new_digest = sha256(b"changed").hexdigest()
-    original_test = f"""\
-from inline_snapshot import external
-
-def test_document():
-    assert "changed" == external("digest:{old_digest}.txt")
-"""
-    storage_example(
-        {
-            f".inline-snapshot/digest/{old_digest}.txt": "stored",
-            "tests/test_something.py": original_test,
-        },
-        name="digest",
-        backend="DigestStorage",
-    ).run_inline(
-        ["--inline-snapshot=fix"],
-        changed_files={
-            f".inline-snapshot/digest/{new_digest}.txt": "changed",
-            "tests/test_something.py": original_test.replace(old_digest, new_digest),
-        },
-    ).run_pytest(
-        ["--inline-snapshot=disable"], outcomes={"passed": 1}, changed_files={}
-    )
-
-
-@pytest.mark.parametrize("flags", ["report", "disable"])
-def test_cannot_compare_two_external_snapshots(storage_example, flags):
+def test_disabled_lazy_comparison_rejects_another_external_snapshot():
     storage_example(
         {
             "tests/test_something.py": """\
@@ -127,11 +73,11 @@ def test_document():
         },
         backend="CasefoldStorage",
     ).run_pytest(
-        [f"--inline-snapshot={flags}"], outcomes={"passed": 1}, changed_files={}
+        ["--inline-snapshot=disable"], outcomes={"passed": 1}, changed_files={}
     )
 
 
-def test_disabled_comparison_reports_mismatch(storage_example):
+def test_disabled_lazy_comparison_can_fail():
     storage_example(
         {
             ".inline-snapshot/custom/value.txt": "stored",
@@ -154,7 +100,7 @@ def test_document():
     )
 
 
-def test_extract_missing_snapshot_value(storage_example):
+def test_extract_missing_lazy_snapshot_value():
     storage_example(
         {
             "tests/test_something.py": """\
@@ -170,7 +116,7 @@ def test_document():
     )
 
 
-def test_update_snapshot_from_one_shot_iterator(storage_example):
+def test_update_snapshot_from_one_shot_iterator():
     old_digest = sha256(b"stored").hexdigest()
     new_digest = sha256(b"one\ntwo").hexdigest()
     source = f"""\

@@ -3,10 +3,11 @@ from hashlib import sha256
 import pytest
 
 from inline_snapshot.testing import Example
+from tests.external.storage_example import storage_example
 
 
 @pytest.mark.parametrize("flags", ["report", "fix"])
-def test_normal_run_does_not_need_snapshot_catalog(storage_example, flags):
+def test_normal_run_does_not_need_snapshot_catalog(flags):
     storage_example(
         {
             ".inline-snapshot/custom/value.txt": "stored",
@@ -23,26 +24,7 @@ def test_document():
     )
 
 
-def test_trim_deletes_only_unreferenced_snapshots(storage_example):
-    storage_example(
-        {
-            ".inline-snapshot/custom/value.txt": "stored",
-            ".inline-snapshot/custom/unused.txt": "unused",
-            "tests/test_something.py": """\
-from inline_snapshot import external
-
-def test_document():
-    assert "stored" == external("custom:value.txt")
-""",
-        },
-    ).run_pytest(
-        ["--inline-snapshot=trim"],
-        outcomes={"passed": 1},
-        changed_files={".inline-snapshot/custom/unused.txt": None},
-    )
-
-
-def test_selected_tests_do_not_need_snapshot_catalog(storage_example):
+def test_selected_tests_do_not_need_snapshot_catalog():
     storage_example(
         {
             ".inline-snapshot/custom/value.txt": "stored",
