@@ -1,5 +1,3 @@
-import pytest
-
 from inline_snapshot.testing import Example
 
 STORAGE_BACKEND = """\
@@ -73,18 +71,16 @@ tests/test_something.py
 """
 
 
-@pytest.fixture
-def storage_example():
-    def create(
-        files,
-        *,
-        backend="FileStorage",
-        name="custom",
-        plugin=None,
-        storage_dir=".inline-snapshot",
-    ):
-        if plugin is None:
-            plugin = f"""\
+def storage_example(
+    files,
+    *,
+    backend="FileStorage",
+    name="custom",
+    plugin=None,
+    storage_dir=".inline-snapshot",
+) -> Example:
+    if plugin is None:
+        plugin = f"""\
 from inline_snapshot.plugin import hookimpl
 from storage_backend import {backend}
 
@@ -92,13 +88,11 @@ from storage_backend import {backend}
 def register_storages(storage_dir):
     return {{"{name}": {backend}(storage_dir / "{name}", "{name}")}}
 """
-        return Example(
-            {
-                "storage_backend.py": STORAGE_BACKEND,
-                "conftest.py": plugin,
-                f"{storage_dir}/files_using_external.txt": EXTERNAL_SOURCES,
-                **files,
-            }
-        )
-
-    return create
+    return Example(
+        {
+            "storage_backend.py": STORAGE_BACKEND,
+            "conftest.py": plugin,
+            f"{storage_dir}/files_using_external.txt": EXTERNAL_SOURCES,
+            **files,
+        }
+    )
