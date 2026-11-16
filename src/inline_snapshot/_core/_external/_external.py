@@ -4,7 +4,6 @@ import ast
 import inspect
 from pathlib import Path
 from types import CodeType
-from types import FrameType
 
 from inline_snapshot._core._change import CallArg
 from inline_snapshot._core._change import Replace
@@ -24,7 +23,6 @@ from inline_snapshot._core._unmanaged import declare_unmanaged
 from ._external_comparison import ExternalComparison
 from ._external_location import ExternalLocation
 from ._external_value import load_external_value
-from ._external_value import serialize_external_value
 
 
 def external(name: str | None = None):
@@ -33,11 +31,15 @@ def external(name: str | None = None):
     frame = frame.f_back
     assert frame is not None
 
+    context = SnapshotContext(frame)
     if not state().active:
-        return External.create_raw(name, frame)
+        location = ExternalLocation.from_name(name, context=context)
+        storage = state().all_storages[location.storage]
+        if type(storage).lazy_compare is not Storage.lazy_compare:
+            return ExternalComparison(location, storage)
+        return load_external_value(location)
 
     key = snapshot_key(frame)
-    context = SnapshotContext(frame)
     data = state().snapshots.get(key)
     if not isinstance(data, ExternalData):
         data = ExternalData.from_name(name, context, frame.f_code)
@@ -102,15 +104,6 @@ class External(ExternalBase):
         self._context = context
         self._data = data
 
-    @classmethod
-    def create_raw(cls, obj, frame: FrameType):
-        context = SnapshotContext(frame)
-        location = ExternalLocation.from_name(obj, context=context)
-        storage = state().all_storages[location.storage]
-        if type(storage).lazy_compare is not Storage.lazy_compare:
-            return ExternalComparison(location, storage.lazy_compare)
-        return load_external_value(location)
-
     @property
     def _format(self):
         return get_format_handler_from_suffix(self._data.location.suffix or "")
@@ -167,9 +160,7 @@ class External(ExternalBase):
         return state().all_storages[storage_name]
 
     def _prepare_value(self, other):
-        return StorageValue(
-            other, lambda: serialize_external_value(other, self._data.location)
-        )
+        return StorageValue(other, self._data.location)
 
     def _compare_value(self, other: StorageValue):
         if type(self.storage).lazy_compare is not Storage.lazy_compare:
