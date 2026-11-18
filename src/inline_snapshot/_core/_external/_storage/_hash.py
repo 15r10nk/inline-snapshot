@@ -65,7 +65,7 @@ class HashStorage(Storage):
         if len(path) < len(hash_name):
             path += "*"
 
-        return location.with_stem(path)
+        return location._with_stem(path)
 
     def find_unused_externals(
         self, used_externals: list[ExternalLocation]
@@ -76,7 +76,7 @@ class HashStorage(Storage):
                 used = self.lookup_all(location.path)
                 unused_externals -= used
 
-        return [ExternalLocation.from_name(name) for name in unused_externals]
+        return [ExternalLocation._from_name(name) for name in unused_externals]
 
     def list(self) -> set[str]:
 

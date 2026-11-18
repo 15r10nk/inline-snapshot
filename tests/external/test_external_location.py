@@ -32,7 +32,7 @@ def test_external_location():
             for s in (".txt", ".b.txt", ""):
                 name = h + n + s
                 try:
-                    assert ExternalLocation.from_name(name) == results[name]
+                    assert ExternalLocation._from_name(name) == results[name]
                 except Exception as e:
                     assert results[name] == f"{type(e).__name__}: {e}"
 

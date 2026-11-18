@@ -111,7 +111,7 @@ class ExternalBase:
             result = self._compare_value(other)
         except StorageLookupError as error:
             if not error.files and state().update_flags.fix:
-                self._data.original_location = ExternalLocation.from_name("")
+                self._data.original_location = ExternalLocation._from_name("")
                 self._assign(other)
                 state().incorrect_values += 1
                 return True

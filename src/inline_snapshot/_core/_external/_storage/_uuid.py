@@ -66,7 +66,7 @@ class UuidStorage(Storage):
     ) -> ExternalLocation:
 
         if not location.stem:
-            return location.with_stem(str(uuid.uuid4()))
+            return location._with_stem(str(uuid.uuid4()))
         return location
 
     def _get_path(self, location: ExternalLocation) -> Path:
@@ -99,7 +99,9 @@ class UuidStorage(Storage):
             f.name for f in external_files().values() if f.name not in used_names
         }
 
-        return [ExternalLocation.from_name("uuid:" + name) for name in unused_externals]
+        return [
+            ExternalLocation._from_name("uuid:" + name) for name in unused_externals
+        ]
 
     def check_externals(self, used_externals: list[ExternalLocation]):
         grouped = defaultdict(list)

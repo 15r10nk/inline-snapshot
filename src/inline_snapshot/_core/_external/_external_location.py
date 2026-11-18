@@ -18,13 +18,13 @@ class Location:
         raise NotImplementedError
 
     @contextmanager
-    def load(self) -> Generator[Path]:
+    def _load(self) -> Generator[Path]:
         raise NotImplementedError
 
-    def store(self, new_file: Path):
+    def _store(self, new_file: Path):
         raise NotImplementedError
 
-    def delete(self):
+    def _delete(self):
         raise NotImplementedError
 
     def exists(self):
@@ -42,7 +42,7 @@ class ExternalLocation(Location):
     linenumber: int | None = None
 
     @classmethod
-    def from_name(
+    def _from_name(
         cls,
         name: str | None,
         *,
@@ -98,11 +98,11 @@ class ExternalLocation(Location):
     def __str__(self) -> str:
         return f"{self.storage}:{self.path}"
 
-    def with_stem(self, new_stem):
+    def _with_stem(self, new_stem):
         return dataclasses.replace(self, stem=new_stem)
 
     @contextmanager
-    def load(self) -> Generator[Path]:
+    def _load(self) -> Generator[Path]:
         from inline_snapshot._core._global_state import state
 
         assert self.storage
@@ -111,7 +111,7 @@ class ExternalLocation(Location):
         with storage.load(self) as file:
             yield file
 
-    def store(self, new_file: Path):
+    def _store(self, new_file: Path):
         from inline_snapshot._core._global_state import state
 
         assert self.storage
@@ -119,7 +119,7 @@ class ExternalLocation(Location):
         storage = state().all_storages[self.storage]
         storage.store(self, new_file)
 
-    def delete(self):
+    def _delete(self):
         from inline_snapshot._core._global_state import state
 
         assert self.storage
@@ -150,10 +150,10 @@ class FileLocation(Location):
         return p.as_posix()
 
     @contextmanager
-    def load(self) -> Generator[Path]:
+    def _load(self) -> Generator[Path]:
         yield self._filename
 
-    def store(self, new_file: Path):
+    def _store(self, new_file: Path):
         self._filename.parent.mkdir(exist_ok=True, parents=True)
         shutil.copy(new_file, self._filename)
 

@@ -33,7 +33,7 @@ def external(name: str | None = None):
 
     context = SnapshotContext(frame)
     if not state().active:
-        location = ExternalLocation.from_name(name, context=context)
+        location = ExternalLocation._from_name(name, context=context)
         storage = state().all_storages[location.storage]
         if type(storage).lazy_compare is not Storage.lazy_compare:
             return ExternalComparison(location, storage)
@@ -76,10 +76,10 @@ class ExternalData(ExternalBaseData):
     def from_name(
         cls, name: str | None, context: SnapshotContext, code: CodeType
     ) -> ExternalData:
-        location = ExternalLocation.from_name(name, context=context)
+        location = ExternalLocation._from_name(name, context=context)
         return cls(
             original_name=name,
-            original_location=ExternalLocation.from_name(name, context=context),
+            original_location=ExternalLocation._from_name(name, context=context),
             location=location,
             filename=Path(context.file.filename),
             code=code,

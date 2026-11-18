@@ -72,13 +72,13 @@ class ExternalChange(ChangeBase):
             self.old_location.exists()
             and self.old_location.suffix == self.new_location.suffix
         ):
-            with self.old_location.load() as old_file:
+            with self.old_location._load() as old_file:
                 return title, self.format.rich_diff(old_file, self.new_file)
         else:
             return title, self.format.rich_show(self.new_file)
 
     def apply_external_changes(self):
-        self.new_location.store(self.new_file)
+        self.new_location._store(self.new_file)
 
     def apply(self, recorder: ChangeRecorder):
         pass
@@ -98,13 +98,13 @@ class ExternalRemove(ChangeBase):
             get_format_handler_from_suffix,
         )
 
-        with self.old_location.load() as old_file:
+        with self.old_location._load() as old_file:
             assert self.old_location.suffix
             format = get_format_handler_from_suffix(self.old_location.suffix)
             return title, format.rich_show(old_file)
 
     def apply_external_changes(self):
-        self.old_location.delete()
+        self.old_location._delete()
 
     def apply(self, recorder: ChangeRecorder):
         pass

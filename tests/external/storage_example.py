@@ -2,6 +2,7 @@ from inline_snapshot.testing import Example
 
 STORAGE_BACKEND = """\
 from contextlib import contextmanager
+from dataclasses import replace
 from hashlib import sha256
 from shutil import copyfile
 
@@ -21,7 +22,7 @@ class FileStorage(Storage):
         yield path
 
     def new_location(self, location, file_path):
-        return location.with_stem(location.stem or "value")
+        return replace(location, stem=location.stem or "value")
 
     def store(self, location, file_path):
         self.directory.mkdir(parents=True, exist_ok=True)
@@ -32,11 +33,12 @@ class FileStorage(Storage):
 
     def find_unused_externals(self, used_externals):
         used = {location.path for location in used_externals}
-        return [
-            ExternalLocation.from_name(f"{self.name}:{path.name}")
-            for path in sorted(self.directory.glob("*"))
-            if path.name not in used
-        ]
+        unused = []
+        for path in sorted(self.directory.glob("*")):
+            if path.name not in used:
+                stem, suffix = path.name.split(".", 1)
+                unused.append(ExternalLocation(self.name, stem, "." + suffix))
+        return unused
 
 
 class CasefoldStorage(FileStorage):
@@ -50,7 +52,7 @@ class DigestStorage(FileStorage):
         return location.stem == sha256(other.data.read_bytes()).hexdigest()
 
     def new_location(self, location, file_path):
-        return location.with_stem(sha256(file_path.read_bytes()).hexdigest())
+        return replace(location, stem=sha256(file_path.read_bytes()).hexdigest())
 
 
 class OfflineDigestStorage(DigestStorage):
