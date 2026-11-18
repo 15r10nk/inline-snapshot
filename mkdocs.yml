@@ -68,6 +68,7 @@ nav:
   - '@customize_repr': customize_repr.md
   - types: types.md
   - get_snapshot_value(): get_snapshot_value.md
+  - is_snapshot(): is_snapshot.md
 - HowTo:
   - pytest parametrize: howto/parametrize.md
 - Extensions:
