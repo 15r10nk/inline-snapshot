@@ -9,11 +9,9 @@ from inline_snapshot._core._is import Is
 
 from ._exceptions import UsageError
 from ._exceptions import ValueNotFound
-from ._external._external import External
-from ._external._external_file import ExternalFile
 from ._external._outsource import Outsourced
 from ._global_state import state
-from ._snapshot.snapshot_value import SnapshotValue
+from ._is_snapshot import is_snapshot
 from ._types import Snapshot
 
 options = {
@@ -23,7 +21,7 @@ options = {
 
 
 def unwrap(value, which) -> Tuple[Any, bool]:
-    if isinstance(value, (External, ExternalFile, SnapshotValue)):
+    if is_snapshot(value):
         for w in options[which]:
             try:
                 v = value._load_value(w)

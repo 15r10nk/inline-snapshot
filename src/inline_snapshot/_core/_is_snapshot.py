@@ -1,22 +1,23 @@
+from ._external._external_base import ExternalBase
 from ._snapshot.snapshot_value import SnapshotValue
 
 
 def is_snapshot(s: object) -> bool:
-    """Return whether `s` is an inline snapshot wrapper.
+    """Return whether `s` is a snapshot wrapper.
 
     This function lets extension authors recognize snapshot objects without
     importing private implementation classes. It recognizes values returned by
-    `snapshot()`, `snapshot_arg()`, and `snapshot()[key]`.
+    `snapshot()`, `snapshot_arg()`, `snapshot()[key]`, `external()`, and
+    `external_file()`.
 
-    When inline-snapshot is disabled, `snapshot()` and `snapshot_arg()` return
-    their arguments unchanged, so ordinary values return `False`.
-    External snapshots from `external()` and `external_file()` are not inline
-    snapshot wrappers and return `False`.
+    When inline-snapshot is disabled, snapshot functions return ordinary values
+    instead of wrappers, so those values return `False`.
+    Comparison values wrapped with `Is()` or `outsource()` return `False`.
 
     Args:
         s: The object to check.
 
     Returns:
-        `True` if the object is an inline snapshot wrapper, otherwise `False`.
+        `True` if the object is a snapshot wrapper, otherwise `False`.
     """
-    return isinstance(s, SnapshotValue)
+    return isinstance(s, (SnapshotValue, ExternalBase))

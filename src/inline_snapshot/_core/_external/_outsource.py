@@ -5,7 +5,6 @@ from typing import Any
 
 from inline_snapshot._core._external._format._protocol import get_format_handler
 from inline_snapshot._core._global_state import state
-from inline_snapshot._core._snapshot.snapshot_value import SnapshotValue
 
 
 @dataclass
@@ -15,16 +14,13 @@ class Outsourced:
     storage: str | None
 
     def __eq__(self, other):
-        if isinstance(other, SnapshotValue):
+        from inline_snapshot._core._is_snapshot import is_snapshot
+
+        if is_snapshot(other):
             return NotImplemented
 
         if isinstance(other, Outsourced):
             return self.data == other.data
-
-        from inline_snapshot._core._external._external_base import ExternalBase
-
-        if isinstance(other, ExternalBase):
-            return NotImplemented
 
         return self.data == other
 
