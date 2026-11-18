@@ -20,7 +20,7 @@ from inline_snapshot._core.plugin._spec import inline_snapshot_plugin_name
 
 if TYPE_CHECKING:
     from inline_snapshot._core._external._format._protocol import Format
-    from inline_snapshot._core._external._storage._protocol import StorageProtocol
+    from inline_snapshot._core._external._storage._protocol import Storage
     from inline_snapshot._core._types import SnapshotState
 
 from ._flags import Flags
@@ -48,7 +48,7 @@ class State:
 
     unmanaged_types: list[type] = field(default_factory=list)
 
-    all_storages: dict[str, StorageProtocol] = field(default_factory=dict)
+    all_storages: dict[str, Storage] = field(default_factory=dict)
 
     default_storage: str = "uuid"
 

@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Generator
 
 from .._external_location import ExternalLocation
+from ._protocol import Storage
 from ._protocol import StorageLookupError
-from ._protocol import StorageProtocol
 
 
 def file_digest(file: typing.BinaryIO, name: str):
@@ -18,7 +18,7 @@ def file_digest(file: typing.BinaryIO, name: str):
     return algo
 
 
-class HashStorage(StorageProtocol):
+class HashStorage(Storage):
     def __init__(self, directory):
         self.directory = Path(directory)
 

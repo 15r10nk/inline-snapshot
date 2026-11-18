@@ -4,24 +4,25 @@ import ast
 import inspect
 from pathlib import Path
 from types import CodeType
-from types import FrameType
 
 from inline_snapshot._core._change import CallArg
 from inline_snapshot._core._change import Replace
-from inline_snapshot._core._exceptions import UsageError
 from inline_snapshot._core._external._external_base import ExternalBase
 from inline_snapshot._core._external._external_base import ExternalBaseData
-from inline_snapshot._core._external._format._protocol import get_format_handler
 from inline_snapshot._core._external._format._protocol import (
     get_format_handler_from_suffix,
 )
+from inline_snapshot._core._external._storage._protocol import Storage
 from inline_snapshot._core._external._storage._protocol import StorageLookupError
+from inline_snapshot._core._external._storage._value import StorageValue
 from inline_snapshot._core._global_state import state
 from inline_snapshot._core._snapshot_context import SnapshotContext
 from inline_snapshot._core._types import snapshot_key
 from inline_snapshot._core._unmanaged import declare_unmanaged
 
+from ._external_comparison import ExternalComparison
 from ._external_location import ExternalLocation
+from ._external_value import load_external_value
 
 
 def external(name: str | None = None):
@@ -30,11 +31,15 @@ def external(name: str | None = None):
     frame = frame.f_back
     assert frame is not None
 
+    context = SnapshotContext(frame)
     if not state().active:
-        return External.create_raw(name, frame)
+        location = ExternalLocation.from_name(name, context=context)
+        storage = state().all_storages[location.storage]
+        if type(storage).lazy_compare is not Storage.lazy_compare:
+            return ExternalComparison(location, storage)
+        return load_external_value(location)
 
     key = snapshot_key(frame)
-    context = SnapshotContext(frame)
     data = state().snapshots.get(key)
     if not isinstance(data, ExternalData):
         data = ExternalData.from_name(name, context, frame.f_code)
@@ -99,13 +104,6 @@ class External(ExternalBase):
         self._context = context
         self._data = data
 
-    @classmethod
-    def create_raw(cls, obj, frame: FrameType):
-        context = SnapshotContext(frame)
-        return cls._load_value_from_location(
-            ExternalLocation.from_name(obj, context=context)
-        )
-
     @property
     def _format(self):
         return get_format_handler_from_suffix(self._data.location.suffix or "")
@@ -161,15 +159,16 @@ class External(ExternalBase):
 
         return state().all_storages[storage_name]
 
-    def _assign(self, other):
-        format = get_format_handler(other, self._data.location.suffix)
+    def _prepare_value(self, other):
+        return StorageValue(other, self._data.location)
 
-        if not self._data.location.suffix:
-            self._data.location.suffix = format.suffix
+    def _compare_value(self, other: StorageValue):
+        if type(self.storage).lazy_compare is not Storage.lazy_compare:
+            return self.storage.lazy_compare(self._data.original_location, other)
+        return super()._compare_value(other.value)
 
-        self._data.tmp_file = state().new_tmp_path(self._data.location.suffix)
-
-        format.encode(other, self._data.tmp_file)
+    def _assign(self, other: StorageValue):
+        self._data.tmp_file = other.data
         self._data.location = self.storage.new_location(
             self._data.location, self._data.tmp_file
         )
@@ -186,22 +185,6 @@ class External(ExternalBase):
             if not location.exists():
                 raise StorageLookupError("no old value", files=[])
 
-            return self._load_value_from_location(location)
+            return load_external_value(location)
 
         assert False, f"which has to be new or old but is {which!r}"
-
-    @classmethod
-    def _load_value_from_location(cls, location: ExternalLocation) -> object:
-        assert location.storage
-
-        if not location.stem:
-            raise UsageError(
-                f"cannot load external object from a non-existing location {location.to_str()!r}"
-            )
-        storage = state().all_storages[location.storage]
-
-        with storage.load(location) as f:
-            assert location.suffix
-            format = get_format_handler_from_suffix(location.suffix)
-
-            return format.decode(f)

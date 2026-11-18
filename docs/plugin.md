@@ -51,6 +51,90 @@ def my_handler(value, builder):
 
 All customizations defined in your `conftest.py` are active globally for all your tests.
 
+### Registering storage backends
+
+Implement `register_storages` to make a storage backend available to
+`external("custom:value.txt")` and `outsource(value, storage="custom")`:
+
+``` python title="conftest.py"
+from inline_snapshot.plugin import hookimpl
+from my_package.storage import MyStorage
+
+
+@hookimpl
+def register_storages(storage_dir):
+    return {"custom": MyStorage(storage_dir / "custom")}
+```
+
+The hook returns a mapping from names to storage instances. `storage_dir` is the
+configured storage directory, or `.inline-snapshot` under the project root by
+default. Names must be nonempty words containing only ASCII letters (`a-z`,
+`A-Z`) and are case-sensitive. They must be unique across plugins; `hash` and `uuid` are reserved for
+the built-in backends. A duplicate name raises an error.
+
+The hook also works in installed plugins and nested `conftest.py` files. Each
+implementation is called once, including implementations registered after the
+session has been configured.
+
+Derive your backend from `Storage` and use `ExternalLocation` from
+`inline_snapshot.plugin`. Backends provide `load`, `store`, `delete`,
+`new_location`, `find_unused_externals`, and optionally `check_externals`.
+`load` is a context manager yielding a local file path. Use `StorageLookupError`
+from `inline_snapshot.plugin` to report missing or ambiguous stored files.
+
+`new_location(location, file_path)` prepares the destination during comparison,
+including report mode, before any change is accepted. It must not persist data
+or reserve persistent resources. Return the existing location or one with a new
+stem, preserving the storage name, format suffix, and source metadata.
+
+`store(location, file_path)` persists the data only after the change is accepted.
+It must copy or upload the complete contents before returning, since the input
+file is temporary. Mutable backends overwrite data at the prepared location;
+content-addressed backends choose a new location when contents change and may
+reuse identical existing data. Neither method may modify or delete the input
+file.
+
+`find_unused_externals()` is called only when trimming is requested and allowed.
+It lists candidates; inline-snapshot applies deletions after acceptance.
+`check_externals()` still runs during normal reporting.
+
+Backends can optionally override `lazy_compare(location, other)` to receive a
+`StorageValue`:
+
+- `other.value` is the original Python value.
+- `other.data` is a `Path` to its serialized contents. Serialization happens on
+  first access only; later accesses return the same path. If an update is needed,
+  inline-snapshot reuses that file.
+
+If a backend does not override `lazy_compare`, inline-snapshot decodes the stored
+file and compares it with the Python value, without serializing that value.
+The base `Storage.lazy_compare` method raises `NotImplementedError`;
+inline-snapshot calls it only when a backend overrides it.
+
+Implement `lazy_compare` to short-circuit an expensive comparison. For example,
+a backend using full SHA-256 digests as stems can compare the digest:
+
+``` python
+from hashlib import sha256
+
+from inline_snapshot.plugin import Storage, StorageValue
+
+
+class MyStorage(Storage):
+    def lazy_compare(self, location, other: StorageValue) -> bool:
+        digest = sha256(other.data.read_bytes()).hexdigest()
+        return location.stem == digest
+```
+
+The temporary file is managed by inline-snapshot and remains valid for the
+session. Backends must not modify or delete it.
+
+In disabled snapshot mode, backends overriding `lazy_compare` receive the same comparison
+wrapper, so their comparison rules still apply. Other backends continue to
+return decoded values. The wrapper does not collect snapshot changes; a false
+comparison fails normally. Comparing two external snapshots is not allowed.
+Use `get_snapshot_value()` to extract its stored value.
+
 ### Creating a Plugin Package
 
 To distribute inline-snapshot plugins as a package, register your plugin module using the `inline-snapshot` entry point in your `setup.py` or `pyproject.toml`:
@@ -382,7 +466,7 @@ def test_my_class():
 ::: inline_snapshot.plugin
     options:
       heading_level: 3
-      members: [hookimpl,customize,Builder,Custom,Import,ImportFrom]
+      members: [hookimpl,customize,Builder,Custom,Import,ImportFrom,Storage,StorageValue,ExternalLocation,StorageLookupError]
       show_root_heading: false
       show_bases: false
       show_source: false

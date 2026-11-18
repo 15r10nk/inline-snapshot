@@ -10,6 +10,7 @@ from inline_snapshot._core._is import Is
 from ._exceptions import UsageError
 from ._exceptions import ValueNotFound
 from ._external._external import External
+from ._external._external_comparison import ExternalComparison
 from ._external._external_file import ExternalFile
 from ._external._outsource import Outsourced
 from ._global_state import state
@@ -23,6 +24,12 @@ options = {
 
 
 def unwrap(value, which) -> Tuple[Any, bool]:
+    if isinstance(value, ExternalComparison):
+        try:
+            return unwrap(value.load_value(), which)[0], True
+        except ValueNotFound:
+            return (..., True)
+
     if isinstance(value, (External, ExternalFile, SnapshotValue)):
         for w in options[which]:
             try:
@@ -92,7 +99,7 @@ def get_snapshot_value(
     if which not in ("old", "new"):
         raise UsageError("which must be 'old' or 'new'")
 
-    if state().active:
+    if state().active or isinstance(snapshot_value, ExternalComparison):
         return unwrap(snapshot_value, which)[0]
     else:
         return snapshot_value  # type: ignore
