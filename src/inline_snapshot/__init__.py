@@ -12,6 +12,7 @@ from ._core import declare_unmanaged
 from ._core import external
 from ._core import external_file
 from ._core import get_snapshot_value
+from ._core import is_snapshot
 from ._core import outsource
 from ._core import register_format
 from ._core import register_format_alias
@@ -38,6 +39,7 @@ __all__ = [
     "external_file",
     "declare_unmanaged",
     "get_snapshot_value",
+    "is_snapshot",
     "snapshot_arg",
     "__version__",
 ]
