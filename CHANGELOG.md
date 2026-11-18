@@ -1,4 +1,11 @@
 
+<a id='changelog-0.37.0'></a>
+# v0.37.0 — 2026-11-18
+
+## Added
+
+- Added `is_snapshot()` so extensions can recognize inline and external snapshot objects.
+
 <a id='changelog-0.36.2'></a>
 # v0.36.2 — 2026-11-09
 
