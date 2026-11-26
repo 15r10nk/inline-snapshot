@@ -26,6 +26,7 @@ from ._custom_external import CustomExternal
 from ._custom_sequence import CustomList
 from ._custom_sequence import CustomSet
 from ._custom_sequence import CustomTuple
+from ._custom_subscript import CustomSubscript
 from ._custom_undefined import CustomUndefined
 
 
@@ -76,20 +77,10 @@ class Builder:
                 result = r
 
         if self._build_new_value:
-            is_same = False
             v_eval = result._eval()
             assert not isinstance(v_eval, Custom)
 
-            if (
-                hasattr(v, "__pydantic_generic_metadata__")
-                and v.__pydantic_generic_metadata__["origin"] == v_eval
-            ):
-                is_same = True
-
-            if not is_same and v_eval == v:
-                is_same = True
-
-            if not is_same:
+            if not v_eval == v:
                 raise UsageError(f"""\
 Customized value does not match original value:
 
@@ -121,6 +112,11 @@ customized_representation={result!r}
                 function=self._customize_all(value.function),
                 args=[self._customize_all(c) for c in value.args],
                 kwargs={k: self._customize_all(v) for k, v in value.kwargs.items()},
+            )
+        elif isinstance(value, CustomSubscript):
+            return CustomSubscript(
+                obj=self._customize_all(value.obj),
+                index=self._customize_all(value.index),
             )
         elif isinstance(value, CustomDefault):
             return CustomDefault(self._customize_all(value.value))
@@ -202,6 +198,17 @@ customized_representation={result!r}
             args=posonly_args,
             kwargs=kwargs,
         )
+
+    def create_subscript(self, obj, index):
+        """
+        Creates an intermediate node for a subscript expression which can be used as a result for your customization function.
+
+        `create_subscript(obj, index)` becomes `obj[index]` in the code.
+        Object and index don't have to be Custom nodes and are converted by inline-snapshot if needed.
+        """
+        obj = self._convert_child(obj)
+        index = self._convert_child(index)
+        return CustomSubscript(obj=obj, index=index)
 
     def create_dict(self, value: dict) -> Custom:
         """

@@ -71,6 +71,13 @@ def warn_star_expression(node, context):
 
 
 class AstToCustom:
+    def convert_Subscript(self, value: Any, node: ast.Subscript):
+        from .._customize._custom_subscript import CustomSubscript
+
+        return CustomSubscript(
+            obj=self.eval_convert(node.value), index=self.eval_convert(node.slice)
+        )
+
     context: SnapshotContext
 
     def __init__(self, context):

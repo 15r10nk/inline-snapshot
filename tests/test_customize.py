@@ -1,7 +1,84 @@
+from unittest.mock import patch
+
 import pytest
 
+from inline_snapshot import Is
 from inline_snapshot import snapshot
 from inline_snapshot.testing import Example
+
+
+@pytest.mark.parametrize(
+    "global_code, local_code, expression, expected",
+    [
+        ('T = TypeVar("OtherName")', "", "T", "T"),
+        ("", '    T = TypeVar("OtherName")\n', "T", "T"),
+        (
+            'T = TypeVar("OtherName")\nAlias = T',
+            "    T = 0\n",
+            "Alias",
+            "Alias",
+        ),
+    ],
+)
+def test_typevar_without_pydantic(global_code, local_code, expression, expected):
+    source = f"""\
+from typing import TypeVar
+from inline_snapshot import snapshot
+
+{global_code}
+
+def test_typevar():
+{local_code}    assert {expression} == snapshot()
+"""
+    without_pydantic = patch.dict("sys.modules", {"pydantic": None})
+    Example(source).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files={
+            "tests/test_something.py": Is(
+                source.replace("snapshot()", f"snapshot({expected})")
+            )
+        },
+        context_managers=[without_pydantic],
+    ).run_inline(changed_files={}, context_managers=[without_pydantic])
+
+
+def test_typevar_without_visible_reference_uses_custom_handler():
+    Example(
+        {
+            "typevars.py": """\
+from typing import TypeVar
+
+T = TypeVar("Hidden")
+""",
+            "conftest.py": """\
+import typevars
+from inline_snapshot.plugin import customize
+
+@customize(trylast=True)
+def handler(value, builder):
+    if value is typevars.T:
+        return builder.create_code("typevars.T")
+""",
+            "tests/test_something.py": """\
+import typevars
+from inline_snapshot import snapshot
+
+def test_typevar():
+    assert typevars.T == snapshot()
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot({"tests/test_something.py": """\
+import typevars
+from inline_snapshot import snapshot
+
+def test_typevar():
+    assert typevars.T == snapshot(typevars.T)
+"""}),
+    ).run_inline(
+        changed_files={}
+    )
 
 
 @pytest.mark.parametrize(

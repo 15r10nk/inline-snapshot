@@ -16,6 +16,7 @@ from types import FunctionType
 from typing import Any
 from typing import Dict
 from typing import NewType
+from typing import TypeVar
 
 from inline_snapshot._core._customize._builder import Builder
 from inline_snapshot._core._customize._custom_code import ImportFrom
@@ -30,6 +31,13 @@ from ._spec import customize
 
 
 class InlineSnapshotPlugin:
+    @customize
+    def typevar_handler(self, value, builder: Builder, local_vars, global_vars):
+        if isinstance(value, TypeVar):
+            for name, candidate in {**global_vars, **local_vars}.items():
+                if candidate is value:
+                    return builder.create_code(name)
+
     @customize
     def standard_handler(self, value, builder: Builder):
         if isinstance(value, list):

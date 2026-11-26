@@ -100,6 +100,15 @@ def reeval_CustomDict(old_value, value):
     )
 
 
+def reeval_CustomSubscript(old_value, value):
+    from ._customize._custom_subscript import CustomSubscript
+
+    return CustomSubscript(
+        obj=reeval(old_value.obj, value.obj),
+        index=reeval(old_value.index, value.index),
+    )
+
+
 @dataclass(frozen=True)
 class OriginalValue:
     value: Any
@@ -158,13 +167,6 @@ class SnapshotReconciler:
         original = OriginalValue.from_input(new_value)
         if original is not None:
             new_value = self.customize(original.value, old_value)
-
-            # Pydantic generic classes can be represented by their origin.
-            # Match the same equivalence accepted by the builder's validation.
-            if hasattr(original.value, "__pydantic_generic_metadata__"):
-                evaluated = new_value._eval()
-                if original.value.__pydantic_generic_metadata__["origin"] == evaluated:
-                    original = OriginalValue(evaluated)
 
         flag = self._get_change_flag(old_value, original)
         if isinstance(old_value, CustomUndefined):
@@ -586,3 +588,16 @@ class SnapshotReconciler:
             result_args,
             result_kwargs,
         )
+
+    def reconcile_CustomSubscript(
+        self, old_value, old_node: ast.Subscript, new_value
+    ) -> Generator[ChangeBase, None, Custom]:
+        from ._customize._custom_subscript import CustomSubscript
+
+        result_obj = yield from self.reconcile(
+            old_value.obj, old_node.value, new_value.obj
+        )
+        result_index = yield from self.reconcile(
+            old_value.index, old_node.slice, new_value.index
+        )
+        return CustomSubscript(obj=result_obj, index=result_index)
