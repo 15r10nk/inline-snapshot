@@ -42,6 +42,45 @@ def test_typevar():
     ).run_inline(changed_files={}, context_managers=[without_pydantic])
 
 
+def test_typevar_without_visible_reference_uses_custom_handler():
+    Example(
+        {
+            "typevars.py": """\
+from typing import TypeVar
+
+T = TypeVar("Hidden")
+""",
+            "conftest.py": """\
+import typevars
+from inline_snapshot.plugin import customize
+
+@customize(trylast=True)
+def handler(value, builder):
+    if value is typevars.T:
+        return builder.create_code("typevars.T")
+""",
+            "tests/test_something.py": """\
+import typevars
+from inline_snapshot import snapshot
+
+def test_typevar():
+    assert typevars.T == snapshot()
+""",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files=snapshot({"tests/test_something.py": """\
+import typevars
+from inline_snapshot import snapshot
+
+def test_typevar():
+    assert typevars.T == snapshot(typevars.T)
+"""}),
+    ).run_inline(
+        changed_files={}
+    )
+
+
 @pytest.mark.parametrize(
     "original,flag", [("'a'", "update"), ("'b'", "fix"), ("", "create")]
 )
