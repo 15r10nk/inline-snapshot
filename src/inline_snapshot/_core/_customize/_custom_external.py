@@ -49,7 +49,7 @@ class CustomExternal(Custom):
         yield ExternalChange(
             "create",
             tmp_file,
-            ExternalLocation.from_name("", context=context),
+            ExternalLocation._from_name("", context=context),
             location,
             format,
         )

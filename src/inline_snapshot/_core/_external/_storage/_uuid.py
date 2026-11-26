@@ -13,8 +13,8 @@ from inline_snapshot._core._utils import link
 
 from .._external_location import ExternalLocation
 from .._tracked_files import read_external_source_items
+from ._protocol import Storage
 from ._protocol import StorageLookupError
-from ._protocol import StorageProtocol
 
 
 @state_cached
@@ -32,7 +32,7 @@ def external_files() -> dict[str, Path]:
     }
 
 
-class UuidStorage(StorageProtocol):
+class UuidStorage(Storage):
     @contextmanager
     def load(self, location: ExternalLocation) -> Generator[Path]:
         snapshot_path = self._lookup_path(location)
@@ -66,7 +66,7 @@ class UuidStorage(StorageProtocol):
     ) -> ExternalLocation:
 
         if not location.stem:
-            return location.with_stem(str(uuid.uuid4()))
+            return location._with_stem(str(uuid.uuid4()))
         return location
 
     def _get_path(self, location: ExternalLocation) -> Path:
@@ -99,7 +99,9 @@ class UuidStorage(StorageProtocol):
             f.name for f in external_files().values() if f.name not in used_names
         }
 
-        return [ExternalLocation.from_name("uuid:" + name) for name in unused_externals]
+        return [
+            ExternalLocation._from_name("uuid:" + name) for name in unused_externals
+        ]
 
     def check_externals(self, used_externals: list[ExternalLocation]):
         grouped = defaultdict(list)

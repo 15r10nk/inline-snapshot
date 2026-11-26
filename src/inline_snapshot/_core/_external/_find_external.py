@@ -66,7 +66,7 @@ def used_externals_in(
 
             try:
                 location = replace(
-                    ExternalLocation.from_name(arg),
+                    ExternalLocation._from_name(arg),
                     filename=filename,
                     linenumber=node.lineno,
                 )

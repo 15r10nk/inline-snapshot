@@ -1,10 +1,9 @@
-from inline_snapshot._core._external._external_location import ExternalLocation
-from inline_snapshot._core._inline_snapshot import snapshot
-from inline_snapshot.testing._example import Example
+from inline_snapshot import snapshot
+from inline_snapshot.plugin import ExternalLocation
+from inline_snapshot.testing import Example
 
 
 def test_external_location():
-
     results = snapshot(
         {
             "hash:a.txt": ExternalLocation(storage="hash", stem="a", suffix=".txt"),
@@ -19,12 +18,12 @@ def test_external_location():
             ".txt": ExternalLocation(storage="uuid", stem="", suffix=".txt"),
             ".b.txt": ExternalLocation(storage="uuid", stem="", suffix=".b.txt"),
             """""": ExternalLocation(storage="uuid", stem="", suffix=""),
-            "invalid:a.txt": "ValueError: storage has to be hash or uuid",
-            "invalid:a.b.txt": "ValueError: storage has to be hash or uuid",
-            "invalid:a": "ValueError: storage has to be hash or uuid",
-            "invalid:.txt": "ValueError: storage has to be hash or uuid",
-            "invalid:.b.txt": "ValueError: storage has to be hash or uuid",
-            "invalid:": "ValueError: storage has to be hash or uuid",
+            "invalid:a.txt": "ValueError: storage 'invalid' is not registered. Available: 'hash', 'uuid'",
+            "invalid:a.b.txt": "ValueError: storage 'invalid' is not registered. Available: 'hash', 'uuid'",
+            "invalid:a": "ValueError: storage 'invalid' is not registered. Available: 'hash', 'uuid'",
+            "invalid:.txt": "ValueError: storage 'invalid' is not registered. Available: 'hash', 'uuid'",
+            "invalid:.b.txt": "ValueError: storage 'invalid' is not registered. Available: 'hash', 'uuid'",
+            "invalid:": "ValueError: storage 'invalid' is not registered. Available: 'hash', 'uuid'",
         }
     )
 
@@ -33,7 +32,7 @@ def test_external_location():
             for s in (".txt", ".b.txt", ""):
                 name = h + n + s
                 try:
-                    assert ExternalLocation.from_name(name) == results[name]
+                    assert ExternalLocation._from_name(name) == results[name]
                 except Exception as e:
                     assert results[name] == f"{type(e).__name__}: {e}"
 

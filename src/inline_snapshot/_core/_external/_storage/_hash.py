@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Generator
 
 from .._external_location import ExternalLocation
+from ._protocol import Storage
 from ._protocol import StorageLookupError
-from ._protocol import StorageProtocol
 
 
 def file_digest(file: typing.BinaryIO, name: str):
@@ -18,7 +18,7 @@ def file_digest(file: typing.BinaryIO, name: str):
     return algo
 
 
-class HashStorage(StorageProtocol):
+class HashStorage(Storage):
     def __init__(self, directory):
         self.directory = Path(directory)
 
@@ -65,7 +65,7 @@ class HashStorage(StorageProtocol):
         if len(path) < len(hash_name):
             path += "*"
 
-        return location.with_stem(path)
+        return location._with_stem(path)
 
     def find_unused_externals(
         self, used_externals: list[ExternalLocation]
@@ -76,7 +76,7 @@ class HashStorage(StorageProtocol):
                 used = self.lookup_all(location.path)
                 unused_externals -= used
 
-        return [ExternalLocation.from_name(name) for name in unused_externals]
+        return [ExternalLocation._from_name(name) for name in unused_externals]
 
     def list(self) -> set[str]:
 

@@ -55,6 +55,12 @@ class ExternalBase:
     def _load_value(self, which):
         raise NotImplementedError()
 
+    def _prepare_value(self, other):
+        return other
+
+    def _compare_value(self, other):
+        return self._load_value("old") == other
+
     def __eq__(self, other):
         """Two external objects are equal if they have the same value"""
 
@@ -64,6 +70,8 @@ class ExternalBase:
         return result
 
     def _compare(self, other):
+        from ._external_comparison import ExternalComparison
+
         __tracebackhide__ = True
 
         external_type = (
@@ -76,7 +84,7 @@ class ExternalBase:
             self._data.location.suffix = other.suffix or format.suffix
             other = other.data
 
-        elif isinstance(other, ExternalBase):
+        elif isinstance(other, (ExternalBase, ExternalComparison)):
             raise UsageError(
                 f"you cannot compare {external_type}(...) with {external_type}(...)"
             )
@@ -85,6 +93,8 @@ class ExternalBase:
             raise UsageError(
                 f"you cannot compare {external_type}(...) with snapshot(...)"
             )
+
+        other = self._prepare_value(other)
 
         first_comparison = not self._data.was_compared
 
@@ -98,17 +108,15 @@ class ExternalBase:
             return False
 
         try:
-            value = self._load_value("old")
+            result = self._compare_value(other)
         except StorageLookupError as error:
             if not error.files and state().update_flags.fix:
-                self._data.original_location = ExternalLocation.from_name("")
+                self._data.original_location = ExternalLocation._from_name("")
                 self._assign(other)
                 state().incorrect_values += 1
                 return True
             else:
                 raise
-
-        result = value == other
 
         if not result and first_comparison:
             self._assign(other)
