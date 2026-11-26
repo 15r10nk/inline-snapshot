@@ -511,6 +511,8 @@ class SnapshotReconciler:
                 )
                 result_args.append(insert_value)
 
+        assert len(result_args) == len(new_value.args)
+
         # keyword arguments
         result_kwargs = {}
         old_keywords = {
@@ -535,7 +537,7 @@ class SnapshotReconciler:
                 )
 
         to_insert = []
-        insert_pos = len(old_value.args)
+        insert_pos = len(result_args)
         for key, new_value_element in new_kwargs.items():
             if isinstance(new_value_element, CustomDefault):
                 continue
