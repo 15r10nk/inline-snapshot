@@ -71,7 +71,12 @@ def handler(value, builder):
 [tool.inline-snapshot]
 format-command = '{sys.executable} format.py'
 """,
-            "format.py": "import sys\nsys.stdout.write(sys.stdin.read())\n",
+            "format.py": """\
+import sys
+# Exercise Windows newline translation on every platform.
+sys.stdout.reconfigure(newline="\\r\\n")
+sys.stdout.buffer.write(sys.stdin.buffer.read())
+""",
         }
     ).run_inline(
         ["--inline-snapshot=create"],
