@@ -1,13 +1,9 @@
-import ast
 import sys
 
 import pytest
 
+from inline_snapshot import Is
 from inline_snapshot import snapshot
-from inline_snapshot._core._customize._custom_code import CustomCode
-from inline_snapshot._core._customize._custom_subscript import CustomSubscript
-from inline_snapshot._core._generator_utils import only_value
-from inline_snapshot._core._snapshot_context import SnapshotContext
 from inline_snapshot.testing import Example
 
 
@@ -15,38 +11,78 @@ from inline_snapshot.testing import Example
     "obj_code, expected",
     [
         ("'a' + 'b'", "('a' + 'b')[1]"),
-        ("a or b", "(a or b)[1]"),
-        ("a < b", "(a < b)[1]"),
-        ("a if condition else b", "(a if condition else b)[1]"),
-        ("lambda: a", "(lambda: a)[1]"),
-        ("(a := b)", "((a := b))[1]"),
-        ("a, b", "(a, b)[1]"),
-        ("-a", "(-a)[1]"),
-        ("await a", "(await a)[1]"),
-        ("(yield a)", "((yield a))[1]"),
-        ("(yield from a)", "((yield from a))[1]"),
+        ("'ab' or 'cd'", "('ab' or 'cd')[1]"),
+        ("data < data", "(data < data)[1]"),
+        ("'ab' if True else 'cd'", "('ab' if True else 'cd')[1]"),
+        ('(a := "ab")', '((a := "ab"))[1]'),
+        ("'a', 'b'", "('a', 'b')[1]"),
+        ("-data", "(-data)[1]"),
         ("data", "data[1]"),
         ("data.attr", "data.attr[1]"),
         ("func()", "func()[1]"),
         ("data[0]", "data[0][1]"),
         ("[ 'a',  'b' ]", "[ 'a',  'b' ][1]"),
         ('"ab"', '"ab"[1]'),
-        ("{'a': 1}", "{'a': 1}[1]"),
-        ("{1, 2}", "{1, 2}[1]"),
-        ("[x for x in data]", "[x for x in data][1]"),
-        ("(x for x in data)", "(x for x in data)[1]"),
+        ("{1: 'b'}", "{1: 'b'}[1]"),
+        ("[x for x in 'ab']", "[x for x in 'ab'][1]"),
     ],
 )
 def test_subscript_object_precedence(obj_code, expected):
-    value = CustomSubscript(obj=CustomCode(None, obj_code), index=CustomCode(1, "1"))
-    code = only_value(value._code_repr(SnapshotContext(sys._getframe())))
-    assert code == expected
-    intended = ast.Subscript(
-        value=ast.parse(obj_code, mode="eval").body,
-        slice=ast.Constant(value=1),
-        ctx=ast.Load(),
+    source = """\
+from inline_snapshot import snapshot
+
+class Data:
+    attr = "ab"
+
+    def __getitem__(self, index):
+        return "ab" if index == 0 else "b"
+
+    def __lt__(self, other):
+        return "ab"
+
+    def __neg__(self):
+        return "ab"
+
+    def __eq__(self, other):
+        return isinstance(other, Data)
+
+data = Data()
+
+def func():
+    return "ab"
+
+def test_precedence():
+    assert "b" == snapshot()
+"""
+    Example(
+        {
+            "conftest.py": f"""\
+from inline_snapshot.plugin import customize
+
+@customize
+def handler(value, builder):
+    if value == "b":
+        return builder.create_subscript(builder.create_code({obj_code!r}), 1)
+""",
+            "tests/test_something.py": source,
+            # Keep generated source unchanged so formatting cannot repair precedence
+            # or obscure changes to quotes and whitespace.
+            "pyproject.toml": f"""\
+[tool.inline-snapshot]
+format-command = '{sys.executable} format.py'
+""",
+            "format.py": "import sys\nsys.stdout.write(sys.stdin.read())\n",
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files={
+            "tests/test_something.py": Is(
+                source.replace("snapshot()", f"snapshot({expected})")
+            )
+        },
+    ).run_inline(
+        ["--inline-snapshot=disable"], reported_categories=set()
     )
-    assert ast.dump(ast.parse(code, mode="eval").body) == ast.dump(intended)
 
 
 def test_subscript_update_preserves_structure():
@@ -130,3 +166,44 @@ def test_create():
 """,
         },
     ).run_inline()
+
+
+@pytest.mark.parametrize(
+    "indices, expected",
+    [((), "data[()]"), ((1,), "data[1,]"), ((1, 2), "data[1, 2]")],
+)
+def test_subscript_tuple_index(indices, expected):
+    source = """\
+from inline_snapshot import snapshot
+
+data = {(): "b", (1,): "b", (1, 2): "b"}
+
+def test_tuple_index():
+    assert "b" == snapshot()
+"""
+    Example(
+        {
+            "conftest.py": f"""\
+from inline_snapshot.plugin import customize
+
+@customize
+def handler(value, builder):
+    if value == "b":
+        return builder.create_subscript(
+            builder.create_code("data"), builder.create_tuple({indices!r})
+        )
+""",
+            "tests/test_something.py": source,
+        }
+    ).run_inline(
+        ["--inline-snapshot=create"],
+        changed_files={
+            "tests/test_something.py": Is(
+                source.replace("snapshot()", f"snapshot({expected})")
+            )
+        },
+    ).run_inline(
+        changed_files={}
+    ).run_inline(
+        ["--inline-snapshot=disable"], reported_categories=set()
+    )

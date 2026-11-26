@@ -9,6 +9,7 @@ from inline_snapshot._core._change import ChangeBase
 from inline_snapshot._core._snapshot_context import SnapshotContext
 
 from ._custom import Custom
+from ._custom_sequence import CustomTuple
 
 
 @dataclass(frozen=True, eq=False)
@@ -20,6 +21,8 @@ class CustomSubscript(Custom):
     def _code_repr(self, context: SnapshotContext) -> Generator[ChangeBase, None, str]:
         obj_code = yield from self.obj._code_repr(context)
         index_code = yield from self.index._code_repr(context)
+        if isinstance(self.index, CustomTuple) and self.index.value:
+            index_code = index_code.removeprefix("(").removesuffix(")")
         if isinstance(
             ast.parse(obj_code, mode="eval").body,
             (

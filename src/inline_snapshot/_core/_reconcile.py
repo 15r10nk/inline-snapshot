@@ -168,13 +168,6 @@ class SnapshotReconciler:
         if original is not None:
             new_value = self.customize(original.value, old_value)
 
-            # Pydantic generic classes can be represented by their origin.
-            # Match the same equivalence accepted by the builder's validation.
-            if hasattr(original.value, "__pydantic_generic_metadata__"):
-                evaluated = new_value._eval()
-                if original.value.__pydantic_generic_metadata__["origin"] == evaluated:
-                    original = OriginalValue(evaluated)
-
         flag = self._get_change_flag(old_value, original)
         if isinstance(old_value, CustomUndefined):
             new_value = self.customize_all(new_value)

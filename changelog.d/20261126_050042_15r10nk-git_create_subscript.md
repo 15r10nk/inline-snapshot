@@ -1,3 +1,3 @@
 ### Added
 
-- Add `Builder.create_subscript(obj, index)` for generating and updating subscript expressions in snapshot customization hooks.
+- Add `Builder.create_subscript(obj, index)` for generating and updating subscript expressions like `obj[index]` in snapshot customization hooks.

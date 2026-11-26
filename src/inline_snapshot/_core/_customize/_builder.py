@@ -77,20 +77,10 @@ class Builder:
                 result = r
 
         if self._build_new_value:
-            is_same = False
             v_eval = result._eval()
             assert not isinstance(v_eval, Custom)
 
-            if (
-                hasattr(v, "__pydantic_generic_metadata__")
-                and v.__pydantic_generic_metadata__["origin"] == v_eval
-            ):
-                is_same = True
-
-            if not is_same and v_eval == v:
-                is_same = True
-
-            if not is_same:
+            if not v_eval == v:
                 raise UsageError(f"""\
 Customized value does not match original value:
 
