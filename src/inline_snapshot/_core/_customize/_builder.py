@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import ast
+import importlib
+import keyword
 from dataclasses import dataclass
+from types import ModuleType
 from typing import Any
 from typing import Callable
+from typing import Literal
 
 from inline_snapshot._core._code_repr import HasRepr
 from inline_snapshot._core._code_repr import mock_repr
@@ -238,14 +242,111 @@ customized_representation={result!r}
                     # import module - makes top-level package available
                     importlib.import_module(imp.module)
                     top_level = imp.module.split(".")[0]
-                    import_vars[top_level] = importlib.import_module(top_level)
+                    import_vars[imp.asname or top_level] = importlib.import_module(
+                        imp.module if imp.asname else top_level
+                    )
                 elif isinstance(imp, ImportFrom):
                     # from module import name
                     module = importlib.import_module(imp.module)
-                    import_vars[imp.name] = getattr(module, imp.name)
+                    import_vars[imp.asname or imp.name] = getattr(module, imp.name)
                 else:
                     assert False
         return import_vars
+
+    def create_imported_name(
+        self,
+        module: str,
+        name: str,
+        *,
+        style: Literal["import", "import-from"] | None = None,
+        import_as: str | None = None,
+    ) -> Custom:
+        """Reference a module member, reusing imports visible at the snapshot.
+
+        Existing references such as ``DF`` or ``pd.DataFrame`` are reused when
+        neither ``style`` nor ``import_as`` is specified. Otherwise a
+        ``from module import name`` statement is added as needed.
+
+        Args:
+            module: Absolute module path containing the requested member.
+            name: Name of the member to reference.
+            style: Enforce ``import module`` or ``from module import name``.
+                Specifying a style bypasses automatic reference selection.
+            import_as: Enforce an alias for the module with ``style="import"``,
+                or for the member otherwise. Defaults to ``import-from`` style.
+
+        Raises:
+            UsageError: An option is invalid or the required name is already
+                bound to a different value in the snapshot's scope.
+        """
+        if style not in (None, "import", "import-from"):
+            raise UsageError("style must be 'import' or 'import-from'")
+        for label, parts in (
+            ("module", module.split(".")),
+            ("name", [name]),
+            ("import_as", [] if import_as is None else [import_as]),
+        ):
+            if any(
+                not part.isidentifier() or keyword.iskeyword(part) for part in parts
+            ):
+                raise UsageError(f"{label} must be a valid Python name")
+
+        value = getattr(importlib.import_module(module), name)
+        namespace = {**self._global_vars, **self._local_vars}
+        if style is None and import_as is None:
+            missing = object()
+            references = {}
+            tree = self._snapshot_context.source.tree
+            assert tree is not None
+            for node in ast.walk(tree):
+                if isinstance(node, (ast.Import, ast.ImportFrom)):
+                    for alias in node.names:
+                        reference = alias.asname or (
+                            alias.name.split(".")[0]
+                            if isinstance(node, ast.Import)
+                            else alias.name
+                        )
+                        if reference in namespace:
+                            candidate = namespace[reference]
+                            if isinstance(node, ast.Import) and alias.asname is None:
+                                for part in alias.name.split(".")[1:]:
+                                    candidate = getattr(candidate, part, missing)
+                                reference = alias.name
+                            references[reference] = candidate
+            for reference, candidate in references.items():
+                if candidate is value:
+                    return CustomCode(value, reference)
+
+            for reference, candidate in references.items():
+                if not isinstance(candidate, ModuleType):
+                    continue
+                if vars(candidate).get(name, missing) is value:
+                    return CustomCode(value, f"{reference}.{name}")
+                if module.startswith(candidate.__name__ + "."):
+                    suffix = module[len(candidate.__name__) + 1 :] + "." + name
+                    member: Any = candidate
+                    for part in suffix.split("."):
+                        member = getattr(member, part, missing)
+                    if member is value:
+                        return CustomCode(value, f"{reference}.{suffix}")
+
+        imp: Import | ImportFrom
+        if style == "import":
+            binding = import_as or module.split(".")[0]
+            reference = f"{import_as or module}.{name}"
+            binding_value = importlib.import_module(module if import_as else binding)
+            imp = Import(module, asname=import_as)
+        else:
+            binding = import_as or name
+            reference = binding
+            binding_value = value
+            imp = ImportFrom(module, name, asname=import_as)
+
+        if binding in namespace and namespace[binding] is not binding_value:
+            raise UsageError(
+                f"cannot import {module!r}: {binding!r} is already bound to a different value"
+            )
+        return CustomCode(value, reference, [imp], _exact_imports=True)
 
     def create_code(
         self, code: str, *, imports: list[Import | ImportFrom] = []
