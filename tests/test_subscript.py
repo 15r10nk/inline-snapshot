@@ -1,5 +1,52 @@
+import ast
+import sys
+
+import pytest
+
 from inline_snapshot import snapshot
+from inline_snapshot._core._customize._custom_code import CustomCode
+from inline_snapshot._core._customize._custom_subscript import CustomSubscript
+from inline_snapshot._core._generator_utils import only_value
+from inline_snapshot._core._snapshot_context import SnapshotContext
 from inline_snapshot.testing import Example
+
+
+@pytest.mark.parametrize(
+    "obj_code, expected",
+    [
+        ("'a' + 'b'", "('a' + 'b')[1]"),
+        ("a or b", "(a or b)[1]"),
+        ("a < b", "(a < b)[1]"),
+        ("a if condition else b", "(a if condition else b)[1]"),
+        ("lambda: a", "(lambda: a)[1]"),
+        ("(a := b)", "((a := b))[1]"),
+        ("a, b", "(a, b)[1]"),
+        ("-a", "(-a)[1]"),
+        ("await a", "(await a)[1]"),
+        ("(yield a)", "((yield a))[1]"),
+        ("(yield from a)", "((yield from a))[1]"),
+        ("data", "data[1]"),
+        ("data.attr", "data.attr[1]"),
+        ("func()", "func()[1]"),
+        ("data[0]", "data[0][1]"),
+        ("[ 'a',  'b' ]", "[ 'a',  'b' ][1]"),
+        ('"ab"', '"ab"[1]'),
+        ("{'a': 1}", "{'a': 1}[1]"),
+        ("{1, 2}", "{1, 2}[1]"),
+        ("[x for x in data]", "[x for x in data][1]"),
+        ("(x for x in data)", "(x for x in data)[1]"),
+    ],
+)
+def test_subscript_object_precedence(obj_code, expected):
+    value = CustomSubscript(obj=CustomCode(None, obj_code), index=CustomCode(1, "1"))
+    code = only_value(value._code_repr(SnapshotContext(sys._getframe())))
+    assert code == expected
+    intended = ast.Subscript(
+        value=ast.parse(obj_code, mode="eval").body,
+        slice=ast.Constant(value=1),
+        ctx=ast.Load(),
+    )
+    assert ast.dump(ast.parse(code, mode="eval").body) == ast.dump(intended)
 
 
 def test_subscript_update_preserves_structure():

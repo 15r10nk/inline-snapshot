@@ -20,6 +20,23 @@ class CustomSubscript(Custom):
     def _code_repr(self, context: SnapshotContext) -> Generator[ChangeBase, None, str]:
         obj_code = yield from self.obj._code_repr(context)
         index_code = yield from self.index._code_repr(context)
+        if isinstance(
+            ast.parse(obj_code, mode="eval").body,
+            (
+                ast.Await,
+                ast.BinOp,
+                ast.BoolOp,
+                ast.Compare,
+                ast.IfExp,
+                ast.Lambda,
+                ast.NamedExpr,
+                ast.Tuple,
+                ast.UnaryOp,
+                ast.Yield,
+                ast.YieldFrom,
+            ),
+        ):
+            obj_code = f"({obj_code})"
         return f"{obj_code}[{index_code}]"
 
     def _map(self, f):
