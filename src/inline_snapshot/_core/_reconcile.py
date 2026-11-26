@@ -100,6 +100,15 @@ def reeval_CustomDict(old_value, value):
     )
 
 
+def reeval_CustomSubscript(old_value, value):
+    from ._customize._custom_subscript import CustomSubscript
+
+    return CustomSubscript(
+        obj=reeval(old_value.obj, value.obj),
+        index=reeval(old_value.index, value.index),
+    )
+
+
 @dataclass(frozen=True)
 class OriginalValue:
     value: Any
@@ -586,3 +595,16 @@ class SnapshotReconciler:
             result_args,
             result_kwargs,
         )
+
+    def reconcile_CustomSubscript(
+        self, old_value, old_node: ast.Subscript, new_value
+    ) -> Generator[ChangeBase, None, Custom]:
+        from ._customize._custom_subscript import CustomSubscript
+
+        result_obj = yield from self.reconcile(
+            old_value.obj, old_node.value, new_value.obj
+        )
+        result_index = yield from self.reconcile(
+            old_value.index, old_node.slice, new_value.index
+        )
+        return CustomSubscript(obj=result_obj, index=result_index)
