@@ -16,17 +16,19 @@ from ._custom import Custom
 
 @dataclass(frozen=True)
 class Import:
-    """Represents an import statement: `import module`"""
+    """Represents ``import module``, optionally with an ``asname`` alias."""
 
     module: str
+    asname: str | None = None
 
 
 @dataclass(frozen=True)
 class ImportFrom:
-    """Represents a from-import statement: `from module import name`"""
+    """Represents ``from module import name``, optionally with an ``asname`` alias."""
 
     module: str
     name: str
+    asname: str | None = None
 
 
 def _simplify_module_path(module: str, name: str) -> str:
@@ -44,10 +46,18 @@ def _simplify_module_path(module: str, name: str) -> str:
 class CustomCode(Custom):
     _imports: list[Import | ImportFrom]
 
-    def __init__(self, value, repr_str, imports: list[Import | ImportFrom] = []):
+    def __init__(
+        self,
+        value,
+        repr_str,
+        imports: list[Import | ImportFrom] = [],
+        *,
+        _exact_imports: bool = False,
+    ):
         assert not isinstance(value, Custom)
 
         self._imports = list(imports)
+        self._exact_imports = _exact_imports
         self._repr_str: str | ast.AST = repr_str
         self.value = clone(value)
 
@@ -66,13 +76,25 @@ class CustomCode(Custom):
     def _code_repr(self, context: SnapshotContext) -> Generator[ChangeBase, None, str]:
         for imp in self._imports:
             if isinstance(imp, Import):
-                yield RequiredImport(flag="fix", file=context.file, module=imp.module)
+                yield RequiredImport(
+                    flag="fix",
+                    file=context.file,
+                    module=imp.module,
+                    asname=imp.asname,
+                    exact=self._exact_imports or imp.asname is not None,
+                )
             elif isinstance(imp, ImportFrom):
                 yield RequiredImport(
                     flag="fix",
                     file=context.file,
-                    module=_simplify_module_path(imp.module, imp.name),
+                    module=(
+                        imp.module
+                        if self._exact_imports or imp.asname is not None
+                        else _simplify_module_path(imp.module, imp.name)
+                    ),
                     name=imp.name,
+                    asname=imp.asname,
+                    exact=self._exact_imports or imp.asname is not None,
                 )
             else:
                 assert False

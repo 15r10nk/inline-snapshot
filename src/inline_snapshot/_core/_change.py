@@ -133,6 +133,8 @@ class Change(ChangeBase):
 class RequiredImport(Change):
     module: str
     name: str | None = None
+    asname: str | None = None
+    exact: bool = False
 
 
 @dataclass()
@@ -273,6 +275,9 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
     # file -> module -> names
     imports_by_file: dict[str, dict[str, set]] = defaultdict(lambda: defaultdict(set))
     module_imports_by_file: dict[str, set] = defaultdict(set)
+    exact_imports_by_file: dict[str, set[tuple[str, str | None, str | None]]] = (
+        defaultdict(set)
+    )
 
     for change in all_changes:
         if isinstance(change, Delete):
@@ -287,17 +292,29 @@ def apply_all(all_changes: list[ChangeBase], recorder: ChangeRecorder):
             by_parent[node].append(change)
             sources[node] = change.file
         elif isinstance(change, RequiredImport):
-            if change.name:
+            if change.exact:
+                exact_imports_by_file[change.file.filename].add(
+                    (change.module, change.name, change.asname)
+                )
+            elif change.name:
                 imports_by_file[change.file.filename][change.module].add(change.name)
             else:
                 module_imports_by_file[change.file.filename].add(change.module)
         else:
             change.apply(recorder)
 
-    for filename in set(imports_by_file) | set(module_imports_by_file):
+    for filename in (
+        set(imports_by_file) | set(module_imports_by_file) | set(exact_imports_by_file)
+    ):
         imports = imports_by_file.get(filename, defaultdict(set))
         module_imports = module_imports_by_file.get(filename, set())
-        ensure_import(filename, imports, module_imports, recorder)
+        ensure_import(
+            filename,
+            imports,
+            module_imports,
+            recorder,
+            exact_imports=exact_imports_by_file.get(filename, set()),
+        )
 
     for parent, changes in by_parent.items():
         source = sources[parent]

@@ -378,6 +378,41 @@ def test_my_class():
 
 
 
+## Reusing existing imports
+
+Use [`builder.create_imported_name(module, name)`][inline_snapshot.plugin.Builder.create_imported_name]
+when a customization needs to reference an imported class, function, or other object.
+It returns a node that can be passed to methods such as `builder.create_call()`.
+
+For example, `builder.create_imported_name("pandas", "DataFrame")` adapts to imports
+visible at the snapshot:
+
+| Existing import | Generated reference |
+| --- | --- |
+| `import pandas as pd` | `pd.DataFrame` |
+| `from pandas import DataFrame as DF` | `DF` |
+| `import pandas` | `pandas.DataFrame` |
+| No matching import | `DataFrame`, adding `from pandas import DataFrame` |
+
+Directly imported names take precedence over module references. Local imports are
+also recognized, and references shadowed by another value are ignored. Ordinary
+assignments are not treated as imports.
+
+Specify `style="import"` to request `import pandas` and the reference
+`pandas.DataFrame`, or `style="import-from"` to request `from pandas import DataFrame`
+and the reference `DataFrame`. Explicit options override automatic import reuse.
+With `style="import", import_as="pd"`, the helper requests `import pandas as pd`.
+With `style="import-from", import_as="DF"`, it requests
+`from pandas import DataFrame as DF`. If only `import_as` is specified, the alias
+applies to the imported name, using `import-from` style.
+
+Requested imports that already exist are not duplicated. If the required binding
+is occupied by a different value, the helper raises `UsageError`; choose another
+alias or import style to avoid the conflict.
+
+The lower-level `Import` and `ImportFrom` objects also accept an optional
+`asname` argument for use with `builder.create_code(..., imports=[...])`.
+
 ## Reference
 ::: inline_snapshot.plugin
     options:

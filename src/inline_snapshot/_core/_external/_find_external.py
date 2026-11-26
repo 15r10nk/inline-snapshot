@@ -2,10 +2,12 @@ import ast
 import os
 from dataclasses import replace
 from pathlib import Path
+from typing import AbstractSet
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Set
+from typing import Tuple
 from typing import Union
 
 from executing import Source
@@ -17,22 +19,25 @@ from .._rewrite_code import end_of
 from .._rewrite_code import start_of
 
 
-def contains_import(tree, module, name):
+def contains_import(tree, module, name, asname=None):
     for node in tree.body:
         if (
             isinstance(node, ast.ImportFrom)
             and node.module == module
-            and any(alias.name == name for alias in node.names)
+            and node.level == 0
+            and any(
+                alias.name == name and alias.asname == asname for alias in node.names
+            )
         ):
             return True
     return False
 
 
-def contains_module_import(tree, module):
+def contains_module_import(tree, module, asname=None):
     for node in tree.body:
         if isinstance(node, ast.Import):
             if any(
-                alias.name == module and alias.asname is None for alias in node.names
+                alias.name == module and alias.asname == asname for alias in node.names
             ):
                 return True
     return False
@@ -115,6 +120,8 @@ def ensure_import(
     imports: Dict[str, Set[str]],
     module_imports: Set[str],
     recorder: ChangeRecorder,
+    *,
+    exact_imports: AbstractSet[Tuple[str, Optional[str], Optional[str]]] = frozenset(),
 ):
     source = Source.for_filename(filename)
 
@@ -138,6 +145,24 @@ def ensure_import(
     for module in sorted(module_imports):
         if not contains_module_import(tree, module):
             code += f"import {module}\n"
+
+    for module, imported_name, asname in sorted(
+        exact_imports, key=lambda imp: (imp[0], imp[1] or "", imp[2] or "")
+    ):
+        if imported_name is None:
+            if contains_module_import(tree, module, asname):
+                continue
+            statement = f"import {module}"
+        else:
+            if contains_import(tree, module, imported_name, asname):
+                continue
+            statement = f"from {module} import {imported_name}"
+        if asname is not None:
+            statement += f" as {asname}"
+        code += statement + "\n"
+
+    # Different snapshot customizations can request the same import.
+    code = "".join(dict.fromkeys(code.splitlines(keepends=True)))
 
     assert isinstance(tree, ast.Module)
 
